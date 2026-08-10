@@ -147,10 +147,10 @@ const SHARED = {
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Damage boost 피해 증가", color:"neutral", val:E.lv("firstMastery")},
           ],
-          desc:`숙적에게 그룹이 주는 <hp>체력</hp>·<en>에너지</en>·<inf>영향력</inf> 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <kw>outlast</kw>를 감소시키기 위해 선택한 스탯 테스트를 자동 성공시킨다. 이 기술은 <kw>sustained</kw> 가능.`,
+          desc:`숙적에게 그룹이 주는 <hp>체력</hp>·<en>에너지</en>·<inf>영향력</inf> 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <kw>outlast</kw>를 감소시키기 위해 선택한 스탯 테스트를 자동 성공시킨다. 이 기술은 <kw>sustain</kw> 가능.`,
           checks:[
-            {at:6, txt:`<kw>sustained</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 받는다.`},
-            {at:9, txt:`<kw>sustained</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 추가로 받는다.`},
+            {at:6, txt:`<kw>sustain</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 받는다.`},
+            {at:9, txt:`<kw>sustain</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 추가로 받는다.`},
           ],
         },
         secondMastery:{base:2, name:{en:"Song of the Troubadour",ko:"서정가"}, cost:1, boostAt:[4,8],
@@ -159,7 +159,7 @@ const SHARED = {
             {lab:"Heal 비전투·동료 에너지", color:"energy", val:(E.lv("secondMastery")/3).toFixed(1)},
             {lab:"Block 전투·그룹", color:"defence", val:(E.lv("secondMastery")/2).toFixed(1)},
           ],
-          desc:`<b>비전투:</b> 모든 동료의 <en>에너지</en>를 {secondMastery} 랭크 <b>1/3</b>만큼 <kw>heal</kw>하거나, 이번 게임 턴에 영웅 하나의 모든 스탯 테스트에 <b>-1</b> 보너스를 준다. <b>전투:</b> 그룹이 {secondMastery} 랭크 <b>1/2</b>만큼 <kw>block</kw>을 얻는다. 이 기술은 <kw>sustained</kw> 가능. <b>4·8랭크에 아래에서 하나 선택(중복 가능):</b>`,
+          desc:`<b>비전투:</b> 모든 동료의 <en>에너지</en>를 {secondMastery} 랭크 <b>1/3</b>만큼 <kw>heal</kw>하거나, 이번 게임 턴에 영웅 하나의 모든 스탯 테스트에 <b>-1</b> 보너스를 준다. <b>전투:</b> 그룹이 {secondMastery} 랭크 <b>1/2</b>만큼 <kw>block</kw>을 얻는다. 이 기술은 <kw>sustain</kw> 가능. <b>4·8랭크에 아래에서 하나 선택(중복 가능):</b>`,
           boosts:[
             {stack:true, txt:`모든 동료가 <en>에너지 2 Regen</en>을 획득한다.`},
             {stack:true, txt:`모든 영웅은 스탯 테스트에 <b>-2</b> 보너스를 받는다.`},
@@ -188,16 +188,79 @@ const SHARED = {
    SERIES — 시리즈별 참조표.  탭: keywords · conditions · rules · items · extras[]
    내용은 비어 있어도 앱이 동작합니다. 채우기만 하면 탭에 반영됩니다.
    ===================================================================== */
+/* =====================================================================
+   KEYWORDS — 공용(4·5편) + 5편 전용(Siege). 이름=영문/한글, 설명은 우선 영문 원문(한글화 예정)
+   key = 소문자 영문(스킬 <kw> 토큰과 매칭). 여러 단어는 공백 유지.
+   ===================================================================== */
+const KW_COMMON = {
+  aegis:{name:{en:"Aegis",ko:"이지스"}, desc:`Aegis is represented by an orange shield and often replaces the opponent's Level shield. Heroes may only deal Health damage to these opponents if they have a number of Attack Gear Upgrades equal to half the Aegis value (rounded up) or if the opponent's Energy is 0. Unless otherwise specified, the Aegis value is equal to the opponent's Level.`},
+  ambush:{name:{en:"Ambush",ko:"매복"}, desc:`Opponents who Ambush take an action before combat begins. The rolled action only affects a single target. Ambush may include alternate effects after the keyword. If the heroes Ambush an opponent, roll target dice. The target hero takes an action before combat begins.`},
+  augment:{name:{en:"Augment",ko:"보강"}, desc:`Binds an Element to a Defender or hero. See the Temple and Elements placard and Element Cards (TMoG).`},
+  battlefield:{name:{en:"Battlefield",ko:"전장"}, desc:`A unique location to face an opponent. Battlefields are described in opponent descriptions and indicate when a hero may enter one. Heroes may only target Allies who share their Battlefield. Opponents are considered to be in each Battlefield unless otherwise specified. Heroes who change from one Battlefield to another gain any positioning modifiers starting the round after the switch.`},
+  block:{name:{en:"Block",ko:"차단"}, desc:`Reduces total damage taken during the Resolution phase by the Block amount, beginning with Energy damage.`},
+  boost:{name:{en:"Boost",ko:"증폭"}, desc:`Temporarily increases a numeric effect as specified. If a Boost effect does not have a duration, its effects remain active until the end of a combat round (or phase if gained outside of combat).`},
+  corrosive:{name:{en:"Corrosive",ko:"부식"}, desc:`This damage cannot be Healed the round during which it is suffered. If suffered outside of combat, Corrosive damage cannot be Healed for the remainder of the current Game Turn. Corrosive damage prevents Vitals from being Raised above their maximum.`},
+  counterattack:{name:{en:"Counterattack",ko:"반격"}, desc:`Counterattack occurs when a target suffers damage (unless otherwise stated). Heroes who Counterattack immediately gain a bonus Attack action against their opponent. This keyword may include a number in parenthesis. This is the number of Health damage that an opponent will deal to a target when they Counterattack. A Counterattack cannot be Counterattacked.`},
+  critical:{name:{en:"Critical",ko:"치명타"}, desc:`Anytime a hero suffers 1 or more Critical damage from a single source, they gain 1 Critical Wound.`},
+  "critical wound":{name:{en:"Critical Wound",ko:"치명상"}, desc:`Each hero may only sustain a number of Critical Wounds equal to 3 plus their initial Food Rating (max 6). If a hero suffers more than this, they immediately die. Critical Wounds may not be removed by items, abilities, or effects that Negate Conditions. Each hero removes 1 instance of Critical Wounds from themselves anytime they Camp.`},
+  dangerous:{name:{en:"Dangerous",ko:"위험"}, desc:`Dangerous opponents are played as though the Game Difficulty is increased by 1. This may stack with itself.`},
+  defend:{name:{en:"Defend",ko:"방어"}, desc:`Reduces each incoming damaging effect by the Defend amount during the Resolution phase.`},
+  energetic:{name:{en:"Energetic",ko:"에너지체"}, desc:`If an opponent has at least half their Energy remaining, that action gains an additional effect. If an opponent has multiple Energy values, check against the highest current Energy.`},
+  "energy drain":{name:{en:"Energy Drain",ko:"에너지 흡수"}, desc:`This is a type of Energy damage. If the damage exceeds the target's current Energy, the remainder is converted to Health damage.`},
+  evasion:{name:{en:"Evasion",ko:"회피"}, desc:`Whenever a target with Evasion is targeted by an effect, roll a Core die. If the result is equal to or higher than the Evasion value, the target is unaffected by that effect. When a target with Evasion gains Evasion again, take the lower Evasion or decrease the current Evasion by 1.`},
+  fuse:{name:{en:"Fuse",ko:"융합"}, desc:`Erase the appropriate filled in Gear Upgrade slot(s), but keep the rank bonus.`},
+  harvest:{name:{en:"Harvest",ko:"수확"}, desc:`Roll a Core die. If the result is equal to or less than the number following this Keyword, the Resource shown is gained.`},
+  hatred:{name:{en:"Hatred",ko:"증오"}, desc:`Opponents with Hatred are more likely to target and deal more damage to heroes of a specific type. Heroes of the specified type suffer a +2 penalty to their target die against attacks made from these opponents and those attacks deal additional damage to the Hated hero equal to the opponent's Level.`},
+  hazardous:{name:{en:"Hazardous",ko:"재앙"}, desc:`The group does not gain the benefits of Camping or Moving Cautiously here and suffers 1 Elemental Health damage matching the associated Element at the end of the Movement Phase. Nether Tiles are always considered to be associated with Void. These effects are Negated while the group is in a Defender.`},
+  heal:{name:{en:"Heal",ko:"회복"}, desc:`Increases current Health and/or Energy (as specified) up to the target's maximum by the Heal amount during the Resolution phase of combat, or anytime outside of combat.`},
+  immune:{name:{en:"Immune",ko:"면역"}, desc:`Targets that are Immune cannot be damaged and suffer no ill effect by the effect(s) or Element(s) that follow this Keyword. Defenders Augmented with multiple Elements damage a Siege Opponent normally as long as they have any other Element Augmented that is not listed.`},
+  loot:{name:{en:"Loot",ko:"전리품"}, desc:`Each hero gains any one Item worth X or less from any HEXplore It game.`},
+  mutate:{name:{en:"Mutate",ko:"변이"}, desc:`The opponent immediately Mutates. Roll for a Mutation on the Opponent Mutation placard and apply it to your opponent. Allies cannot receive Mutations through this keyword.`},
+  negate:{name:{en:"Negate",ko:"무효"}, desc:`Stops and removes an effect or attack, and all of its side effects.`},
+  nonlethal:{name:{en:"Nonlethal",ko:"비치명타"}, desc:`Nonlethal damage cannot drop a Vital to 0, instead dropping it to a minimum of 1.`},
+  piercing:{name:{en:"Piercing",ko:"관통"}, desc:`Deals damage which cannot be Defended or Blocked by the Piercing amount.`},
+  raise:{name:{en:"Raise",ko:"증가"}, desc:`As Heal, except the total Healing may exceed the target's maximum Vitals, temporarily increasing the current amount by the Raise amount. Unless otherwise stated, Raised Vitals remain through the duration of the Game Turn in which they were gained or until lost.`},
+  reflect:{name:{en:"Reflect",ko:"반사"}, desc:`Alters the target of an attack and/or effect back onto the attacker. An attack or effect may only be Reflected once. If there is a number in parenthesis behind this keyword, it is the maximum amount of damage that can be Reflected.`},
+  regen:{name:{en:"Regen",ko:"재생"}, desc:`As Heal, except the Healing occurs during the Declaration phase of each round. Regen may only stack from different sources. Applicable only during combat.`},
+  reinforce:{name:{en:"Reinforce",ko:"증원"}, desc:`Reinforce effects are only applied if the group consists of 4 or more heroes.`},
+  revive:{name:{en:"Revive",ko:"부활"}, desc:`Brings back a deceased target and restores them to full Vitals unless otherwise stated.`},
+  roam:{name:{en:"Roam",ko:"배회"}, desc:`Like Wander, but the distance moved is equal to the roll of the Hex die.`},
+  "size matters":{name:{en:"Size Matters",ko:"크기 참조"}, desc:`A game value is determined by the target's Food Rating. This keyword will include a parenthesis that describes the modification: Equal to (=), Increase (+), Decrease (-), or Multiply (x) by that target's Food Rating. If an effect is targeting multiple heroes, each hero is affected individually and Food Ratings are not combined.`},
+  soulless:{name:{en:"Soulless",ko:"영혼없음"}, desc:`All Energy damage this target suffers is Energy Drain.`},
+  soar:{name:{en:"Soar",ko:"비상"}, desc:`If at least half the heroes rounded up have Soar, the group may move onto SkyTiles, Water, or Mountain Peak hexes.`},
+  strengthen:{name:{en:"Strengthen",ko:"강화"}, desc:`Permanently increase a numeric effect when specific criteria are met.`},
+  summon:{name:{en:"Summon",ko:"소환"}, desc:`Creates an ally for the summoner. During combat, this ally acts on behalf of the summoner. It may become a target, and may be damaged and/or killed.`},
+  surge:{name:{en:"Surge",ko:"쇄도"}, desc:`A Surge effect occurs when an Elemental die results in a Surge roll.`},
+  sustain:{name:{en:"Sustain",ko:"유지"}, desc:`You may spend 1 Energy each round to power the effect and may use other Abilities while the Sustained Ability continues throughout subsequent rounds. Unless otherwise stated, only one instance of the Sustained effect may be active at any time.`},
+  teleport:{name:{en:"Teleport",ko:"순간이동"}, desc:`Instantly move to a new location up to the Teleport amount or where specified. Unless otherwise stated, Teleport may be used during any phase, but when used during the Movement phase, the group is considered to be Moving Normally.`},
+  tenacious:{name:{en:"Tenacious",ko:"집요"}, desc:`The group may not Flee from Tenacious opponents.`},
+  unyielding:{name:{en:"Unyielding",ko:"완고"}, desc:`Targets may be targeted more than once by this attack. Roll for targets for each attack made.`},
+  wander:{name:{en:"Wander",ko:"헤매다"}, desc:`The group moves 1 hex in a random direction, as indicated by the Wander Compass.`},
+  weakness:{name:{en:"Weakness",ko:"약점"}, desc:`This includes another Keyword, Element, or damage type. Whenever a target suffers at least 1 damage of the type specified or any amount of Void damage, roll the Hex die. This die may HEXplode for opponents only. The target suffers additional damage equal to the result (this damage cannot be reduced). Targets may have more than one Weakness, but Weakness of the same type does not stack.`},
+};
+const KW_SIEGE = {
+  arcing:{name:{en:"Arcing",ko:"방전"}, desc:`When attacking a Defender, each other Defender in X hexes of that Defender suffers half the Siege Damage dealt. Arcing is reduced by 1 for each Specialist the targeted Defender has.`},
+  bolster:{name:{en:"Bolster",ko:"임시강화"}, desc:`During an ongoing Siege, if the group is in a Defender during the Villain phase, each hero may spend 1 Energy and roll one Skill of their choice to give it a temporary bonus — Navigation: increase this Defender's Range by 2 this turn; Explore: deal 1 Siege Damage to a Siege Opponent in Range; Survival: if this Defender suffered Siege Damage this turn and has at least 1 Resilience remaining, it gains +1 Resilience. If the roll Critically Succeeds, regain the Energy you spent.`},
+  bulwark:{name:{en:"Bulwark",ko:"방벽"}, desc:`Targets with Bulwark reduce Siege Damage taken by the Bulwark amount (to a minimum of 0). An Element type may follow this Keyword to indicate this effect only triggers when damage of the matching type is being inflicted. Against Siege Opponents with this Keyword, Bulwark is reduced by 1 for each Specialist an attacking Defender has.`},
+  consume:{name:{en:"Consume",ko:"소모"}, desc:`This Keyword is followed by a Resource type and amount. Reduce the Stockpile amount of the Resource shown by the Consume amount. Siege Opponents with this Keyword reduce the Stockpile amount each time they deal any amount of Siege Damage to any number of Defenders. If there are none left to Consume, a City-State of your choice loses 1 Resilience instead.`},
+  cripple:{name:{en:"Cripple",ko:"손상"}, desc:`Defenders who suffer any of this Siege Damage also lose 1 Power (to a minimum of 1).`},
+  deconstruct:{name:{en:"Deconstruct",ko:"해체"}, desc:`Each time a Defender suffers this damage, they lose 1 Recruit. If they have none, the Defender loses 1 Potential instead.`},
+  equip:{name:{en:"Equip",ko:"장비"}, desc:`Attach an Equip card to a Defender. The Defender gains the attached effect.`},
+  freeze:{name:{en:"Freeze",ko:"빙결"}, desc:`Defenders who suffer any damage from this Siege Opponent lose their Equip effects this turn.`},
+  ignite:{name:{en:"Ignite",ko:"발화"}, desc:`Any heroes inside a Defender damaged by this Siege Opponent suffers X Energy Drain and are Wounded. Ignite is reduced by 1 for each Specialist the targeted Defender has.`},
+  imbalance:{name:{en:"Imbalance",ko:"불균형"}, desc:`Each time a Siege card is drawn, an Elemental Imbalance occurs. Imbalance is recorded on Jaethi's placard and ranges from 0-9 for each Element.`},
+  overpower:{name:{en:"Overpower",ko:"압도"}, desc:`When attacking a Defender, if this Siege Opponent's Overpower value is greater than the Defender's Power, it deals +1 Siege Damage and heroes may not use their highest ranked Skill to Bolster the Defender this turn. Overpower is reduced by 1 for each Specialist the targeted Defender has.`},
+  retreat:{name:{en:"Retreat",ko:"후퇴"}, desc:`When Siege Opponents in Slots 2, 3, or 4 are vanquished, roll a Core die. If the result is equal to or less than its Retreat value, it evades death (do not gain rewards). Place this Siege Opponent on the bottom of the slot to the left of its current slot. Retreat is reduced by 1 for each Recruit an attacking Defender has.`},
+  siege:{name:{en:"Siege",ko:"공성"}, desc:`This is a type of damage. A Siege Opponent or Defender loses 1 Resilience for each point of Siege Damage dealt. Heroes who suffer any amount of Siege Damage suffer 20 Piercing Energy Drain instead.`},
+  swift:{name:{en:"Swift",ko:"신속"}, desc:`Siege Opponents with this Keyword move 2 additional hexes and treat only City-States as Magnetic.`},
+  tremor:{name:{en:"Tremor",ko:"진동"}, desc:`Negate any Recruit and Specialist bonuses in Range of this effect while this effect is in play.`},
+};
+
 const SERIES = {
   "4": {
     id:"4", name:{en:"Hexplore It — Edition 4", ko:"헥스플로어 잇 — 4편"}, short:"4",
 
-    keywords: {
-      evasion:{name:{en:"Evasion",ko:"회피"}, desc:"공격을 회피할 확률/수치. (정의 추후 채움)"},
-      boost:  {name:{en:"Boost",ko:"부스트"},  desc:"수치를 일시적으로 강화한다. (정의 추후 채움)"},
-      heal:   {name:{en:"Heal",ko:"회복"},     desc:"체력 또는 에너지를 회복한다. (정의 추후 채움)"},
-      outlast:{name:{en:"Outlast",ko:"아웃라스트"}, desc:"적의 지속력 수치. (정의 추후 채움)"},
-    },
+    keywords: KW_COMMON,
     conditions: {
       vulnerable:{name:{en:"Vulnerable",ko:"취약"}, desc:"받는 피해가 증가한다. (정의 추후 채움)"},
     },
@@ -214,12 +277,8 @@ const SERIES = {
 
   "5": {
     id:"5", name:{en:"Hexplore It — Edition 5", ko:"헥스플로어 잇 — 5편"}, short:"5",
-    keywords: {
-      evasion:{name:{en:"Evasion",ko:"회피"}, desc:"(5편 정의 추후 채움)"},
-      boost:  {name:{en:"Boost",ko:"부스트"},  desc:"(5편 정의 추후 채움)"},
-      heal:   {name:{en:"Heal",ko:"회복"},     desc:"(5편 정의 추후 채움)"},
-      outlast:{name:{en:"Outlast",ko:"아웃라스트"}, desc:"(5편 정의 추후 채움)"},
-    },
+    keywords: KW_COMMON,
+    exKeywords: KW_SIEGE,
     conditions: {
       vulnerable:{name:{en:"Vulnerable",ko:"취약"}, desc:"(5편 정의 추후 채움)"},
     },

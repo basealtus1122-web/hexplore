@@ -275,7 +275,9 @@ function renderBoard(){
   const char=APP.char,cls=SHARED.classes[char.classId],series=SERIES[char.series];
   normBoosts(char); if(!char.mchecks||typeof char.mchecks!=="object")char.mchecks={}; if(!char.uses||typeof char.uses!=="object")char.uses={};
   // top tabs
-  const tabs=[{id:"board",label:"Board 캐릭터판"},{id:"keywords",label:"Keywords 키워드"},{id:"conditions",label:"Conditions 컨디션"},{id:"rules",label:"Rules 룰"},{id:"items",label:"Items 아이템"}];
+  const tabs=[{id:"board",label:"Board 캐릭터판"},{id:"keywords",label:"Keywords 키워드"}];
+  if(series.exKeywords&&Object.keys(series.exKeywords).length)tabs.push({id:"exkeywords",label:"Siege 전용 키워드"});
+  tabs.push({id:"conditions",label:"Conditions 컨디션"},{id:"rules",label:"Rules 룰"},{id:"items",label:"Items 아이템"});
   (series.extras||[]).forEach(x=>tabs.push({id:"extra:"+x.id,label:`${x.label.en} ${x.label.ko}`}));
   const tabbar=tabs.map(t=>`<button class="tab ${APP.tab===t.id?'on':''}" data-tab="${t.id}">${t.label}</button>`).join("");
 
@@ -375,7 +377,11 @@ function referenceBody(char,series,tab){
   const empty=msg=>`<div class="section"><div class="empty-note">${msg}</div></div>`;
   if(tab==="keywords"){
     const ks=series.keywords||{};if(!Object.keys(ks).length)return empty("이 시리즈의 키워드가 아직 비어 있습니다. data.js에서 채우세요.");
-    return `<div class="section"><div class="sec-head">Keywords · 키워드</div>${Object.entries(ks).map(([k,v])=>refItem(v.name,v.desc)).join("")}</div>`;
+    return `<div class="section"><div class="sec-head">Keywords · 키워드</div>${Object.entries(ks).map(([k,v])=>kwItem(v.name,v.desc)).join("")}</div>`;
+  }
+  if(tab==="exkeywords"){
+    const ks=series.exKeywords||{};if(!Object.keys(ks).length)return empty("전용 키워드가 아직 비어 있습니다.");
+    return `<div class="section"><div class="sec-head">5편 전용 키워드 · Siege</div>${Object.entries(ks).map(([k,v])=>kwItem(v.name,v.desc)).join("")}</div>`;
   }
   if(tab==="conditions"){
     const cs=series.conditions||{};if(!Object.keys(cs).length)return empty("이 시리즈의 컨디션이 아직 비어 있습니다.");
@@ -398,6 +404,10 @@ function referenceBody(char,series,tab){
 }
 function refItem(name,desc,tag){
   return `<div class="ref-block"><div class="ref-name">${name.en} <span class="ko">(${name.ko})</span>${tag?`<span class="ref-tag">${tag}</span>`:""}</div><div class="ref-desc">${desc||""}</div></div>`;
+}
+/* 키워드 표기: 영문명한글명 (예: Evasion회피) */
+function kwItem(name,desc){
+  return `<div class="ref-block"><div class="ref-name">${name.en}<span class="ko" style="margin-left:1px">${name.ko}</span></div><div class="ref-desc">${desc||""}</div></div>`;
 }
 
 /* ---------- board interactions ---------- */
@@ -434,11 +444,10 @@ function bindTerms(char){
 }
 function openTerm(char,kind,term){
   const series=SERIES[char.series];
-  const dict=kind==="kw"?series.keywords:series.conditions;
-  const v=dict&&dict[term];
+  const v=kind==="kw"?((series.keywords&&series.keywords[term])||(series.exKeywords&&series.exKeywords[term])):(series.conditions&&series.conditions[term]);
   const title=kind==="kw"?"Keyword · 키워드":"Condition · 컨디션";
   openModal(`<div class="term-head">${title}</div>
-    <h3 style="margin-top:4px">${v?`${v.name.en} <span style="font-size:14px;color:var(--ink-dim)">(${v.name.ko})</span>`:term}</h3>
+    <h3 style="margin-top:4px">${v?`${v.name.en}<span style="font-size:14px;color:var(--ink-dim);margin-left:2px">${v.name.ko}</span>`:term}</h3>
     <div class="term-desc">${v?v.desc:"이 시리즈에 아직 정의가 없습니다. data.js에서 채우세요."}</div>
     <div class="modal-actions"><button class="btn primary" onclick="closeModal()">닫기</button></div>`);
 }
