@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hexplore It — Class Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0b0910;--panel:#15111d;--panel-2:#1d1728;--edge:#2c2338;--edge-bright:#3d3150;
+  --ink:#ece7f3;--ink-dim:#aca0c2;--ink-faint:#726685;--gold:#cba14a;--shadow:0 8px 30px rgba(0,0,0,.5);
+  --c-health:#101014;--g-health:#cfd3dd;
+  --c-energy:#7f858f;--g-energy:#b6bcc8;
+  --c-attack:#c9333a;--g-attack:#ff5f68;
+  --c-defence:#d67a24;--g-defence:#ffa64d;
+  --c-firstMastery:#8a54d4;--g-firstMastery:#bf94f5;
+  --c-secondMastery:#3773d8;--g-secondMastery:#71a5ff;
+  --c-navigate:#33a457;--g-navigate:#63d688;
+  --c-explore:#cfae2f;--g-explore:#f2d652;
+  --c-survival:#3bb4dc;--g-survival:#6fd8f5;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--void);color:var(--ink)}
+body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
+  background:radial-gradient(1100px 700px at 50% -12%,rgba(138,84,212,.08),transparent 60%),
+    radial-gradient(800px 500px at 90% 112%,rgba(59,180,220,.05),transparent 60%),var(--void)}
+.wrap{max-width:1040px;margin:0 auto;padding:16px 12px 60px;display:flex;flex-direction:column;gap:14px}
+
+/* ---------- builder / series ---------- */
+.builder-head{text-align:center;margin:14px 0 6px}
+.wordmark{font-family:"Cinzel";font-weight:700;font-size:26px;letter-spacing:.28em;color:var(--ink);text-indent:.28em}
+.sub{font-family:"Cinzel";font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);margin-top:4px}
+.segbar,.build-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.seg{font-family:"Cinzel";font-size:13px;letter-spacing:.06em;padding:9px 18px;border-radius:10px;border:1px solid var(--edge-bright);background:var(--panel);color:var(--ink-dim);cursor:pointer}
+.seg.on{background:var(--panel-2);color:var(--ink);border-color:var(--g-firstMastery)}
+.build-body{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.pick-grid{display:flex;flex-wrap:wrap;gap:10px}
+.pick-card{background:var(--panel-2);border:1px solid var(--edge-bright);border-radius:12px;padding:14px 18px;cursor:pointer;color:var(--ink);text-align:left;min-width:130px}
+.pick-card.on{border-color:var(--g-firstMastery);background:color-mix(in srgb,var(--c-firstMastery) 12%,var(--panel-2))}
+.pick-card.wide{width:100%}
+.pc-name{font-family:"Cinzel";font-weight:600;font-size:16px}
+.pc-ko{font-size:12px;color:var(--ink-dim)}
+.pc-src{font-family:"Cinzel";font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:2px}
+.pc-desc{font-size:12.5px;color:var(--ink-dim);margin-top:5px}
+.pick-list{display:flex;flex-direction:column;gap:8px}
+.preview{margin-top:14px;border-top:1px solid var(--edge);padding-top:14px}
+.pv-title{font-family:"Cinzel";font-weight:700;font-size:20px}
+.pv-title .ko{font-family:"Noto Serif KR";font-size:14px;color:var(--ink-dim);font-weight:400}
+.pv-row{font-size:13px;color:var(--ink-dim);margin-top:6px}
+.pv-lbl{font-family:"Cinzel";font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-right:8px}
+.pv-mods{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.modpill{font-family:"Cinzel";font-size:11px;font-weight:600;border:1px solid var(--edge-bright);border-radius:12px;padding:2px 9px}
+.pv-ability{font-size:13px;color:var(--ink-dim);margin-top:8px;padding:8px 10px;background:rgba(0,0,0,.2);border-radius:8px;border-left:2px solid var(--edge-bright)}
+.build-summary{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.bs{font-size:12px;color:var(--ink-faint);border:1px solid var(--edge);border-radius:20px;padding:5px 14px;font-family:"Cinzel"}
+.bs.set{color:var(--ink);border-color:var(--edge-bright)}
+.bs b{color:var(--g-firstMastery)}
+.hint{font-size:12px;color:var(--ink-faint);text-align:center;font-style:italic}
+.btn.big{font-size:15px;padding:12px 26px}
+.chosen{text-align:center;font-family:"Cinzel";font-size:16px;color:var(--ink-dim)}
+.chosen .ko{font-family:"Noto Serif KR";font-size:13px;color:var(--ink-faint)}
+.series-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.series-grid{grid-template-columns:1fr}}
+.series-card{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--edge-bright);border-radius:16px;padding:22px;cursor:pointer;color:var(--ink);text-align:center;box-shadow:var(--shadow)}
+.series-card:hover{border-color:var(--g-firstMastery)}
+.sc-badge{font-family:"Cinzel";font-weight:700;font-size:34px;color:var(--g-firstMastery)}
+.sc-name{font-family:"Cinzel";font-weight:600;font-size:16px;margin-top:6px}
+.sc-ko{font-size:13px;color:var(--ink-dim)}
+.sc-note{font-size:11.5px;color:var(--ink-faint);margin-top:10px;line-height:1.5}
+
+/* ---------- board topbar / tabs ---------- */
+.board-wrap{gap:0}
+.topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 2px 10px}
+.tb-id{font-family:"Cinzel";font-size:14px;color:var(--ink-dim)}
+.series-pill{font-family:"Cinzel";font-size:10px;letter-spacing:.08em;color:var(--g-firstMastery);border:1px solid var(--edge-bright);border-radius:10px;padding:1px 7px;margin-left:6px}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.tbtn{font-size:12px;font-family:"Noto Serif KR";padding:6px 12px;border-radius:8px;border:1px solid var(--edge-bright);background:var(--panel);color:var(--ink-dim);cursor:pointer}
+.tbtn:hover{color:var(--ink)}
+.tbtn.warn{border-color:rgba(201,51,58,.5);color:#f0a0a8}
+.tabbar{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;border-bottom:1px solid var(--edge);position:sticky;top:0;background:var(--void);z-index:5}
+.tab{white-space:nowrap;font-family:"Cinzel";font-size:12px;letter-spacing:.04em;padding:9px 14px;border-radius:9px 9px 0 0;border:1px solid transparent;background:none;color:var(--ink-faint);cursor:pointer}
+.tab.on{color:var(--ink);background:var(--panel);border-color:var(--edge);border-bottom-color:var(--panel)}
+.tab-content{display:flex;flex-direction:column;gap:14px;padding-top:14px}
+
+/* ---------- reference blocks ---------- */
+.ref-block{border:1px solid var(--edge);border-radius:11px;padding:11px 13px;margin-bottom:9px;background:var(--panel-2)}
+.ref-name{font-family:"Cinzel";font-weight:600;font-size:15px}
+.ref-name .ko{font-family:"Noto Serif KR";font-size:12px;color:var(--ink-dim);font-weight:400}
+.ref-tag{font-size:10px;color:var(--ink-faint);margin-left:8px;font-family:"Cinzel"}
+.ref-desc{font-size:13px;color:var(--ink-dim);margin-top:5px}
+.term-head{font-family:"Cinzel";font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.term-desc{font-size:14px;color:var(--ink-dim);margin-top:8px;line-height:1.6}
+
+/* ---------- identity (board) ---------- */
+.identity{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--edge);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.identity::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 200px at 8% -40%,rgba(138,84,212,.12),transparent 70%);pointer-events:none}
+.cat-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;position:relative}
+.cat-tag{font-family:"Cinzel";font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;border:1px solid;border-radius:20px;padding:3px 11px;position:relative}
+.name{font-family:"Cinzel";font-weight:700;font-size:30px;letter-spacing:.03em;margin:6px 0 0;line-height:1.05;position:relative}
+.name .ko{font-family:"Noto Serif KR";font-size:17px;font-weight:500;color:var(--ink-dim);margin-left:8px}
+.race-line{position:relative;margin-top:6px;font-size:12.5px;color:var(--ink-faint);font-family:"Cinzel";letter-spacing:.04em}
+.race-line b{color:var(--ink-dim);font-family:"Noto Serif KR";letter-spacing:0}
+.flavor{position:relative;margin-top:8px;font-size:12px;color:var(--ink-faint);font-style:italic;border-left:2px solid var(--edge-bright);padding-left:10px;line-height:1.55}
+.special{margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid var(--edge);border-left:3px solid var(--edge-bright);font-size:13.5px;color:var(--ink-dim);position:relative}
+.special b.h{font-weight:600;font-family:"Cinzel";font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:3px}
+.foe{margin-top:12px;position:relative}
+.foe-label{font-family:"Cinzel";font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:6px}
+.foe-list{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(201,51,58,.12);border:1px solid rgba(201,51,58,.4);color:#f0b8bc;border-radius:16px;padding:4px 6px 4px 11px;font-size:13px}
+.chip button{background:none;border:none;color:#f0b8bc;cursor:pointer;font-size:15px;line-height:1;padding:0 2px;opacity:.7}
+.add-btn{background:none;border:1px dashed var(--edge-bright);color:var(--ink-faint);border-radius:16px;padding:5px 12px;font-size:13px;cursor:pointer;font-family:"Noto Serif KR"}
+.add-btn:hover{color:var(--ink);border-color:var(--g-firstMastery)}
+
+.section{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:14px 16px 18px;box-shadow:var(--shadow)}
+.sec-head{font-family:"Cinzel";font-weight:600;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim);margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.sec-head::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--edge-bright),transparent)}
+
+.hex-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.hex-cell{width:150px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.hex-svg{width:126px;height:126px;display:block;overflow:visible}
+.hex-poly{stroke-width:1.75}
+.pip{stroke-width:1.5;cursor:pointer;transition:fill .15s,r .15s}
+.pip.empty{fill:var(--void)}
+.hex-val{font-family:"Cinzel";font-weight:700;font-size:33px}
+.hex-sub{font-family:"Noto Sans KR";font-size:8.5px;fill:var(--ink-faint)}
+.hex-role{margin-top:3px;font-size:10px;color:var(--ink-faint);font-family:"Cinzel";letter-spacing:.1em;text-transform:uppercase}
+.hex-title{font-family:"Cinzel";font-size:12.5px;letter-spacing:.03em;font-weight:600;line-height:1.15}
+.hex-ko{font-size:11px;color:var(--ink-dim)}
+.hex-mod{display:flex;gap:5px;align-items:center;margin-top:5px}
+.hex-mod button{width:26px;height:26px;border-radius:7px;border:1px solid var(--edge-bright);background:var(--panel-2);color:var(--ink);font-size:15px;line-height:1;cursor:pointer}
+.hex-mod .mtag{font-size:10px;color:var(--ink-faint);min-width:30px;text-align:center;font-family:"Noto Sans KR"}
+.hex-mod .mtag b{color:var(--g-defence)}
+
+.vital-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.vital-grid{grid-template-columns:1fr}}
+.vital{border:1px solid var(--edge);border-radius:12px;padding:12px;background:linear-gradient(160deg,var(--panel-2),var(--panel));display:flex;gap:10px}
+.vital.hp{border-color:color-mix(in srgb,var(--g-health) 32%,transparent)}
+.vital.en{border-color:color-mix(in srgb,var(--g-energy) 32%,transparent)}
+.vital .hexside{flex:0 0 auto}
+.vital .ctl{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.vital-name{font-family:"Cinzel";font-size:13px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:baseline;gap:6px}
+.vital.hp .vital-name{color:var(--g-health)}
+.vital.en .vital-name{color:var(--g-energy)}
+.vital-name .ko{font-family:"Noto Serif KR";font-size:12px;color:var(--ink-faint);letter-spacing:0;text-transform:none}
+.cur-max{display:flex;align-items:baseline;gap:4px;margin:6px 0;font-variant-numeric:tabular-nums}
+.cur{font-size:40px;font-weight:700;font-family:"Cinzel";line-height:1}
+.hp .cur{color:var(--g-health)}.en .cur{color:var(--g-energy)}
+.slash{font-size:22px;color:var(--ink-faint)}
+.maxv{font-size:22px;color:var(--ink-dim);font-family:"Cinzel"}
+.row{display:flex;gap:6px;align-items:center;margin-top:6px}
+.row .lbl{font-size:10px;color:var(--ink-faint);font-family:"Cinzel";letter-spacing:.08em;text-transform:uppercase;min-width:42px}
+.sq{width:32px;height:32px;border-radius:8px;border:1px solid var(--edge-bright);background:var(--panel-2);color:var(--ink);font-size:17px;cursor:pointer;line-height:1}
+.rval{font-family:"Cinzel";font-weight:700;font-size:17px;min-width:22px;text-align:center}
+
+.mastery-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;align-items:start}
+@media(max-width:720px){.mastery-grid{grid-template-columns:1fr}}
+.mastery{border:1px solid var(--edge);border-radius:12px;padding:14px}
+.mastery.fm{background:linear-gradient(160deg,color-mix(in srgb,var(--c-firstMastery) 12%,var(--panel)),var(--panel));border-color:color-mix(in srgb,var(--g-firstMastery) 28%,transparent)}
+.mastery.sm{background:linear-gradient(160deg,color-mix(in srgb,var(--c-secondMastery) 12%,var(--panel)),var(--panel));border-color:color-mix(in srgb,var(--g-secondMastery) 28%,transparent)}
+.m-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.m-name{font-family:"Cinzel";font-weight:700;font-size:17px}
+.mastery.fm .m-name{color:var(--g-firstMastery)}
+.mastery.sm .m-name{color:var(--g-secondMastery)}
+.m-name .ko{font-family:"Noto Serif KR";font-size:13px;color:var(--ink-dim);font-weight:400;margin-left:4px}
+.m-lvl{font-size:11px;color:var(--ink-faint);font-family:"Cinzel";letter-spacing:.05em;margin-left:auto}
+.m-lvl b{color:var(--ink)}
+.readout{display:flex;gap:16px;margin:10px 0;flex-wrap:wrap;padding:10px 12px;background:rgba(0,0,0,.28);border-radius:9px;border:1px solid var(--edge)}
+.stat-out{display:flex;flex-direction:column;gap:1px}
+.stat-out .lab{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);font-family:"Cinzel"}
+.stat-out .num{font-size:26px;font-weight:700;font-family:"Cinzel";line-height:1;font-variant-numeric:tabular-nums}
+.m-desc{font-size:13px;color:var(--ink-dim);margin-top:8px}
+.ref{font-weight:600}
+.kw{color:var(--gold);font-weight:500;border-bottom:1px dotted rgba(203,162,75,.5);cursor:pointer}
+.state{font-weight:500;font-style:italic;color:var(--g-firstMastery);border-bottom:1px dotted color-mix(in srgb,var(--g-firstMastery) 50%,transparent);cursor:pointer}
+.hpc{color:var(--g-health)}.enc{color:var(--g-energy)}
+
+.boosts{margin-top:12px;border-top:1px solid var(--edge);padding-top:10px}
+.boost-head{display:flex;align-items:center;gap:8px;font-size:11px;font-family:"Cinzel";letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+.pick-badge{margin-left:auto;font-family:"Noto Sans KR";font-size:11px;color:var(--ink-dim);background:rgba(138,84,212,.12);border:1px solid var(--edge-bright);border-radius:12px;padding:2px 9px}
+.pick-badge b{color:var(--g-firstMastery)}
+.boost{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:9px;margin-bottom:6px;background:var(--panel-2);border:1px solid var(--edge);font-size:12.5px;color:var(--ink-dim)}
+.boost.on{border-color:var(--g-firstMastery);background:rgba(138,84,212,.1);color:var(--ink)}
+.boost.locked{opacity:.4}
+.boost-toggle{flex:0 0 auto;width:26px;height:26px;border-radius:7px;border:1px solid var(--edge-bright);background:var(--void);color:var(--ink);cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center}
+.boost.on .boost-toggle{background:var(--c-firstMastery);border-color:var(--g-firstMastery);color:#fff}
+.boost.locked .boost-toggle{cursor:not-allowed}
+.boost-txt{flex:1}.boost-txt b{color:var(--g-firstMastery);font-weight:600}
+.stack{font-size:11px;color:var(--ink-faint);margin-left:6px}
+
+.ability{border:1px solid var(--edge);border-radius:11px;padding:10px 13px;margin-bottom:9px;background:var(--panel-2)}
+.ab-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.src-tag{font-family:"Cinzel";font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:10px;border:1px solid}
+.src-race{color:#7fc9a0;border-color:rgba(127,201,160,.4);background:rgba(127,201,160,.08)}
+.src-trait{color:var(--g-explore);border-color:rgba(207,174,47,.4);background:rgba(207,174,47,.08)}
+.src-aspect{color:var(--g-firstMastery);border-color:rgba(138,84,212,.4);background:rgba(138,84,212,.08)}
+.src-keepsake{color:#e08a5a;border-color:rgba(224,138,90,.4);background:rgba(224,138,90,.08)}
+.src-class{color:var(--g-secondMastery);border-color:rgba(55,115,216,.4);background:rgba(55,115,216,.08)}
+.src-event{color:#d16a8a;border-color:rgba(209,106,138,.4);background:rgba(209,106,138,.08)}
+.ab-name{font-weight:600;font-size:14.5px}
+.ab-remove{margin-left:auto;background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:16px}
+.ab-remove:hover{color:var(--g-attack)}
+.ab-desc{font-size:13px;color:var(--ink-dim);margin-top:5px}
+.ab-track{margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.track-check button{width:24px;height:24px;border-radius:6px;border:1px solid var(--edge-bright);background:var(--void);cursor:pointer;color:var(--ink);font-size:13px}
+.track-check button.done{background:var(--c-firstMastery);border-color:var(--g-firstMastery);color:#fff}
+.track-count{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim)}
+.track-count button{width:26px;height:26px;border-radius:6px;border:1px solid var(--edge-bright);background:var(--panel);color:var(--ink);cursor:pointer;font-size:14px}
+.track-count .cval{font-family:"Cinzel";font-weight:700;font-size:16px;color:var(--g-firstMastery);min-width:20px;text-align:center}
+.ability-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.res{border:1px solid var(--edge);border-radius:11px;padding:10px 12px;text-align:center;background:linear-gradient(160deg,var(--panel-2),var(--panel))}
+.res .lab{font-size:10px;font-family:"Cinzel";letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+.res .ko{font-size:10px;color:var(--ink-faint)}
+.res .val{font-size:30px;font-weight:700;font-family:"Cinzel";margin:4px 0;font-variant-numeric:tabular-nums}
+.res.gold .val{color:var(--gold)}
+.res .rowbtn{display:flex;gap:6px;justify-content:center}
+.res .rowbtn button{width:30px;height:30px;border-radius:8px;border:1px solid var(--edge-bright);background:var(--panel);color:var(--ink);font-size:16px;cursor:pointer;line-height:1}
+.items{margin-top:14px}
+.item-list{display:flex;flex-direction:column;gap:6px}
+.item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;background:var(--panel-2);border:1px solid var(--edge);font-size:13.5px}
+.item .txt{flex:1}
+.item button{background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:16px}
+.empty-note{font-size:12.5px;color:var(--ink-faint);font-style:italic;padding:10px 2px;line-height:1.6}
+
+/* ---------- records ---------- */
+.rec-list,.load-list{display:flex;flex-direction:column;gap:8px;max-height:56vh;overflow:auto}
+.rec{border:1px solid var(--edge);border-radius:10px;padding:10px 12px;background:var(--panel-2)}
+.rec-top{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.rec-res{font-family:"Cinzel";font-size:11px;padding:2px 8px;border-radius:10px;border:1px solid}
+.rec-res.win{color:#7fc9a0;border-color:rgba(127,201,160,.5)}
+.rec-res.loss{color:#f0a0a8;border-color:rgba(201,51,58,.5)}
+.rec-res.other{color:var(--ink-dim);border-color:var(--edge-bright)}
+.rec-meta{font-size:11.5px;color:var(--ink-faint);margin-top:4px}
+.rec-memo{font-size:12.5px;color:var(--ink-dim);margin-top:6px;padding:6px 8px;background:rgba(0,0,0,.2);border-radius:6px}
+.load-row{display:flex;gap:8px;align-items:center}
+.btn.slot{flex:1;text-align:left}
+
+/* ---------- modal ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(5,3,10,.78);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;backdrop-filter:blur(3px)}
+.modal-bg.on{display:flex}
+.modal{background:var(--panel);border:1px solid var(--edge-bright);border-radius:16px;padding:20px;max-width:440px;width:100%;box-shadow:var(--shadow);max-height:88vh;overflow:auto}
+.modal h3{font-family:"Cinzel";font-size:16px;letter-spacing:.08em;margin:0 0 14px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-family:"Cinzel";letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;background:var(--void);border:1px solid var(--edge);color:var(--ink);border-radius:8px;padding:9px 11px;font-size:14px;font-family:"Noto Serif KR"}
+.field textarea{min-height:64px;resize:vertical}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.btn{padding:9px 18px;border-radius:9px;border:1px solid var(--edge-bright);background:var(--panel-2);color:var(--ink);cursor:pointer;font-size:14px;font-family:"Noto Serif KR"}
+.btn.primary{background:var(--c-firstMastery);border-color:var(--g-firstMastery);color:#fff;font-weight:500}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+button:active{transform:scale(.97)}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* =====================================================================
+   Hexplore It — DATA
+   구조:  CAT(계통) · SHARED(종족/직업/특성=시리즈 공용) · SERIES(시리즈별 참조표)
+   여기만 계속 추가하면 됩니다.  엔진(app.js)은 손대지 않습니다.
+   이름 표기 규칙: 화면에는 English (한글) 순으로 나옵니다.
+   설명 토큰:
+     {attack} {defence} {firstMastery} {secondMastery} ...  → 해당 능력 이름으로 자동 치환
+     <hp>텍스트</hp> / <en>텍스트</en>  → 체력/에너지 강조색
+     <kw>evasion</kw>  → 키워드(클릭 시 오버레이). 소문자 영문이 SERIES.keywords의 key와 매칭
+     <state>vulnerable</state>  → 컨디션(클릭 시 오버레이). SERIES.conditions의 key와 매칭
+   ===================================================================== */
+
+/* ---------- 직업 계통 (게임 공용 색) ---------- */
+const CAT = {
+  striker:{en:"Striker",ko:"스트라이커",c:"#c9333a",g:"#ff5f68"},
+  sapper: {en:"Sapper", ko:"새퍼",      c:"#8a54d4",g:"#bf94f5"},
+  utility:{en:"Utility",ko:"유틸리티",  c:"#a5713e",g:"#d09a5f"},
+  healer: {en:"Healer", ko:"힐러",      c:"#3773d8",g:"#71a5ff"},
+  assist: {en:"Assist", ko:"어시스트",  c:"#33a457",g:"#63d688"},
+  // dual 은 직업 데이터에서 category:{key:"dual",members:["striker","healer"]} 형태로 지정
+};
+
+/* 능력치 9종의 화면 순서·역할·게임 공용 테마색 (엔진이 참조) */
+const STAT_ORDER = ["health","energy","attack","defence","firstMastery","secondMastery","navigate","explore","survival"];
+const STAT_META = {
+  health:       {role:"Vital",  roleKo:"체력",  group:"vital"},
+  energy:       {role:"Vital",  roleKo:"에너지",group:"vital"},
+  attack:       {role:"Attack", roleKo:"공격",  group:"combat"},
+  defence:      {role:"Defence",roleKo:"방어",  group:"combat"},
+  firstMastery: {role:"First Mastery", roleKo:"기술 1", group:"combat"},
+  secondMastery:{role:"Second Mastery",roleKo:"기술 2", group:"combat"},
+  navigate:     {role:"Navigate",roleKo:"길찾기",group:"skill"},
+  explore:      {role:"Explore", roleKo:"탐험",  group:"skill"},
+  survival:     {role:"Survival",roleKo:"생존",  group:"skill"},
+};
+
+/* =====================================================================
+   SHARED — 시리즈 무관 (종족·직업·특성)
+   ===================================================================== */
+const SHARED = {
+
+  races: {
+    brightling: {
+      id:"brightling",
+      name:{en:"Brightling",ko:"브라이틀링"},
+      favoredEnemy:{en:"Undead",ko:"언데드"},
+      foodUse:1,
+      mods:{health:0,energy:4,attack:0,defence:0,firstMastery:1,secondMastery:2,navigate:0,explore:1,survival:0},
+      ability:{name:{en:"Racial Ability",ko:"종족 능력"},
+        desc:"게임 턴마다 1회, <en>에너지 1</en>을 소모해 2라운드 동안 <kw>evasion</kw> 8을 얻는다.",
+        track:{type:"check"}},
+      flavor:"일루먼(Ilumen) 100명 중 1명꼴로 브라이틀링이 태어난다. 대부분 하플링 남짓밖에 자라지 못하지만, 이들이 내뿜는 빛은 시력에 피해를 입힐 만큼 강렬하다.",
+    },
+    // 다음 종족은 여기에 같은 형식으로 추가
+  },
+
+  classes: {
+    warlock: {
+      id:"warlock",
+      name:{en:"Warlock",ko:"워록"},
+      category:{key:"striker"},
+      special:{ko:"기술의 비용으로 자신의 <hp>Health (체력)</hp>이나 <en>Energy (에너지)</en>를 지불할 수 있다."},
+      /* stats: base = 직업 고유 시작값. 최종값 = base + 종족보정 + 육각형 + 효과 */
+      stats:{
+        health:{base:6},
+        energy:{base:5},
+        attack:{base:2, name:{en:"Nether Pull",ko:"네더 풀"}},
+        defence:{base:3, name:{en:"Shadow Ward",ko:"섀도우 워드"}},
+        firstMastery:{base:2, name:{en:"Arcane Bolt",ko:"아케인 볼트"}, cost:3,
+          /* readout: 엔진이 계산해 실시간 표시. desc 는 규칙 원문. boosts 는 강화 목록. */
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"firstMastery",
+             val: Math.max(0, 3 - E.b(1) + (E.on(2)?1:0)) },
+            {lab:"Damage 피해", color:"health",
+             val: (E.lv("firstMastery")*2 + (E.on(2)? E.lv("attack")/2 : 0)).toFixed(1) },
+            ...(E.on(5)? [{lab:"+Energy 에너지", color:"energy", val:E.lv("attack").toFixed(1)}] : [])
+          ],
+          desc:`{firstMastery} 레벨 ×2 만큼의 <hp>체력 피해</hp>. 3레벨부터 매 3레벨마다 아래 강화 중 하나 선택 <state>(중복 가능, 취소 불가)</state>.`,
+          boosts:[
+            {stack:true, txt:`{firstMastery}의 생명력 비용 <b>-1</b> (최소 0).`},
+            {txt:`피해량을 {attack} 레벨의 <b>절반</b>만큼 <kw>boost</kw>하고, 생명력 비용 <b>+1</b>.`},
+            {txt:`일반 피해 대신 대상의 <kw>outlast</kw>에 피해 <b>2</b>를 줄 수도 있다.`},
+            {txt:`대상은 전투 종료까지 <state>vulnerable</state> 상태가 된다.`},
+            {txt:`추가로 {attack} 레벨만큼 <b>에너지 피해</b>를 입힌다.`},
+          ],
+        },
+        secondMastery:{base:2, name:{en:"Eldritch Siphon",ko:"엘드리치 사이펀"}, cost:1,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"secondMastery", val:1},
+            {lab:"Damage 피해", color:"neutral", val:(E.lv("attack")+E.lv("secondMastery")).toFixed(1)},
+            {lab:"Heal 회복", color:"energy", val:((E.lv("attack")+E.lv("secondMastery"))/3).toFixed(1)},
+          ],
+          desc:`<en>에너지</en>로 지불 시: {attack}+{secondMastery} 랭크만큼 <hp>체력 피해</hp>, 그 <b>1/3</b>만큼 <kw>heal</kw>. <en>체력</en>으로 지불 시: 같은 양의 <en>에너지 피해</en>, 그 <b>1/3</b>만큼 <kw>heal</kw>. 8레벨부터 체력 1·에너지 1을 소모해 두 효과를 모두 얻는다.`,
+        },
+        navigate:{base:1, name:{en:"Navigate",ko:"길찾기"}},
+        explore:{base:1, name:{en:"Explore",ko:"탐험"}},
+        survival:{base:1, name:{en:"Survival",ko:"생존"}},
+      }
+    },
+    // 다음 직업은 여기에 추가.  dual 예:  category:{key:"dual",members:["striker","sapper"]}
+  },
+
+  /* 특성: traits / aspects / keepsakes.  게임 중 추가·제거 가능. keepsake 은 공개형.
+     지금은 예시만.  실제 데이터 주시면 채웁니다. */
+  traits: {
+    // 예시 (실데이터로 교체 예정)
+    bloodPact:   {id:"bloodPact", type:"trait",  name:{en:"Blood Pact",ko:"피의 서약"},
+      desc:"전투당 1회, 체력 2를 지불해 기술 하나를 즉시 재사용. (예시)", track:{type:"check"}},
+    voidHunger:  {id:"voidHunger", type:"aspect", name:{en:"Hunger of the Void",ko:"공허의 굶주림"},
+      desc:"<kw>heal</kw>할 때마다 공허 충전 +1 (최대 3). (예시)", track:{type:"count",max:3}},
+  },
+};
+
+/* =====================================================================
+   SERIES — 시리즈별 참조표.  탭: keywords · conditions · rules · items · extras[]
+   내용은 비어 있어도 앱이 동작합니다. 채우기만 하면 탭에 반영됩니다.
+   ===================================================================== */
+const SERIES = {
+  "4": {
+    id:"4", name:{en:"Hexplore It — Edition 4", ko:"헥스플로어 잇 — 4편"}, short:"4",
+
+    keywords: {
+      evasion:{name:{en:"Evasion",ko:"회피"}, desc:"공격을 회피할 확률/수치. (정의 추후 채움)"},
+      boost:  {name:{en:"Boost",ko:"부스트"},  desc:"수치를 일시적으로 강화한다. (정의 추후 채움)"},
+      heal:   {name:{en:"Heal",ko:"회복"},     desc:"체력 또는 에너지를 회복한다. (정의 추후 채움)"},
+      outlast:{name:{en:"Outlast",ko:"아웃라스트"}, desc:"적의 지속력 수치. (정의 추후 채움)"},
+    },
+    conditions: {
+      vulnerable:{name:{en:"Vulnerable",ko:"취약"}, desc:"받는 피해가 증가한다. (정의 추후 채움)"},
+    },
+    rules: [
+      // {title:{en,ko}, body:"..."}  형식으로 추가
+    ],
+    items: [
+      // {name:{en,ko}, desc:"...", tags:[]}
+    ],
+    extras: [
+      // {id:"...", label:{en,ko}, entries:[ {name:{en,ko}, desc:"..."} ]}
+    ],
+  },
+
+  "5": {
+    id:"5", name:{en:"Hexplore It — Edition 5", ko:"헥스플로어 잇 — 5편"}, short:"5",
+    keywords: {
+      evasion:{name:{en:"Evasion",ko:"회피"}, desc:"(5편 정의 추후 채움)"},
+      boost:  {name:{en:"Boost",ko:"부스트"},  desc:"(5편 정의 추후 채움)"},
+      heal:   {name:{en:"Heal",ko:"회복"},     desc:"(5편 정의 추후 채움)"},
+      outlast:{name:{en:"Outlast",ko:"아웃라스트"}, desc:"(5편 정의 추후 채움)"},
+    },
+    conditions: {
+      vulnerable:{name:{en:"Vulnerable",ko:"취약"}, desc:"(5편 정의 추후 채움)"},
+    },
+    rules: [],
+    items: [],
+    extras: [],
+  },
+};
+
+/* 엔진에서 접근할 수 있게 전역으로 노출 */
+window.HEX = { CAT, STAT_ORDER, STAT_META, SHARED, SERIES };
+
+</script>
+<script>
+/* =====================================================================
+   Hexplore It — ENGINE (app.js)
+   화면: builder → series → board.  board 상단 탭 + 오버레이 + 저장/기록.
+   데이터(data.js)만 바꾸면 내용이 바뀌고, 이 파일은 대체로 건드리지 않습니다.
+   ===================================================================== */
+(function(){
+const {CAT,STAT_ORDER,STAT_META,SHARED,SERIES}=window.HEX;
+
+/* ---------- app state ---------- */
+const APP={
+  screen:"builder",              // builder | series | board
+  sel:{raceId:null,classId:null,traitIds:[]},
+  builderTab:"race",             // race | class | trait
+  char:null,
+  tab:"board",                   // board | keyword id...
+};
+
+/* ---------- utils ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const root=$("#app");
+const clone=o=>JSON.parse(JSON.stringify(o));
+const nm=o=>o?`${o.en} <span class="ko">(${o.ko})</span>`:"";
+const zero=()=>({health:0,energy:0,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:0});
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
+};
+function fmtDate(iso){if(!iso)return"—";const d=new Date(iso);return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;}
+
+/* ---------- character build & compute ---------- */
+function initTrack(t){if(!t)return null;if(t.type==="check")return{type:"check",used:false};if(t.type==="count")return{type:"count",value:0,max:t.max||3};return null;}
+function buildCharacter(sel,seriesId){
+  const race=SHARED.races[sel.raceId], cls=SHARED.classes[sel.classId];
+  const char={
+    raceId:sel.raceId,classId:sel.classId,traitIds:[...sel.traitIds],series:seriesId,
+    filled:zero(),mod:zero(),
+    curHealth:0,curEnergy:0,regenHealth:0,regenEnergy:0,
+    gold:0,food:0,foodUse:race?race.foodUse:0,
+    favoredEnemies:race?[clone(race.favoredEnemy)]:[],
+    items:[],boosts:{1:0,2:0,3:0,4:0,5:0},abilities:[],
+    startDate:new Date().toISOString(),
+  };
+  if(race&&race.ability)char.abilities.push({id:"aRace",src:"race",name:clone(race.ability.name),desc:race.ability.desc,track:initTrack(race.ability.track)});
+  sel.traitIds.forEach(tid=>{const t=SHARED.traits[tid];if(t)char.abilities.push({id:"t_"+tid,src:t.type,name:clone(t.name),desc:t.desc,track:initTrack(t.track)});});
+  char.curHealth=effOf(char,"health");char.curEnergy=effOf(char,"energy");
+  return char;
+}
+function baseCharOf(char,k){const cls=SHARED.classes[char.classId],race=SHARED.races[char.raceId];return (cls.stats[k]?cls.stats[k].base:0)+((race&&race.mods[k])||0);}
+function effOf(char,k){return Math.max(0,baseCharOf(char,k)+char.filled[k]+char.mod[k]);}
+function makeE(char){return{lv:k=>effOf(char,k),b:n=>char.boosts[n]||0,on:n=>(char.boosts[n]||0)>0};}
+
+/* ---------- text expand (tokens · kw · condition) ---------- */
+function expand(char,t){
+  const cls=SHARED.classes[char.classId];
+  return t.replace(/\{(\w+)\}/g,(m,k)=>cls.stats[k]?`<span class="ref" style="color:var(--g-${k})">${cls.stats[k].name.en}</span>`:m)
+    .replace(/<hp>(.*?)<\/hp>/g,'<b class="hpc">$1</b>')
+    .replace(/<en>(.*?)<\/en>/g,'<b class="enc">$1</b>')
+    .replace(/<kw>(.*?)<\/kw>/g,(m,x)=>`<span class="kw" data-kind="kw" data-term="${x.toLowerCase()}">${x}</span>`)
+    .replace(/<state>(.*?)<\/state>/g,(m,x)=>`<span class="state" data-kind="state" data-term="${x.toLowerCase()}">${x}</span>`);
+}
+
+/* ---------- hexagon ---------- */
+const HEX_ANGLES=[90,30,330,270,210,150];
+function hexPath(cx,cy,R){return"M"+[0,60,120,180,240,300].map(a=>{const r=a*Math.PI/180;return`${(cx+R*Math.cos(r)).toFixed(2)},${(cy-R*Math.sin(r)).toFixed(2)}`}).join("L")+"Z";}
+function renderHex(char,key,showName=true){
+  const cls=SHARED.classes[char.classId],st=cls.stats[key],meta=STAT_META[key];
+  const filled=char.filled[key],val=effOf(char,key),m=char.mod[key],bc=baseCharOf(char,key);
+  const nmEn=st&&st.name?st.name.en:meta.role, nmKo=st&&st.name?st.name.ko:meta.roleKo;
+  const cx=63,cy=63,R=52,apo=R*Math.cos(Math.PI/6);let pips="";
+  HEX_ANGLES.forEach((a,i)=>{const r=a*Math.PI/180,px=cx+apo*Math.cos(r),py=cy-apo*Math.sin(r),on=i<filled;
+    pips+=`<circle class="pip ${on?'full':'empty'}" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${on?7:5.5}" ${on?`style="fill:var(--g-${key})"`:`style="stroke:var(--edge-bright)"`} data-hex="${key}" data-idx="${i}"></circle>`;});
+  return `<div class="hex-cell">
+    <svg class="hex-svg" viewBox="0 0 126 126">
+      <path class="hex-poly" d="${hexPath(cx,cy,R)}" style="fill:color-mix(in srgb,var(--c-${key}) 26%,#12101a);stroke:var(--g-${key})"/>
+      ${pips}
+      <text class="hex-val" x="63" y="58" text-anchor="middle" dominant-baseline="middle" style="fill:var(--g-${key})">${val}</text>
+      <text class="hex-sub" x="63" y="80" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
+    </svg>
+    ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>`:""}
+    <div class="hex-mod">
+      <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>
+      <span class="mtag">${m?`<b>${m>0?'+':''}${m}</b>`:'효과'}</span>
+      <button data-mod="${key}" data-dir="1" title="효과로 인한 증가">\uFF0B</button>
+    </div></div>`;
+}
+
+/* ---------- mastery card (data-driven) ---------- */
+function renderMastery(char,key){
+  const cls=SHARED.classes[char.classId],st=cls.stats[key];
+  if(!st||!st.desc)return"";
+  const E=makeE(char),lv=effOf(char,key);
+  const outs=(st.readout?st.readout(E):[]).map(o=>`<div class="stat-out"><span class="lab">${o.lab}</span><span class="num" style="${o.color==='neutral'?'color:var(--ink)':`color:var(--g-${o.color})`}">${o.val}</span></div>`).join("");
+  let boostsHTML="";
+  if(st.boosts&&st.boosts.length){
+    const earned=Math.floor(lv/3),used=Object.values(char.boosts).reduce((a,b)=>a+b,0);
+    const rows=st.boosts.map((b,i)=>{
+      const n=i+1,cnt=char.boosts[n]||0,on=cnt>0,canPick=used<earned,locked=!on&&!canPick;
+      const toggle=b.stack?`<button class="boost-toggle" data-boost="${n}" data-stack="1" ${!canPick?'disabled':''}>+</button>`
+        :`<button class="boost-toggle" data-boost="${n}" ${(!on&&!canPick)?'disabled':''}>${on?'\u2726':'+'}</button>`;
+      return `<div class="boost ${on?'on':''} ${locked?'locked':''}">${toggle}<div class="boost-txt">${expand(char,b.txt)}${b.stack&&cnt>0?`<span class="stack">\u00D7${cnt}</span>`:""}</div></div>`;
+    }).join("");
+    boostsHTML=`<div class="boosts"><div class="boost-head"><span>Boosts 강화</span><span class="pick-badge">획득 <b>${earned}</b> · 사용 <b>${used}</b></span></div>${rows}</div>`;
+  }
+  return `<div class="mastery ${key==='firstMastery'?'fm':'sm'}">
+    <div class="m-head"><span class="m-name">${st.name.en}<span class="ko">(${st.name.ko})</span></span><span class="m-lvl">${STAT_META[key].role} · Lv <b>${lv}</b></span></div>
+    <div class="readout">${outs}</div>
+    <div class="m-desc">${expand(char,st.desc)}</div>
+    ${boostsHTML}</div>`;
+}
+
+/* ---------- category tags ---------- */
+function catTags(cls){
+  const c=cls.category,keys=c.key==="dual"?(c.members||[]):[c.key];
+  const tags=keys.filter(k=>CAT[k]).map(k=>{const t=CAT[k];return`<span class="cat-tag" style="color:${t.g};border-color:${t.c};background:color-mix(in srgb,${t.c} 12%,transparent)">${t.en} · ${t.ko}</span>`;}).join("");
+  return c.key==="dual"?`<span class="cat-tag" style="color:var(--ink-dim);border-color:var(--edge-bright)">Dual · 듀얼</span>${tags}`:tags;
+}
+function catColor(cls){const c=cls.category,k=c.key==="dual"?(c.members&&c.members[0]):c.key;return CAT[k]?CAT[k].c:"var(--edge-bright)";}
+
+/* =====================================================================
+   SCREEN: BUILDER
+   ===================================================================== */
+function renderBuilder(){
+  const raceList=Object.values(SHARED.races), classList=Object.values(SHARED.classes), traitList=Object.values(SHARED.traits);
+  const seg=(id,label)=>`<button class="seg ${APP.builderTab===id?'on':''}" data-btab="${id}">${label}</button>`;
+  let body="";
+  if(APP.builderTab==="race") body=pickList(raceList,APP.sel.raceId,"race",r=>racePreview(r));
+  else if(APP.builderTab==="class") body=pickList(classList,APP.sel.classId,"class",c=>classPreview(c));
+  else body=traitPicker(traitList);
+
+  const race=SHARED.races[APP.sel.raceId], cls=SHARED.classes[APP.sel.classId];
+  const ready=APP.sel.raceId&&APP.sel.classId;
+  const summary=`<div class="build-summary">
+    <span class="bs ${race?'set':''}">종족 <b>${race?race.name.en:'—'}</b></span>
+    <span class="bs ${cls?'set':''}">직업 <b>${cls?cls.name.en:'—'}</b></span>
+    <span class="bs ${APP.sel.traitIds.length?'set':''}">특성 <b>${APP.sel.traitIds.length||'—'}</b></span>
+  </div>`;
+
+  root.innerHTML=`<div class="wrap">
+    <div class="builder-head">
+      <div class="wordmark">HEXPLORE IT</div>
+      <div class="sub">Character Builder · 캐릭터 생성</div>
+    </div>
+    <div class="segbar">${seg("race","Race 종족")}${seg("class","Class 직업")}${seg("trait","Traits 특성")}</div>
+    <div class="build-body">${body}</div>
+    ${summary}
+    <div class="build-actions">
+      <button class="btn primary big" id="toSeries" ${ready?'':'disabled'}>확정 → 시리즈 선택</button>
+      ${ready?'':'<span class="hint">종족과 직업을 선택하세요 (특성은 선택 사항 · 게임 중 추가 가능)</span>'}
+    </div>
+  </div>`;
+
+  root.querySelectorAll("[data-btab]").forEach(b=>b.onclick=()=>{APP.builderTab=b.dataset.btab;renderBuilder();});
+  root.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
+    const kind=b.dataset.kind,id=b.dataset.pick;
+    if(kind==="race")APP.sel.raceId=(APP.sel.raceId===id?null:id);
+    if(kind==="class")APP.sel.classId=(APP.sel.classId===id?null:id);
+    renderBuilder();
+  });
+  root.querySelectorAll("[data-trait]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.trait,i=APP.sel.traitIds.indexOf(id);
+    if(i>=0)APP.sel.traitIds.splice(i,1);else APP.sel.traitIds.push(id);
+    renderBuilder();
+  });
+  const ts=$("#toSeries");if(ts)ts.onclick=()=>{if(ready){APP.screen="series";render();}};
+}
+function pickList(list,selId,kind,previewFn){
+  if(!list.length)return`<div class="empty-note">데이터가 아직 없습니다. data.js에 추가하세요.</div>`;
+  const cards=list.map(x=>`<button class="pick-card ${selId===x.id?'on':''}" data-pick="${x.id}" data-kind="${kind}">
+    <div class="pc-name">${x.name.en}</div><div class="pc-ko">${x.name.ko}</div></button>`).join("");
+  const sel=list.find(x=>x.id===selId);
+  return `<div class="pick-grid">${cards}</div>${sel?`<div class="preview">${previewFn(sel)}</div>`:`<div class="empty-note">위에서 하나 선택하면 상세가 표시됩니다.</div>`}`;
+}
+function racePreview(r){
+  const mods=STAT_ORDER.filter(k=>r.mods[k]).map(k=>`<span class="modpill" style="color:var(--g-${k})">${STAT_META[k].role} ${r.mods[k]>0?'+':''}${r.mods[k]}</span>`).join("")||`<span class="empty-note" style="padding:0">보정 없음</span>`;
+  return `<div class="pv-title">${r.name.en} <span class="ko">(${r.name.ko})</span></div>
+    <div class="pv-row"><span class="pv-lbl">Favored Enemy 숙적</span> ${r.favoredEnemy.en} (${r.favoredEnemy.ko})</div>
+    <div class="pv-row"><span class="pv-lbl">Food Use 음식소모</span> ${r.foodUse}</div>
+    <div class="pv-mods">${mods}</div>
+    <div class="pv-ability">${r.ability?`<b>${r.ability.name.en} (${r.ability.name.ko})</b> — ${r.ability.desc.replace(/<[^>]+>/g,"")}`:""}</div>
+    <div class="flavor">${r.flavor||""}</div>`;
+}
+function classPreview(c){
+  const tag=catTags(c);
+  const stats=STAT_ORDER.map(k=>c.stats[k]?`<span class="modpill" style="color:var(--g-${k})">${STAT_META[k].role} ${c.stats[k].base}</span>`:"").join("");
+  const masteries=["firstMastery","secondMastery"].filter(k=>c.stats[k]&&c.stats[k].name).map(k=>`<div class="pv-row"><span class="pv-lbl" style="color:var(--g-${k})">${STAT_META[k].role}</span> ${c.stats[k].name.en} (${c.stats[k].name.ko})</div>`).join("");
+  return `<div class="pv-title">${c.name.en} <span class="ko">(${c.name.ko})</span></div>
+    <div style="margin:6px 0">${tag}</div>
+    <div class="pv-mods">${stats}</div>
+    ${masteries}
+    <div class="pv-ability">${c.special?c.special.ko.replace(/<[^>]+>/g,""):""}</div>`;
+}
+function traitPicker(list){
+  if(!list.length)return`<div class="empty-note">특성 데이터가 아직 없습니다. (traits / aspects / keepsakes)<br>data.js의 SHARED.traits 에 추가하세요. 게임 중에도 판에서 직접 추가할 수 있습니다.</div>`;
+  const srcName={trait:"Trait 트레잇",aspect:"Aspect 애스펙트",keepsake:"Keepsake 킵세이크"};
+  const cards=list.map(t=>`<button class="pick-card wide ${APP.sel.traitIds.includes(t.id)?'on':''}" data-trait="${t.id}">
+    <div class="pc-src">${srcName[t.type]||t.type}</div>
+    <div class="pc-name">${t.name.en} <span class="pc-ko">(${t.name.ko})</span></div>
+    <div class="pc-desc">${t.desc.replace(/<[^>]+>/g,"")}</div></button>`).join("");
+  return `<div class="pick-list">${cards}</div><div class="hint" style="margin-top:8px">여러 개 선택 가능 · 게임 중 판에서도 추가/제거할 수 있습니다.</div>`;
+}
+
+/* =====================================================================
+   SCREEN: SERIES
+   ===================================================================== */
+function renderSeries(){
+  const race=SHARED.races[APP.sel.raceId], cls=SHARED.classes[APP.sel.classId];
+  const cards=Object.values(SERIES).map(s=>`<button class="series-card" data-series="${s.id}">
+    <div class="sc-badge">${s.short}</div>
+    <div class="sc-name">${s.name.en}</div><div class="sc-ko">${s.name.ko}</div>
+    <div class="sc-note">키워드 · 컨디션 · 룰 · 아이템 · 기타 참조표가 이 시리즈 기준으로 적용됩니다.</div>
+  </button>`).join("");
+  root.innerHTML=`<div class="wrap">
+    <div class="builder-head"><div class="wordmark">HEXPLORE IT</div><div class="sub">Select Series · 시리즈 선택</div></div>
+    <div class="chosen">${race.name.en} <span class="ko">(${race.name.ko})</span> · <span style="color:${catColor(cls)}">${cls.name.en}</span> <span class="ko">(${cls.name.ko})</span></div>
+    <div class="series-grid">${cards}</div>
+    <div class="build-actions"><button class="btn" id="backBuild">← 캐릭터 수정</button></div>
+  </div>`;
+  root.querySelectorAll("[data-series]").forEach(b=>b.onclick=()=>{
+    APP.char=buildCharacter(APP.sel,b.dataset.series);APP.tab="board";APP.screen="board";render();
+  });
+  $("#backBuild").onclick=()=>{APP.screen="builder";render();};
+}
+
+/* =====================================================================
+   SCREEN: BOARD  (+ top tabs + overlay + toolbar)
+   ===================================================================== */
+function renderBoard(){
+  const char=APP.char,cls=SHARED.classes[char.classId],series=SERIES[char.series];
+  // top tabs
+  const tabs=[{id:"board",label:"Board 캐릭터판"},{id:"keywords",label:"Keywords 키워드"},{id:"conditions",label:"Conditions 컨디션"},{id:"rules",label:"Rules 룰"},{id:"items",label:"Items 아이템"}];
+  (series.extras||[]).forEach(x=>tabs.push({id:"extra:"+x.id,label:`${x.label.en} ${x.label.ko}`}));
+  const tabbar=tabs.map(t=>`<button class="tab ${APP.tab===t.id?'on':''}" data-tab="${t.id}">${t.label}</button>`).join("");
+
+  const toolbar=`<div class="toolbar">
+    <button class="tbtn" id="tbSave">저장</button>
+    <button class="tbtn" id="tbLoad">불러오기</button>
+    <button class="tbtn" id="tbExport">파일로 내보내기</button>
+    <button class="tbtn" id="tbRecords">게임 기록</button>
+    <button class="tbtn warn" id="tbEnd">게임 종료·기록</button>
+    <button class="tbtn" id="tbNew">새 캐릭터</button>
+  </div>`;
+
+  let content = APP.tab==="board" ? boardBody(char) : referenceBody(char,series,APP.tab);
+
+  root.innerHTML=`<div class="wrap board-wrap">
+    <div class="topbar">
+      <div class="tb-id">${SHARED.races[char.raceId].name.en} · <span style="color:${catColor(cls)}">${cls.name.en}</span> <span class="series-pill">HEX ${series.short}</span></div>
+      ${toolbar}
+    </div>
+    <div class="tabbar">${tabbar}</div>
+    <div class="tab-content">${content}</div>
+  </div>`;
+
+  // tab switching
+  root.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{APP.tab=b.dataset.tab;renderBoard();});
+  // toolbar
+  $("#tbSave").onclick=saveCharacterModal;
+  $("#tbLoad").onclick=loadCharacterModal;
+  $("#tbExport").onclick=exportCharacter;
+  $("#tbRecords").onclick=recordsModal;
+  $("#tbEnd").onclick=endGameModal;
+  $("#tbNew").onclick=()=>{if(confirm("현재 캐릭터를 두고 새 캐릭터를 만들까요? (저장하지 않은 변경은 사라집니다)")){APP.sel={raceId:null,classId:null,traitIds:[]};APP.char=null;APP.screen="builder";render();}};
+
+  if(APP.tab==="board")bindBoard(char);
+  bindTerms(char);   // keyword/condition overlay from any tab
+}
+
+function boardBody(char){
+  const cls=SHARED.classes[char.classId],race=SHARED.races[char.raceId];
+  const foeHTML=char.favoredEnemies.map((f,i)=>`<span class="chip">${f.en} (${f.ko})<button data-foe="${i}">\u2715</button></span>`).join("")+`<button class="add-btn" id="addFoe">+ 추가</button>`;
+  const combat=["attack","defence","firstMastery","secondMastery"].map(k=>renderHex(char,k)).join("");
+  const skills=["navigate","explore","survival"].map(k=>renderHex(char,k)).join("");
+  const masteries=`<div class="mastery-grid">${renderMastery(char,"firstMastery")}${renderMastery(char,"secondMastery")}</div>`;
+  const srcMeta={race:["Race","종족","src-race"],trait:["Trait","트레잇","src-trait"],aspect:["Aspect","애스펙트","src-aspect"],keepsake:["Keepsake","킵세이크","src-keepsake"],class:["Class","직업","src-class"],event:["Event","이벤트","src-event"]};
+  const abilityHTML=char.abilities.map(a=>{
+    const m=srcMeta[a.src]||["?","?","src-event"];let track="";
+    if(a.track&&a.track.type==="check")track=`<div class="ab-track"><div class="track-check"><button class="${a.track.used?'done':''}" data-abcheck="${a.id}">${a.track.used?'\u2713':''}</button></div><span style="font-size:12px;color:var(--ink-faint)">${a.track.used?'사용함 · 탭하여 초기화':'사용 시 탭'}</span></div>`;
+    else if(a.track&&a.track.type==="count")track=`<div class="ab-track"><div class="track-count"><button data-abcount="${a.id}" data-dir="-1">\u2212</button><span class="cval">${a.track.value}</span><button data-abcount="${a.id}" data-dir="1">\uFF0B</button><span style="font-size:11px;color:var(--ink-faint)">/ ${a.track.max}</span></div></div>`;
+    return `<div class="ability"><div class="ab-top"><span class="src-tag ${m[2]}">${m[0]} · ${m[1]}</span><span class="ab-name">${nm(a.name)}</span><button class="ab-remove" data-abremove="${a.id}">\u2715</button></div><div class="ab-desc">${expand(char,a.desc)}</div>${track}</div>`;
+  }).join("");
+  const itemHTML=char.items.length?char.items.map(it=>`<div class="item"><span class="txt">${it.text}</span><button data-itemremove="${it.id}">\u2715</button></div>`).join(""):`<div class="empty-note">아직 아이템 없음</div>`;
+
+  return `
+    <div class="identity">
+      <div class="cat-row">${catTags(cls)}</div>
+      <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span></div>
+      <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b></div>
+      <div class="flavor">${race.flavor||""}</div>
+      <div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>
+      <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
+    </div>
+    <div class="section"><div class="sec-head">Vital · 생명력</div>
+      <div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>
+    </div>
+    <div class="section"><div class="sec-head">Survival Skills · 생존 능력치</div><div class="hex-wrap">${skills}</div></div>
+    <div class="section"><div class="sec-head">Combat Abilities · 전투 능력치</div><div class="hex-wrap">${combat}</div>${masteries}</div>
+    <div class="section"><div class="sec-head">Special Abilities · 특수 능력</div>${abilityHTML}
+      <div class="ability-actions">
+        <button class="add-btn" data-addability="free">+ 능력 직접 추가</button>
+        <button class="add-btn" data-addability="keepsake">+ Keepsake 공개</button>
+        <button class="add-btn" data-addability="event">+ Event 능력</button>
+      </div>
+    </div>
+    <div class="section"><div class="sec-head">Resources · 자원</div>
+      <div class="res-grid">${resCard(char,"gold","Gold","골드","gold")}${resCard(char,"food","Food","음식","food")}${resCard(char,"foodUse","Food Use","소모량","foodUse")}</div>
+      <div class="items"><div class="sec-head" style="font-size:11px;margin:16px 0 10px">Items · 아이템</div><div class="item-list">${itemHTML}</div>
+        <div class="ability-actions"><button class="add-btn" id="addItem">+ 아이템 추가</button></div>
+      </div>
+    </div>`;
+}
+function vitalCard(char,cls,en,ko,hexKey,curKey,regKey){
+  const max=effOf(char,hexKey);
+  return `<div class="vital ${cls}"><div class="hexside">${renderHex(char,hexKey,false)}</div>
+    <div class="ctl"><div class="vital-name">${en} <span class="ko">(${ko})</span></div>
+      <div class="cur-max"><span class="cur">${char[curKey]}</span><span class="slash">/</span><span class="maxv">${max}</span></div>
+      <div class="row"><span class="lbl">Cur 현재</span><button class="sq" data-vital="${curKey}" data-dir="-1">\u2212</button><button class="sq" data-vital="${curKey}" data-dir="1">\uFF0B</button></div>
+      <div class="row"><span class="lbl">Regen 재생</span><button class="sq" data-vital="${regKey}" data-dir="-1">\u2212</button><span class="rval">${char[regKey]}</span><button class="sq" data-vital="${regKey}" data-dir="1">\uFF0B</button></div>
+    </div></div>`;
+}
+function resCard(char,cls,en,ko,key){
+  return `<div class="res ${cls}"><div class="lab">${en}</div><div class="ko">${ko}</div><div class="val">${char[key]}</div>
+    <div class="rowbtn"><button data-res="${key}" data-dir="-1">\u2212</button><button data-res="${key}" data-dir="1">\uFF0B</button></div></div>`;
+}
+
+/* ---------- reference tabs (keywords / conditions / rules / items / extras) ---------- */
+function referenceBody(char,series,tab){
+  const empty=msg=>`<div class="section"><div class="empty-note">${msg}</div></div>`;
+  if(tab==="keywords"){
+    const ks=series.keywords||{};if(!Object.keys(ks).length)return empty("이 시리즈의 키워드가 아직 비어 있습니다. data.js에서 채우세요.");
+    return `<div class="section"><div class="sec-head">Keywords · 키워드</div>${Object.entries(ks).map(([k,v])=>refItem(v.name,v.desc)).join("")}</div>`;
+  }
+  if(tab==="conditions"){
+    const cs=series.conditions||{};if(!Object.keys(cs).length)return empty("이 시리즈의 컨디션이 아직 비어 있습니다.");
+    return `<div class="section"><div class="sec-head">Conditions · 컨디션</div>${Object.entries(cs).map(([k,v])=>refItem(v.name,v.desc)).join("")}</div>`;
+  }
+  if(tab==="rules"){
+    const rs=series.rules||[];if(!rs.length)return empty("이 시리즈의 룰 참조표가 아직 비어 있습니다.");
+    return `<div class="section"><div class="sec-head">Rules · 룰</div>${rs.map(r=>`<div class="ref-block"><div class="ref-name">${r.title.en} <span class="ko">(${r.title.ko})</span></div><div class="ref-desc">${r.body}</div></div>`).join("")}</div>`;
+  }
+  if(tab==="items"){
+    const its=series.items||[];if(!its.length)return empty("이 시리즈의 아이템 표가 아직 비어 있습니다.");
+    return `<div class="section"><div class="sec-head">Items · 아이템</div>${its.map(it=>refItem(it.name,it.desc,(it.tags||[]).join(" · "))).join("")}</div>`;
+  }
+  if(tab.startsWith("extra:")){
+    const id=tab.slice(6),x=(series.extras||[]).find(e=>e.id===id);
+    if(!x||!(x.entries||[]).length)return empty("이 참조표가 아직 비어 있습니다.");
+    return `<div class="section"><div class="sec-head">${x.label.en} · ${x.label.ko}</div>${x.entries.map(e=>refItem(e.name,e.desc)).join("")}</div>`;
+  }
+  return empty("탭을 찾을 수 없습니다.");
+}
+function refItem(name,desc,tag){
+  return `<div class="ref-block"><div class="ref-name">${name.en} <span class="ko">(${name.ko})</span>${tag?`<span class="ref-tag">${tag}</span>`:""}</div><div class="ref-desc">${desc||""}</div></div>`;
+}
+
+/* ---------- board interactions ---------- */
+function bindBoard(char){
+  root.querySelectorAll(".pip").forEach(p=>p.onclick=()=>{const k=p.dataset.hex,idx=+p.dataset.idx;char.filled[k]=(char.filled[k]>=idx+1)?idx:idx+1;renderBoard();});
+  root.querySelectorAll("[data-mod]").forEach(b=>b.onclick=()=>{char.mod[b.dataset.mod]+=+b.dataset.dir;renderBoard();});
+  root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
+  root.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>{const k=b.dataset.res;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
+  root.querySelectorAll("[data-boost]").forEach(b=>b.onclick=()=>{
+    if(b.disabled)return;const n=+b.dataset.boost,stack=b.dataset.stack==="1";
+    const lv=effOf(char,"firstMastery"),earned=Math.floor(lv/3),used=Object.values(char.boosts).reduce((a,x)=>a+x,0);
+    if(used>=earned)return;
+    if(stack)char.boosts[n]++;else if(!char.boosts[n])char.boosts[n]=1;
+    renderBoard();
+  });
+  root.querySelectorAll("[data-abcheck]").forEach(b=>b.onclick=()=>{const a=char.abilities.find(x=>x.id===b.dataset.abcheck);a.track.used=!a.track.used;renderBoard();});
+  root.querySelectorAll("[data-abcount]").forEach(b=>b.onclick=()=>{const a=char.abilities.find(x=>x.id===b.dataset.abcount);a.track.value=Math.max(0,Math.min(a.track.max,a.track.value+ +b.dataset.dir));renderBoard();});
+  root.querySelectorAll("[data-abremove]").forEach(b=>b.onclick=()=>{char.abilities=char.abilities.filter(x=>x.id!==b.dataset.abremove);renderBoard();});
+  root.querySelectorAll("[data-itemremove]").forEach(b=>b.onclick=()=>{char.items=char.items.filter(x=>x.id!==b.dataset.itemremove);renderBoard();});
+  root.querySelectorAll("[data-foe]").forEach(b=>b.onclick=()=>{char.favoredEnemies.splice(+b.dataset.foe,1);renderBoard();});
+  const af=$("#addFoe");if(af)af.onclick=addFoeModal;
+  const ai=$("#addItem");if(ai)ai.onclick=addItemModal;
+  root.querySelectorAll("[data-addability]").forEach(b=>b.onclick=()=>addAbilityModal(b.dataset.addability));
+}
+/* keyword/condition overlay — works on every tab */
+function bindTerms(char){
+  root.querySelectorAll("[data-term]").forEach(s=>s.onclick=()=>openTerm(char,s.dataset.kind,s.dataset.term));
+}
+function openTerm(char,kind,term){
+  const series=SERIES[char.series];
+  const dict=kind==="kw"?series.keywords:series.conditions;
+  const v=dict&&dict[term];
+  const title=kind==="kw"?"Keyword · 키워드":"Condition · 컨디션";
+  openModal(`<div class="term-head">${title}</div>
+    <h3 style="margin-top:4px">${v?`${v.name.en} <span style="font-size:14px;color:var(--ink-dim)">(${v.name.ko})</span>`:term}</h3>
+    <div class="term-desc">${v?v.desc:"이 시리즈에 아직 정의가 없습니다. data.js에서 채우세요."}</div>
+    <div class="modal-actions"><button class="btn primary" onclick="closeModal()">닫기</button></div>`);
+}
+
+/* =====================================================================
+   MODALS (generic)
+   ===================================================================== */
+const bg=document.createElement("div");bg.className="modal-bg";bg.id="modalBg";bg.innerHTML='<div class="modal" id="modalInner"></div>';document.body.appendChild(bg);
+bg.addEventListener("click",e=>{if(e.target===bg)closeModal();});
+function openModal(h){$("#modalInner").innerHTML=h;bg.classList.add("on");}
+function closeModal(){bg.classList.remove("on");}
+window.closeModal=closeModal;
+
+function addFoeModal(){
+  openModal(`<h3>Favored Enemy 추가</h3><div class="field"><label>English</label><input id="fEn" placeholder="Goblin"></div><div class="field"><label>한글</label><input id="fKo" placeholder="고블린"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="fSave">추가</button></div>`);
+  $("#fSave").onclick=()=>{const en=$("#fEn").value.trim(),ko=$("#fKo").value.trim();if(en||ko)APP.char.favoredEnemies.push({en:en||ko,ko:ko||en});closeModal();renderBoard();};
+}
+function addItemModal(){
+  openModal(`<h3>Item 추가</h3><div class="field"><label>내용</label><input id="iTxt" placeholder="예: Shadow Dagger (그림자 단검) — 공격 +1"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="iSave">추가</button></div>`);
+  $("#iSave").onclick=()=>{const t=$("#iTxt").value.trim();if(t)APP.char.items.push({id:"i"+Date.now(),text:t});closeModal();renderBoard();};
+}
+function addAbilityModal(kind){
+  const srcSel=kind==="keepsake"?`<input type="hidden" id="aSrc" value="keepsake">`:kind==="event"?`<input type="hidden" id="aSrc" value="event">`:`<div class="field"><label>출처 Source</label><select id="aSrc"><option value="race">Race 종족</option><option value="trait">Trait 트레잇</option><option value="aspect">Aspect 애스펙트</option><option value="keepsake">Keepsake 킵세이크</option><option value="event">Event 이벤트</option></select></div>`;
+  const title=kind==="keepsake"?"Keepsake 공개":kind==="event"?"Event 능력 추가":"능력 직접 추가";
+  openModal(`<h3>${title}</h3>${srcSel}<div class="field"><label>이름 (English)</label><input id="aEn" placeholder="Ability name"></div><div class="field"><label>이름 (한글)</label><input id="aKo" placeholder="능력 이름"></div><div class="field"><label>설명</label><textarea id="aDesc" placeholder="효과 설명… ( <kw>heal</kw> , {attack} 토큰 사용 가능 )"></textarea></div><div class="field"><label>트래킹</label><select id="aTrack"><option value="none">없음 (참조 전용)</option><option value="check">1회용 체크</option><option value="count">카운터</option></select></div><div class="field" id="maxWrap" style="display:none"><label>최대치</label><input type="number" id="aMax" value="3"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="aSave">추가</button></div>`);
+  $("#aTrack").onchange=e=>{$("#maxWrap").style.display=e.target.value==="count"?"block":"none";};
+  $("#aSave").onclick=()=>{
+    const en=$("#aEn").value.trim(),ko=$("#aKo").value.trim();if(!en&&!ko){closeModal();return;}
+    const tt=$("#aTrack").value;let track=null;
+    if(tt==="check")track={type:"check",used:false};
+    if(tt==="count")track={type:"count",value:0,max:Math.max(1,+$("#aMax").value||3)};
+    APP.char.abilities.push({id:"a"+Date.now(),src:$("#aSrc").value,name:{en:en||ko,ko:ko||en},desc:$("#aDesc").value.trim()||"—",track});
+    closeModal();renderBoard();
+    /* TODO: src==='event' 자유 입력 능력을 공유 라이브러리(Apps Script)로 append — 추후 연동 */
+  };
+}
+
+/* ---------- save / load / export / import (개인 캐릭터) ---------- */
+function saveCharacterModal(){
+  openModal(`<h3>캐릭터 저장</h3><div class="field"><label>저장 이름</label><input id="sName" placeholder="예: 워록 1회차"></div><div class="hint">이 기기(브라우저)에 저장됩니다.</div><div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="sGo">저장</button></div>`);
+  $("#sGo").onclick=()=>{
+    const name=$("#sName").value.trim();if(!name)return;
+    const all=store.get("hex.chars",{});all[name]=clone(APP.char);
+    const ok=store.set("hex.chars",all);
+    closeModal();
+    openModal(`<h3>${ok?"저장 완료":"저장 실패"}</h3><div class="term-desc">${ok?`"${name}" 로 저장했습니다.`:"이 브라우저에서 로컬 저장이 막혀 있습니다. '파일로 내보내기'를 사용하세요."}</div><div class="modal-actions"><button class="btn primary" onclick="closeModal()">닫기</button></div>`);
+  };
+}
+function loadCharacterModal(){
+  const all=store.get("hex.chars",{});const names=Object.keys(all);
+  const list=names.length?names.map(n=>`<div class="load-row"><button class="btn slot" data-load="${n}">${n}</button><button class="tbtn" data-del="${n}">삭제</button></div>`).join(""):`<div class="empty-note">저장된 캐릭터가 없습니다.</div>`;
+  openModal(`<h3>캐릭터 불러오기</h3><div class="load-list">${list}</div>
+    <div class="field" style="margin-top:14px"><label>또는 파일에서 가져오기</label><input type="file" id="impFile" accept="application/json"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">닫기</button></div>`);
+  root.ownerDocument.querySelectorAll("[data-load]").forEach(b=>b.onclick=()=>{APP.char=clone(all[b.dataset.load]);APP.tab="board";APP.screen="board";closeModal();render();});
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{delete all[b.dataset.del];store.set("hex.chars",all);loadCharacterModal();});
+  const f=$("#impFile");if(f)f.onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{APP.char=JSON.parse(r.result);APP.tab="board";APP.screen="board";closeModal();render();}catch(err){alert("파일을 읽을 수 없습니다.");}};r.readAsText(file);};
+}
+function exportCharacter(){
+  const data=JSON.stringify(APP.char,null,2);const blob=new Blob([data],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download=`hexplore-${APP.char.classId}-${Date.now()}.json`;a.click();URL.revokeObjectURL(a.href);
+}
+
+/* ---------- game records ---------- */
+function endGameModal(){
+  openModal(`<h3>게임 종료 · 기록</h3>
+    <div class="field"><label>결과</label><select id="rResult"><option value="win">승리 Win</option><option value="loss">패배 Loss</option><option value="other">기타</option></select></div>
+    <div class="field"><label>메모</label><textarea id="rMemo" placeholder="이번 게임에서 기록하고 싶은 내용…"></textarea></div>
+    <div class="hint">종료 시점의 캐릭터 상태 전체가 스냅샷으로 함께 저장됩니다.</div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="rGo">기록 저장</button></div>`);
+  $("#rGo").onclick=()=>{
+    const char=APP.char,cls=SHARED.classes[char.classId],race=SHARED.races[char.raceId];
+    const rec={
+      start:char.startDate,end:new Date().toISOString(),
+      race:race.name,class:cls.name,
+      traits:char.abilities.filter(a=>["trait","aspect","keepsake"].includes(a.src)).map(a=>a.name.en),
+      series:char.series,result:$("#rResult").value,memo:$("#rMemo").value.trim(),
+      snapshot:clone(char),
+    };
+    const recs=store.get("hex.records",[]);recs.unshift(rec);const ok=store.set("hex.records",recs);
+    closeModal();
+    openModal(`<h3>${ok?"기록 저장됨":"저장 실패"}</h3><div class="term-desc">${ok?"게임 기록에 저장했습니다.":"로컬 저장이 막혀 있습니다."}</div><div class="modal-actions"><button class="btn primary" onclick="closeModal()">닫기</button></div>`);
+  };
+}
+function recordsModal(){
+  const recs=store.get("hex.records",[]);
+  const rmap={win:"승리",loss:"패배",other:"기타"};
+  const list=recs.length?recs.map((r,i)=>`<div class="rec">
+    <div class="rec-top"><span class="rec-res ${r.result}">${rmap[r.result]||r.result}</span>
+      <b>${r.class.en}</b> · ${r.race.en} · HEX ${r.series}
+      <button class="tbtn" data-recdel="${i}" style="margin-left:auto">삭제</button></div>
+    <div class="rec-meta">${fmtDate(r.start)} → ${fmtDate(r.end)}${r.traits&&r.traits.length?` · 특성 ${r.traits.length}`:""}</div>
+    ${r.memo?`<div class="rec-memo">${r.memo}</div>`:""}
+  </div>`).join(""):`<div class="empty-note">저장된 게임 기록이 없습니다.</div>`;
+  openModal(`<h3>Game Records · 게임 기록</h3><div class="rec-list">${list}</div><div class="modal-actions"><button class="btn" onclick="closeModal()">닫기</button></div>`);
+  document.querySelectorAll("[data-recdel]").forEach(b=>b.onclick=()=>{recs.splice(+b.dataset.recdel,1);store.set("hex.records",recs);recordsModal();});
+}
+
+/* =====================================================================
+   ROUTER
+   ===================================================================== */
+function render(){
+  if(APP.screen==="builder")renderBuilder();
+  else if(APP.screen==="series")renderSeries();
+  else renderBoard();
+}
+render();
+})();
+
+</script>
+</body>
+</html>
