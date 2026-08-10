@@ -37,7 +37,7 @@ function buildCharacter(sel,seriesId){
     curHealth:0,curEnergy:0,regenHealth:0,regenEnergy:0,
     gold:0,food:0,foodUse:race?race.foodUse:0,
     favoredEnemies:race?[clone(race.favoredEnemy)]:[],
-    items:[],boosts:{1:0,2:0,3:0,4:0,5:0},abilities:[],
+    items:[],boosts:{},abilities:[],
     startDate:new Date().toISOString(),
   };
   if(race&&race.ability)char.abilities.push({id:"aRace",src:"race",name:clone(race.ability.name),desc:race.ability.desc,track:initTrack(race.ability.track)});
@@ -47,7 +47,10 @@ function buildCharacter(sel,seriesId){
 }
 function baseCharOf(char,k){const cls=SHARED.classes[char.classId],race=SHARED.races[char.raceId];return (cls.stats[k]?cls.stats[k].base:0)+((race&&race.mods[k])||0);}
 function effOf(char,k){return Math.max(0,baseCharOf(char,k)+char.filled[k]+char.mod[k]);}
-function makeE(char){return{lv:k=>effOf(char,k),b:n=>char.boosts[n]||0,on:n=>(char.boosts[n]||0)>0};}
+function makeE(char,key){const s=(char.boosts&&char.boosts[key])||{};return{lv:k=>effOf(char,k),b:n=>s[n]||0,on:n=>(s[n]||0)>0};}
+/* 강화(boost): 기술별 저장소 + 임의 랭크 스케줄. 구버전(평면) 저장본은 firstMastery로 마이그레이션 */
+function normBoosts(char){if(!char.boosts||typeof char.boosts!=="object"){char.boosts={};return;}const ks=Object.keys(char.boosts);if(ks.length&&ks.every(k=>/^\d+$/.test(k)))char.boosts={firstMastery:Object.assign({},char.boosts)};}
+function boostEarned(char,key){const st=SHARED.classes[char.classId].stats[key],lv=effOf(char,key);return st&&st.boostAt?st.boostAt.filter(t=>lv>=t).length:Math.floor(lv/3);}
 
 /* ---------- text expand (tokens · kw · condition) ---------- */
 function expand(char,t){
@@ -61,7 +64,18 @@ function expand(char,t){
 
 /* ---------- hexagon ---------- */
 const HEX_ANGLES=[90,30,330,270,210,150];
-const DMG={health:{en:"Health dmg",ko:"체력 피해"},energy:{en:"Energy dmg",ko:"에너지 피해"}};
+const DMG={
+  health:   {en:"Health dmg",   ko:"체력 피해",   color:"var(--g-health)"},
+  energy:   {en:"Energy dmg",   ko:"에너지 피해", color:"var(--g-energy)"},
+  influence:{en:"Influence dmg", ko:"영향력 피해", color:"#d072b6"},
+};
+/* st.dmg = "health" 또는 ["health","influence"] → 피해타입 태그(들) */
+function dmgTags(dmg){
+  if(!dmg)return"";
+  return (Array.isArray(dmg)?dmg:[dmg]).filter(d=>DMG[d]).map(d=>{const c=DMG[d].color;
+    return `<div class="dmg-tag" style="margin:4px 4px 0 0;display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;color:${c};border:1px solid ${c};background:color-mix(in srgb,${c} 14%,transparent)">${DMG[d].en} <span class="ko">(${DMG[d].ko})</span></div>`;
+  }).join("");
+}
 function hexPath(cx,cy,R){return"M"+[0,60,120,180,240,300].map(a=>{const r=a*Math.PI/180;return`${(cx+R*Math.cos(r)).toFixed(2)},${(cy-R*Math.sin(r)).toFixed(2)}`}).join("L")+"Z";}
 function renderHex(char,key,showName=true){
   const cls=SHARED.classes[char.classId],st=cls.stats[key],meta=STAT_META[key];
@@ -77,7 +91,7 @@ function renderHex(char,key,showName=true){
       <text class="hex-val" x="63" y="58" text-anchor="middle" dominant-baseline="middle" style="fill:var(--g-${key})">${val}</text>
       <text class="hex-sub" x="63" y="80" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
     </svg>
-    ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${st&&st.dmg&&DMG[st.dmg]?`<div class="dmg-tag" style="margin-top:4px;display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;color:var(--g-${st.dmg});border:1px solid var(--g-${st.dmg});background:color-mix(in srgb,var(--g-${st.dmg}) 14%,transparent)">${DMG[st.dmg].en} <span class="ko">(${DMG[st.dmg].ko})</span></div>`:""}`:""}
+    ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg)}`:""}
     <div class="hex-mod">
       <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>
       <span class="mtag">${m?`<b>${m>0?'+':''}${m}</b>`:'효과'}</span>
@@ -89,18 +103,20 @@ function renderHex(char,key,showName=true){
 function renderMastery(char,key){
   const cls=SHARED.classes[char.classId],st=cls.stats[key];
   if(!st||!st.desc)return"";
-  const E=makeE(char),lv=effOf(char,key);
+  const E=makeE(char,key),lv=effOf(char,key);
   const outs=(st.readout?st.readout(E):[]).map(o=>`<div class="stat-out"><span class="lab">${o.lab}</span><span class="num" style="${o.color==='neutral'?'color:var(--ink)':`color:var(--g-${o.color})`}">${o.val}</span></div>`).join("");
   let boostsHTML="";
   if(st.boosts&&st.boosts.length){
-    const earned=Math.floor(lv/3),used=Object.values(char.boosts).reduce((a,b)=>a+b,0);
+    const store=(char.boosts&&char.boosts[key])||{};
+    const earned=boostEarned(char,key),used=Object.values(store).reduce((a,b)=>a+b,0);
+    const sched=st.boostAt?` · ${st.boostAt.join('·')}랭크`:` · 3레벨마다`;
     const rows=st.boosts.map((b,i)=>{
-      const n=i+1,cnt=char.boosts[n]||0,on=cnt>0,canPick=used<earned,locked=!on&&!canPick;
-      const toggle=b.stack?`<button class="boost-toggle" data-boost="${n}" data-stack="1" ${!canPick?'disabled':''}>+</button>`
-        :`<button class="boost-toggle" data-boost="${n}" ${(!on&&!canPick)?'disabled':''}>${on?'\u2726':'+'}</button>`;
+      const n=i+1,cnt=store[n]||0,on=cnt>0,canPick=used<earned,locked=!on&&!canPick;
+      const toggle=b.stack?`<button class="boost-toggle" data-boost="${n}" data-mkey="${key}" data-stack="1" ${!canPick?'disabled':''}>+</button>`
+        :`<button class="boost-toggle" data-boost="${n}" data-mkey="${key}" ${(!on&&!canPick)?'disabled':''}>${on?'\u2726':'+'}</button>`;
       return `<div class="boost ${on?'on':''} ${locked?'locked':''}">${toggle}<div class="boost-txt">${expand(char,b.txt)}${b.stack&&cnt>0?`<span class="stack">\u00D7${cnt}</span>`:""}</div></div>`;
     }).join("");
-    boostsHTML=`<div class="boosts"><div class="boost-head"><span>Boosts 강화</span><span class="pick-badge">획득 <b>${earned}</b> · 사용 <b>${used}</b></span></div>${rows}</div>`;
+    boostsHTML=`<div class="boosts"><div class="boost-head"><span>Boosts 강화${sched}</span><span class="pick-badge">획득 <b>${earned}</b> · 사용 <b>${used}</b></span></div>${rows}</div>`;
   }
   return `<div class="mastery ${key==='firstMastery'?'fm':'sm'}">
     <div class="m-head"><span class="m-name">${st.name.en}<span class="ko">(${st.name.ko})</span></span><span class="m-lvl">${STAT_META[key].role} · Lv <b>${lv}</b></span></div>
@@ -227,6 +243,7 @@ function renderSeries(){
    ===================================================================== */
 function renderBoard(){
   const char=APP.char,cls=SHARED.classes[char.classId],series=SERIES[char.series];
+  normBoosts(char);
   // top tabs
   const tabs=[{id:"board",label:"Board 캐릭터판"},{id:"keywords",label:"Keywords 키워드"},{id:"conditions",label:"Conditions 컨디션"},{id:"rules",label:"Rules 룰"},{id:"items",label:"Items 아이템"}];
   (series.extras||[]).forEach(x=>tabs.push({id:"extra:"+x.id,label:`${x.label.en} ${x.label.ko}`}));
@@ -360,10 +377,11 @@ function bindBoard(char){
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>{const k=b.dataset.res;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-boost]").forEach(b=>b.onclick=()=>{
-    if(b.disabled)return;const n=+b.dataset.boost,stack=b.dataset.stack==="1";
-    const lv=effOf(char,"firstMastery"),earned=Math.floor(lv/3),used=Object.values(char.boosts).reduce((a,x)=>a+x,0);
+    if(b.disabled)return;const n=+b.dataset.boost,key=b.dataset.mkey||"firstMastery",stack=b.dataset.stack==="1";
+    if(!char.boosts[key])char.boosts[key]={};const store=char.boosts[key];
+    const earned=boostEarned(char,key),used=Object.values(store).reduce((a,x)=>a+x,0);
     if(used>=earned)return;
-    if(stack)char.boosts[n]++;else if(!char.boosts[n])char.boosts[n]=1;
+    if(stack)store[n]=(store[n]||0)+1;else if(!store[n])store[n]=1;
     renderBoard();
   });
   root.querySelectorAll("[data-abcheck]").forEach(b=>b.onclick=()=>{const a=char.abilities.find(x=>x.id===b.dataset.abcheck);a.track.used=!a.track.used;renderBoard();});

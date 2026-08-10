@@ -132,6 +132,40 @@ const SHARED = {
         survival:{base:1, name:{en:"Survival",ko:"생존"}},
       }
     },
+    bard: {
+      id:"bard",
+      name:{en:"Bard",ko:"바드"},
+      category:{key:"assist"},
+      special:{ko:`아이템을 판매하는 곳에 있을 때 게임 턴당 <b>1회</b>: <en>에너지 2</en>를 소모해 원하는 기술의 스탯 테스트를 한다. 성공하면 해당 기술 랭크의 <b>1/3</b>만큼 <b>골드</b>를 얻는다. 결과가 <b>헥스(Hex)</b>면 추가로 파워 업 하나를 뽑아 모든 영웅에게 적용한다.`},
+      stats:{
+        health:{base:5},
+        energy:{base:6},
+        attack:{base:1, name:{en:"Strafing Sidestep",ko:"측면 이동"}, dmg:["health","influence"]},  // 체력 또는 영향력(택1)
+        defence:{base:3, name:{en:"Second String",ko:"두번째 현"}},  // 특수규칙 뇌물(Bribe) = 추후작성
+        firstMastery:{base:1, name:{en:"Dirge of the Dead",ko:"장송곡"}, cost:1,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:1},
+            {lab:"Damage boost 피해 증가", color:"neutral", val:E.lv("firstMastery")},
+          ],
+          desc:`숙적에게 그룹이 주는 <hp>체력</hp>·<en>에너지</en>·영향력 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <kw>outlast</kw>를 감소시키기 위해 선택한 스탯 테스트를 자동 성공시킨다. 이 기술은 <kw>sustained</kw> 가능. <b>6·9랭크:</b> {firstMastery}이(가) Sustained 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 받는다.`,
+        },
+        secondMastery:{base:2, name:{en:"Song of the Troubadour",ko:"서정가"}, cost:1, boostAt:[4,8],
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:1},
+            {lab:"Heal 비전투·동료 에너지", color:"energy", val:(E.lv("secondMastery")/3).toFixed(1)},
+            {lab:"Block 전투·그룹", color:"defence", val:(E.lv("secondMastery")/2).toFixed(1)},
+          ],
+          desc:`<b>비전투:</b> 모든 동료의 <en>에너지</en>를 {secondMastery} 랭크 <b>1/3</b>만큼 <kw>heal</kw>하거나, 이번 게임 턴에 영웅 하나의 모든 스탯 테스트에 <b>-1</b> 보너스를 준다. <b>전투:</b> 그룹이 {secondMastery} 랭크 <b>1/2</b>만큼 <kw>block</kw>을 얻는다. 이 기술은 <kw>sustained</kw> 가능. <b>4·8랭크에 아래에서 하나 선택(중복 가능):</b>`,
+          boosts:[
+            {stack:true, txt:`모든 동료가 <en>에너지 2 Regen</en>을 획득한다.`},
+            {stack:true, txt:`모든 영웅은 스탯 테스트에 <b>-2</b> 보너스를 받는다.`},
+          ],
+        },
+        navigate:{base:2, name:{en:"Navigate",ko:"길찾기"}},
+        explore:{base:3, name:{en:"Explore",ko:"탐험"}},
+        survival:{base:1, name:{en:"Survival",ko:"생존"}},
+      }
+    },
     // 다음 직업은 여기에 추가.  dual 예:  category:{key:"dual",members:["striker","sapper"]}
   },
 
