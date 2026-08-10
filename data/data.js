@@ -147,7 +147,7 @@ const SHARED = {
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Damage boost 피해 증가", color:"neutral", val:E.lv("firstMastery")},
           ],
-          desc:`숙적에게 그룹이 주는 <hp>체력</hp>·<en>에너지</en>·영향력 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <kw>outlast</kw>를 감소시키기 위해 선택한 스탯 테스트를 자동 성공시킨다. 이 기술은 <kw>sustained</kw> 가능.`,
+          desc:`숙적에게 그룹이 주는 <hp>체력</hp>·<en>에너지</en>·<inf>영향력</inf> 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <kw>outlast</kw>를 감소시키기 위해 선택한 스탯 테스트를 자동 성공시킨다. 이 기술은 <kw>sustained</kw> 가능.`,
           checks:[
             {at:6, txt:`<kw>sustained</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 받는다.`},
             {at:9, txt:`<kw>sustained</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 추가로 받는다.`},

@@ -37,7 +37,7 @@ function buildCharacter(sel,seriesId){
     curHealth:0,curEnergy:0,regenHealth:0,regenEnergy:0,
     gold:0,food:0,foodUse:race?race.foodUse:0,
     favoredEnemies:race?[clone(race.favoredEnemy)]:[],
-    items:[],boosts:{},mchecks:{},abilities:[],
+    items:[],boosts:{},mchecks:{},uses:{},abilities:[],
     startDate:new Date().toISOString(),
   };
   if(race&&race.ability)char.abilities.push({id:"aRace",src:"race",name:clone(race.ability.name),desc:race.ability.desc,track:initTrack(race.ability.track)});
@@ -58,6 +58,8 @@ function expand(char,t){
   return t.replace(/\{(\w+)\}/g,(m,k)=>cls.stats[k]?`<span class="ref" style="color:var(--g-${k})">${cls.stats[k].name.en}</span>`:m)
     .replace(/<hp>(.*?)<\/hp>/g,'<b class="hpc">$1</b>')
     .replace(/<en>(.*?)<\/en>/g,'<b class="enc">$1</b>')
+    .replace(/<inf>(.*?)<\/inf>/g,`<b style="color:${CLR_INFLUENCE}">$1</b>`)
+    .replace(/<out>(.*?)<\/out>/g,`<b style="color:${CLR_OUTLAST}">$1</b>`)
     .replace(/<kw>(.*?)<\/kw>/g,(m,x)=>`<span class="kw" data-kind="kw" data-term="${x.toLowerCase()}">${x}</span>`)
     .replace(/<state>(.*?)<\/state>/g,(m,x)=>`<span class="state" data-kind="state" data-term="${x.toLowerCase()}">${x}</span>`);
 }
@@ -138,9 +140,17 @@ function renderMastery(char,key){
     }).join("");
     checksHTML=`<div class="boosts"><div class="boost-head"><span>Sustained 보너스</span><span class="pick-badge">해당 랭크부터 사용</span></div>${rows}</div>`;
   }
+  // 스킬 사용 트래커: 각 기술 카드에 체크(max:1) 또는 카운터. 전투 섹션의 턴/전투 리셋으로 초기화
+  const uCur=(char.uses&&char.uses[key])||0, uMax=st.uses?st.uses.max:0, uScopeKo=((st.uses&&st.uses.scope)||'turn')==='combat'?'전투':'턴';
+  const _bS="min-width:24px;height:24px;padding:0 6px;border-radius:6px;border:1px solid var(--edge-bright);background:transparent;color:var(--ink);cursor:pointer;font-weight:700;font-size:14px;line-height:1";
+  const _wS="display:flex;align-items:center;gap:6px;margin:4px 0 9px;font-size:12px";
+  const usesHTML = uMax===1
+    ? `<div class="m-uses" style="${_wS}"><span style="color:var(--ink-faint)">Used 사용</span><button data-usetog="${key}" style="${_bS}${uCur?`;border-color:var(--g-${key});color:var(--g-${key});background:color-mix(in srgb,var(--c-${key}) 26%,transparent)`:''}">${uCur?'✓':''}</button><span style="color:var(--ink-faint);font-size:11px">${uScopeKo}당 1회</span></div>`
+    : `<div class="m-uses" style="${_wS}"><span style="color:var(--ink-faint)">Used 사용</span><button data-use="${key}" data-dir="-1" style="${_bS}">−</button><b style="min-width:16px;text-align:center;color:var(--g-${key})">${uCur}</b><button data-use="${key}" data-dir="1" style="${_bS}">+</button><span style="color:var(--ink-faint);font-size:11px">${uMax?`/ ${uMax} · `:''}${uScopeKo} 사용</span></div>`;
   return `<div class="mastery ${key==='firstMastery'?'fm':'sm'}">
     <div class="m-head"><span class="m-name">${st.name.en}<span class="ko">(${st.name.ko})</span></span><span class="m-lvl">${STAT_META[key].role} · Lv <b>${lv}</b></span></div>
     <div class="readout">${outs}</div>
+    ${usesHTML}
     <div class="m-desc">${descHtml}</div>
     ${boostsHTML}${checksHTML}</div>`;
 }
@@ -263,7 +273,7 @@ function renderSeries(){
    ===================================================================== */
 function renderBoard(){
   const char=APP.char,cls=SHARED.classes[char.classId],series=SERIES[char.series];
-  normBoosts(char); if(!char.mchecks||typeof char.mchecks!=="object")char.mchecks={};
+  normBoosts(char); if(!char.mchecks||typeof char.mchecks!=="object")char.mchecks={}; if(!char.uses||typeof char.uses!=="object")char.uses={};
   // top tabs
   const tabs=[{id:"board",label:"Board 캐릭터판"},{id:"keywords",label:"Keywords 키워드"},{id:"conditions",label:"Conditions 컨디션"},{id:"rules",label:"Rules 룰"},{id:"items",label:"Items 아이템"}];
   (series.extras||[]).forEach(x=>tabs.push({id:"extra:"+x.id,label:`${x.label.en} ${x.label.ko}`}));
@@ -331,7 +341,7 @@ function boardBody(char){
       <div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>
     </div>
     <div class="section"><div class="sec-head">Survival Skills · 생존 능력치</div><div class="hex-wrap">${skills}</div></div>
-    <div class="section"><div class="sec-head">Combat Abilities · 전투 능력치</div><div class="hex-wrap">${combat}</div>${masteries}</div>
+    <div class="section"><div class="sec-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span>Combat Abilities · 전투 능력치</span><span style="display:flex;gap:6px"><button class="tbtn" id="resetTurn" title="턴 사용 초기화">↺ 턴</button><button class="tbtn" id="resetCombat" title="전투 사용 초기화">↺ 전투</button></span></div><div class="hex-wrap">${combat}</div>${masteries}</div>
     <div class="section"><div class="sec-head">Special Abilities · 특수 능력</div>${abilityHTML}
       <div class="ability-actions">
         <button class="add-btn" data-addability="free">+ 능력 직접 추가</button>
@@ -405,6 +415,10 @@ function bindBoard(char){
     renderBoard();
   });
   root.querySelectorAll("[data-mcheck]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const key=b.dataset.mcheck,i=+b.dataset.idx;if(!char.mchecks[key])char.mchecks[key]={};char.mchecks[key][i]=!char.mchecks[key][i];renderBoard();});
+  root.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{const k=b.dataset.use,st=SHARED.classes[char.classId].stats[k],mx=st.uses?st.uses.max:0;let v=(char.uses[k]||0)+ +b.dataset.dir;v=Math.max(0,v);if(mx>1)v=Math.min(mx,v);char.uses[k]=v;renderBoard();});
+  root.querySelectorAll("[data-usetog]").forEach(b=>b.onclick=()=>{const k=b.dataset.usetog;char.uses[k]=char.uses[k]?0:1;renderBoard();});
+  const rT=$("#resetTurn");if(rT)rT.onclick=()=>{["firstMastery","secondMastery"].forEach(k=>{const st=SHARED.classes[char.classId].stats[k];if(st&&st.desc&&!(st.uses&&st.uses.scope==='combat'))char.uses[k]=0;});renderBoard();};
+  const rC=$("#resetCombat");if(rC)rC.onclick=()=>{["firstMastery","secondMastery"].forEach(k=>char.uses[k]=0);renderBoard();};
   root.querySelectorAll("[data-abcheck]").forEach(b=>b.onclick=()=>{const a=char.abilities.find(x=>x.id===b.dataset.abcheck);a.track.used=!a.track.used;renderBoard();});
   root.querySelectorAll("[data-abcount]").forEach(b=>b.onclick=()=>{const a=char.abilities.find(x=>x.id===b.dataset.abcount);a.track.value=Math.max(0,Math.min(a.track.max,a.track.value+ +b.dataset.dir));renderBoard();});
   root.querySelectorAll("[data-abremove]").forEach(b=>b.onclick=()=>{char.abilities=char.abilities.filter(x=>x.id!==b.dataset.abremove);renderBoard();});
