@@ -97,6 +97,41 @@ const SHARED = {
         survival:{base:1, name:{en:"Survival",ko:"생존"}},
       }
     },
+    phosromancer: {
+      id:"phosromancer",
+      name:{en:"Phosromancer",ko:"광채술사"},
+      category:{key:"striker"},
+      /* 직업 특성(special) 없음 — 엔진은 special 없으면 특성 박스를 생략 */
+      stats:{
+        health:{base:5},
+        energy:{base:7},
+        attack:{base:2, name:{en:"Shadow Slash",ko:"그림자 베기"}, dmg:"health"},  // (체력) = 체력 피해 타입
+        defence:{base:1, name:{en:"Prism Shield",ko:"프리즘 방패"}},
+        firstMastery:{base:1, name:{en:"Light Absorption",ko:"빛 흡수"}, cost:1,
+          readout:(E)=>{
+            const fm=E.lv("firstMastery");
+            return [
+              {lab:"Cost 비용", color:"energy", val:1},
+              {lab:"Attacks 공격 횟수", color:"attack", val:2},
+              {lab:"Block/Defend/Reflect 감소", color:"neutral", val:fm},
+              ...(fm>=7 ? [{lab:"Attack boost (기술2 후)", color:"attack", val:(fm/2).toFixed(1)}] : [])
+            ];
+          },
+          desc:`이번 라운드에 {attack} 행동을 <b>두 번</b> 사용한다. 대상이 <kw>energetic</kw>이 아니면 대상의 <kw>block</kw>·<kw>defend</kw>·<kw>reflect</kw>를 {firstMastery} 랭크만큼 감소시킨다. 직전 라운드에 {secondMastery} 사용 시 이번 라운드 적들의 타겟 수가 <b>1</b> 감소한다(최소 1). <b>7랭크+:</b> 직전 라운드에 {secondMastery} 사용 시 이번 라운드 {attack}의 피해를 {firstMastery} 랭크 <b>절반</b>만큼 <kw>boost</kw>한다.`,
+        },
+        secondMastery:{base:3, name:{en:"Magnified Beam",ko:"광선 집중"}, cost:1,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:1},
+            {lab:"Damage 피해", color:"health", val:(E.lv("attack")+E.lv("secondMastery")).toFixed(1)},
+            {lab:"+Damage (기술1 후)", color:"defence", val:E.lv("defence").toFixed(1)},
+          ],
+          desc:`{attack} 랭크 + {secondMastery} 랭크만큼 <hp>체력 피해</hp>를 준다. 직전 라운드에 {firstMastery} 사용 시 이 피해를 {defence} 랭크만큼 <kw>boost</kw>한다. <b>8랭크+:</b> <en>에너지 3</en>을 추가 지불하면 이번 라운드에 {secondMastery} 행동을 한 번 더 사용할 수 있다.`,
+        },
+        navigate:{base:2, name:{en:"Navigate",ko:"길찾기"}},
+        explore:{base:2, name:{en:"Explore",ko:"탐험"}},
+        survival:{base:1, name:{en:"Survival",ko:"생존"}},
+      }
+    },
     // 다음 직업은 여기에 추가.  dual 예:  category:{key:"dual",members:["striker","sapper"]}
   },
 

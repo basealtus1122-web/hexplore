@@ -61,6 +61,7 @@ function expand(char,t){
 
 /* ---------- hexagon ---------- */
 const HEX_ANGLES=[90,30,330,270,210,150];
+const DMG={health:{en:"Health dmg",ko:"체력 피해"},energy:{en:"Energy dmg",ko:"에너지 피해"}};
 function hexPath(cx,cy,R){return"M"+[0,60,120,180,240,300].map(a=>{const r=a*Math.PI/180;return`${(cx+R*Math.cos(r)).toFixed(2)},${(cy-R*Math.sin(r)).toFixed(2)}`}).join("L")+"Z";}
 function renderHex(char,key,showName=true){
   const cls=SHARED.classes[char.classId],st=cls.stats[key],meta=STAT_META[key];
@@ -76,7 +77,7 @@ function renderHex(char,key,showName=true){
       <text class="hex-val" x="63" y="58" text-anchor="middle" dominant-baseline="middle" style="fill:var(--g-${key})">${val}</text>
       <text class="hex-sub" x="63" y="80" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
     </svg>
-    ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>`:""}
+    ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${st&&st.dmg&&DMG[st.dmg]?`<div class="dmg-tag" style="margin-top:4px;display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;color:var(--g-${st.dmg});border:1px solid var(--g-${st.dmg});background:color-mix(in srgb,var(--g-${st.dmg}) 14%,transparent)">${DMG[st.dmg].en} <span class="ko">(${DMG[st.dmg].ko})</span></div>`:""}`:""}
     <div class="hex-mod">
       <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>
       <span class="mtag">${m?`<b>${m>0?'+':''}${m}</b>`:'효과'}</span>
@@ -286,7 +287,7 @@ function boardBody(char){
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span></div>
       <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b></div>
       <div class="flavor">${race.flavor||""}</div>
-      <div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>
+      ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
     </div>
     <div class="section"><div class="sec-head">Vital · 생명력</div>
