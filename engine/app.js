@@ -37,7 +37,7 @@ function buildCharacter(sel,seriesId){
     curHealth:0,curEnergy:0,regenHealth:0,regenEnergy:0,
     gold:0,food:0,foodUse:race?race.foodUse:0,
     favoredEnemies:race?[clone(race.favoredEnemy)]:[],
-    items:[],boosts:{},abilities:[],
+    items:[],boosts:{},mchecks:{},abilities:[],
     startDate:new Date().toISOString(),
   };
   if(race&&race.ability)char.abilities.push({id:"aRace",src:"race",name:clone(race.ability.name),desc:race.ability.desc,track:initTrack(race.ability.track)});
@@ -64,17 +64,22 @@ function expand(char,t){
 
 /* ---------- hexagon ---------- */
 const HEX_ANGLES=[90,30,330,270,210,150];
+const CLR_INFLUENCE="#c98a3c", CLR_OUTLAST="#a5713e";  // 영향력=청동색 · 지속력(outlast)=갈색
 const DMG={
-  health:   {en:"Health dmg",   ko:"체력 피해",   color:"var(--g-health)"},
-  energy:   {en:"Energy dmg",   ko:"에너지 피해", color:"var(--g-energy)"},
-  influence:{en:"Influence dmg", ko:"영향력 피해", color:"#d072b6"},
+  health:   {en:"Health",   ko:"체력",   color:"var(--g-health)"},
+  energy:   {en:"Energy",   ko:"에너지", color:"var(--g-energy)"},
+  influence:{en:"Influence",ko:"영향력", color:CLR_INFLUENCE},
+  outlast:  {en:"Outlast",  ko:"지속력", color:CLR_OUTLAST},
 };
-/* st.dmg = "health" 또는 ["health","influence"] → 피해타입 태그(들) */
+/* readout·태그 색 토큰 → CSS 색. 9스탯=--g-*, 특수(influence/outlast)·neutral은 별도 */
+function statColor(c){return c==='neutral'?'var(--ink)':c==='influence'?CLR_INFLUENCE:c==='outlast'?CLR_OUTLAST:`var(--g-${c})`;}
+/* st.dmg = "health" 또는 ["health","influence"] → 기본공격 피해타입: EnglishKorean, 여러개는 / 로 구분 */
 function dmgTags(dmg){
   if(!dmg)return"";
-  return (Array.isArray(dmg)?dmg:[dmg]).filter(d=>DMG[d]).map(d=>{const c=DMG[d].color;
-    return `<div class="dmg-tag" style="margin:4px 4px 0 0;display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;color:${c};border:1px solid ${c};background:color-mix(in srgb,${c} 14%,transparent)">${DMG[d].en} <span class="ko">(${DMG[d].ko})</span></div>`;
-  }).join("");
+  const list=(Array.isArray(dmg)?dmg:[dmg]).filter(d=>DMG[d]);
+  if(!list.length)return"";
+  const inner=list.map(d=>`<span style="color:${DMG[d].color};font-weight:700">${DMG[d].en}<span style="font-size:.9em;opacity:.92">${DMG[d].ko}</span></span>`).join(`<span style="opacity:.4"> / </span>`);
+  return `<div class="dmg-tag" style="margin-top:5px;font-size:12px;letter-spacing:.2px">${inner}</div>`;
 }
 function hexPath(cx,cy,R){return"M"+[0,60,120,180,240,300].map(a=>{const r=a*Math.PI/180;return`${(cx+R*Math.cos(r)).toFixed(2)},${(cy-R*Math.sin(r)).toFixed(2)}`}).join("L")+"Z";}
 function renderHex(char,key,showName=true){
@@ -104,7 +109,7 @@ function renderMastery(char,key){
   const cls=SHARED.classes[char.classId],st=cls.stats[key];
   if(!st||!st.desc)return"";
   const E=makeE(char,key),lv=effOf(char,key);
-  const outs=(st.readout?st.readout(E):[]).map(o=>`<div class="stat-out"><span class="lab">${o.lab}</span><span class="num" style="${o.color==='neutral'?'color:var(--ink)':`color:var(--g-${o.color})`}">${o.val}</span></div>`).join("");
+  const outs=(st.readout?st.readout(E):[]).map(o=>`<div class="stat-out"><span class="lab">${o.lab}</span><span class="num" style="color:${statColor(o.color)}">${o.val}</span></div>`).join("");
   let boostsHTML="";
   if(st.boosts&&st.boosts.length){
     const store=(char.boosts&&char.boosts[key])||{};
@@ -118,11 +123,26 @@ function renderMastery(char,key){
     }).join("");
     boostsHTML=`<div class="boosts"><div class="boost-head"><span>Boosts 강화${sched}</span><span class="pick-badge">획득 <b>${earned}</b> · 사용 <b>${used}</b></span></div>${rows}</div>`;
   }
+  // <lvl n="7">…</lvl> : 특정 랭크 이상에서 활성화되는 설명 — 행 분리, 미달 시 흐리게 → 도달 시 선명
+  const descHtml=expand(char, st.desc.replace(/<lvl\s+n="?(\d+)"?>([\s\S]*?)<\/lvl>/g,(m,n,inner)=>{
+    const active=lv>=+n;
+    return `<div class="lvl-gate" style="margin-top:7px;padding:5px 9px;border-left:3px solid ${active?`var(--g-${key})`:'var(--edge-bright)'};border-radius:0 6px 6px 0;background:color-mix(in srgb,var(--c-${key}) ${active?18:7}%,transparent);opacity:${active?1:.42};transition:opacity .2s"><b style="font-size:11px;color:${active?`var(--g-${key})`:'var(--ink-faint)'}">${n}랭크${active?' ✓ 활성':'+'}</b> ${inner}</div>`;
+  }));
+  // st.checks : 특정 랭크에서 사용 가능해지는 on/off 체크박스
+  let checksHTML="";
+  if(st.checks&&st.checks.length){
+    const cs=(char.mchecks&&char.mchecks[key])||{};
+    const rows=st.checks.map((c,i)=>{
+      const enabled=lv>=c.at,on=!!cs[i];
+      return `<div class="boost ${on?'on':''} ${enabled?'':'locked'}"><button class="boost-toggle" data-mcheck="${key}" data-idx="${i}" ${enabled?'':'disabled'}>${on?'✓':''}</button><div class="boost-txt"><b style="font-size:11px;color:${enabled?`var(--g-${key})`:'var(--ink-faint)'}">${c.at}랭크</b> ${expand(char,c.txt)}</div></div>`;
+    }).join("");
+    checksHTML=`<div class="boosts"><div class="boost-head"><span>Sustained 보너스</span><span class="pick-badge">해당 랭크부터 사용</span></div>${rows}</div>`;
+  }
   return `<div class="mastery ${key==='firstMastery'?'fm':'sm'}">
     <div class="m-head"><span class="m-name">${st.name.en}<span class="ko">(${st.name.ko})</span></span><span class="m-lvl">${STAT_META[key].role} · Lv <b>${lv}</b></span></div>
     <div class="readout">${outs}</div>
-    <div class="m-desc">${expand(char,st.desc)}</div>
-    ${boostsHTML}</div>`;
+    <div class="m-desc">${descHtml}</div>
+    ${boostsHTML}${checksHTML}</div>`;
 }
 
 /* ---------- category tags ---------- */
@@ -243,7 +263,7 @@ function renderSeries(){
    ===================================================================== */
 function renderBoard(){
   const char=APP.char,cls=SHARED.classes[char.classId],series=SERIES[char.series];
-  normBoosts(char);
+  normBoosts(char); if(!char.mchecks||typeof char.mchecks!=="object")char.mchecks={};
   // top tabs
   const tabs=[{id:"board",label:"Board 캐릭터판"},{id:"keywords",label:"Keywords 키워드"},{id:"conditions",label:"Conditions 컨디션"},{id:"rules",label:"Rules 룰"},{id:"items",label:"Items 아이템"}];
   (series.extras||[]).forEach(x=>tabs.push({id:"extra:"+x.id,label:`${x.label.en} ${x.label.ko}`}));
@@ -384,6 +404,7 @@ function bindBoard(char){
     if(stack)store[n]=(store[n]||0)+1;else if(!store[n])store[n]=1;
     renderBoard();
   });
+  root.querySelectorAll("[data-mcheck]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const key=b.dataset.mcheck,i=+b.dataset.idx;if(!char.mchecks[key])char.mchecks[key]={};char.mchecks[key][i]=!char.mchecks[key][i];renderBoard();});
   root.querySelectorAll("[data-abcheck]").forEach(b=>b.onclick=()=>{const a=char.abilities.find(x=>x.id===b.dataset.abcheck);a.track.used=!a.track.used;renderBoard();});
   root.querySelectorAll("[data-abcount]").forEach(b=>b.onclick=()=>{const a=char.abilities.find(x=>x.id===b.dataset.abcount);a.track.value=Math.max(0,Math.min(a.track.max,a.track.value+ +b.dataset.dir));renderBoard();});
   root.querySelectorAll("[data-abremove]").forEach(b=>b.onclick=()=>{char.abilities=char.abilities.filter(x=>x.id!==b.dataset.abremove);renderBoard();});

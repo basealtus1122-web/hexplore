@@ -64,7 +64,7 @@ const SHARED = {
       stats:{
         health:{base:6},
         energy:{base:5},
-        attack:{base:2, name:{en:"Nether Pull",ko:"네더 풀"}},
+        attack:{base:2, name:{en:"Nether Pull",ko:"네더 풀"}, dmg:["health","energy"]},
         defence:{base:3, name:{en:"Shadow Ward",ko:"섀도우 워드"}},
         firstMastery:{base:2, name:{en:"Arcane Bolt",ko:"아케인 볼트"}, cost:3,
           /* readout: 엔진이 계산해 실시간 표시. desc 는 규칙 원문. boosts 는 강화 목록. */
@@ -117,7 +117,7 @@ const SHARED = {
               ...(fm>=7 ? [{lab:"Attack boost (기술2 후)", color:"attack", val:(fm/2).toFixed(1)}] : [])
             ];
           },
-          desc:`이번 라운드에 {attack} 행동을 <b>두 번</b> 사용한다. 대상이 <kw>energetic</kw>이 아니면 대상의 <kw>block</kw>·<kw>defend</kw>·<kw>reflect</kw>를 {firstMastery} 랭크만큼 감소시킨다. 직전 라운드에 {secondMastery} 사용 시 이번 라운드 적들의 타겟 수가 <b>1</b> 감소한다(최소 1). <b>7랭크+:</b> 직전 라운드에 {secondMastery} 사용 시 이번 라운드 {attack}의 피해를 {firstMastery} 랭크 <b>절반</b>만큼 <kw>boost</kw>한다.`,
+          desc:`이번 라운드에 {attack} 행동을 <b>두 번</b> 사용한다. 대상이 <kw>energetic</kw>이 아니면 대상의 <kw>block</kw>·<kw>defend</kw>·<kw>reflect</kw>를 {firstMastery} 랭크만큼 감소시킨다. 직전 라운드에 {secondMastery} 사용 시 이번 라운드 적들의 타겟 수가 <b>1</b> 감소한다(최소 1). <lvl n="7">직전 라운드에 {secondMastery} 사용 시 이번 라운드 {attack}의 피해를 {firstMastery} 랭크 <b>절반</b>만큼 <kw>boost</kw>한다.</lvl>`,
         },
         secondMastery:{base:3, name:{en:"Magnified Beam",ko:"광선 집중"}, cost:1,
           readout:(E)=>[
@@ -125,7 +125,7 @@ const SHARED = {
             {lab:"Damage 피해", color:"health", val:(E.lv("attack")+E.lv("secondMastery")).toFixed(1)},
             {lab:"+Damage (기술1 후)", color:"defence", val:E.lv("defence").toFixed(1)},
           ],
-          desc:`{attack} 랭크 + {secondMastery} 랭크만큼 <hp>체력 피해</hp>를 준다. 직전 라운드에 {firstMastery} 사용 시 이 피해를 {defence} 랭크만큼 <kw>boost</kw>한다. <b>8랭크+:</b> <en>에너지 3</en>을 추가 지불하면 이번 라운드에 {secondMastery} 행동을 한 번 더 사용할 수 있다.`,
+          desc:`{attack} 랭크 + {secondMastery} 랭크만큼 <hp>체력 피해</hp>를 준다. 직전 라운드에 {firstMastery} 사용 시 이 피해를 {defence} 랭크만큼 <kw>boost</kw>한다. <lvl n="8"><en>에너지 3</en>을 추가 지불하면 이번 라운드에 {secondMastery} 행동을 한 번 더 사용할 수 있다.</lvl>`,
         },
         navigate:{base:2, name:{en:"Navigate",ko:"길찾기"}},
         explore:{base:2, name:{en:"Explore",ko:"탐험"}},
@@ -147,7 +147,11 @@ const SHARED = {
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Damage boost 피해 증가", color:"neutral", val:E.lv("firstMastery")},
           ],
-          desc:`숙적에게 그룹이 주는 <hp>체력</hp>·<en>에너지</en>·영향력 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <kw>outlast</kw>를 감소시키기 위해 선택한 스탯 테스트를 자동 성공시킨다. 이 기술은 <kw>sustained</kw> 가능. <b>6·9랭크:</b> {firstMastery}이(가) Sustained 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 받는다.`,
+          desc:`숙적에게 그룹이 주는 <hp>체력</hp>·<en>에너지</en>·영향력 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <kw>outlast</kw>를 감소시키기 위해 선택한 스탯 테스트를 자동 성공시킨다. 이 기술은 <kw>sustained</kw> 가능.`,
+          checks:[
+            {at:6, txt:`<kw>sustained</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 받는다.`},
+            {at:9, txt:`<kw>sustained</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 추가로 받는다.`},
+          ],
         },
         secondMastery:{base:2, name:{en:"Song of the Troubadour",ko:"서정가"}, cost:1, boostAt:[4,8],
           readout:(E)=>[
