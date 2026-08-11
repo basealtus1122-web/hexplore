@@ -334,7 +334,7 @@ function renderBoard(){
   $("#tbEnd").onclick=endGameModal;
   $("#tbNew").onclick=()=>{if(confirm("현재 캐릭터를 두고 새 캐릭터를 만들까요? (저장하지 않은 변경은 사라집니다)")){APP.sel={raceId:null,classId:null,traitIds:[]};APP.char=null;APP.screen="builder";render();}};
 
-  if(APP.tab==="board")bindBoard(char);
+  if(APP.tab==="board")bindBoard(char); else bindRefList();
   bindTerms(char);   // keyword/condition overlay from any tab
 }
 
@@ -400,15 +400,15 @@ function referenceBody(char,series,tab){
   const empty=msg=>`<div class="section"><div class="empty-note">${msg}</div></div>`;
   if(tab==="keywords"){
     const ks=series.keywords||{};if(!Object.keys(ks).length)return empty("이 시리즈의 키워드가 아직 비어 있습니다. data.js에서 채우세요.");
-    return `<div class="section"><div class="sec-head">Keywords · 키워드</div>${Object.entries(ks).map(([k,v])=>kwItem(v.name,expand(char,v.desc))).join("")}</div>`;
+    return refList(char,"Keywords · 키워드",Object.values(ks));
   }
   if(tab==="exkeywords"){
     const ks=series.exKeywords||{};if(!Object.keys(ks).length)return empty("전용 키워드가 아직 비어 있습니다.");
-    return `<div class="section"><div class="sec-head">5편 전용 키워드 · Siege</div>${Object.entries(ks).map(([k,v])=>kwItem(v.name,expand(char,v.desc))).join("")}</div>`;
+    return refList(char,"5편 전용 키워드 · Siege",Object.values(ks));
   }
   if(tab==="conditions"){
     const cs=series.conditions||{};if(!Object.keys(cs).length)return empty("이 시리즈의 컨디션이 아직 비어 있습니다.");
-    return `<div class="section"><div class="sec-head">Conditions · 컨디션</div>${Object.entries(cs).map(([k,v])=>refItem(v.name,v.desc)).join("")}</div>`;
+    return refList(char,"Conditions · 컨디션",Object.values(cs));
   }
   if(tab==="rules"){
     const rs=series.rules||[];if(!rs.length)return empty("이 시리즈의 룰 참조표가 아직 비어 있습니다.");
@@ -427,6 +427,43 @@ function referenceBody(char,series,tab){
 }
 function refItem(name,desc,tag){
   return `<div class="ref-block"><div class="ref-name">${name.en} <span class="ko">(${name.ko})</span>${tag?`<span class="ref-tag">${tag}</span>`:""}</div><div class="ref-desc">${desc||""}</div></div>`;
+}
+/* 검색 + 접기 목록 — 평소엔 이름만, 탭하면 설명이 펼쳐진다 */
+function refList(char,title,list){
+  const rows=list.map(v=>{
+    const plain=`${v.name.en} ${v.name.ko} ${(v.desc||"").replace(/<[^>]+>/g,"")}`.toLowerCase().replace(/"/g,"&quot;");
+    return `<div class="ref-block refrow" data-s="${plain}" style="padding:0;margin-bottom:6px;overflow:hidden">
+      <div class="refhead" style="display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none">
+        <span class="chev" style="color:var(--ink-faint);font-size:11px;transition:transform .15s;display:inline-block">▶</span>
+        <span class="ref-name" style="font-size:14px">${v.name.en}<span class="ko" style="margin-left:1px">${v.name.ko}</span></span>
+      </div>
+      <div class="ref-desc refbody" style="display:none;padding:0 12px 11px 30px;margin-top:0">${expand(char,v.desc||"")}</div>
+    </div>`;
+  }).join("");
+  return `<div class="section"><div class="sec-head">${title}</div>
+    <div class="reftools" style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <input id="refSearch" placeholder="검색 — 영문·한글·설명" autocomplete="off" style="flex:1;min-width:0;padding:8px 11px;border-radius:9px;border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);font-family:'Noto Serif KR';font-size:13px">
+      <button id="refAll" class="tbtn" style="white-space:nowrap">모두 펼치기</button>
+    </div>
+    <div id="refCount" style="font-size:11px;color:var(--ink-faint);margin:-4px 0 8px"></div>
+    ${rows}</div>`;
+}
+/* 검색·접기 동작 (탭 렌더 후 호출) */
+function bindRefList(){
+  const box=$("#refSearch");if(!box)return;
+  const rows=Array.from(root.querySelectorAll(".refrow"));
+  const cnt=$("#refCount"), all=$("#refAll");
+  const open=(r,on)=>{r.querySelector(".refbody").style.display=on?"block":"none";r.querySelector(".chev").style.transform=on?"rotate(90deg)":"none";};
+  rows.forEach(r=>r.querySelector(".refhead").onclick=()=>open(r,r.querySelector(".refbody").style.display==="none"));
+  const upd=()=>{
+    const q=box.value.trim().toLowerCase();
+    let n=0;
+    rows.forEach(r=>{const hit=!q||r.dataset.s.includes(q);r.style.display=hit?"":"none";if(hit){n++;if(q)open(r,true);}});
+    cnt.textContent=q?`${n}개 일치`:`${rows.length}개`;
+  };
+  box.oninput=upd;upd();
+  let opened=false;
+  all.onclick=()=>{opened=!opened;rows.forEach(r=>{if(r.style.display!=="none")open(r,opened);});all.textContent=opened?"모두 접기":"모두 펼치기";};
 }
 /* 키워드 표기: 영문명한글명 (예: Evasion회피) */
 function kwItem(name,desc){
