@@ -341,7 +341,7 @@ function traitPicker(list){
 function renderSeries(){
   const race=SHARED.races[APP.sel.raceId], cls=SHARED.classes[APP.sel.classId];
   const cards=Object.values(SERIES).map(s=>`<button class="series-card" data-series="${s.id}">
-    <div class="sc-badge">${s.short}</div>
+    <div class="sc-badge" ${SERIES_ACCENT[s.id]?`style="color:${SERIES_ACCENT[s.id]}"`:""}>${s.short}</div>
     <div class="sc-name">${s.name.en}</div><div class="sc-ko">${s.name.ko}</div>
     <div class="sc-note">키워드 · 상태 · 룰 · 아이템 · 기타 참조표가 이 시리즈 기준으로 적용됩니다.</div>
   </button>`).join("");
@@ -391,6 +391,7 @@ function renderBoard(){
   </div>`;
 
   // tab switching
+  applyTheme();
   root.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{APP.tab=b.dataset.tab;renderBoard();});
   // toolbar
   $("#tbSave").onclick=saveCharacterModal;
@@ -726,7 +727,15 @@ function recordsModal(){
 /* =====================================================================
    ROUTER
    ===================================================================== */
+/* 편별 테마 — 캐릭터판에서는 그 편의 분위기 색을 적용(능력치 9색은 공용이라 그대로) */
+const SERIES_ACCENT={"4":"#bf94f5","5":"#f3a8c0"};
+function applyTheme(){
+  const s=(APP.screen==="board"&&APP.char)?APP.char.series:null;
+  if(s&&s!=="4")document.documentElement.setAttribute("data-series",s);
+  else document.documentElement.removeAttribute("data-series");
+}
 function render(){
+  applyTheme();
   if(APP.screen==="builder")renderBuilder();
   else if(APP.screen==="series")renderSeries();
   else renderBoard();
