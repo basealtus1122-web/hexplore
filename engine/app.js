@@ -41,7 +41,7 @@ function buildCharacter(sel,seriesId){
   const race=SHARED.races[sel.raceId], cls=SHARED.classes[sel.classId];
   const char={
     raceId:sel.raceId,classId:sel.classId,traitIds:[...sel.traitIds],series:seriesId,
-    subRaceId:sel.subRaceId||null,aspectId:sel.aspectId||null,
+    subRaceId:sel.subRaceId||null,aspectId:sel.aspectId||null,raceForm:(race&&race.forms)?race.forms[0].id:null,
     filled:zero(),mod:zero(),
     curHealth:0,curEnergy:0,regenHealth:0,regenEnergy:0,
     gold:0,food:0,foodUse:race?race.foodUse:0,
@@ -58,9 +58,10 @@ function buildCharacter(sel,seriesId){
   return char;
 }
 /* 종족 보정치 — '다시 깨어난 자'처럼 다른 종족을 물려받는 경우 그 종족의 보정치를 쓴다 */
-function modsOf(raceId,subRaceId){
-  const r=SHARED.races[raceId];if(!r)return zero();
-  if(r.inheritsRace){const s=SHARED.races[subRaceId];return s?s.mods:zero();}
+function modsOf(char){
+  const r=SHARED.races[char.raceId];if(!r)return zero();
+  if(r.inheritsRace){const s=SHARED.races[char.subRaceId];return s?s.mods:zero();}
+  if(r.forms){const m=Object.assign(zero(),r.mods);const f=r.forms.find(x=>x.id===char.raceForm)||r.forms[0];if(f&&f.mods)Object.assign(m,f.mods);return m;}
   return r.mods;
 }
 /* 물려받는 종족이면 그 종족의 숙적을, 아니면 자신의 숙적을 */
@@ -71,7 +72,14 @@ function foeOf(raceId,subRaceId){
 }
 /* 부착물(특성·양상·위대한 양상·keepsake) 보정치 합 — 종족과 같은 양식으로 mods를 가질 수 있다 */
 function abilityMods(char,k){return (char.abilities||[]).reduce((s,a)=>s+((a.mods&&a.mods[k])||0),0);}
-function baseCharOf(char,k){const cls=SHARED.classes[char.classId];return (cls.stats[k]?cls.stats[k].base:0)+(modsOf(char.raceId,char.subRaceId)[k]||0)+abilityMods(char,k);}
+function baseCharOf(char,k){const cls=SHARED.classes[char.classId];return (cls.stats[k]?cls.stats[k].base:0)+(modsOf(char)[k]||0)+abilityMods(char,k);}
+/* 형태 전환(예: 나구알 인간↔거대 고양이) — 형태별 보정치 적용, 전환 시 체력 회복 */
+function formSwitcher(char,race){
+  const cur=char.raceForm||race.forms[0].id;
+  const btns=race.forms.map(f=>{const on=f.id===cur;
+    return `<button data-form="${f.id}" style="font-family:'Cinzel';font-size:12.5px;padding:6px 13px;border-radius:9px;cursor:pointer;${on?'border:1px solid var(--g-attack);color:var(--ink);background:color-mix(in srgb,var(--c-attack) 16%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${f.name.en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:3px">${f.name.ko}</span></button>`;}).join("");
+  return `<div class="foe" style="margin-top:12px"><div class="foe-label">Form · 형태${race.formHealOnSwitch?` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 변신 시 <b style="color:var(--g-health)">Health</b>체력 ${race.formHealOnSwitch} 회복</span>`:""}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${btns}</div></div>`;
+}
 function effOf(char,k){return Math.max(0,baseCharOf(char,k)+char.filled[k]+char.mod[k]);}
 function makeE(char,key){const s=(char.boosts&&char.boosts[key])||{};return{lv:k=>effOf(char,k),b:n=>s[n]||0,on:n=>(s[n]||0)>0};}
 /* 강화(boost): 기술별 저장소 + 임의 랭크 스케줄. 구버전(평면) 저장본은 firstMastery로 마이그레이션 */
@@ -293,6 +301,7 @@ function racePreview(r){
     <div class="pv-row"><span class="pv-lbl">Favored Enemy 숙적</span> ${foeLabel(r.favoredEnemy)}</div>
     <div class="pv-row"><span class="pv-lbl">Food Use 음식소모</span> ${r.foodUse}</div>
     <div class="pv-mods">${mods}</div>
+    ${r.forms?`<div class="pv-row"><span class="pv-lbl">Forms 형태</span> ${r.forms.map(f=>`${f.en||f.name.en} <span class="ko">(${f.name.ko})</span> — ${STAT_ORDER.filter(k=>f.mods&&f.mods[k]!=null).map(k=>{const l=statLabel(k);return `${l.en}${l.ko} ${f.mods[k]>0?'+':''}${f.mods[k]}`;}).join(", ")}`).join(" · ")}</div>`:""}
     <div class="pv-ability">${r.ability?`<b>${r.ability.name.en} (${r.ability.name.ko})</b> — ${previewText(r.ability.desc)}`:""}</div>
     <div class="flavor">${r.flavor||""}</div>
     ${r.inheritsRace?inheritPicker(r):""}`;
@@ -428,6 +437,7 @@ function boardBody(char){
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
       <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}${(()=>{const as=char.abilities.filter(a=>a.src==="aspect"||a.src==="greater");return as.length?` · 양상 ${as.map(a=>`<b>${a.name.en} (${a.name.ko})</b>`).join(", ")}`:"";})()}</div>
       <div class="flavor">${race.flavor||""}</div>
+      ${race.forms?formSwitcher(char,race):""}
       ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
     </div>
@@ -553,6 +563,7 @@ function bindBoard(char){
   root.querySelectorAll(".pip").forEach(p=>p.onclick=()=>{const k=p.dataset.hex,idx=+p.dataset.idx;char.filled[k]=(char.filled[k]>=idx+1)?idx:idx+1;renderBoard();});
   root.querySelectorAll("[data-mod]").forEach(b=>b.onclick=()=>{char.mod[b.dataset.mod]+=+b.dataset.dir;renderBoard();});
   root.querySelectorAll("[data-fuse]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const k=b.dataset.fuse;if(char.filled[k]>0){char.filled[k]-=1;char.mod[k]+=1;renderBoard();}});
+  root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{const f=b.dataset.form;if(char.raceForm===f)return;char.raceForm=f;const r=SHARED.races[char.raceId];if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>{const k=b.dataset.res;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-boost]").forEach(b=>b.onclick=()=>{
