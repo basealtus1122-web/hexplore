@@ -5,7 +5,10 @@
    이름 표기 규칙: 화면에는 English (한글) 순으로 나옵니다.
    설명 토큰:
      {attack} {defence} {firstMastery} {secondMastery} ...  → 해당 능력 이름으로 자동 치환
-     <hp>텍스트</hp> / <en>텍스트</en>  → 체력/에너지 강조색
+     <st>health</st> <st>energy</st> <st>attack</st> …  → 스탯 용어를 English한글 + 스탯색으로 자동 렌더
+     <kw>boost</kw> → Boost증폭 (용어집에서 이름을 찾아 자동 표기 · 클릭 시 정의)
+     <state>vulnerable</state> → Vulnerable취약 (컨디션 표에서 자동 표기)
+     <hp>텍스트</hp> / <en>텍스트</en>  → (구) 체력/에너지 강조색. 새 데이터는 <st> 사용
      <kw>evasion</kw>  → 키워드(클릭 시 오버레이). 소문자 영문이 SERIES.keywords의 key와 매칭
      <state>vulnerable</state>  → 컨디션(클릭 시 오버레이). SERIES.conditions의 key와 매칭
    ===================================================================== */
@@ -47,7 +50,7 @@ const SHARED = {
       foodUse:1,
       mods:{health:0,energy:4,attack:0,defence:0,firstMastery:1,secondMastery:2,navigate:0,explore:1,survival:0},
       ability:{name:{en:"Racial Ability",ko:"종족 능력"},
-        desc:"게임 턴마다 1회, <en>에너지 1</en>을 소모해 2라운드 동안 <kw>evasion</kw> 8을 얻는다.",
+        desc:"게임 턴마다 1회, <st>energy</st> 1을 소모해 2라운드 동안 <kw>evasion</kw> 8을 얻는다.",
         track:{type:"check"}},
       flavor:"일루먼(Ilumen) 100명 중 1명꼴로 브라이틀링이 태어난다. 대부분 하플링 남짓밖에 자라지 못하지만, 이들이 내뿜는 빛은 시력에 피해를 입힐 만큼 강렬하다.",
     },
@@ -59,8 +62,8 @@ const SHARED = {
       id:"warlock",
       name:{en:"Warlock",ko:"워록"},
       category:{key:"striker"},
-      flavor:"대가 없는 힘은 없다. 워록은 그 값을 언제나 제 몸에서 꺼내 치른다.",
-      special:{ko:"기술의 비용으로 자신의 <hp>Health (체력)</hp>이나 <en>Energy (에너지)</en>를 지불할 수 있다."},
+      flavor:"나의 권능에 경탄하라!",
+      special:{ko:"기술의 비용으로 자신의 <st>health</st>이나 <st>energy</st>를 지불할 수 있다."},
       /* stats: base = 직업 고유 시작값. 최종값 = base + 종족보정 + 육각형 + 효과 */
       stats:{
         health:{base:6},
@@ -76,13 +79,13 @@ const SHARED = {
              val: (E.lv("firstMastery")*2 + (E.on(2)? E.lv("attack")/2 : 0)).toFixed(1) },
             ...(E.on(5)? [{lab:"+Energy 에너지", color:"energy", val:E.lv("attack").toFixed(1)}] : [])
           ],
-          desc:`{firstMastery} 레벨 ×2 만큼의 <hp>체력 피해</hp>. 3레벨부터 매 3레벨마다 아래 강화 중 하나 선택 <state>(중복 가능, 취소 불가)</state>.`,
+          desc:`{firstMastery} 레벨 ×2 만큼 <st>health</st> 피해를 준다. 3레벨부터 매 3레벨마다 아래 강화 중 하나를 선택한다(중복 가능·취소 불가).`,
           boosts:[
             {stack:true, txt:`{firstMastery}의 생명력 비용 <b>-1</b> (최소 0).`},
             {txt:`피해량을 {attack} 레벨의 <b>절반</b>만큼 <kw>boost</kw>하고, 생명력 비용 <b>+1</b>.`},
-            {txt:`일반 피해 대신 대상의 <kw>outlast</kw>에 피해 <b>2</b>를 줄 수도 있다.`},
+            {txt:`일반 피해 대신 대상의 <st>outlast</st>에 피해 <b>2</b>를 줄 수도 있다.`},
             {txt:`대상은 전투 종료까지 <state>vulnerable</state> 상태가 된다.`},
-            {txt:`추가로 {attack} 레벨만큼 <b>에너지 피해</b>를 입힌다.`},
+            {txt:`추가로 {attack} 레벨만큼 <st>energy</st> 피해를 입힌다.`},
           ],
         },
         secondMastery:{base:2, name:{en:"Eldritch Siphon",ko:"엘드리치 사이펀"}, cost:1,
@@ -91,7 +94,7 @@ const SHARED = {
             {lab:"Damage 피해", color:"neutral", val:(E.lv("attack")+E.lv("secondMastery")).toFixed(1)},
             {lab:"Heal 회복", color:"energy", val:((E.lv("attack")+E.lv("secondMastery"))/3).toFixed(1)},
           ],
-          desc:`<en>에너지</en>로 지불 시: {attack}+{secondMastery} 랭크만큼 <hp>체력 피해</hp>, 그 <b>1/3</b>만큼 <kw>heal</kw>. <en>체력</en>으로 지불 시: 같은 양의 <en>에너지 피해</en>, 그 <b>1/3</b>만큼 <kw>heal</kw>. 8레벨부터 체력 1·에너지 1을 소모해 두 효과를 모두 얻는다.`,
+          desc:`<st>energy</st>로 지불 시: {attack}+{secondMastery} 랭크만큼 <st>health</st> 피해를 주고, 그 <b>1/3</b>만큼 <kw>heal</kw>한다. <st>health</st>으로 지불 시: 같은 양의 <st>energy</st> 피해를 주고, 그 <b>1/3</b>만큼 <kw>heal</kw>한다. <lvl n="8"><st>health</st> 1·<st>energy</st> 1을 소모해 두 효과를 모두 얻는다.</lvl>`,
         },
         navigate:{base:1, name:{en:"Navigate",ko:"길찾기"}},
         explore:{base:1, name:{en:"Explore",ko:"탐험"}},
@@ -102,7 +105,7 @@ const SHARED = {
       id:"phosromancer",
       name:{en:"Phosromancer",ko:"광채술사"},
       category:{key:"striker"},
-      flavor:"빛을 삼켜 그림자를 벼린다. 광채술사가 지나간 자리에는 눈이 멀 만큼의 잔광만 남는다.",
+      flavor:"어둠 속에 빛이 있다.",
       /* 직업 특성(special) 없음 — 엔진은 special 없으면 특성 박스를 생략 */
       stats:{
         health:{base:5},
@@ -119,7 +122,7 @@ const SHARED = {
               ...(fm>=7 ? [{lab:"Attack boost (기술2 후)", color:"attack", val:(fm/2).toFixed(1)}] : [])
             ];
           },
-          desc:`이번 라운드에 {attack} 행동을 <b>두 번</b> 사용한다. 대상이 <kw>energetic</kw>이 아니면 대상의 <kw>block</kw>·<kw>defend</kw>·<kw>reflect</kw>를 {firstMastery} 랭크만큼 감소시킨다. 직전 라운드에 {secondMastery} 사용 시 이번 라운드 적들의 타겟 수가 <b>1</b> 감소한다(최소 1). <lvl n="7">직전 라운드에 {secondMastery} 사용 시 이번 라운드 {attack}의 피해를 {firstMastery} 랭크 <b>절반</b>만큼 <kw>boost</kw>한다.</lvl>`,
+          desc:`이번 라운드에 {attack} 행동을 <b>두 번</b> 사용한다. 대상이 <kw>energetic</kw> 상태가 아니면 대상의 <kw>block</kw>·<kw>defend</kw>·<kw>reflect</kw>를 {firstMastery} 랭크만큼 감소시킨다. 직전 라운드에 {secondMastery} 사용 시 이번 라운드 적들의 타겟 수가 <b>1</b> 감소한다(최소 1). <lvl n="7">직전 라운드에 {secondMastery} 사용 시 이번 라운드 {attack}의 피해를 {firstMastery} 랭크 <b>절반</b>만큼 <kw>boost</kw>한다.</lvl>`,
         },
         secondMastery:{base:3, name:{en:"Magnified Beam",ko:"광선 집중"}, cost:1,
           readout:(E)=>[
@@ -127,7 +130,7 @@ const SHARED = {
             {lab:"Damage 피해", color:"health", val:(E.lv("attack")+E.lv("secondMastery")).toFixed(1)},
             {lab:"+Damage (기술1 후)", color:"defence", val:E.lv("defence").toFixed(1)},
           ],
-          desc:`{attack} 랭크 + {secondMastery} 랭크만큼 <hp>체력 피해</hp>를 준다. 직전 라운드에 {firstMastery} 사용 시 이 피해를 {defence} 랭크만큼 <kw>boost</kw>한다. <lvl n="8"><en>에너지 3</en>을 추가 지불하면 이번 라운드에 {secondMastery} 행동을 한 번 더 사용할 수 있다.</lvl>`,
+          desc:`{attack} 랭크 + {secondMastery} 랭크만큼 <st>health</st> 피해를 준다. 직전 라운드에 {firstMastery}을(를) 사용했다면 이 피해를 {defence} 랭크만큼 <kw>boost</kw>한다. <lvl n="8"><st>energy</st> 3을 추가로 지불하면 이번 라운드에 {secondMastery} 행동을 한 번 더 사용할 수 있다.</lvl>`,
         },
         navigate:{base:2, name:{en:"Navigate",ko:"길찾기"}},
         explore:{base:2, name:{en:"Explore",ko:"탐험"}},
@@ -138,8 +141,8 @@ const SHARED = {
       id:"bard",
       name:{en:"Bard",ko:"바드"},
       category:{key:"assist"},
-      flavor:"칼보다 노래가 먼저 닿는다. 한 소절은 동료를 일으키고, 다음 소절은 지갑을 채운다.",
-      special:{ko:`아이템을 판매하는 곳에 있을 때 게임 턴당 <b>1회</b>: <en>에너지 2</en>를 소모해 원하는 기술의 스탯 테스트를 한다. 성공하면 해당 기술 랭크의 <b>1/3</b>만큼 <b>골드</b>를 얻는다. 결과가 <b>헥스(Hex)</b>면 추가로 파워 업 하나를 뽑아 모든 영웅에게 적용한다.`},
+      flavor:"물론 우리를 들어보셨겠죠.",
+      special:{ko:`아이템을 판매하는 곳에 있을 때 게임 턴당 <b>1회</b>: <st>energy</st> 2를 소모해 원하는 기술의 스탯 테스트를 한다. 성공하면 해당 기술 랭크의 <b>1/3</b>만큼 <b>골드</b>를 얻는다. 결과가 <b>헥스(Hex)</b>면 추가로 파워 업 하나를 뽑아 모든 영웅에게 적용한다.`},
       stats:{
         health:{base:5},
         energy:{base:6},
@@ -150,9 +153,9 @@ const SHARED = {
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Damage boost 피해 증가", color:"neutral", val:E.lv("firstMastery")},
           ],
-          desc:`숙적에게 그룹이 주는 <hp>체력</hp>·<en>에너지</en>·<inf>영향력</inf> 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <kw>outlast</kw>를 감소시키기 위해 선택한 스탯 테스트를 자동 성공시킨다. 이 기술은 <kw>sustain</kw> 가능.`,
+          desc:`숙적에게 그룹이 주는 <st>health</st>·<st>energy</st>·<st>influence</st> 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <st>outlast</st>을 감소시키기 위해 선택한 스탯 테스트를 자동으로 성공시킨다. 이 기술은 <kw>sustain</kw>할 수 있다.`,
           checks:[
-            {at:6, txt:`<kw>sustain</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 받는다.`},
+            {at:6, txt:`<kw>sustain</kw> 중일 때는 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 받는다.`},
             {at:9, txt:`<kw>sustain</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 추가로 받는다.`},
           ],
         },
@@ -162,9 +165,9 @@ const SHARED = {
             {lab:"Heal 비전투·동료 에너지", color:"energy", val:(E.lv("secondMastery")/3).toFixed(1)},
             {lab:"Block 전투·그룹", color:"defence", val:(E.lv("secondMastery")/2).toFixed(1)},
           ],
-          desc:`<b>비전투:</b> 모든 동료의 <en>에너지</en>를 {secondMastery} 랭크 <b>1/3</b>만큼 <kw>heal</kw>하거나, 이번 게임 턴에 영웅 하나의 모든 스탯 테스트에 <b>-1</b> 보너스를 준다. <b>전투:</b> 그룹이 {secondMastery} 랭크 <b>1/2</b>만큼 <kw>block</kw>을 얻는다. 이 기술은 <kw>sustain</kw> 가능. <b>4·8랭크에 아래에서 하나 선택(중복 가능):</b>`,
+          desc:`<b>비전투:</b> 모든 동료의 <st>energy</st>를 {secondMastery} 랭크 <b>1/3</b>만큼 <kw>heal</kw>하거나, 이번 게임 턴에 영웅 하나의 모든 스탯 테스트에 <b>-1</b> 보너스를 준다. <b>전투:</b> 그룹이 {secondMastery} 랭크 <b>1/2</b>만큼 <kw>block</kw>을 얻는다. 이 기술은 <kw>sustain</kw>할 수 있다. <b>4·8랭크에 아래에서 하나 선택(중복 가능):</b>`,
           boosts:[
-            {stack:true, txt:`모든 동료가 <en>에너지 2 Regen</en>을 획득한다.`},
+            {stack:true, txt:`모든 동료가 <st>energy</st> <kw>regen</kw> 2를 획득한다.`},
             {stack:true, txt:`모든 영웅은 스탯 테스트에 <b>-2</b> 보너스를 받는다.`},
           ],
         },

@@ -52,16 +52,37 @@ function makeE(char,key){const s=(char.boosts&&char.boosts[key])||{};return{lv:k
 function normBoosts(char){if(!char.boosts||typeof char.boosts!=="object"){char.boosts={};return;}const ks=Object.keys(char.boosts);if(ks.length&&ks.every(k=>/^\d+$/.test(k)))char.boosts={firstMastery:Object.assign({},char.boosts)};}
 function boostEarned(char,key){const st=SHARED.classes[char.classId].stats[key],lv=effOf(char,key);return st&&st.boostAt?st.boostAt.filter(t=>lv>=t).length:Math.floor(lv/3);}
 
-/* ---------- text expand (tokens · kw · condition) ---------- */
+/* ---------- text expand (tokens · kw · condition) ----------
+   표기 규칙: 모든 키워드·스탯·컨디션 용어는 화면에 English한글 로 자동 렌더된다.
+   데이터에는 키(영문 소문자)만 적으면 되고, 이름은 용어집(SERIES.keywords/exKeywords/conditions,
+   STAT_META/DMG)에서 자동으로 가져온다.
+     <kw>boost</kw>        → Boost증폭 (클릭 시 정의 오버레이)
+     <state>vulnerable</state> → Vulnerable취약
+     <st>health</st>       → Health체력 (해당 스탯 색)
+   ------------------------------------------------------------ */
+const _ko=s=>`<span style="font-size:.88em;letter-spacing:0">${s}</span>`;
+/* 스탯 용어(영한): health/energy/influence/outlast 는 DMG, 나머지 9스탯은 STAT_META 사용 */
+function statTerm(k){
+  const d=DMG[k], meta=STAT_META[k];
+  const en=d?d.en:(meta?meta.role:k), ko=d?d.ko:(meta?meta.roleKo:"");
+  return `<b style="color:${statColor(k)}">${en}${ko?_ko(ko):""}</b>`;
+}
 function expand(char,t){
-  const cls=SHARED.classes[char.classId];
+  const cls=SHARED.classes[char.classId], S=SERIES[char.series]||{};
   return t.replace(/\{(\w+)\}/g,(m,k)=>cls.stats[k]?`<span class="ref" style="color:var(--g-${k})">${cls.stats[k].name.en}</span>`:m)
+    .replace(/<st>(\w+)<\/st>/g,(m,k)=>statTerm(k))
     .replace(/<hp>(.*?)<\/hp>/g,'<b class="hpc">$1</b>')
     .replace(/<en>(.*?)<\/en>/g,'<b class="enc">$1</b>')
     .replace(/<inf>(.*?)<\/inf>/g,`<b style="color:${CLR_INFLUENCE}">$1</b>`)
     .replace(/<out>(.*?)<\/out>/g,`<b style="color:${CLR_OUTLAST}">$1</b>`)
-    .replace(/<kw>(.*?)<\/kw>/g,(m,x)=>`<span class="kw" data-kind="kw" data-term="${x.toLowerCase()}">${x}</span>`)
-    .replace(/<state>(.*?)<\/state>/g,(m,x)=>`<span class="state" data-kind="state" data-term="${x.toLowerCase()}">${x}</span>`);
+    .replace(/<kw>(.*?)<\/kw>/g,(m,x)=>{
+      const k=x.toLowerCase(), v=(S.keywords&&S.keywords[k])||(S.exKeywords&&S.exKeywords[k]);
+      return `<span class="kw" data-kind="kw" data-term="${k}">${v?v.name.en+_ko(v.name.ko):x}</span>`;
+    })
+    .replace(/<state>(.*?)<\/state>/g,(m,x)=>{
+      const k=x.toLowerCase(), v=S.conditions&&S.conditions[k];
+      return `<span class="state" data-kind="state" data-term="${k}">${v?v.name.en+_ko(v.name.ko):x}</span>`;
+    });
 }
 
 /* ---------- hexagon ---------- */
@@ -335,8 +356,7 @@ function boardBody(char){
   return `
     <div class="identity">
       <div class="cat-row">${catTags(cls)}</div>
-      <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span></div>
-      ${cls.flavor?`<div class="flavor" style="border-left-color:${catColor(cls)};margin-top:6px;margin-bottom:10px">${cls.flavor}</div>`:""}
+      <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
       <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b></div>
       <div class="flavor">${race.flavor||""}</div>
       ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>`:""}
@@ -380,11 +400,11 @@ function referenceBody(char,series,tab){
   const empty=msg=>`<div class="section"><div class="empty-note">${msg}</div></div>`;
   if(tab==="keywords"){
     const ks=series.keywords||{};if(!Object.keys(ks).length)return empty("이 시리즈의 키워드가 아직 비어 있습니다. data.js에서 채우세요.");
-    return `<div class="section"><div class="sec-head">Keywords · 키워드</div>${Object.entries(ks).map(([k,v])=>kwItem(v.name,v.desc)).join("")}</div>`;
+    return `<div class="section"><div class="sec-head">Keywords · 키워드</div>${Object.entries(ks).map(([k,v])=>kwItem(v.name,expand(char,v.desc))).join("")}</div>`;
   }
   if(tab==="exkeywords"){
     const ks=series.exKeywords||{};if(!Object.keys(ks).length)return empty("전용 키워드가 아직 비어 있습니다.");
-    return `<div class="section"><div class="sec-head">5편 전용 키워드 · Siege</div>${Object.entries(ks).map(([k,v])=>kwItem(v.name,v.desc)).join("")}</div>`;
+    return `<div class="section"><div class="sec-head">5편 전용 키워드 · Siege</div>${Object.entries(ks).map(([k,v])=>kwItem(v.name,expand(char,v.desc))).join("")}</div>`;
   }
   if(tab==="conditions"){
     const cs=series.conditions||{};if(!Object.keys(cs).length)return empty("이 시리즈의 컨디션이 아직 비어 있습니다.");
