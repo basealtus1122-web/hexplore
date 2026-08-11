@@ -99,6 +99,7 @@ function renderHex(char,key,showName=true){
       <text class="hex-sub" x="63" y="80" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
     </svg>
     ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg)}`:""}
+    <button class="fuse-btn" data-fuse="${key}" ${filled?'':'disabled'} title="Fuse: 채운 육각형 칸을 비우고, 그만큼 레벨은 효과 보너스로 유지" style="margin:2px 0 4px;width:100%;font-size:11px;font-weight:600;padding:4px 6px;border-radius:6px;${filled?`border:1px solid var(--g-${key});color:var(--g-${key});background:color-mix(in srgb,var(--c-${key}) 14%,transparent);cursor:pointer`:'border:1px solid var(--edge-bright);color:var(--ink-faint);background:transparent;cursor:default'}">Fuse 융합${filled?` +${filled}`:''}</button>
     <div class="hex-mod">
       <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>
       <span class="mtag">${m?`<b>${m>0?'+':''}${m}</b>`:'효과'}</span>
@@ -414,6 +415,7 @@ function kwItem(name,desc){
 function bindBoard(char){
   root.querySelectorAll(".pip").forEach(p=>p.onclick=()=>{const k=p.dataset.hex,idx=+p.dataset.idx;char.filled[k]=(char.filled[k]>=idx+1)?idx:idx+1;renderBoard();});
   root.querySelectorAll("[data-mod]").forEach(b=>b.onclick=()=>{char.mod[b.dataset.mod]+=+b.dataset.dir;renderBoard();});
+  root.querySelectorAll("[data-fuse]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const k=b.dataset.fuse;if(char.filled[k]>0){char.mod[k]+=char.filled[k];char.filled[k]=0;renderBoard();}});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>{const k=b.dataset.res;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-boost]").forEach(b=>b.onclick=()=>{

@@ -195,7 +195,7 @@ const SHARED = {
 const KW_COMMON = {
   aegis:{name:{en:"Aegis",ko:"이지스"}, desc:`주황색 방패로 표기. 주로 적의 레벨 방패를 대체. 영웅의 공격 기어 업그레이드가 이지스 1/2 이상(올림)이거나 Energy가 0이어야 Health 피해를 줄 수 있다. 따로 언급이 없다면, 이지스 값은 적의 레벨과 같다.`},
   ambush:{name:{en:"Ambush",ko:"매복"}, desc:`매복한 적은 전투 시작 전에 행동을 하나 한다. 이 행동은 1명만 대상으로 한다. 키워드 뒤에 다른 효과도 포함할 수 있다. 영웅이 매복한 경우, 타겟 주사위를 굴려 타겟인 영웅 한 명이 전투 시작 전에 행동 하나를 한다.`},
-  battlefield:{name:{en:"Battlefield",ko:"전장"}, desc:`적을 대면하는 특별한 장소. 전장은 적의 설명란에 적혀있으며 영웅이 언제 입장하는지 적혀있다. 영웅은 전장을 공유하는 아군만 대상으로 삼을 수 있다. 적은 따로 언급이 없다면 모든 전장에 있는 것으로 간주한다. [보강 필요: Heroes who change from one Battlefield to another gain any positioning modifiers starting the round after the switch.]`},
+  battlefield:{name:{en:"Battlefield",ko:"전장"}, desc:`적을 대면하는 특별한 장소. 전장은 적의 설명란에 적혀있으며 영웅이 언제 입장하는지 적혀있다. 영웅은 전장을 공유하는 아군만 대상으로 삼을 수 있다. 적은 따로 언급이 없다면 모든 전장에 있는 것으로 간주한다. 전장을 옮긴 영웅은 이동 후 라운드를 시작할 때 위치 보정치를 받습니다.`},
   block:{name:{en:"Block",ko:"차단"}, desc:`Energy 피해부터 시작하여, Resolution 단계에 받는 총 피해량을 차단 수치만큼 감소.`},
   boost:{name:{en:"Boost",ko:"증폭"}, desc:`지시대로 특정 숫자 효과를 일시적으로 증가시킴. 따로 언급이 없다면 증폭의 효과는 전투 라운드(전투 밖이면 페이즈) 종료까지 유지됩니다.`},
   corrosive:{name:{en:"Corrosive",ko:"부식"}, desc:`이 피해를 받은 라운드에는 Heal될 수 없음. 전투가 아닌 상황에서 받았다면 현재 게임 턴 동안 Heal될 수 없음. 부식 피해는 Vital이 최대치 이상으로 Raise되는 것을 막는다.`},
@@ -235,7 +235,7 @@ const KW_COMMON = {
   tenacious:{name:{en:"Tenacious",ko:"집요"}, desc:`집요한 적에게서는 그룹이 Flee(도주)할 수 없습니다.`},
   unyielding:{name:{en:"Unyielding",ko:"완고"}, desc:`이 공격은 같은 대상을 여러 번 타겟할 수 있습니다. 매 공격마다 타겟을 굴립니다.`},
   wander:{name:{en:"Wander",ko:"헤매다"}, desc:`그룹은 Wander Compass(배회 나침반)에 표시된 대로 무작위 방향으로 1헥스 이동합니다.`},
-  weakness:{name:{en:"Weakness",ko:"약점"}, desc:`다른 키워드·원소·피해 유형을 포함합니다. 대상이 지정된 유형의 피해를 1 이상, 또는 Void(공허) 피해를 얼마든지 받으면 Hex 주사위를 굴립니다. 대상은 그 결과만큼 추가 피해를 받으며, 이 피해는 감소시킬 수 없습니다. [보강 필요: This die may HEXplode for opponents only. Targets may have more than one Weakness, but Weakness of the same type does not stack.]`},
+  weakness:{name:{en:"Weakness",ko:"약점"}, desc:`다른 키워드·원소·피해 유형을 포함합니다. 대상이 지정된 유형의 피해를 1 이상, 또는 Void(공허) 피해를 얼마든지 받으면 Hex 주사위를 굴립니다. 대상은 그 결과만큼 추가 피해를 받으며, 이 피해는 감소시킬 수 없습니다. HEXplode(헥스플로드)는 적을 대상으로만 발생합니다. 대상은 여러 약점을 가질 수 있지만, 같은 유형의 약점은 중첩되지 않습니다.`},
 };
 const KW_SIEGE = {
   augment:{name:{en:"Augment",ko:"보강"}, desc:`원소를 Defender나 영웅에 엮는다. Temple(사원)·Elements(원소) 참조표 및 Element 카드 참조 (TMoG).`},
