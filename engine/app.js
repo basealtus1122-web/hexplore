@@ -45,8 +45,8 @@ function buildCharacter(sel,seriesId){
   };
   if(race&&race.ability&&!race.inheritsRace)char.abilities.push({id:"aRace",src:"race",name:clone(race.ability.name),desc:race.ability.desc,track:initTrack(race.ability.track)});
   if(sel.aspectId){const a=GREATER_ASPECTS.find(x=>x.id===sel.aspectId);
-    if(a)char.abilities.push({id:"ga_"+a.id,src:"greater",name:clone(a.name),desc:a.desc||"(내용 추후 입력)",track:null});}
-  sel.traitIds.forEach(tid=>{const t=SHARED.traits[tid];if(t)char.abilities.push({id:"t_"+tid,src:t.type,name:clone(t.name),desc:t.desc,track:initTrack(t.track)});});
+    if(a)char.abilities.push({id:"ga_"+a.id,src:"greater",name:clone(a.name),desc:a.desc||"(내용 추후 입력)",track:initTrack(a.track),mods:a.mods?clone(a.mods):null});}
+  sel.traitIds.forEach(tid=>{const t=SHARED.traits[tid];if(t)char.abilities.push({id:"t_"+tid,src:t.type,name:clone(t.name),desc:t.desc,track:initTrack(t.track),mods:t.mods?clone(t.mods):null});});
   char.curHealth=effOf(char,"health");char.curEnergy=effOf(char,"energy");
   return char;
 }
@@ -62,7 +62,9 @@ function foeOf(raceId,subRaceId){
   if(r.inheritsRace){const s=SHARED.races[subRaceId];return s?s.favoredEnemy:r.favoredEnemy;}
   return r.favoredEnemy;
 }
-function baseCharOf(char,k){const cls=SHARED.classes[char.classId];return (cls.stats[k]?cls.stats[k].base:0)+(modsOf(char.raceId,char.subRaceId)[k]||0);}
+/* 부착물(특성·양상·위대한 양상·keepsake) 보정치 합 — 종족과 같은 양식으로 mods를 가질 수 있다 */
+function abilityMods(char,k){return (char.abilities||[]).reduce((s,a)=>s+((a.mods&&a.mods[k])||0),0);}
+function baseCharOf(char,k){const cls=SHARED.classes[char.classId];return (cls.stats[k]?cls.stats[k].base:0)+(modsOf(char.raceId,char.subRaceId)[k]||0)+abilityMods(char,k);}
 function effOf(char,k){return Math.max(0,baseCharOf(char,k)+char.filled[k]+char.mod[k]);}
 function makeE(char,key){const s=(char.boosts&&char.boosts[key])||{};return{lv:k=>effOf(char,k),b:n=>s[n]||0,on:n=>(s[n]||0)>0};}
 /* 강화(boost): 기술별 저장소 + 임의 랭크 스케줄. 구버전(평면) 저장본은 firstMastery로 마이그레이션 */
@@ -398,11 +400,13 @@ function boardBody(char){
   const skills=["navigate","explore","survival"].map(k=>renderHex(char,k)).join("");
   const masteries=`<div class="mastery-grid">${renderMastery(char,"firstMastery")}${renderMastery(char,"secondMastery")}</div>`;
   const srcMeta={race:["Race","종족","src-race"],trait:["Trait","트레잇","src-trait"],aspect:["Aspect","애스펙트","src-aspect"],greater:["Greater Aspect","위대한 양상","src-aspect"],keepsake:["Keepsake","킵세이크","src-keepsake"],class:["Class","직업","src-class"],event:["Event","이벤트","src-event"]};
-  const abilityHTML=char.abilities.map(a=>{
+  /* 같은 종류끼리 모아서 표시 — 양상과 위대한 양상은 나란히 */
+  const SRC_ORDER={race:0,trait:1,aspect:2,greater:2,keepsake:3,class:4,event:5};
+  const abilityHTML=char.abilities.slice().sort((a,b)=>(SRC_ORDER[a.src]??9)-(SRC_ORDER[b.src]??9)).map(a=>{
     const m=srcMeta[a.src]||["?","?","src-event"];let track="";
     if(a.track&&a.track.type==="check")track=`<div class="ab-track"><div class="track-check"><button class="${a.track.used?'done':''}" data-abcheck="${a.id}">${a.track.used?'\u2713':''}</button></div><span style="font-size:12px;color:var(--ink-faint)">${a.track.used?'사용함 · 탭하여 초기화':'사용 시 탭'}</span></div>`;
     else if(a.track&&a.track.type==="count")track=`<div class="ab-track"><div class="track-count"><button data-abcount="${a.id}" data-dir="-1">\u2212</button><span class="cval">${a.track.value}</span><button data-abcount="${a.id}" data-dir="1">\uFF0B</button><span style="font-size:11px;color:var(--ink-faint)">/ ${a.track.max}</span></div></div>`;
-    return `<div class="ability"><div class="ab-top"><span class="src-tag ${m[2]}">${m[0]} · ${m[1]}</span><span class="ab-name">${nm(a.name)}</span><button class="ab-remove" data-abremove="${a.id}">\u2715</button></div><div class="ab-desc">${expand(char,a.desc)}</div>${track}</div>`;
+    return `<div class="ability"><div class="ab-top"><span class="src-tag ${m[2]}">${m[0]} · ${m[1]}</span><span class="ab-name">${nm(a.name)}</span><button class="ab-remove" data-abremove="${a.id}">\u2715</button></div><div class="ab-desc">${expand(char,a.desc)}</div>${a.mods?`<div class="pv-mods" style="margin-top:6px">${STAT_ORDER.filter(k=>a.mods[k]).map(k=>{const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${a.mods[k]>0?'+':''}${a.mods[k]}</span>`;}).join("")}</div>`:""}${track}</div>`;
   }).join("");
   const itemHTML=char.items.length?char.items.map(it=>`<div class="item"><span class="txt">${it.text}</span><button data-itemremove="${it.id}">\u2715</button></div>`).join(""):`<div class="empty-note">아직 아이템 없음</div>`;
 
@@ -410,7 +414,7 @@ function boardBody(char){
     <div class="identity">
       <div class="cat-row">${catTags(cls)}</div>
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
-      <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}</div>
+      <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}${(()=>{const a=GREATER_ASPECTS.find(x=>x.id===char.aspectId);return a?` · 양상 <b>${a.name.en} (${a.name.ko})</b>`:"";})()}</div>
       <div class="flavor">${race.flavor||""}</div>
       ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
@@ -423,7 +427,7 @@ function boardBody(char){
     <div class="section"><div class="sec-head">Special Abilities · 특수 능력</div>${abilityHTML}
       <div class="ability-actions">
         <button class="add-btn" data-addability="free">+ 능력 직접 추가</button>
-        <button class="add-btn" id="addAspect">+ Greater Aspect 위대한 양상</button>
+        <button class="add-btn" id="addAspect">+ Aspect 양상</button>
         <button class="add-btn" data-addability="keepsake">+ Keepsake 공개</button>
         <button class="add-btn" data-addability="event">+ Event 능력</button>
       </div>
@@ -593,25 +597,28 @@ function addFoeModal(){
   document.querySelectorAll("[data-foepick]").forEach(b=>b.onclick=()=>{APP.char.favoredEnemies.push({en:b.dataset.foepick,ko:b.dataset.foeko});closeModal();renderBoard();});
   $("#fSave").onclick=()=>{const en=$("#fEn").value.trim(),ko=$("#fKo").value.trim();if(en||ko)APP.char.favoredEnemies.push({en:en||ko,ko:ko||en});closeModal();renderBoard();};
 }
-/* 위대한 양상 — 게임 중 추가(keepsake 방식). 목록에서 고르거나 직접 입력 */
+/* 양상 추가 — 맨 위에 '위대한 양상 공개', 그 아래 일반 양상 목록, 마지막에 직접 입력.
+   양상·keepsake는 종족과 같은 양식(mods 포함 가능)이라 보정치가 있으면 능력치에 자동 반영된다. */
 function addAspectModal(){
-  const have=APP.char.abilities.filter(a=>a.src==="greater").map(a=>a.name.en);
-  const list=GREATER_ASPECTS.filter(a=>!have.includes(a.name.en))
-    .map(a=>`<button class="btn slot" data-gapick="${a.id}" style="margin:0 6px 6px 0">${a.name.en}<span style="font-size:.88em">${a.name.ko}</span></button>`).join("");
-  openModal(`<h3>Greater Aspect 위대한 양상 추가</h3>
-    ${list?`<div class="field"><label>목록에서 선택</label><div style="display:flex;flex-wrap:wrap">${list}</div></div>`:`<div class="empty-note">목록의 양상을 모두 보유 중입니다.</div>`}
+  const have=APP.char.abilities.map(a=>a.name.en);
+  const btn=(attr,n)=>`<button class="btn slot" ${attr} style="margin:0 6px 6px 0">${n.en}<span style="font-size:.88em">${n.ko}</span></button>`;
+  const greater=GREATER_ASPECTS.filter(a=>!have.includes(a.name.en)).map(a=>btn(`data-gapick="${a.id}"`,a.name)).join("");
+  const normal=Object.values(SHARED.traits).filter(t=>t.type==="aspect"&&!have.includes(t.name.en)).map(t=>btn(`data-aspick="${t.id}"`,t.name)).join("");
+  openModal(`<h3>Aspect 양상 추가</h3>
+    <div class="field"><label>Greater Aspect 위대한 양상 — 공개</label>
+      ${greater?`<div style="display:flex;flex-wrap:wrap">${greater}</div>`:`<div class="empty-note" style="padding:6px 0">공개할 위대한 양상이 없습니다.</div>`}</div>
+    <div class="field"><label>Aspect 양상</label>
+      ${normal?`<div style="display:flex;flex-wrap:wrap">${normal}</div>`:`<div class="empty-note" style="padding:6px 0">목록이 아직 비어 있습니다.</div>`}</div>
     <div class="field"><label>또는 직접 입력 — 이름 (English)</label><input id="gEn" placeholder="Aspect name"></div>
     <div class="field"><label>이름 (한글)</label><input id="gKo" placeholder="양상 이름"></div>
     <div class="field"><label>설명</label><textarea id="gDesc" placeholder="효과 설명…"></textarea></div>
     <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="gSave">추가</button></div>`);
-  document.querySelectorAll("[data-gapick]").forEach(b=>b.onclick=()=>{
-    const a=GREATER_ASPECTS.find(x=>x.id===b.dataset.gapick);
-    APP.char.abilities.push({id:"ga_"+a.id+Date.now(),src:"greater",name:clone(a.name),desc:a.desc||"(내용 추후 입력)",track:null});
-    closeModal();renderBoard();
-  });
+  const add=(src,o,pre)=>{APP.char.abilities.push({id:pre+(o.id||"")+Date.now(),src,name:clone(o.name),desc:o.desc||"(내용 추후 입력)",track:initTrack(o.track),mods:o.mods?clone(o.mods):null});closeModal();renderBoard();};
+  document.querySelectorAll("[data-gapick]").forEach(b=>b.onclick=()=>add("greater",GREATER_ASPECTS.find(x=>x.id===b.dataset.gapick),"ga_"));
+  document.querySelectorAll("[data-aspick]").forEach(b=>b.onclick=()=>add("aspect",SHARED.traits[b.dataset.aspick],"as_"));
   $("#gSave").onclick=()=>{
     const en=$("#gEn").value.trim(),ko=$("#gKo").value.trim();if(!en&&!ko){closeModal();return;}
-    APP.char.abilities.push({id:"ga"+Date.now(),src:"greater",name:{en:en||ko,ko:ko||en},desc:$("#gDesc").value.trim()||"—",track:null});
+    APP.char.abilities.push({id:"as"+Date.now(),src:"aspect",name:{en:en||ko,ko:ko||en},desc:$("#gDesc").value.trim()||"—",track:null,mods:null});
     closeModal();renderBoard();
   };
 }
