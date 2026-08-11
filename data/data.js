@@ -526,7 +526,7 @@ const SHARED = {
     ancestralChanneler:{id:"ancestralChanneler",ed:"5",name:{en:"Ancestral Channeler",ko:"선조 강령사"},category:{key:"dual",members:["utility","assist"]},stats:{} },
     kensai:{      id:"kensai",      ed:"5", name:{en:"Kensai",ko:"검성"},               category:{key:"dual",members:["striker","assist"]}, stats:{} },
     mycotomancer:{id:"mycotomancer",ed:"5", name:{en:"Mycotomancer",ko:"균사술사"},     category:{key:"dual",members:["assist","healer"]},  stats:{} },
-    threadMage:{  id:"threadMage",  ed:"5", name:{en:"Thread Mage",ko:"직조술사"},     category:{key:"dual",members:["sapper","healer"]},  stats:{} },
+    threadMage:{  id:"threadMage",  ed:"5", name:{en:"Thread Mage",ko:"직조 마법사"},     category:{key:"dual",members:["sapper","healer"]},  stats:{} },
     // 다음 직업은 여기에 추가.  dual 예:  category:{key:"dual",members:["striker","sapper"]}
   },
 
