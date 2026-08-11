@@ -48,6 +48,16 @@ const FOE_TYPES = [
   {en:"Monstrous Humanoid",ko:"인간형 괴수"},
 ];
 
+/* Greater Aspects(위대한 양상) — '다시 깨어난 자'가 하나를 선택한다.
+   게임 중에도 판에서 추가할 수 있다. 설명은 추후에 채움. */
+const GREATER_ASPECTS = [
+  {id:"ghost",      name:{en:"Ghost",      ko:"유령"},        desc:""},
+  {id:"lycan",      name:{en:"Lycan",      ko:"늑대인간"},    desc:""},
+  {id:"reanimated", name:{en:"Reanimated", ko:"되살아난 자"}, desc:""},
+  {id:"vampire",    name:{en:"Vampire",    ko:"뱀파이어"},    desc:""},
+  {id:"zombie",     name:{en:"Zombie",     ko:"좀비"},        desc:""},
+];
+
 /* =====================================================================
    SHARED — 시리즈 무관 (종족·직업·특성)
    ===================================================================== */
@@ -152,6 +162,21 @@ const SHARED = {
         desc:"게임 턴당 <b>1회</b>, <st>energy</st> 2를 소모해 자신의 Condition상태를 <kw>negate</kw>할 수 있다. 그렇게 했다면 <st>health</st> 3을 <kw>heal</kw>한다.",
         track:{type:"check"}},
       flavor:"작고 사악한 족속들로 태생적으로 곱추에 의심스럽습니다.",
+    },
+    reawakened: {
+      id:"reawakened",
+      name:{en:"Reawakened",ko:"다시 깨어난 자"},
+      favoredEnemy:{en:"",ko:"능력 참조"},
+      foodUse:0,
+      mods:{health:0,energy:0,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:0},
+      /* 특수: 다른 종족을 하나 골라 스탯 보정치와 숙적만 물려받고, 위대한 양상을 하나 고른다.
+         엔진이 이 두 플래그를 보고 빌더에 추가 선택 화면을 띄운다. */
+      inheritsRace:true,
+      greaterAspect:true,
+      ability:{name:{en:"Racial Ability",ko:"종족 능력"},
+        desc:"다른 종족을 하나 선택해 그 종족의 <b>스탯 보정치와 숙적만</b> 적용한다. 그리고 위대한 양상 중 하나를 선택한다.",
+        track:null},
+      flavor:"당신은 이미 한 번 죽었습니다.",
     },
     // 다음 종족은 여기에 같은 형식으로 추가
   },
@@ -394,4 +419,4 @@ const SERIES = {
 };
 
 /* 엔진에서 접근할 수 있게 전역으로 노출 */
-window.HEX = { CAT, STAT_ORDER, STAT_META, SHARED, SERIES, FOE_TYPES };
+window.HEX = { CAT, STAT_ORDER, STAT_META, SHARED, SERIES, FOE_TYPES, GREATER_ASPECTS };

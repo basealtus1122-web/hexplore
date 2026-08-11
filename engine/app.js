@@ -6,11 +6,12 @@
 (function(){
 const {CAT,STAT_ORDER,STAT_META,SHARED,SERIES}=window.HEX;
 const FOE_TYPES=window.HEX.FOE_TYPES||[];
+const GREATER_ASPECTS=window.HEX.GREATER_ASPECTS||[];
 
 /* ---------- app state ---------- */
 const APP={
   screen:"builder",              // builder | series | board
-  sel:{raceId:null,classId:null,traitIds:[]},
+  sel:{raceId:null,classId:null,traitIds:[],subRaceId:null,aspectId:null},
   builderTab:"race",             // race | class | trait
   char:null,
   tab:"board",                   // board | keyword id...
@@ -34,19 +35,34 @@ function buildCharacter(sel,seriesId){
   const race=SHARED.races[sel.raceId], cls=SHARED.classes[sel.classId];
   const char={
     raceId:sel.raceId,classId:sel.classId,traitIds:[...sel.traitIds],series:seriesId,
+    subRaceId:sel.subRaceId||null,aspectId:sel.aspectId||null,
     filled:zero(),mod:zero(),
     curHealth:0,curEnergy:0,regenHealth:0,regenEnergy:0,
     gold:0,food:0,foodUse:race?race.foodUse:0,
-    favoredEnemies:race?[clone(race.favoredEnemy)]:[],
+    favoredEnemies:race?[clone(foeOf(sel.raceId,sel.subRaceId))]:[],
     items:[],boosts:{},mchecks:{},uses:{},abilities:[],
     startDate:new Date().toISOString(),
   };
-  if(race&&race.ability)char.abilities.push({id:"aRace",src:"race",name:clone(race.ability.name),desc:race.ability.desc,track:initTrack(race.ability.track)});
+  if(race&&race.ability&&!race.inheritsRace)char.abilities.push({id:"aRace",src:"race",name:clone(race.ability.name),desc:race.ability.desc,track:initTrack(race.ability.track)});
+  if(sel.aspectId){const a=GREATER_ASPECTS.find(x=>x.id===sel.aspectId);
+    if(a)char.abilities.push({id:"ga_"+a.id,src:"greater",name:clone(a.name),desc:a.desc||"(내용 추후 입력)",track:null});}
   sel.traitIds.forEach(tid=>{const t=SHARED.traits[tid];if(t)char.abilities.push({id:"t_"+tid,src:t.type,name:clone(t.name),desc:t.desc,track:initTrack(t.track)});});
   char.curHealth=effOf(char,"health");char.curEnergy=effOf(char,"energy");
   return char;
 }
-function baseCharOf(char,k){const cls=SHARED.classes[char.classId],race=SHARED.races[char.raceId];return (cls.stats[k]?cls.stats[k].base:0)+((race&&race.mods[k])||0);}
+/* 종족 보정치 — '다시 깨어난 자'처럼 다른 종족을 물려받는 경우 그 종족의 보정치를 쓴다 */
+function modsOf(raceId,subRaceId){
+  const r=SHARED.races[raceId];if(!r)return zero();
+  if(r.inheritsRace){const s=SHARED.races[subRaceId];return s?s.mods:zero();}
+  return r.mods;
+}
+/* 물려받는 종족이면 그 종족의 숙적을, 아니면 자신의 숙적을 */
+function foeOf(raceId,subRaceId){
+  const r=SHARED.races[raceId];if(!r)return{en:"",ko:""};
+  if(r.inheritsRace){const s=SHARED.races[subRaceId];return s?s.favoredEnemy:r.favoredEnemy;}
+  return r.favoredEnemy;
+}
+function baseCharOf(char,k){const cls=SHARED.classes[char.classId];return (cls.stats[k]?cls.stats[k].base:0)+(modsOf(char.raceId,char.subRaceId)[k]||0);}
 function effOf(char,k){return Math.max(0,baseCharOf(char,k)+char.filled[k]+char.mod[k]);}
 function makeE(char,key){const s=(char.boosts&&char.boosts[key])||{};return{lv:k=>effOf(char,k),b:n=>s[n]||0,on:n=>(s[n]||0)>0};}
 /* 강화(boost): 기술별 저장소 + 임의 랭크 스케줄. 구버전(평면) 저장본은 firstMastery로 마이그레이션 */
@@ -210,9 +226,13 @@ function renderBuilder(){
   else body=traitPicker(traitList);
 
   const race=SHARED.races[APP.sel.raceId], cls=SHARED.classes[APP.sel.classId];
-  const ready=APP.sel.raceId&&APP.sel.classId;
+  const needExtra=!!(race&&race.inheritsRace);
+  const ready=APP.sel.raceId&&APP.sel.classId&&(!needExtra||(APP.sel.subRaceId&&APP.sel.aspectId));
+  const sub=SHARED.races[APP.sel.subRaceId], asp=GREATER_ASPECTS.find(a=>a.id===APP.sel.aspectId);
   const summary=`<div class="build-summary">
     <span class="bs ${race?'set':''}">종족 <b>${race?race.name.en:'—'}</b></span>
+    ${needExtra?`<span class="bs ${sub?'set':''}">기반 종족 <b>${sub?sub.name.en:'—'}</b></span>
+    <span class="bs ${asp?'set':''}">위대한 양상 <b>${asp?asp.name.en:'—'}</b></span>`:""}
     <span class="bs ${cls?'set':''}">직업 <b>${cls?cls.name.en:'—'}</b></span>
     <span class="bs ${APP.sel.traitIds.length?'set':''}">특성 <b>${APP.sel.traitIds.length||'—'}</b></span>
   </div>`;
@@ -227,17 +247,19 @@ function renderBuilder(){
     ${summary}
     <div class="build-actions">
       <button class="btn primary big" id="toSeries" ${ready?'':'disabled'}>확정 → 시리즈 선택</button>
-      ${ready?'':'<span class="hint">종족과 직업을 선택하세요 (특성은 선택 사항 · 게임 중 추가 가능)</span>'}
+      ${ready?'':`<span class="hint">${needExtra&&APP.sel.raceId?'기반 종족과 위대한 양상까지 선택하세요':'종족과 직업을 선택하세요'} (특성은 선택 사항 · 게임 중 추가 가능)</span>`}
     </div>
   </div>`;
 
   root.querySelectorAll("[data-btab]").forEach(b=>b.onclick=()=>{APP.builderTab=b.dataset.btab;renderBuilder();});
   root.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
     const kind=b.dataset.kind,id=b.dataset.pick;
-    if(kind==="race")APP.sel.raceId=(APP.sel.raceId===id?null:id);
+    if(kind==="race"){APP.sel.raceId=(APP.sel.raceId===id?null:id);APP.sel.subRaceId=null;APP.sel.aspectId=null;}
     if(kind==="class")APP.sel.classId=(APP.sel.classId===id?null:id);
     renderBuilder();
   });
+  root.querySelectorAll("[data-subrace]").forEach(b=>b.onclick=()=>{APP.sel.subRaceId=(APP.sel.subRaceId===b.dataset.subrace?null:b.dataset.subrace);renderBuilder();});
+  root.querySelectorAll("[data-aspect]").forEach(b=>b.onclick=()=>{APP.sel.aspectId=(APP.sel.aspectId===b.dataset.aspect?null:b.dataset.aspect);renderBuilder();});
   root.querySelectorAll("[data-trait]").forEach(b=>b.onclick=()=>{
     const id=b.dataset.trait,i=APP.sel.traitIds.indexOf(id);
     if(i>=0)APP.sel.traitIds.splice(i,1);else APP.sel.traitIds.push(id);
@@ -259,7 +281,25 @@ function racePreview(r){
     <div class="pv-row"><span class="pv-lbl">Food Use 음식소모</span> ${r.foodUse}</div>
     <div class="pv-mods">${mods}</div>
     <div class="pv-ability">${r.ability?`<b>${r.ability.name.en} (${r.ability.name.ko})</b> — ${previewText(r.ability.desc)}`:""}</div>
-    <div class="flavor">${r.flavor||""}</div>`;
+    <div class="flavor">${r.flavor||""}</div>
+    ${r.inheritsRace?inheritPicker(r):""}`;
+}
+/* '다시 깨어난 자' 전용 — 기반 종족 + 위대한 양상 선택 */
+function inheritPicker(r){
+  const chip=(on,attr,label)=>`<button class="pick-card ${on?'on':''}" ${attr} style="display:inline-block;width:auto;padding:7px 13px;margin:0 6px 6px 0">${label}</button>`;
+  const subs=Object.values(SHARED.races).filter(x=>!x.inheritsRace)
+    .map(x=>chip(APP.sel.subRaceId===x.id,`data-subrace="${x.id}"`,`${x.name.en}<span class="pc-ko" style="margin-left:4px">${x.name.ko}</span>`)).join("");
+  const asps=GREATER_ASPECTS
+    .map(a=>chip(APP.sel.aspectId===a.id,`data-aspect="${a.id}"`,`${a.name.en}<span class="pc-ko" style="margin-left:4px">${a.name.ko}</span>`)).join("");
+  const sub=SHARED.races[APP.sel.subRaceId];
+  const mods=sub?STAT_ORDER.filter(k=>sub.mods[k]).map(k=>{const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${sub.mods[k]>0?'+':''}${sub.mods[k]}</span>`;}).join(""):"";
+  return `<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--edge)">
+    <div class="pv-lbl" style="margin-bottom:7px">기반 종족 — 보정치와 숙적만 물려받습니다</div>
+    <div>${subs}</div>
+    ${sub?`<div class="pv-row" style="margin-top:6px"><span class="pv-lbl">Favored Enemy 숙적</span> ${foeLabel(sub.favoredEnemy)}</div><div class="pv-mods">${mods}</div>`:""}
+    <div class="pv-lbl" style="margin:14px 0 7px">Greater Aspect 위대한 양상 — 하나 선택</div>
+    <div>${asps}</div>
+  </div>`;
 }
 function classPreview(c){
   const tag=catTags(c);
@@ -357,7 +397,7 @@ function boardBody(char){
   const combat=["attack","defence","firstMastery","secondMastery"].map(k=>renderHex(char,k)).join("");
   const skills=["navigate","explore","survival"].map(k=>renderHex(char,k)).join("");
   const masteries=`<div class="mastery-grid">${renderMastery(char,"firstMastery")}${renderMastery(char,"secondMastery")}</div>`;
-  const srcMeta={race:["Race","종족","src-race"],trait:["Trait","트레잇","src-trait"],aspect:["Aspect","애스펙트","src-aspect"],keepsake:["Keepsake","킵세이크","src-keepsake"],class:["Class","직업","src-class"],event:["Event","이벤트","src-event"]};
+  const srcMeta={race:["Race","종족","src-race"],trait:["Trait","트레잇","src-trait"],aspect:["Aspect","애스펙트","src-aspect"],greater:["Greater Aspect","위대한 양상","src-aspect"],keepsake:["Keepsake","킵세이크","src-keepsake"],class:["Class","직업","src-class"],event:["Event","이벤트","src-event"]};
   const abilityHTML=char.abilities.map(a=>{
     const m=srcMeta[a.src]||["?","?","src-event"];let track="";
     if(a.track&&a.track.type==="check")track=`<div class="ab-track"><div class="track-check"><button class="${a.track.used?'done':''}" data-abcheck="${a.id}">${a.track.used?'\u2713':''}</button></div><span style="font-size:12px;color:var(--ink-faint)">${a.track.used?'사용함 · 탭하여 초기화':'사용 시 탭'}</span></div>`;
@@ -370,7 +410,7 @@ function boardBody(char){
     <div class="identity">
       <div class="cat-row">${catTags(cls)}</div>
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
-      <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b></div>
+      <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}</div>
       <div class="flavor">${race.flavor||""}</div>
       ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
@@ -383,6 +423,7 @@ function boardBody(char){
     <div class="section"><div class="sec-head">Special Abilities · 특수 능력</div>${abilityHTML}
       <div class="ability-actions">
         <button class="add-btn" data-addability="free">+ 능력 직접 추가</button>
+        <button class="add-btn" id="addAspect">+ Greater Aspect 위대한 양상</button>
         <button class="add-btn" data-addability="keepsake">+ Keepsake 공개</button>
         <button class="add-btn" data-addability="event">+ Event 능력</button>
       </div>
@@ -516,6 +557,7 @@ function bindBoard(char){
   root.querySelectorAll("[data-foe]").forEach(b=>b.onclick=()=>{char.favoredEnemies.splice(+b.dataset.foe,1);renderBoard();});
   const af=$("#addFoe");if(af)af.onclick=addFoeModal;
   const ai=$("#addItem");if(ai)ai.onclick=addItemModal;
+  const ag=$("#addAspect");if(ag)ag.onclick=addAspectModal;
   root.querySelectorAll("[data-addability]").forEach(b=>b.onclick=()=>addAbilityModal(b.dataset.addability));
 }
 /* keyword/condition overlay — works on every tab */
@@ -550,6 +592,28 @@ function addFoeModal(){
     <div class="field"><label>English</label><input id="fEn" placeholder="Goblin"></div><div class="field"><label>한글</label><input id="fKo" placeholder="고블린"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="fSave">추가</button></div>`);
   document.querySelectorAll("[data-foepick]").forEach(b=>b.onclick=()=>{APP.char.favoredEnemies.push({en:b.dataset.foepick,ko:b.dataset.foeko});closeModal();renderBoard();});
   $("#fSave").onclick=()=>{const en=$("#fEn").value.trim(),ko=$("#fKo").value.trim();if(en||ko)APP.char.favoredEnemies.push({en:en||ko,ko:ko||en});closeModal();renderBoard();};
+}
+/* 위대한 양상 — 게임 중 추가(keepsake 방식). 목록에서 고르거나 직접 입력 */
+function addAspectModal(){
+  const have=APP.char.abilities.filter(a=>a.src==="greater").map(a=>a.name.en);
+  const list=GREATER_ASPECTS.filter(a=>!have.includes(a.name.en))
+    .map(a=>`<button class="btn slot" data-gapick="${a.id}" style="margin:0 6px 6px 0">${a.name.en}<span style="font-size:.88em">${a.name.ko}</span></button>`).join("");
+  openModal(`<h3>Greater Aspect 위대한 양상 추가</h3>
+    ${list?`<div class="field"><label>목록에서 선택</label><div style="display:flex;flex-wrap:wrap">${list}</div></div>`:`<div class="empty-note">목록의 양상을 모두 보유 중입니다.</div>`}
+    <div class="field"><label>또는 직접 입력 — 이름 (English)</label><input id="gEn" placeholder="Aspect name"></div>
+    <div class="field"><label>이름 (한글)</label><input id="gKo" placeholder="양상 이름"></div>
+    <div class="field"><label>설명</label><textarea id="gDesc" placeholder="효과 설명…"></textarea></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="gSave">추가</button></div>`);
+  document.querySelectorAll("[data-gapick]").forEach(b=>b.onclick=()=>{
+    const a=GREATER_ASPECTS.find(x=>x.id===b.dataset.gapick);
+    APP.char.abilities.push({id:"ga_"+a.id+Date.now(),src:"greater",name:clone(a.name),desc:a.desc||"(내용 추후 입력)",track:null});
+    closeModal();renderBoard();
+  });
+  $("#gSave").onclick=()=>{
+    const en=$("#gEn").value.trim(),ko=$("#gKo").value.trim();if(!en&&!ko){closeModal();return;}
+    APP.char.abilities.push({id:"ga"+Date.now(),src:"greater",name:{en:en||ko,ko:ko||en},desc:$("#gDesc").value.trim()||"—",track:null});
+    closeModal();renderBoard();
+  };
 }
 function addItemModal(){
   openModal(`<h3>Item 추가</h3><div class="field"><label>내용</label><input id="iTxt" placeholder="예: Shadow Dagger (그림자 단검) — 공격 +1"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="iSave">추가</button></div>`);
