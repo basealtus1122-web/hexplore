@@ -432,12 +432,12 @@ function refItem(name,desc,tag){
 function refList(char,title,list){
   const rows=list.map(v=>{
     const plain=`${v.name.en} ${v.name.ko} ${(v.desc||"").replace(/<[^>]+>/g,"")}`.toLowerCase().replace(/"/g,"&quot;");
-    return `<div class="ref-block refrow" data-s="${plain}" style="padding:0;margin-bottom:6px;overflow:hidden">
-      <div class="refhead" style="display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none">
-        <span class="chev" style="color:var(--ink-faint);font-size:11px;transition:transform .15s;display:inline-block">▶</span>
-        <span class="ref-name" style="font-size:14px">${v.name.en}<span class="ko" style="margin-left:1px">${v.name.ko}</span></span>
+    return `<div class="ref-block refrow" data-s="${plain}" style="padding:0;margin:0;overflow:hidden;flex:0 0 auto;max-width:100%;transition:background .15s">
+      <div class="refhead" style="display:flex;align-items:center;gap:7px;padding:7px 11px;cursor:pointer;user-select:none;white-space:nowrap">
+        <span class="chev" style="color:var(--ink-faint);font-size:10px;transition:transform .15s;display:inline-block">▶</span>
+        <span class="ref-name" style="font-size:13.5px">${v.name.en}<span class="ko" style="margin-left:1px">${v.name.ko}</span></span>
       </div>
-      <div class="ref-desc refbody" style="display:none;padding:0 12px 11px 30px;margin-top:0">${expand(char,v.desc||"")}</div>
+      <div class="ref-desc refbody" style="display:none;padding:0 12px 11px 29px;margin-top:0">${expand(char,v.desc||"")}</div>
     </div>`;
   }).join("");
   return `<div class="section"><div class="sec-head">${title}</div>
@@ -446,14 +446,20 @@ function refList(char,title,list){
       <button id="refAll" class="tbtn" style="white-space:nowrap">모두 펼치기</button>
     </div>
     <div id="refCount" style="font-size:11px;color:var(--ink-faint);margin:-4px 0 8px"></div>
-    ${rows}</div>`;
+    <div id="refWrap" style="display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start">${rows}</div></div>`;
 }
 /* 검색·접기 동작 (탭 렌더 후 호출) */
 function bindRefList(){
   const box=$("#refSearch");if(!box)return;
   const rows=Array.from(root.querySelectorAll(".refrow"));
   const cnt=$("#refCount"), all=$("#refAll");
-  const open=(r,on)=>{r.querySelector(".refbody").style.display=on?"block":"none";r.querySelector(".chev").style.transform=on?"rotate(90deg)":"none";};
+  /* 접힘 = 이름 크기만큼만(칩), 펼침 = 가로 전체 폭 + 설명 표시 */
+  const open=(r,on)=>{
+    r.querySelector(".refbody").style.display=on?"block":"none";
+    r.querySelector(".chev").style.transform=on?"rotate(90deg)":"none";
+    r.style.flex=on?"1 1 100%":"0 0 auto";
+    r.style.background=on?"var(--panel)":"var(--panel-2)";
+  };
   rows.forEach(r=>r.querySelector(".refhead").onclick=()=>open(r,r.querySelector(".refbody").style.display==="none"));
   const upd=()=>{
     const q=box.value.trim().toLowerCase();
