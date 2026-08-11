@@ -7,10 +7,10 @@
      {attack} {defence} {firstMastery} {secondMastery} ...  → 해당 능력 이름으로 자동 치환
      <st>health</st> <st>energy</st> <st>attack</st> …  → 스탯 용어를 English한글 + 스탯색으로 자동 렌더
      <kw>boost</kw> → Boost증폭 (용어집에서 이름을 찾아 자동 표기 · 클릭 시 정의)
-     <state>vulnerable</state> → Vulnerable취약 (컨디션 표에서 자동 표기)
+     <state>vulnerable</state> → Vulnerable취약 (상태 표에서 자동 표기)
      <hp>텍스트</hp> / <en>텍스트</en>  → (구) 체력/에너지 강조색. 새 데이터는 <st> 사용
      <kw>evasion</kw>  → 키워드(클릭 시 오버레이). 소문자 영문이 SERIES.keywords의 key와 매칭
-     <state>vulnerable</state>  → 컨디션(클릭 시 오버레이). SERIES.conditions의 key와 매칭
+     <state>vulnerable</state>  → 상태(클릭 시 오버레이). SERIES.conditions의 key와 매칭
    ===================================================================== */
 
 /* ---------- 직업 계통 (게임 공용 색) ---------- */
@@ -142,9 +142,9 @@ const SHARED = {
         track:{type:"check"}},
       flavor:"이 반쯤 고양이 같은 종족은 다양한 형태가 있습니다.",
     },
-    rankin: {
-      id:"rankin",
-      name:{en:"Rankin",ko:"랫킨"},
+    ratkin: {
+      id:"ratkin",
+      name:{en:"Ratkin",ko:"랫킨"},
       favoredEnemy:{en:"Monstrous Humanoid",ko:"인간형 괴수"},
       foodUse:3,
       mods:{health:1,energy:0,attack:1,defence:0,firstMastery:1,secondMastery:0,navigate:2,explore:2,survival:2},

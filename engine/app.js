@@ -54,7 +54,7 @@ function normBoosts(char){if(!char.boosts||typeof char.boosts!=="object"){char.b
 function boostEarned(char,key){const st=SHARED.classes[char.classId].stats[key],lv=effOf(char,key);return st&&st.boostAt?st.boostAt.filter(t=>lv>=t).length:Math.floor(lv/3);}
 
 /* ---------- text expand (tokens · kw · condition) ----------
-   표기 규칙: 모든 키워드·스탯·컨디션 용어는 화면에 English한글 로 자동 렌더된다.
+   표기 규칙: 모든 키워드·스탯·상태 용어는 화면에 English한글 로 자동 렌더된다.
    데이터에는 키(영문 소문자)만 적으면 되고, 이름은 용어집(SERIES.keywords/exKeywords/conditions,
    STAT_META/DMG)에서 자동으로 가져온다.
      <kw>boost</kw>        → Boost증폭 (클릭 시 정의 오버레이)
@@ -290,7 +290,7 @@ function renderSeries(){
   const cards=Object.values(SERIES).map(s=>`<button class="series-card" data-series="${s.id}">
     <div class="sc-badge">${s.short}</div>
     <div class="sc-name">${s.name.en}</div><div class="sc-ko">${s.name.ko}</div>
-    <div class="sc-note">키워드 · 컨디션 · 룰 · 아이템 · 기타 참조표가 이 시리즈 기준으로 적용됩니다.</div>
+    <div class="sc-note">키워드 · 상태 · 룰 · 아이템 · 기타 참조표가 이 시리즈 기준으로 적용됩니다.</div>
   </button>`).join("");
   root.innerHTML=`<div class="wrap">
     <div class="builder-head"><div class="wordmark">HEXPLORE IT</div><div class="sub">Select Series · 시리즈 선택</div></div>
@@ -313,7 +313,7 @@ function renderBoard(){
   // top tabs
   const tabs=[{id:"board",label:"Board 캐릭터판"},{id:"keywords",label:"Keywords 키워드"}];
   if(series.exKeywords&&Object.keys(series.exKeywords).length)tabs.push({id:"exkeywords",label:"Siege 전용 키워드"});
-  tabs.push({id:"conditions",label:"Conditions 컨디션"},{id:"rules",label:"Rules 룰"},{id:"items",label:"Items 아이템"});
+  tabs.push({id:"conditions",label:"Conditions 상태"},{id:"rules",label:"Rules 룰"},{id:"items",label:"Items 아이템"});
   (series.extras||[]).forEach(x=>tabs.push({id:"extra:"+x.id,label:`${x.label.en} ${x.label.ko}`}));
   const tabbar=tabs.map(t=>`<button class="tab ${APP.tab===t.id?'on':''}" data-tab="${t.id}">${t.label}</button>`).join("");
 
@@ -420,8 +420,8 @@ function referenceBody(char,series,tab){
     return refList(char,"5편 전용 키워드 · Siege",Object.values(ks));
   }
   if(tab==="conditions"){
-    const cs=series.conditions||{};if(!Object.keys(cs).length)return empty("이 시리즈의 컨디션이 아직 비어 있습니다.");
-    return refList(char,"Conditions · 컨디션",Object.values(cs));
+    const cs=series.conditions||{};if(!Object.keys(cs).length)return empty("이 시리즈의 상태이 아직 비어 있습니다.");
+    return refList(char,"Conditions · 상태",Object.values(cs));
   }
   if(tab==="rules"){
     const rs=series.rules||[];if(!rs.length)return empty("이 시리즈의 룰 참조표가 아직 비어 있습니다.");
@@ -525,7 +525,7 @@ function bindTerms(char){
 function openTerm(char,kind,term){
   const series=SERIES[char.series];
   const v=kind==="kw"?((series.keywords&&series.keywords[term])||(series.exKeywords&&series.exKeywords[term])):(series.conditions&&series.conditions[term]);
-  const title=kind==="kw"?"Keyword · 키워드":"Condition · 컨디션";
+  const title=kind==="kw"?"Keyword · 키워드":"Condition · 상태";
   openModal(`<div class="term-head">${title}</div>
     <h3 style="margin-top:4px">${v?`${v.name.en}<span style="font-size:14px;color:var(--ink-dim);margin-left:2px">${v.name.ko}</span>`:term}</h3>
     <div class="term-desc">${v?v.desc:"이 시리즈에 아직 정의가 없습니다. data.js에서 채우세요."}</div>
