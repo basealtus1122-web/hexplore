@@ -78,7 +78,7 @@ function formSwitcher(char,race){
   const cur=char.raceForm||race.forms[0].id;
   const btns=race.forms.map(f=>{const on=f.id===cur;
     return `<button data-form="${f.id}" style="font-family:'Cinzel';font-size:12.5px;padding:6px 13px;border-radius:9px;cursor:pointer;${on?'border:1px solid var(--g-attack);color:var(--ink);background:color-mix(in srgb,var(--c-attack) 16%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${f.name.en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:3px">${f.name.ko}</span></button>`;}).join("");
-  return `<div class="foe" style="margin-top:12px"><div class="foe-label">Form · 형태${race.formHealOnSwitch?` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 변신 시 <b style="color:var(--g-health)">Health</b>체력 ${race.formHealOnSwitch} 회복</span>`:""}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${btns}</div></div>`;
+  return `<div class="foe" style="margin:2px 0 12px"><div class="foe-label">Form · 형태${race.formHealOnSwitch?` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 변신 시 <b style="color:var(--g-health)">Health</b>체력 ${race.formHealOnSwitch} 회복</span>`:""}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${btns}</div></div>`;
 }
 function effOf(char,k){return Math.max(0,baseCharOf(char,k)+char.filled[k]+char.mod[k]);}
 function makeE(char,key){const s=(char.boosts&&char.boosts[key])||{};return{lv:k=>effOf(char,k),b:n=>s[n]||0,on:n=>(s[n]||0)>0};}
@@ -437,15 +437,14 @@ function boardBody(char){
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
       <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}${(()=>{const as=char.abilities.filter(a=>a.src==="aspect"||a.src==="greater");return as.length?` · 양상 ${as.map(a=>`<b>${a.name.en} (${a.name.ko})</b>`).join(", ")}`:"";})()}</div>
       <div class="flavor">${race.flavor||""}</div>
-      ${race.forms?formSwitcher(char,race):""}
       ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
     </div>
     <div class="section"><div class="sec-head">Vital · 생명력</div>
       <div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>
     </div>
+    <div class="section"><div class="sec-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span>Ability · 능력</span><span style="display:flex;gap:6px"><button class="tbtn" id="resetTurn" title="턴 사용 초기화">↺ 턴</button><button class="tbtn" id="resetCombat" title="전투 사용 초기화">↺ 전투</button></span></div>${race.forms?formSwitcher(char,race):""}<div class="hex-wrap">${combat}</div>${masteries}</div>
     <div class="section"><div class="sec-head">Skill · 스킬</div><div class="hex-wrap">${skills}</div></div>
-    <div class="section"><div class="sec-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span>Ability · 능력</span><span style="display:flex;gap:6px"><button class="tbtn" id="resetTurn" title="턴 사용 초기화">↺ 턴</button><button class="tbtn" id="resetCombat" title="전투 사용 초기화">↺ 전투</button></span></div><div class="hex-wrap">${combat}</div>${masteries}</div>
     <div class="section"><div class="sec-head">Special Abilities · 특수 능력</div>${abilityHTML}
       <div class="ability-actions">
         <button class="add-btn" data-addability="free">+ 능력 직접 추가</button>

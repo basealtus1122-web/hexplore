@@ -287,14 +287,14 @@ const SHARED = {
     },
     xumucane: {
       id:"xumucane", ed:"5",
-      name:{en:"Xumucane",ko:"슈무카네"},
+      name:{en:"Xumucane",ko:"쉬무카네"},
       favoredEnemy:{en:"Creature",ko:"생물"},
       foodUse:2,
       mods:{health:1,energy:3,attack:1,defence:1,firstMastery:1,secondMastery:0,navigate:1,explore:0,survival:1},
       ability:{name:{en:"Racial Ability",ko:"종족 능력"},
         desc:"게임 턴당 <b>1회</b>, 자신이나 그룹이 파워업을 뽑은 후 <st>health</st> 2를 소모해 2장을 뽑고 1장을 고른다. 다른 1장은 파워업 덱의 맨 위나 맨 아래에 놓는다.",
         track:{type:"check"}},
-      flavor:"슈무카네는 우주가 우주적 순환에 따라 밀려오고 쓸려간다고 믿습니다. 맹렬하고 극적인 이들의 축제는 언제나 신들을 기립니다.",
+      flavor:"쉬무카네는 우주가 우주적 순환에 따라 밀려오고 쓸려간다고 믿습니다. 맹렬하고 극적인 이들의 축제는 언제나 신들을 기립니다.",
     },
     voldwari: {
       id:"voldwari", ed:"5",
