@@ -47,6 +47,7 @@ const FOE_TYPES = [
   {en:"Magical Nature",ko:"마법 생물"},
   {en:"Monstrous Humanoid",ko:"인간형 괴수"},
   {en:"Spirit",   ko:"영혼"},
+  {en:"Ascendant",ko:"초월자"},
 ];
 
 /* Greater Aspects(위대한 양상) — '다시 깨어난 자'가 하나를 선택한다.
