@@ -500,6 +500,33 @@ const SHARED = {
         survival:{base:1, name:{en:"Survival",ko:"생존"}},
       }
     },
+    // ===== 4편 직업 (이름만 초벌 · 스탯/능력 추후 입력) · Bard 는 위에 완성본 =====
+    cursedOne:{   id:"cursedOne",   ed:"4", name:{en:"Cursed One",ko:"저주받은 자"}, category:{key:"assist"},  stats:{} },
+    shadowRider:{ id:"shadowRider", ed:"4", name:{en:"Shadow Rider",ko:"그림자 기수"}, category:{key:"assist"},  stats:{} },
+    enchanter:{   id:"enchanter",   ed:"4", name:{en:"Enchanter",ko:"인챈터"},       category:{key:"healer"},  stats:{} },
+    monk:{        id:"monk",        ed:"4", name:{en:"Monk",ko:"몽크"},               category:{key:"healer"},  stats:{} },
+    scourgeEater:{id:"scourgeEater",ed:"4", name:{en:"Scourge Eater",ko:"재앙 포식자"}, category:{key:"healer"},  stats:{} },
+    witch:{       id:"witch",       ed:"4", name:{en:"Witch",ko:"마녀"},               category:{key:"sapper"},  stats:{} },
+    inquisitor:{  id:"inquisitor",  ed:"4", name:{en:"Inquisitor",ko:"심문관"},        category:{key:"utility"}, stats:{} },
+    medium:{      id:"medium",      ed:"4", name:{en:"Medium",ko:"영매"},              category:{key:"utility"}, stats:{} },
+    scout:{       id:"scout",       ed:"4", name:{en:"Scout",ko:"정찰병"},             category:{key:"utility"}, stats:{} },
+    bloodMage:{   id:"bloodMage",   ed:"4", name:{en:"Blood Mage",ko:"블러드 메이지"},  category:{key:"dual",members:["striker","sapper"]}, stats:{} },
+    deathKnight:{ id:"deathKnight", ed:"4", name:{en:"Death Knight",ko:"데스 나이트"},  category:{key:"dual",members:["healer","sapper"]},  stats:{} },
+    demonologist:{id:"demonologist",ed:"4", name:{en:"Demonologist",ko:"악마학자"},     category:{key:"dual",members:["utility","assist"]}, stats:{} },
+    // ===== 5편 · The Mountains of Godai (이름만 초벌) =====
+    dragoon:{     id:"dragoon",     ed:"5", name:{en:"Dragoon",ko:"드라군"},           category:{key:"striker"}, stats:{} },
+    samurai:{     id:"samurai",     ed:"5", name:{en:"Samurai",ko:"사무라이"},          category:{key:"striker"}, stats:{} },
+    spearMaster:{ id:"spearMaster", ed:"5", name:{en:"Spear Master",ko:"창술사"},       category:{key:"assist"},  stats:{} },
+    astrologist:{ id:"astrologist", ed:"5", name:{en:"Astrologist",ko:"점성술사"},      category:{key:"healer"},  stats:{} },
+    sage:{        id:"sage",        ed:"5", name:{en:"Sage",ko:"현자"},                 category:{key:"healer"},  stats:{} },
+    magician:{    id:"magician",    ed:"5", name:{en:"Magician",ko:"마술사"},           category:{key:"sapper"},  stats:{} },
+    mesmer:{      id:"mesmer",      ed:"5", name:{en:"Mesmer",ko:"메스머"},             category:{key:"sapper"},  stats:{} },
+    ninja:{       id:"ninja",       ed:"5", name:{en:"Ninja",ko:"닌자"},               category:{key:"utility"}, stats:{} },
+    windRider:{   id:"windRider",   ed:"5", name:{en:"Wind Rider",ko:"바람 기수"},      category:{key:"utility"}, stats:{} },
+    ancestralChanneler:{id:"ancestralChanneler",ed:"5",name:{en:"Ancestral Channeler",ko:"선조 강령사"},category:{key:"dual",members:["utility","assist"]},stats:{} },
+    kensai:{      id:"kensai",      ed:"5", name:{en:"Kensai",ko:"검성"},               category:{key:"dual",members:["striker","assist"]}, stats:{} },
+    mycotomancer:{id:"mycotomancer",ed:"5", name:{en:"Mycotomancer",ko:"균사술사"},     category:{key:"dual",members:["assist","healer"]},  stats:{} },
+    threadMage:{  id:"threadMage",  ed:"5", name:{en:"Thread Mage",ko:"실 마법사"},     category:{key:"dual",members:["sapper","healer"]},  stats:{} },
     // 다음 직업은 여기에 추가.  dual 예:  category:{key:"dual",members:["striker","sapper"]}
   },
 
