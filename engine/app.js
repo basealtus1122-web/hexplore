@@ -78,7 +78,11 @@ function formSwitcher(char,race){
   const cur=char.raceForm||race.forms[0].id;
   const btns=race.forms.map(f=>{const on=f.id===cur;
     return `<button data-form="${f.id}" style="font-family:'Cinzel';font-size:12.5px;padding:6px 13px;border-radius:9px;cursor:pointer;${on?'border:1px solid var(--g-attack);color:var(--ink);background:color-mix(in srgb,var(--c-attack) 16%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${f.name.en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:3px">${f.name.ko}</span></button>`;}).join("");
-  return `<div class="foe" style="margin:2px 0 12px"><div class="foe-label">Form · 형태${race.formHealOnSwitch?` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 변신 시 <b style="color:var(--g-health)">Health</b>체력 ${race.formHealOnSwitch} 회복</span>`:""}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${btns}</div></div>`;
+  const cost=[];
+  if(race.formCostEnergy)cost.push(`<b style="color:var(--g-energy)">Energy</b>에너지 ${race.formCostEnergy} 소모`);
+  if(race.formHealOnSwitch)cost.push(`<b style="color:var(--g-health)">Health</b>체력 ${race.formHealOnSwitch} 회복`);
+  const note=cost.length?` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 변신 시 ${cost.join(" · ")}</span>`:"";
+  return `<div class="foe" style="margin:2px 0 12px"><div class="foe-label">Form · 형태${note}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${btns}</div></div>`;
 }
 function effOf(char,k){return Math.max(0,baseCharOf(char,k)+char.filled[k]+char.mod[k]);}
 function makeE(char,key){const s=(char.boosts&&char.boosts[key])||{};return{lv:k=>effOf(char,k),b:n=>s[n]||0,on:n=>(s[n]||0)>0};}
@@ -562,7 +566,7 @@ function bindBoard(char){
   root.querySelectorAll(".pip").forEach(p=>p.onclick=()=>{const k=p.dataset.hex,idx=+p.dataset.idx;char.filled[k]=(char.filled[k]>=idx+1)?idx:idx+1;renderBoard();});
   root.querySelectorAll("[data-mod]").forEach(b=>b.onclick=()=>{char.mod[b.dataset.mod]+=+b.dataset.dir;renderBoard();});
   root.querySelectorAll("[data-fuse]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const k=b.dataset.fuse;if(char.filled[k]>0){char.filled[k]-=1;char.mod[k]+=1;renderBoard();}});
-  root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{const f=b.dataset.form;if(char.raceForm===f)return;char.raceForm=f;const r=SHARED.races[char.raceId];if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
+  root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{const f=b.dataset.form;if(char.raceForm===f)return;char.raceForm=f;const r=SHARED.races[char.raceId];if(r&&r.formCostEnergy)char.curEnergy=Math.max(0,char.curEnergy-r.formCostEnergy);if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>{const k=b.dataset.res;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-boost]").forEach(b=>b.onclick=()=>{

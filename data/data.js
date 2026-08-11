@@ -247,6 +247,7 @@ const SHARED = {
         {id:"greatCat", name:{en:"Great Cat",ko:"거대 고양이"}, mods:{attack:3,defence:0}},
       ],
       formHealOnSwitch:4,
+      formCostEnergy:2,
       ability:{name:{en:"Racial Ability",ko:"종족 능력"},
         desc:"<b>인간(Human)</b> 형태로 시작한다. 게임 턴당 <b>1회</b>, <st>energy</st> 2를 소모해 형태를 변신할 수 있다. 변신하면 <st>attack</st>·<st>defence</st> 보정치가 형태에 맞게 바뀌고, <st>health</st> 4를 <kw>heal</kw>한다. (아래 형태 전환 사용)",
         track:{type:"check"}},
