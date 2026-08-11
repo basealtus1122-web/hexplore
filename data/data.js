@@ -520,13 +520,13 @@ const SHARED = {
     astrologist:{ id:"astrologist", ed:"5", name:{en:"Astrologist",ko:"점성술사"},      category:{key:"healer"},  stats:{} },
     sage:{        id:"sage",        ed:"5", name:{en:"Sage",ko:"현자"},                 category:{key:"healer"},  stats:{} },
     magician:{    id:"magician",    ed:"5", name:{en:"Magician",ko:"마술사"},           category:{key:"sapper"},  stats:{} },
-    mesmer:{      id:"mesmer",      ed:"5", name:{en:"Mesmer",ko:"메스머"},             category:{key:"sapper"},  stats:{} },
+    mesmer:{      id:"mesmer",      ed:"5", name:{en:"Mesmer",ko:"최면술사"},             category:{key:"sapper"},  stats:{} },
     ninja:{       id:"ninja",       ed:"5", name:{en:"Ninja",ko:"닌자"},               category:{key:"utility"}, stats:{} },
     windRider:{   id:"windRider",   ed:"5", name:{en:"Wind Rider",ko:"바람 기수"},      category:{key:"utility"}, stats:{} },
     ancestralChanneler:{id:"ancestralChanneler",ed:"5",name:{en:"Ancestral Channeler",ko:"선조 강령사"},category:{key:"dual",members:["utility","assist"]},stats:{} },
     kensai:{      id:"kensai",      ed:"5", name:{en:"Kensai",ko:"검성"},               category:{key:"dual",members:["striker","assist"]}, stats:{} },
     mycotomancer:{id:"mycotomancer",ed:"5", name:{en:"Mycotomancer",ko:"균사술사"},     category:{key:"dual",members:["assist","healer"]},  stats:{} },
-    threadMage:{  id:"threadMage",  ed:"5", name:{en:"Thread Mage",ko:"실 마법사"},     category:{key:"dual",members:["sapper","healer"]},  stats:{} },
+    threadMage:{  id:"threadMage",  ed:"5", name:{en:"Thread Mage",ko:"직조술사"},     category:{key:"dual",members:["sapper","healer"]},  stats:{} },
     // 다음 직업은 여기에 추가.  dual 예:  category:{key:"dual",members:["striker","sapper"]}
   },
 
