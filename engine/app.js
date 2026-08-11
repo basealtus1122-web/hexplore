@@ -244,6 +244,26 @@ function catColor(cls){const c=cls.category,k=c.key==="dual"?(c.members&&c.membe
 /* =====================================================================
    SCREEN: BUILDER
    ===================================================================== */
+/* 시리즈 공통 엠블럼 — 육각 6분할, 편 번호(오른쪽 위=1, 시계방향). 4편=보라(좌하)·5편=벚꽃(좌), 나머지는 어두운 회색 */
+function emblem(){
+  return `<svg class="emb" viewBox="-26 -26 52 52" aria-hidden="true">
+    <defs>
+      <clipPath id="embClip"><path d="M0,-24 L20.8,-12 L20.8,12 L0,24 L-20.8,12 L-20.8,-12 Z"/></clipPath>
+      <filter id="embSoft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.4"/></filter>
+    </defs>
+    <g clip-path="url(#embClip)">
+      <rect x="-26" y="-26" width="52" height="52" fill="#232830"/>
+      <g filter="url(#embSoft)">
+        <path d="M0,0 L0,24 L-20.8,12 Z" fill="#bf94f5"/>
+        <path d="M0,0 L-20.8,12 L-20.8,-12 Z" fill="#f3a8c0"/>
+      </g>
+    </g>
+    <path d="M0,-24 L20.8,-12 L20.8,12 L0,24 L-20.8,12 L-20.8,-12 Z" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+  </svg>`;
+}
+function brandHead(sub){
+  return `<div class="builder-head"><div class="brand">${emblem()}<div class="wordmark">HEXPLORE IT</div></div><div class="sub">${sub}</div></div>`;
+}
 function renderBuilder(){
   const raceList=Object.values(SHARED.races), classList=Object.values(SHARED.classes), traitList=Object.values(SHARED.traits);
   const seg=(id,label)=>`<button class="seg ${APP.builderTab===id?'on':''}" data-btab="${id}">${label}</button>`;
@@ -265,10 +285,7 @@ function renderBuilder(){
   </div>`;
 
   root.innerHTML=`<div class="wrap">
-    <div class="builder-head">
-      <div class="wordmark">HEXPLORE IT</div>
-      <div class="sub">Character Builder · 캐릭터 생성</div>
-    </div>
+    ${brandHead("Character Builder · 캐릭터 생성")}
     <div class="segbar">${seg("race","Race 종족")}${seg("class","Class 직업")}${seg("trait","Traits 특성")}</div>
     <div class="build-body">${body}</div>
     ${summary}
@@ -361,7 +378,7 @@ function renderSeries(){
     <div class="sc-note">키워드 · 상태 · 룰 · 아이템 · 기타 참조표가 이 시리즈 기준으로 적용됩니다.</div>
   </button>`).join("");
   root.innerHTML=`<div class="wrap">
-    <div class="builder-head"><div class="wordmark">HEXPLORE IT</div><div class="sub">Select Series · 시리즈 선택</div></div>
+    ${brandHead("Select Series · 시리즈 선택")}
     <div class="chosen">${race.name.en} <span class="ko">(${race.name.ko})</span> · <span style="color:${catColor(cls)}">${cls.name.en}</span> <span class="ko">(${cls.name.ko})</span></div>
     <div class="series-grid">${cards}</div>
     <div class="build-actions"><button class="btn" id="backBuild">← 캐릭터 수정</button></div>
@@ -746,6 +763,7 @@ function recordsModal(){
 /* 편별 테마 — 캐릭터판에서는 그 편의 분위기 색을 적용(능력치 9색은 공용이라 그대로) */
 const SERIES_ACCENT={"4":"#bf94f5","5":"#f3a8c0"};
 function applyTheme(){
+  document.documentElement.setAttribute("data-screen",APP.screen);
   const s=(APP.screen==="board"&&APP.char)?APP.char.series:null;
   if(s&&s!=="4")document.documentElement.setAttribute("data-series",s);
   else document.documentElement.removeAttribute("data-series");
