@@ -232,6 +232,7 @@ function classPreview(c){
   const stats=STAT_ORDER.map(k=>c.stats[k]?`<span class="modpill" style="color:var(--g-${k})">${STAT_META[k].role} ${c.stats[k].base}</span>`:"").join("");
   const masteries=["firstMastery","secondMastery"].filter(k=>c.stats[k]&&c.stats[k].name).map(k=>`<div class="pv-row"><span class="pv-lbl" style="color:var(--g-${k})">${STAT_META[k].role}</span> ${c.stats[k].name.en} (${c.stats[k].name.ko})</div>`).join("");
   return `<div class="pv-title">${c.name.en} <span class="ko">(${c.name.ko})</span></div>
+    ${c.flavor?`<div class="flavor" style="border-left-color:${catColor(c)};margin-top:6px">${c.flavor}</div>`:""}
     <div style="margin:6px 0">${tag}</div>
     <div class="pv-mods">${stats}</div>
     ${masteries}
@@ -335,6 +336,7 @@ function boardBody(char){
     <div class="identity">
       <div class="cat-row">${catTags(cls)}</div>
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span></div>
+      ${cls.flavor?`<div class="flavor" style="border-left-color:${catColor(cls)};margin-top:6px;margin-bottom:10px">${cls.flavor}</div>`:""}
       <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b></div>
       <div class="flavor">${race.flavor||""}</div>
       ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>`:""}

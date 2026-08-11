@@ -59,6 +59,7 @@ const SHARED = {
       id:"warlock",
       name:{en:"Warlock",ko:"워록"},
       category:{key:"striker"},
+      flavor:"대가 없는 힘은 없다. 워록은 그 값을 언제나 제 몸에서 꺼내 치른다.",
       special:{ko:"기술의 비용으로 자신의 <hp>Health (체력)</hp>이나 <en>Energy (에너지)</en>를 지불할 수 있다."},
       /* stats: base = 직업 고유 시작값. 최종값 = base + 종족보정 + 육각형 + 효과 */
       stats:{
@@ -101,6 +102,7 @@ const SHARED = {
       id:"phosromancer",
       name:{en:"Phosromancer",ko:"광채술사"},
       category:{key:"striker"},
+      flavor:"빛을 삼켜 그림자를 벼린다. 광채술사가 지나간 자리에는 눈이 멀 만큼의 잔광만 남는다.",
       /* 직업 특성(special) 없음 — 엔진은 special 없으면 특성 박스를 생략 */
       stats:{
         health:{base:5},
@@ -136,6 +138,7 @@ const SHARED = {
       id:"bard",
       name:{en:"Bard",ko:"바드"},
       category:{key:"assist"},
+      flavor:"칼보다 노래가 먼저 닿는다. 한 소절은 동료를 일으키고, 다음 소절은 지갑을 채운다.",
       special:{ko:`아이템을 판매하는 곳에 있을 때 게임 턴당 <b>1회</b>: <en>에너지 2</en>를 소모해 원하는 기술의 스탯 테스트를 한다. 성공하면 해당 기술 랭크의 <b>1/3</b>만큼 <b>골드</b>를 얻는다. 결과가 <b>헥스(Hex)</b>면 추가로 파워 업 하나를 뽑아 모든 영웅에게 적용한다.`},
       stats:{
         health:{base:5},
