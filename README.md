@@ -8,4 +8,8 @@
 
 ## 배포
 
-순수 정적 사이트입니다. `main` 브랜치에 push하면 Netlify가 저장소 루트(`.`)를 자동 배포합니다. 설정은 `netlify.toml` 참고.
+순수 정적 사이트(빌드 과정 없음)입니다. `main` 브랜치에 push하면 **GitHub Pages**가 저장소 루트를 자동 배포합니다.
+
+- 사이트: https://basealtus1122-web.github.io/hexplore/
+
+`netlify.toml`은 이전 Netlify 배포용 설정으로, GitHub Pages에서는 사용되지 않습니다.
