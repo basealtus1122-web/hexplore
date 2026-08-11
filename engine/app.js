@@ -566,7 +566,7 @@ function bindBoard(char){
   root.querySelectorAll(".pip").forEach(p=>p.onclick=()=>{const k=p.dataset.hex,idx=+p.dataset.idx;char.filled[k]=(char.filled[k]>=idx+1)?idx:idx+1;renderBoard();});
   root.querySelectorAll("[data-mod]").forEach(b=>b.onclick=()=>{char.mod[b.dataset.mod]+=+b.dataset.dir;renderBoard();});
   root.querySelectorAll("[data-fuse]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const k=b.dataset.fuse;if(char.filled[k]>0){char.filled[k]-=1;char.mod[k]+=1;renderBoard();}});
-  root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{const f=b.dataset.form;if(char.raceForm===f)return;char.raceForm=f;const r=SHARED.races[char.raceId];if(r&&r.formCostEnergy)char.curEnergy=Math.max(0,char.curEnergy-r.formCostEnergy);if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
+  root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{const f=b.dataset.form;if(char.raceForm===f)return;char.raceForm=f;const r=SHARED.races[char.raceId];if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>{const k=b.dataset.res;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-boost]").forEach(b=>b.onclick=()=>{
