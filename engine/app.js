@@ -434,8 +434,8 @@ function boardBody(char){
     <div class="section"><div class="sec-head">Vital · 생명력</div>
       <div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>
     </div>
-    <div class="section"><div class="sec-head">Survival Skills · 생존 능력치</div><div class="hex-wrap">${skills}</div></div>
-    <div class="section"><div class="sec-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span>Combat Abilities · 전투 능력치</span><span style="display:flex;gap:6px"><button class="tbtn" id="resetTurn" title="턴 사용 초기화">↺ 턴</button><button class="tbtn" id="resetCombat" title="전투 사용 초기화">↺ 전투</button></span></div><div class="hex-wrap">${combat}</div>${masteries}</div>
+    <div class="section"><div class="sec-head">Skill · 스킬</div><div class="hex-wrap">${skills}</div></div>
+    <div class="section"><div class="sec-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span>Ability · 능력</span><span style="display:flex;gap:6px"><button class="tbtn" id="resetTurn" title="턴 사용 초기화">↺ 턴</button><button class="tbtn" id="resetCombat" title="전투 사용 초기화">↺ 전투</button></span></div><div class="hex-wrap">${combat}</div>${masteries}</div>
     <div class="section"><div class="sec-head">Special Abilities · 특수 능력</div>${abilityHTML}
       <div class="ability-actions">
         <button class="add-btn" data-addability="free">+ 능력 직접 추가</button>
