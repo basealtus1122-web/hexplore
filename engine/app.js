@@ -502,11 +502,11 @@ function refItem(name,desc,tag){
 function refList(char,title,list,note){
   const rows=list.map(v=>{
     const q=(v.q||[]).filter(x=>COND_Q[x]).map(x=>`<span title="${COND_Q[x].t}" style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;margin-left:5px;color:${COND_Q[x].c};border:1px solid ${COND_Q[x].c};background:color-mix(in srgb,${COND_Q[x].c} 13%,transparent)">${COND_Q[x].ko}</span>`).join("");
-    const plain=`${v.name.en} ${v.name.ko} ${(v.q||[]).map(x=>COND_Q[x]?COND_Q[x].ko:"").join(" ")} ${(v.desc||"").replace(/<[^>]+>/g,"")}`.toLowerCase().replace(/"/g,"&quot;");
+    const plain=`${v.titleEn||v.name.en} ${v.name.ko} ${(v.q||[]).map(x=>COND_Q[x]?COND_Q[x].ko:"").join(" ")} ${(v.desc||"").replace(/<[^>]+>/g,"")}`.toLowerCase().replace(/"/g,"&quot;");
     return `<div class="ref-block refrow" data-s="${plain}" style="padding:0;margin:0;overflow:hidden;flex:0 0 auto;max-width:100%;transition:background .15s">
       <div class="refhead" style="display:flex;align-items:center;gap:7px;padding:7px 11px;cursor:pointer;user-select:none;white-space:nowrap">
         <span class="chev" style="color:var(--ink-faint);font-size:10px;transition:transform .15s;display:inline-block">▶</span>
-        <span class="ref-name" style="font-size:13.5px">${v.name.en}<span class="ko" style="margin-left:1px">${v.name.ko}</span></span>${q}
+        <span class="ref-name" style="font-size:13.5px">${v.titleEn||v.name.en}<span class="ko" style="margin-left:1px">${v.name.ko}</span></span>${q}
       </div>
       <div class="ref-desc refbody" style="display:none;padding:0 12px 11px 29px;margin-top:0">${expand(char,v.desc||"")}</div>
     </div>`;
@@ -587,7 +587,7 @@ function openTerm(char,kind,term){
   const v=kind==="kw"?((series.keywords&&series.keywords[term])||(series.exKeywords&&series.exKeywords[term])):(series.conditions&&series.conditions[term]);
   const title=kind==="kw"?"Keyword · 키워드":"Condition · 상태";
   openModal(`<div class="term-head">${title}</div>
-    <h3 style="margin-top:4px">${v?`${v.name.en}<span style="font-size:14px;color:var(--ink-dim);margin-left:2px">${v.name.ko}</span>`:term}</h3>
+    <h3 style="margin-top:4px">${v?`${v.titleEn||v.name.en}<span style="font-size:14px;color:var(--ink-dim);margin-left:2px">${v.name.ko}</span>`:term}</h3>
     <div class="term-desc">${v?v.desc:"이 시리즈에 아직 정의가 없습니다. data.js에서 채우세요."}</div>
     <div class="modal-actions"><button class="btn primary" onclick="closeModal()">닫기</button></div>`);
 }
