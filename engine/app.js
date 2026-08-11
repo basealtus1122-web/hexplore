@@ -277,7 +277,7 @@ function renderBuilder(){
 function pickList(list,selId,kind,previewFn){
   if(!list.length)return`<div class="empty-note">데이터가 아직 없습니다. data.js에 추가하세요.</div>`;
   const cards=list.map(x=>`<button class="pick-card ${selId===x.id?'on':''}" data-pick="${x.id}" data-kind="${kind}">
-    <div class="pc-name">${x.name.en}</div><div class="pc-ko">${x.name.ko}</div></button>`).join("");
+    <div class="pc-name">${x.name.en}</div><div class="pc-ko">${x.name.ko}</div>${x.ed?`<span class="ed-badge" title="${x.ed}편 수록">${x.ed}</span>`:""}</button>`).join("");
   const sel=list.find(x=>x.id===selId);
   return `<div class="pick-grid">${cards}</div>${sel?`<div class="preview">${previewFn(sel)}</div>`:`<div class="empty-note">위에서 하나 선택하면 상세가 표시됩니다.</div>`}`;
 }

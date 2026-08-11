@@ -46,6 +46,7 @@ const FOE_TYPES = [
   {en:"Humanoid", ko:"인간형"},
   {en:"Magical Nature",ko:"마법 생물"},
   {en:"Monstrous Humanoid",ko:"인간형 괴수"},
+  {en:"Spirit",   ko:"영혼"},
 ];
 
 /* Greater Aspects(위대한 양상) — '다시 깨어난 자'가 하나를 선택한다.
@@ -65,7 +66,7 @@ const SHARED = {
 
   races: {
     brightling: {
-      id:"brightling",
+      id:"brightling", ed:"4",
       name:{en:"Brightling",ko:"브라이틀링"},
       favoredEnemy:{en:"Undead",ko:"언데드"},
       foodUse:1,
@@ -76,7 +77,7 @@ const SHARED = {
       flavor:"일루먼(Ilumen) 100명 중 1명꼴로 브라이틀링이 태어난다. 대부분 하플링 남짓밖에 자라지 못하지만, 이들이 내뿜는 빛은 시력에 피해를 입힐 만큼 강렬하다.",
     },
     corvus: {
-      id:"corvus",
+      id:"corvus", ed:"4",
       name:{en:"Corvus",ko:"코르부스"},
       favoredEnemy:{en:"Creature",ko:"생물"},
       foodUse:2,
@@ -87,7 +88,7 @@ const SHARED = {
       flavor:"코르부스는 까마귀 같이 생긴 인간형으로 영리하고 내성적입니다. 대부분의 감춰진 비밀들을 밝혀낼 수 있다고들 합니다.",
     },
     darkElf: {
-      id:"darkElf",
+      id:"darkElf", ed:"4",
       name:{en:"Dark Elf",ko:"다크엘프"},
       favoredEnemy:{en:"Construct",ko:"구성물"},
       foodUse:2,
@@ -98,7 +99,7 @@ const SHARED = {
       flavor:"다크엘프는 수세기 동안 지하에 살았습니다. 이들은 잔혹하고, 차별적이며, 다른 종족들에게 배척받습니다.",
     },
     dhampir: {
-      id:"dhampir",
+      id:"dhampir", ed:"4",
       name:{en:"Dhampir",ko:"담피르"},
       favoredEnemy:{en:"",ko:"능력 참조"},
       foodUse:2,
@@ -109,7 +110,7 @@ const SHARED = {
       flavor:"담피르는 교활하고 피에 굶주린 반(半)흡혈귀입니다.",
     },
     gutterGnome: {
-      id:"gutterGnome",
+      id:"gutterGnome", ed:"4",
       name:{en:"Gutter Gnome",ko:"하수구 노움"},
       favoredEnemy:{en:"Humanoid",ko:"인간형"},
       foodUse:1,
@@ -120,7 +121,7 @@ const SHARED = {
       flavor:"큰 도시의 하층민 취급을 받지만, 자신들은 전혀 신경 쓰지 않습니다.",
     },
     mirrorSkin: {
-      id:"mirrorSkin",
+      id:"mirrorSkin", ed:"4",
       name:{en:"Mirror Skin",ko:"미러 스킨"},
       favoredEnemy:{en:"Humanoid",ko:"인간형"},
       foodUse:0,
@@ -131,7 +132,7 @@ const SHARED = {
       flavor:"자신이 죽음을 목격한 인간형으로 변신할 수 있는 매우 희귀한 종족으로, 죽음의 전령으로 여겨져 사냥당하곤 합니다.",
     },
     myskia: {
-      id:"myskia",
+      id:"myskia", ed:"4",
       name:{en:"Myskia",ko:"미스키아"},
       favoredEnemy:{en:"Creature",ko:"생물"},
       foodUse:2,
@@ -142,7 +143,7 @@ const SHARED = {
       flavor:"사회에 숨어 지내는 괴물 박쥐 같은 인간형 종족입니다.",
     },
     panteran: {
-      id:"panteran",
+      id:"panteran", ed:"4",
       name:{en:"Panteran",ko:"판테란"},
       favoredEnemy:{en:"Magical Nature",ko:"마법 생물"},
       foodUse:3,
@@ -153,7 +154,7 @@ const SHARED = {
       flavor:"이 반쯤 고양이 같은 종족은 다양한 형태가 있습니다.",
     },
     ratkin: {
-      id:"ratkin",
+      id:"ratkin", ed:"4",
       name:{en:"Ratkin",ko:"랫킨"},
       favoredEnemy:{en:"Monstrous Humanoid",ko:"인간형 괴수"},
       foodUse:3,
@@ -164,7 +165,7 @@ const SHARED = {
       flavor:"작고 사악한 족속들로 태생적으로 곱추에 의심스럽습니다.",
     },
     reawakened: {
-      id:"reawakened",
+      id:"reawakened", ed:"4",
       name:{en:"Reawakened",ko:"다시 깨어난 자"},
       favoredEnemy:{en:"",ko:"능력 참조"},
       foodUse:0,
@@ -178,12 +179,34 @@ const SHARED = {
         track:null},
       flavor:"당신은 이미 한 번 죽었습니다.",
     },
+    rona: {
+      id:"rona", ed:"4",
+      name:{en:"Rona",ko:"로나"},
+      favoredEnemy:{en:"Spirit",ko:"영혼"},
+      foodUse:2,
+      mods:{health:1,energy:1,attack:1,defence:0,firstMastery:1,secondMastery:1,navigate:1,explore:1,survival:1},
+      ability:{name:{en:"Racial Ability",ko:"종족 능력"},
+        desc:"당신의 공격은 <st>energy</st> 피해를 입힐 수 있다. 게임 턴당 <b>1회</b>, <st>energy</st> 3을 소모해 이번 라운드 동안 적 하나의 <kw>energetic</kw> 효과를 <kw>negate</kw>한다.",
+        track:{type:"check"}},
+      flavor:"이 지역 출신을 로나라고 부릅니다. 미신을 믿고, 오컬트에 깊이 연관되어 사는 민족입니다.",
+    },
+    umbralShade: {
+      id:"umbralShade", ed:"4",
+      name:{en:"Umbral Shade",ko:"움브랄 쉐이드"},
+      favoredEnemy:{en:"Spirit",ko:"영혼"},
+      foodUse:1,
+      mods:{health:2,energy:0,attack:1,defence:0,firstMastery:1,secondMastery:1,navigate:0,explore:1,survival:1},
+      ability:{name:{en:"Racial Ability",ko:"종족 능력"},
+        desc:"게임 턴당 <b>1회</b>, <st>health</st> 2를 소모해 대상 하나의 <kw>block</kw>·<kw>defend</kw>·<kw>evasion</kw> 중 하나를 <b>3</b> 감소시킨다.",
+        track:{type:"check"}},
+      flavor:"한때 단순한 그림자였던 이 생명체는, 그림자의 정수 그 자체가 되었습니다. 더 이상 물질적이지 않고, 자유자재로 형체를 바꾸며, 그림자를 가로질러 다닙니다.",
+    },
     // 다음 종족은 여기에 같은 형식으로 추가
   },
 
   classes: {
     warlock: {
-      id:"warlock",
+      id:"warlock", ed:"4",
       name:{en:"Warlock",ko:"워록"},
       category:{key:"striker"},
       flavor:"나의 권능에 경탄하라!",
@@ -226,7 +249,7 @@ const SHARED = {
       }
     },
     phosromancer: {
-      id:"phosromancer",
+      id:"phosromancer", ed:"4",
       name:{en:"Phosromancer",ko:"광채술사"},
       category:{key:"striker"},
       flavor:"어둠 속에 빛이 있다.",
@@ -262,7 +285,7 @@ const SHARED = {
       }
     },
     bard: {
-      id:"bard",
+      id:"bard", ed:"4",
       name:{en:"Bard",ko:"바드"},
       category:{key:"assist"},
       flavor:"물론 우리를 들어보셨겠죠.",

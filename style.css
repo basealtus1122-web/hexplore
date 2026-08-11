@@ -27,7 +27,8 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .seg.on{background:var(--panel-2);color:var(--ink);border-color:var(--g-firstMastery)}
 .build-body{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
 .pick-grid{display:flex;flex-wrap:wrap;gap:10px}
-.pick-card{background:var(--panel-2);border:1px solid var(--edge-bright);border-radius:12px;padding:14px 18px;cursor:pointer;color:var(--ink);text-align:left;min-width:130px}
+.pick-card{position:relative;background:var(--panel-2);border:1px solid var(--edge-bright);border-radius:12px;padding:14px 18px;cursor:pointer;color:var(--ink);text-align:left;min-width:130px}
+.ed-badge{position:absolute;right:7px;bottom:5px;font-family:"Cinzel";font-size:10px;font-weight:600;color:var(--ink-faint);opacity:.75;letter-spacing:.05em}
 .pick-card.on{border-color:var(--g-firstMastery);background:color-mix(in srgb,var(--c-firstMastery) 12%,var(--panel-2))}
 .pick-card.wide{width:100%}
 .pc-name{font-family:"Cinzel";font-weight:600;font-size:16px}
