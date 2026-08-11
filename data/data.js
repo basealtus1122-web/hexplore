@@ -37,6 +37,14 @@ const STAT_META = {
   survival:     {role:"Survival",roleKo:"생존",  group:"skill"},
 };
 
+/* 숙적(Favored Enemy) 타입 — 게임에서 나온 것을 계속 추가.
+   판의 '숙적 + 추가'에서 바로 고를 수 있게 쓰인다. (담피르처럼 '능력 참조'인 특수 경우는 제외) */
+const FOE_TYPES = [
+  {en:"Undead",   ko:"언데드"},
+  {en:"Creature", ko:"생물"},
+  {en:"Construct",ko:"구성물"},
+];
+
 /* =====================================================================
    SHARED — 시리즈 무관 (종족·직업·특성)
    ===================================================================== */
@@ -53,6 +61,39 @@ const SHARED = {
         desc:"게임 턴마다 1회, <st>energy</st> 1을 소모해 2라운드 동안 <kw>evasion</kw> 8을 얻는다.",
         track:{type:"check"}},
       flavor:"일루먼(Ilumen) 100명 중 1명꼴로 브라이틀링이 태어난다. 대부분 하플링 남짓밖에 자라지 못하지만, 이들이 내뿜는 빛은 시력에 피해를 입힐 만큼 강렬하다.",
+    },
+    corvus: {
+      id:"corvus",
+      name:{en:"Corvus",ko:"코르부스"},
+      favoredEnemy:{en:"Creature",ko:"생물"},
+      foodUse:2,
+      mods:{health:1,energy:2,attack:0,defence:0,firstMastery:2,secondMastery:2,navigate:0,explore:1,survival:0},
+      ability:{name:{en:"Racial Ability",ko:"종족 능력"},
+        desc:"게임 턴당 <b>2회</b>까지, 지도 타일 가장자리에 도착했다면 <st>energy</st> 2를 소모해 지도 타일 2개를 공개한다. 그중 1개를 선택해 배치하고, 남은 하나는 더미에 섞어 넣는다.",
+        track:{type:"count",max:2}},
+      flavor:"코르부스는 까마귀 같이 생긴 인간형으로 영리하고 내성적입니다. 대부분의 감춰진 비밀들을 밝혀낼 수 있다고들 합니다.",
+    },
+    darkElf: {
+      id:"darkElf",
+      name:{en:"Dark Elf",ko:"다크엘프"},
+      favoredEnemy:{en:"Construct",ko:"구성물"},
+      foodUse:2,
+      mods:{health:2,energy:2,attack:1,defence:0,firstMastery:1,secondMastery:1,navigate:1,explore:0,survival:1},
+      ability:{name:{en:"Racial Ability",ko:"종족 능력"},
+        desc:"게임 턴당 <b>1회</b>, Circumstance상황을 완료한 후 <st>energy</st> 2를 소모해 인접한 상황 슬롯을 플레이한다.",
+        track:{type:"check"}},
+      flavor:"다크엘프는 수세기 동안 지하에 살았습니다. 이들은 잔혹하고, 차별적이며, 다른 종족들에게 배척받습니다.",
+    },
+    dhampir: {
+      id:"dhampir",
+      name:{en:"Dhampir",ko:"담피르"},
+      favoredEnemy:{en:"See Ability",ko:"능력 참조"},
+      foodUse:2,
+      mods:{health:3,energy:2,attack:1,defence:0,firstMastery:2,secondMastery:1,navigate:0,explore:0,survival:0},
+      ability:{name:{en:"Racial Ability",ko:"종족 능력"},
+        desc:"게임 턴당 <b>1회</b>, <st>energy</st> 2를 소모해 지난 라운드에 당신이 공격하여 피해를 준 적의 타입을 게임 턴 종료까지 당신의 숙적으로 취급한다.",
+        track:{type:"check"}},
+      flavor:"담피르는 교활하고 피에 굶주린 반(半)흡혈귀입니다.",
     },
     // 다음 종족은 여기에 같은 형식으로 추가
   },
@@ -295,4 +336,4 @@ const SERIES = {
 };
 
 /* 엔진에서 접근할 수 있게 전역으로 노출 */
-window.HEX = { CAT, STAT_ORDER, STAT_META, SHARED, SERIES };
+window.HEX = { CAT, STAT_ORDER, STAT_META, SHARED, SERIES, FOE_TYPES };

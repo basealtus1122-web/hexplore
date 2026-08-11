@@ -5,6 +5,7 @@
    ===================================================================== */
 (function(){
 const {CAT,STAT_ORDER,STAT_META,SHARED,SERIES}=window.HEX;
+const FOE_TYPES=window.HEX.FOE_TYPES||[];
 
 /* ---------- app state ---------- */
 const APP={
@@ -66,6 +67,16 @@ function statTerm(k){
   const d=DMG[k], meta=STAT_META[k];
   const en=d?d.en:(meta?meta.role:k), ko=d?d.ko:(meta?meta.roleKo:"");
   return `<b style="color:${statColor(k)}">${en}${ko?_ko(ko):""}</b>`;
+}
+/* 스탯 라벨(영한) — health/energy는 STAT_META.role이 둘 다 "Vital"이라 DMG 표를 우선 */
+function statLabel(k){const d=DMG[k],m=STAT_META[k];return{en:d?d.en:(m?m.role:k),ko:d?d.ko:(m?m.roleKo:"")};}
+/* 캐릭터가 없는 화면(빌더 미리보기)용 — 토큰을 영한 평문으로 바꾸고 나머지 태그는 제거 */
+function previewText(t){
+  if(!t)return"";
+  const findKw=k=>{for(const s of Object.values(SERIES)){const v=(s.keywords&&s.keywords[k])||(s.exKeywords&&s.exKeywords[k])||(s.conditions&&s.conditions[k]);if(v)return v;}return null;};
+  return t.replace(/<st>(\w+)<\/st>/g,(m,k)=>{const l=statLabel(k);return l.en+l.ko;})
+    .replace(/<(?:kw|state)>(.*?)<\/(?:kw|state)>/g,(m,x)=>{const v=findKw(x.toLowerCase());return v?v.name.en+v.name.ko:x;})
+    .replace(/<[^>]+>/g,"");
 }
 function expand(char,t){
   const cls=SHARED.classes[char.classId], S=SERIES[char.series]||{};
@@ -240,24 +251,24 @@ function pickList(list,selId,kind,previewFn){
   return `<div class="pick-grid">${cards}</div>${sel?`<div class="preview">${previewFn(sel)}</div>`:`<div class="empty-note">위에서 하나 선택하면 상세가 표시됩니다.</div>`}`;
 }
 function racePreview(r){
-  const mods=STAT_ORDER.filter(k=>r.mods[k]).map(k=>`<span class="modpill" style="color:var(--g-${k})">${STAT_META[k].role} ${r.mods[k]>0?'+':''}${r.mods[k]}</span>`).join("")||`<span class="empty-note" style="padding:0">보정 없음</span>`;
+  const mods=STAT_ORDER.filter(k=>r.mods[k]).map(k=>{const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${r.mods[k]>0?'+':''}${r.mods[k]}</span>`;}).join("")||`<span class="empty-note" style="padding:0">보정 없음</span>`;
   return `<div class="pv-title">${r.name.en} <span class="ko">(${r.name.ko})</span></div>
     <div class="pv-row"><span class="pv-lbl">Favored Enemy 숙적</span> ${r.favoredEnemy.en} (${r.favoredEnemy.ko})</div>
     <div class="pv-row"><span class="pv-lbl">Food Use 음식소모</span> ${r.foodUse}</div>
     <div class="pv-mods">${mods}</div>
-    <div class="pv-ability">${r.ability?`<b>${r.ability.name.en} (${r.ability.name.ko})</b> — ${r.ability.desc.replace(/<[^>]+>/g,"")}`:""}</div>
+    <div class="pv-ability">${r.ability?`<b>${r.ability.name.en} (${r.ability.name.ko})</b> — ${previewText(r.ability.desc)}`:""}</div>
     <div class="flavor">${r.flavor||""}</div>`;
 }
 function classPreview(c){
   const tag=catTags(c);
-  const stats=STAT_ORDER.map(k=>c.stats[k]?`<span class="modpill" style="color:var(--g-${k})">${STAT_META[k].role} ${c.stats[k].base}</span>`:"").join("");
+  const stats=STAT_ORDER.map(k=>{if(!c.stats[k])return"";const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${c.stats[k].base}</span>`;}).join("");
   const masteries=["firstMastery","secondMastery"].filter(k=>c.stats[k]&&c.stats[k].name).map(k=>`<div class="pv-row"><span class="pv-lbl" style="color:var(--g-${k})">${STAT_META[k].role}</span> ${c.stats[k].name.en} (${c.stats[k].name.ko})</div>`).join("");
   return `<div class="pv-title">${c.name.en} <span class="ko">(${c.name.ko})</span></div>
     ${c.flavor?`<div class="flavor" style="border-left-color:${catColor(c)};margin-top:6px">${c.flavor}</div>`:""}
     <div style="margin:6px 0">${tag}</div>
     <div class="pv-mods">${stats}</div>
     ${masteries}
-    <div class="pv-ability">${c.special?c.special.ko.replace(/<[^>]+>/g,""):""}</div>`;
+    <div class="pv-ability">${c.special?previewText(c.special.ko):""}</div>`;
 }
 function traitPicker(list){
   if(!list.length)return`<div class="empty-note">특성 데이터가 아직 없습니다. (traits / aspects / keepsakes)<br>data.js의 SHARED.traits 에 추가하세요. 게임 중에도 판에서 직접 추가할 수 있습니다.</div>`;
@@ -265,7 +276,7 @@ function traitPicker(list){
   const cards=list.map(t=>`<button class="pick-card wide ${APP.sel.traitIds.includes(t.id)?'on':''}" data-trait="${t.id}">
     <div class="pc-src">${srcName[t.type]||t.type}</div>
     <div class="pc-name">${t.name.en} <span class="pc-ko">(${t.name.ko})</span></div>
-    <div class="pc-desc">${t.desc.replace(/<[^>]+>/g,"")}</div></button>`).join("");
+    <div class="pc-desc">${previewText(t.desc)}</div></button>`).join("");
   return `<div class="pick-list">${cards}</div><div class="hint" style="margin-top:8px">여러 개 선택 가능 · 게임 중 판에서도 추가/제거할 수 있습니다.</div>`;
 }
 
@@ -529,7 +540,13 @@ function closeModal(){bg.classList.remove("on");}
 window.closeModal=closeModal;
 
 function addFoeModal(){
-  openModal(`<h3>Favored Enemy 추가</h3><div class="field"><label>English</label><input id="fEn" placeholder="Goblin"></div><div class="field"><label>한글</label><input id="fKo" placeholder="고블린"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="fSave">추가</button></div>`);
+  const have=APP.char.favoredEnemies.map(f=>f.en);
+  const quick=FOE_TYPES.filter(t=>!have.includes(t.en))
+    .map(t=>`<button class="btn slot" data-foepick="${t.en}" data-foeko="${t.ko}" style="margin:0 6px 6px 0">${t.en}<span style="font-size:.88em">${t.ko}</span></button>`).join("");
+  openModal(`<h3>Favored Enemy 추가</h3>
+    ${quick?`<div class="field"><label>목록에서 선택</label><div style="display:flex;flex-wrap:wrap">${quick}</div></div>`:""}
+    <div class="field"><label>English</label><input id="fEn" placeholder="Goblin"></div><div class="field"><label>한글</label><input id="fKo" placeholder="고블린"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="fSave">추가</button></div>`);
+  document.querySelectorAll("[data-foepick]").forEach(b=>b.onclick=()=>{APP.char.favoredEnemies.push({en:b.dataset.foepick,ko:b.dataset.foeko});closeModal();renderBoard();});
   $("#fSave").onclick=()=>{const en=$("#fEn").value.trim(),ko=$("#fKo").value.trim();if(en||ko)APP.char.favoredEnemies.push({en:en||ko,ko:ko||en});closeModal();renderBoard();};
 }
 function addItemModal(){
