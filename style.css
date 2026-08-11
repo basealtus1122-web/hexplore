@@ -108,7 +108,9 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .sec-head::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--edge-bright),transparent)}
 
 .hex-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.hex-cell{width:164px;max-width:calc(50% - 4px);display:flex;flex-direction:column;align-items:center;text-align:center}
+.hex-cell{width:164px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.hex-wrap .hex-cell{max-width:calc(50% - 4px)}   /* 좁은 화면에서도 두 개씩 */
+.vital .hex-cell{width:150px}
 .hex-svg{width:100%;max-width:150px;aspect-ratio:1;height:auto;display:block;overflow:visible}
 .hex-poly{stroke-width:1.75}
 .pip{stroke-width:1.8;cursor:pointer;transition:fill .15s,r .15s}
@@ -125,6 +127,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .hex-mod .mtag b{color:var(--g-defence)}
 
 .vital-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:620px){.vital-grid{grid-template-columns:1fr}}   /* 좁으면 세로로 — 육각형 크기 유지 */
 @media(max-width:560px){.vital-grid{grid-template-columns:1fr}}
 .vital{border:1px solid var(--edge);border-radius:12px;padding:12px;background:linear-gradient(160deg,var(--panel-2),var(--panel));display:flex;gap:10px}
 .vital.hp{border-color:color-mix(in srgb,var(--g-health) 32%,transparent)}
