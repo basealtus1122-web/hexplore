@@ -92,6 +92,7 @@ function renderHex(char,key,showName=true){
   HEX_ANGLES.forEach((a,i)=>{const r=a*Math.PI/180,px=cx+apo*Math.cos(r),py=cy-apo*Math.sin(r),on=i<filled;
     pips+=`<circle class="pip ${on?'full':'empty'}" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${on?7:5.5}" ${on?`style="fill:var(--g-${key})"`:`style="stroke:var(--edge-bright)"`} data-hex="${key}" data-idx="${i}"></circle>`;});
   return `<div class="hex-cell">
+    <button class="fuse-btn" data-fuse="${key}" ${filled?'':'disabled'} title="Fuse 융합: 육각형 1칸을 되돌리고 레벨은 그대로 유지(효과로 전환)" style="display:block;width:100%;margin:0 0 7px;min-height:34px;font-size:13px;font-weight:700;letter-spacing:.3px;border-radius:8px;${filled?`border:1px solid var(--g-${key});color:var(--g-${key});background:color-mix(in srgb,var(--c-${key}) 18%,transparent);cursor:pointer`:'border:1px dashed var(--edge-bright);color:var(--ink-faint);background:transparent;cursor:default;opacity:.5'}">Fuse 융합${filled?` <span style="font-weight:600">· ${filled}칸</span>`:''}</button>
     <svg class="hex-svg" viewBox="0 0 126 126">
       <path class="hex-poly" d="${hexPath(cx,cy,R)}" style="fill:color-mix(in srgb,var(--c-${key}) 26%,#12101a);stroke:var(--g-${key})"/>
       ${pips}
@@ -102,7 +103,6 @@ function renderHex(char,key,showName=true){
     <div class="hex-mod">
       <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>
       <span class="mtag">${m?`<b>${m>0?'+':''}${m}</b>`:'효과'}</span>
-      <button class="fuse-btn" data-fuse="${key}" ${filled?'':'disabled'} title="Fuse 융합: 육각형 1칸을 되돌리고 레벨은 그대로 유지(효과로 전환)" style="font-size:10px;font-weight:700;letter-spacing:.2px;padding:0 7px;border-radius:6px;${filled?`border:1px solid var(--g-${key});color:var(--g-${key});background:color-mix(in srgb,var(--c-${key}) 16%,transparent);cursor:pointer`:'border:1px solid var(--edge-bright);color:var(--ink-faint);background:transparent;cursor:default;opacity:.55'}">Fuse</button>
       <button data-mod="${key}" data-dir="1" title="효과로 인한 증가">\uFF0B</button>
     </div></div>`;
 }
