@@ -233,10 +233,10 @@ const KW_COMMON = {
   surge:{name:{en:"Surge",ko:"쇄도"}, desc:`쇄도 효과는 원소 주사위가 쇄도(Surge)로 나올 때 발생합니다.`},
   sustain:{name:{en:"Sustain",ko:"유지"}, desc:`라운드마다 Energy 1을 소모해 효과를 유지합니다. 유지 중인 능력이 이후 라운드에 계속되는 동안 다른 능력도 사용할 수 있습니다. 따로 언급이 없다면, 유지 효과는 한 번에 하나만 활성화됩니다.`},
   teleport:{name:{en:"Teleport",ko:"순간이동"}, desc:`지정된 장소, 또는 순간이동 수치 이내의 새 위치로 즉시 이동합니다. 따로 언급이 없다면 아무 페이즈에나 사용할 수 있으나, 이동 페이즈에 사용하면 그룹은 Moving Normally(일반 이동)한 것으로 간주합니다.`},
-  tenacious:{name:{en:"Tenacious",ko:"집요"}, desc:`The group may not Flee from Tenacious opponents.`},
-  unyielding:{name:{en:"Unyielding",ko:"완고"}, desc:`Targets may be targeted more than once by this attack. Roll for targets for each attack made.`},
-  wander:{name:{en:"Wander",ko:"헤매다"}, desc:`The group moves 1 hex in a random direction, as indicated by the Wander Compass.`},
-  weakness:{name:{en:"Weakness",ko:"약점"}, desc:`This includes another Keyword, Element, or damage type. Whenever a target suffers at least 1 damage of the type specified or any amount of Void damage, roll the Hex die. This die may HEXplode for opponents only. The target suffers additional damage equal to the result (this damage cannot be reduced). Targets may have more than one Weakness, but Weakness of the same type does not stack.`},
+  tenacious:{name:{en:"Tenacious",ko:"집요"}, desc:`집요한 적에게서는 그룹이 Flee(도주)할 수 없습니다.`},
+  unyielding:{name:{en:"Unyielding",ko:"완고"}, desc:`이 공격은 같은 대상을 여러 번 타겟할 수 있습니다. 매 공격마다 타겟을 굴립니다.`},
+  wander:{name:{en:"Wander",ko:"헤매다"}, desc:`그룹은 Wander Compass(배회 나침반)에 표시된 대로 무작위 방향으로 1헥스 이동합니다.`},
+  weakness:{name:{en:"Weakness",ko:"약점"}, desc:`다른 키워드·원소·피해 유형을 포함합니다. 대상이 지정된 유형의 피해를 1 이상, 또는 Void(공허) 피해를 얼마든지 받으면 Hex 주사위를 굴립니다. 대상은 그 결과만큼 추가 피해를 받으며, 이 피해는 감소시킬 수 없습니다. [보강 필요: This die may HEXplode for opponents only. Targets may have more than one Weakness, but Weakness of the same type does not stack.]`},
 };
 const KW_SIEGE = {
   arcing:{name:{en:"Arcing",ko:"방전"}, desc:`When attacking a Defender, each other Defender in X hexes of that Defender suffers half the Siege Damage dealt. Arcing is reduced by 1 for each Specialist the targeted Defender has.`},
