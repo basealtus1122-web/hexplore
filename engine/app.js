@@ -69,6 +69,8 @@ function statTerm(k){
   return `<b style="color:${statColor(k)}">${en}${ko?_ko(ko):""}</b>`;
 }
 /* 스탯 라벨(영한) — health/energy는 STAT_META.role이 둘 다 "Vital"이라 DMG 표를 우선 */
+/* 숙적 표기 — 영문이 없거나 한글과 같으면 하나만 표시(시트 내부 참조는 한국어만) */
+function foeLabel(f){return (f.en&&f.ko&&f.en!==f.ko)?`${f.en} (${f.ko})`:(f.ko||f.en||"");}
 function statLabel(k){const d=DMG[k],m=STAT_META[k];return{en:d?d.en:(m?m.role:k),ko:d?d.ko:(m?m.roleKo:"")};}
 /* 캐릭터가 없는 화면(빌더 미리보기)용 — 토큰을 영한 평문으로 바꾸고 나머지 태그는 제거 */
 function previewText(t){
@@ -253,7 +255,7 @@ function pickList(list,selId,kind,previewFn){
 function racePreview(r){
   const mods=STAT_ORDER.filter(k=>r.mods[k]).map(k=>{const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${r.mods[k]>0?'+':''}${r.mods[k]}</span>`;}).join("")||`<span class="empty-note" style="padding:0">보정 없음</span>`;
   return `<div class="pv-title">${r.name.en} <span class="ko">(${r.name.ko})</span></div>
-    <div class="pv-row"><span class="pv-lbl">Favored Enemy 숙적</span> ${r.favoredEnemy.en} (${r.favoredEnemy.ko})</div>
+    <div class="pv-row"><span class="pv-lbl">Favored Enemy 숙적</span> ${foeLabel(r.favoredEnemy)}</div>
     <div class="pv-row"><span class="pv-lbl">Food Use 음식소모</span> ${r.foodUse}</div>
     <div class="pv-mods">${mods}</div>
     <div class="pv-ability">${r.ability?`<b>${r.ability.name.en} (${r.ability.name.ko})</b> — ${previewText(r.ability.desc)}`:""}</div>
@@ -351,7 +353,7 @@ function renderBoard(){
 
 function boardBody(char){
   const cls=SHARED.classes[char.classId],race=SHARED.races[char.raceId];
-  const foeHTML=char.favoredEnemies.map((f,i)=>`<span class="chip">${f.en} (${f.ko})<button data-foe="${i}">\u2715</button></span>`).join("")+`<button class="add-btn" id="addFoe">+ 추가</button>`;
+  const foeHTML=char.favoredEnemies.map((f,i)=>`<span class="chip">${foeLabel(f)}<button data-foe="${i}">\u2715</button></span>`).join("")+`<button class="add-btn" id="addFoe">+ 추가</button>`;
   const combat=["attack","defence","firstMastery","secondMastery"].map(k=>renderHex(char,k)).join("");
   const skills=["navigate","explore","survival"].map(k=>renderHex(char,k)).join("");
   const masteries=`<div class="mastery-grid">${renderMastery(char,"firstMastery")}${renderMastery(char,"secondMastery")}</div>`;

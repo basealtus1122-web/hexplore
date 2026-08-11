@@ -43,6 +43,7 @@ const FOE_TYPES = [
   {en:"Undead",   ko:"언데드"},
   {en:"Creature", ko:"생물"},
   {en:"Construct",ko:"구성물"},
+  {en:"Humanoid", ko:"인간형"},
 ];
 
 /* =====================================================================
@@ -87,13 +88,24 @@ const SHARED = {
     dhampir: {
       id:"dhampir",
       name:{en:"Dhampir",ko:"담피르"},
-      favoredEnemy:{en:"See Ability",ko:"능력 참조"},
+      favoredEnemy:{en:"",ko:"능력 참조"},
       foodUse:2,
       mods:{health:3,energy:2,attack:1,defence:0,firstMastery:2,secondMastery:1,navigate:0,explore:0,survival:0},
       ability:{name:{en:"Racial Ability",ko:"종족 능력"},
         desc:"게임 턴당 <b>1회</b>, <st>energy</st> 2를 소모해 지난 라운드에 당신이 공격하여 피해를 준 적의 타입을 게임 턴 종료까지 당신의 숙적으로 취급한다.",
         track:{type:"check"}},
       flavor:"담피르는 교활하고 피에 굶주린 반(半)흡혈귀입니다.",
+    },
+    gutterGnome: {
+      id:"gutterGnome",
+      name:{en:"Gutter Gnome",ko:"하수구 노움"},
+      favoredEnemy:{en:"Humanoid",ko:"인간형"},
+      foodUse:1,
+      mods:{health:0,energy:2,attack:0,defence:1,firstMastery:2,secondMastery:0,navigate:1,explore:0,survival:1},
+      ability:{name:{en:"Racial Ability",ko:"종족 능력"},
+        desc:"게임 턴당 <b>1회</b>, <st>energy</st> 1을 소모해 달 주사위를 다시 굴리거나, 다른 주사위 대신 달 주사위를 굴릴 수 있다. 할당되지 않은 값이 나오면 아무 일도 일어나지 않는다.",
+        track:{type:"check"}},
+      flavor:"큰 도시의 하층민 취급을 받지만, 자신들은 전혀 신경 쓰지 않습니다.",
     },
     // 다음 종족은 여기에 같은 형식으로 추가
   },
