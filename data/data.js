@@ -410,14 +410,55 @@ const KW_SIEGE = {
   tremor:{name:{en:"Tremor",ko:"진동"}, desc:`<kw>negate</kw> any Recruit and Specialist bonuses in Range of this effect while this effect is in play.`},
 };
 
+/* =====================================================================
+   CONDITIONS(상태) — 4·5편 공용. 설명은 우선 영문 원문(한글화 예정)
+   q: 속성 — A=무관(아군·적 누구에게나) · P=지속(전투 후에도) · S=중첩(중복 획득)
+   ===================================================================== */
+const COND_NOTE = `상태는 개별 영웅이나 그룹 전체에 영향을 줍니다. 따로 언급이 없다면, Resolution 단계에서 <b>피해가 먼저 처리된 뒤</b> 상태를 적용합니다.`;
+const CONDITIONS = {
+  berserk:{name:{en:"Berserk",ko:"광폭화"}, q:["A","S"], desc:`A Berserk opponent deals extra damage equal to its Level. Berserk heroes <kw>boost</kw> their Attack rank by their Survival rank. This effect is Sustainable to heroes.`},
+  bleeding:{name:{en:"Bleeding",ko:"출혈"}, q:["A","S"], desc:`Bleeding targets lose 1 <st>health</st> during the Declaration phase of each round. Bleeding continues until the target receives <kw>heal</kw>ing or until combat ends.`},
+  blinded:{name:{en:"Blinded",ko:"실명"}, q:[], desc:`Blinded heroes must succeed on a Navigate roll during the Declaration phase of each round in order to act normally. If it fails, Ability ranks are halved this round.`},
+  bound:{name:{en:"Bound",ko:"결속"}, q:["A","P"], desc:`Bound targets are tied to the life force of another being. Anytime the ally they are bound to suffers damage, Bound targets lose the equivalent type and amount of Vitals. Lost Vitals due to being Bound is only applied once if two targets are Bound to each other.`},
+  brainwashed:{name:{en:"Brainwashed",ko:"세뇌"}, q:["A"], desc:`Brainwashed targets cannot act normally. They treat their opponent as their only ally and the group as opponents. If the target is attacking, roll target dice to see which group member they target. If the target is using an Ability or item that can target themselves or an ally, they instead target the opponent (to <kw>heal</kw>, <kw>boost</kw>, etc.).`},
+  burned:{name:{en:"Burned",ko:"화상"}, q:["A","S"], desc:`Burned targets lose 3 <st>health</st> at the beginning of the Declaration phase of each round and <kw>heal</kw> 3 less <st>health</st> each time their <st>health</st> is healed. The healing reduction stacks but the damage dealt does not.`},
+  captured:{name:{en:"Captured",ko:"포획"}, q:[], desc:`Captured heroes must succeed on an Explore roll during the Declaration phase of each round, or they lose their action.`},
+  charmed:{name:{en:"Charmed",ko:"매혹"}, q:[], desc:`Charmed targets must use their Attack against a random ally next round. If they are unable to, they suffer <st>energy</st> damage equal to the opponent's Level instead. Afterwards they are no longer Charmed.`},
+  confused:{name:{en:"Confused",ko:"혼란"}, q:["A"], desc:`This Condition resolves before damage is dealt. Roll any die during the Resolution phase of each round. Confused targets lose their action if the result is an even number, or have the numeric effects of their action reduced by half if the result is an odd number.`},
+  cursed:{name:{en:"Cursed",ko:"저주"}, q:["P"], desc:`Cursed heroes cannot be <kw>heal</kw>ed. Roll all three Skills during the Declaration phase of each round and during the Movement phase of each Game Turn. If you succeed on all three rolls, you are no longer Cursed.`},
+  debilitated:{name:{en:"Debilitated",ko:"쇠약"}, q:["S"], desc:`Heroes who become Debilitated must roll the Pyramid or Moon die. The rolled Ability may not be used. If there is a number specified in this Condition, you do not roll the die and instead lose access to the specified Ability. Heroes may only be affected by up to 3 instances of this Condition at any given time.`},
+  disarmed:{name:{en:"Disarmed",ko:"무장해제"}, q:[], desc:`Disarmed heroes lose their weapon. They may attempt to reclaim it each round by taking a Defend action and rolling a ten-sided die against their Attack rank (as if it were a Skill). While Disarmed, heroes may only deal damage equal to their base Role and Race modifiers.`},
+  diseased:{name:{en:"Diseased",ko:"감염"}, q:["P"], desc:`Diseased heroes who wish to use <st>energy</st> must first succeed on a Survival roll. In order to rid yourself of the Condition, you must <kw>heal</kw> in a location that provides healing (Village, Monastery, etc.).`},
+  disoriented:{name:{en:"Disoriented",ko:"균형상실"}, q:["S"], desc:`Disoriented heroes suffer an increased chance of a Critical Failure for Skill rolls. Their Critical Failure range increases by 2 each time they become Disoriented (8-10 for first, 6-10 for second, etc.).`},
+  dissonant:{name:{en:"Dissonant",ko:"부조화"}, q:["A","P","S"], desc:`A target's pattern becomes warped and begins to fray. Whenever the target suffers <st>energy</st> damage, they suffer an equal amount of <kw>nonlethal</kw> <st>health</st> damage. Dissonant heroes also suffer a -2 penalty to Stat Tests. Stacking affects the penalty only.`},
+  drained:{name:{en:"Drained",ko:"소진"}, q:["A","S"], desc:`Drained targets lose 3 <st>energy</st> at the beginning of the Declaration phase of each round and <kw>heal</kw> 3 less <st>energy</st> each time their <st>energy</st> is healed. The healing reduction stacks, but the damage dealt does not.`},
+  encased:{name:{en:"Encased",ko:"감금"}, q:["A"], desc:`Encased targets are no longer targetable by opponents in combat, but the constraint that encases them can be targeted by themselves or their allies. Encased targets may only use their Attack each round, targeting only the constraint. This Condition includes a number in parenthesis. This is the number of <st>health</st> damage that must be dealt to free the target. This Condition may not be removed through other means, and ends at the end of combat.`},
+  entangled:{name:{en:"Entangled",ko:"얽힘"}, q:["S"], desc:`Entangled heroes must succeed on a Navigate roll during the Declaration phase of each round in order to act normally. If they fail, they may only Attack or Defend, and do so with a -3 penalty.`},
+  fatigued:{name:{en:"Fatigued",ko:"피로"}, q:["A","S"], desc:`Fatigued targets lose 1 <st>energy</st> at the beginning of the Declaration phase of each round of combat.`},
+  frightened:{name:{en:"Frightened",ko:"공포"}, q:["S"], desc:`Frightened heroes may only use their Defend action and do so with a -3 penalty. Roll Survival during the Resolution phase of each round of combat. If successful, the Condition ends.`},
+  frozen:{name:{en:"Frozen",ko:"동결"}, q:[], desc:`Frozen heroes cannot act. Roll Survival during the Declaration phase of each round. After two successes, you may act normally and are no longer Frozen.`},
+  imprisoned:{name:{en:"Imprisoned",ko:"투옥"}, q:[], desc:`Imprisoned heroes are being held against their will. Lose all Currency, Food, and access to your backpack. If the heroes are not in a City-State, roll the Pyramid and move them to that one. The group may choose to participate in the Arena once. Any Currency won is confiscated. This Condition includes a number in parenthesis representing time spent while the group is imprisoned. At the end of the Game Turn, place a number of Remnants on the board equal to this number. The group is then freed and heroes regain access to their backpack. This Condition may not be removed by using an item.`},
+  irradiated:{name:{en:"Irradiated",ko:"피폭"}, q:[], desc:`Targets who gain this Condition suffer <kw>energy drain</kw> equal to the number in parenthesis minus their Food Rating. Heroes who gain this Condition may roll a Core die to resist becoming <kw>mutate</kw>d. If you do not roll, or if the result is greater than twice your Food Rating, immediately draw a Mutation card.`},
+  "knocked down":{name:{en:"Knocked Down",ko:"넘어짐"}, q:[], desc:`Heroes who are Knocked Down cannot act and Critically Fail Skill rolls until after they spend a round Defending to get back up. They may not use (or give) an item while Defending in this way.`},
+  petrified:{name:{en:"Petrified",ko:"석화"}, q:[], desc:`Petrified heroes cannot act. Instead, they Defend each round (but may not use an item). Roll Survival after the final round of combat. If it succeeds, the hero breaks the Petrification. If it fails, the hero dies.`},
+  poisoned:{name:{en:"Poisoned",ko:"중독"}, q:["P"], desc:`Poisoned heroes lose 1 <st>health</st> at the beginning of the Declaration phase of each round of combat and at the beginning of each Movement phase. They must also roll and succeed on a Survival roll in order to use <st>energy</st>. If you succeed on any 3 Survival rolls, remove the Condition from yourself.`},
+  slowed:{name:{en:"Slowed",ko:"감속"}, q:["A"], desc:`Slowed targets are struck with magical lethargy. They lose all passive Defensive Keywords except <kw>immune</kw> and resolve their actions together after all other actions are resolved.`},
+  "soul laced":{name:{en:"Soul Laced",ko:"영혼봉합"}, q:["A"], desc:`Soul Laced targets are bound to the life force of their opponent. At the end of the Resolution phase, the opponent gains (or <kw>raise</kw>s if they already have) a Soul Shield equal to the sum of the target's current Vitals. The opponent's <st>health</st> remains unaffected. If the Soul Shield suffers any damage throughout a round, Soul Laced targets suffer <kw>piercing</kw> <kw>energy drain</kw> equal to twice the opponent's Level. This Condition ends when the opponent loses their Soul Shield and may not be removed through other means.`},
+  surrounded:{name:{en:"Surrounded",ko:"포위"}, q:["A","S"], desc:`Surrounded targets suffer 2 <kw>piercing</kw> <st>health</st> damage at the beginning of the Declaration phase of each round.`},
+  swallowed:{name:{en:"Swallowed",ko:"삼켜짐"}, q:["A"], desc:`As <state>encased</state> except that Swallowed targets may not be targeted by allies. Any damage the Swallowed target deals depletes the opponent's <st>health</st> value as if it were normal damage. This Condition includes a second number in parenthesis. This is the number of <st>health</st> damage that the Swallowed target suffers during the Declaration phase of each round of combat.`},
+  tethered:{name:{en:"Tethered",ko:"명줄"}, q:["A"], desc:`Tethered targets will die if their <st>health</st> and/or <st>energy</st> drop to 0.`},
+  trapped:{name:{en:"Trapped",ko:"덫에 걸림"}, q:[], desc:`Trapped heroes must succeed on an Explore roll during the Declaration phase of each round in order to act normally. If they fail, they may only Defend.`},
+  unconscious:{name:{en:"Unconscious",ko:"기절"}, q:["A"], desc:`Unconscious targets cannot act. At the end of each round, that target rolls a six-sided die. If the result is a hex, they awaken. Each round the chance to wake increases by 1. Heroes may force an Unconscious target to wake by taking a Defend action, but may not use items while doing so. The round after they awaken, the target suffers a -3 penalty to all Ability ranks.`},
+  vulnerable:{name:{en:"Vulnerable",ko:"취약"}, q:["A","S"], desc:`Vulnerable targets gain +2 to their target die result while in combat and suffer 1 extra damage when damaged.`},
+  wounded:{name:{en:"Wounded",ko:"상처"}, q:["P","S"], desc:`Wounded heroes suffer a -2 penalty to all Ability and Skill ranks until they receive <kw>heal</kw>ing.`},
+};
+
 const SERIES = {
   "4": {
     id:"4", name:{en:"Hexplore It — Edition 4", ko:"헥스플로어 잇 — 4편"}, short:"4",
 
     keywords: KW_COMMON,
-    conditions: {
-      vulnerable:{name:{en:"Vulnerable",ko:"취약"}, desc:"받는 피해가 증가한다. (정의 추후 채움)"},
-    },
+    conditions: CONDITIONS,
     rules: [
       // {title:{en,ko}, body:"..."}  형식으로 추가
     ],
@@ -433,9 +474,7 @@ const SERIES = {
     id:"5", name:{en:"Hexplore It — Edition 5", ko:"헥스플로어 잇 — 5편"}, short:"5",
     keywords: KW_COMMON,
     exKeywords: KW_SIEGE,
-    conditions: {
-      vulnerable:{name:{en:"Vulnerable",ko:"취약"}, desc:"(5편 정의 추후 채움)"},
-    },
+    conditions: CONDITIONS,
     rules: [],
     items: [],
     extras: [],
@@ -443,4 +482,4 @@ const SERIES = {
 };
 
 /* 엔진에서 접근할 수 있게 전역으로 노출 */
-window.HEX = { CAT, STAT_ORDER, STAT_META, SHARED, SERIES, FOE_TYPES, GREATER_ASPECTS };
+window.HEX = { CAT, STAT_ORDER, STAT_META, SHARED, SERIES, FOE_TYPES, GREATER_ASPECTS, COND_NOTE };

@@ -10,6 +10,9 @@ const GREATER_ASPECTS=window.HEX.GREATER_ASPECTS||[];
 /* 확장 표기 — 데이터에 exp:"H"(HExclusive, 빨강) 또는 exp:"R"(Rare, 금색)을 넣으면
    선택칸 배지에서 시리즈 번호 앞에 대문자로 붙는다. 예: H4, R4 */
 const EXP_META={H:{ko:"HExclusive",c:"#e0474c"},R:{ko:"Rare",c:"#d4a636"}};
+/* 상태 속성 — A=무관(아군·적 누구에게나) · P=지속(전투 후에도) · S=중첩(중복 획득) */
+const COND_Q={A:{ko:"무관",t:"아군·적 누구에게나 적용",c:"#63d688"},P:{ko:"지속",t:"전투가 끝나도 유지",c:"#d4a636"},S:{ko:"중첩",t:"여러 번 얻을 수 있음",c:"#71a5ff"}};
+const COND_NOTE=window.HEX.COND_NOTE||"";
 
 /* ---------- app state ---------- */
 const APP={
@@ -474,7 +477,7 @@ function referenceBody(char,series,tab){
   }
   if(tab==="conditions"){
     const cs=series.conditions||{};if(!Object.keys(cs).length)return empty("이 시리즈의 상태이 아직 비어 있습니다.");
-    return refList(char,"Conditions · 상태",Object.values(cs));
+    return refList(char,"Conditions · 상태",Object.values(cs),COND_NOTE+` <span style="opacity:.8">속성 — <b style="color:${COND_Q.A.c}">무관</b> ${COND_Q.A.t} · <b style="color:${COND_Q.P.c}">지속</b> ${COND_Q.P.t} · <b style="color:${COND_Q.S.c}">중첩</b> ${COND_Q.S.t}</span>`);
   }
   if(tab==="rules"){
     const rs=series.rules||[];if(!rs.length)return empty("이 시리즈의 룰 참조표가 아직 비어 있습니다.");
@@ -495,18 +498,20 @@ function refItem(name,desc,tag){
   return `<div class="ref-block"><div class="ref-name">${name.en} <span class="ko">(${name.ko})</span>${tag?`<span class="ref-tag">${tag}</span>`:""}</div><div class="ref-desc">${desc||""}</div></div>`;
 }
 /* 검색 + 접기 목록 — 평소엔 이름만, 탭하면 설명이 펼쳐진다 */
-function refList(char,title,list){
+function refList(char,title,list,note){
   const rows=list.map(v=>{
-    const plain=`${v.name.en} ${v.name.ko} ${(v.desc||"").replace(/<[^>]+>/g,"")}`.toLowerCase().replace(/"/g,"&quot;");
+    const q=(v.q||[]).filter(x=>COND_Q[x]).map(x=>`<span title="${COND_Q[x].t}" style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;margin-left:5px;color:${COND_Q[x].c};border:1px solid ${COND_Q[x].c};background:color-mix(in srgb,${COND_Q[x].c} 13%,transparent)">${COND_Q[x].ko}</span>`).join("");
+    const plain=`${v.name.en} ${v.name.ko} ${(v.q||[]).map(x=>COND_Q[x]?COND_Q[x].ko:"").join(" ")} ${(v.desc||"").replace(/<[^>]+>/g,"")}`.toLowerCase().replace(/"/g,"&quot;");
     return `<div class="ref-block refrow" data-s="${plain}" style="padding:0;margin:0;overflow:hidden;flex:0 0 auto;max-width:100%;transition:background .15s">
       <div class="refhead" style="display:flex;align-items:center;gap:7px;padding:7px 11px;cursor:pointer;user-select:none;white-space:nowrap">
         <span class="chev" style="color:var(--ink-faint);font-size:10px;transition:transform .15s;display:inline-block">▶</span>
-        <span class="ref-name" style="font-size:13.5px">${v.name.en}<span class="ko" style="margin-left:1px">${v.name.ko}</span></span>
+        <span class="ref-name" style="font-size:13.5px">${v.name.en}<span class="ko" style="margin-left:1px">${v.name.ko}</span></span>${q}
       </div>
       <div class="ref-desc refbody" style="display:none;padding:0 12px 11px 29px;margin-top:0">${expand(char,v.desc||"")}</div>
     </div>`;
   }).join("");
   return `<div class="section"><div class="sec-head">${title}</div>
+    ${note?`<div class="special" style="margin:0 0 12px;border-left-color:var(--edge-bright)">${note}</div>`:""}
     <div class="reftools" style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
       <input id="refSearch" placeholder="검색 — 영문·한글·설명" autocomplete="off" style="flex:1;min-width:0;padding:8px 11px;border-radius:9px;border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);font-family:'Noto Serif KR';font-size:13px">
       <button id="refAll" class="tbtn" style="white-space:nowrap">모두 펼치기</button>
