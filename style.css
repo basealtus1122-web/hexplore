@@ -108,11 +108,12 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .sec-head::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--edge-bright),transparent)}
 
 .hex-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.hex-cell{width:150px;display:flex;flex-direction:column;align-items:center;text-align:center}
-.hex-svg{width:126px;height:126px;display:block;overflow:visible}
+.hex-cell{width:164px;max-width:calc(50% - 4px);display:flex;flex-direction:column;align-items:center;text-align:center}
+.hex-svg{width:100%;max-width:150px;aspect-ratio:1;height:auto;display:block;overflow:visible}
 .hex-poly{stroke-width:1.75}
-.pip{stroke-width:1.5;cursor:pointer;transition:fill .15s,r .15s}
+.pip{stroke-width:1.8;cursor:pointer;transition:fill .15s,r .15s}
 .pip.empty{fill:var(--void)}
+.pip-num{font-family:"Noto Sans KR";font-size:12px;font-weight:600;pointer-events:none;user-select:none}
 .hex-val{font-family:"Cinzel";font-weight:700;font-size:33px}
 .hex-sub{font-family:"Noto Sans KR";font-size:8.5px;fill:var(--ink-faint)}
 .hex-role{margin-top:3px;font-size:10px;color:var(--ink-faint);font-family:"Cinzel";letter-spacing:.1em;text-transform:uppercase}

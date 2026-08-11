@@ -44,8 +44,7 @@ function buildCharacter(sel,seriesId){
     startDate:new Date().toISOString(),
   };
   if(race&&race.ability&&!race.inheritsRace)char.abilities.push({id:"aRace",src:"race",name:clone(race.ability.name),desc:race.ability.desc,track:initTrack(race.ability.track)});
-  if(sel.aspectId){const a=GREATER_ASPECTS.find(x=>x.id===sel.aspectId);
-    if(a)char.abilities.push({id:"ga_"+a.id,src:"greater",name:clone(a.name),desc:a.desc||"(내용 추후 입력)",track:initTrack(a.track),mods:a.mods?clone(a.mods):null});}
+  /* 위대한 양상은 빌더에서 고르되 판에는 숨겨둔다 — '+ Aspect 양상'의 공개 버튼으로 드러낸다 */
   sel.traitIds.forEach(tid=>{const t=SHARED.traits[tid];if(t)char.abilities.push({id:"t_"+tid,src:t.type,name:clone(t.name),desc:t.desc,track:initTrack(t.track),mods:t.mods?clone(t.mods):null});});
   char.curHealth=effOf(char,"health");char.curEnergy=effOf(char,"energy");
   return char;
@@ -140,16 +139,20 @@ function renderHex(char,key,showName=true){
   const cls=SHARED.classes[char.classId],st=cls.stats[key],meta=STAT_META[key];
   const filled=char.filled[key],val=effOf(char,key),m=char.mod[key],bc=baseCharOf(char,key);
   const nmEn=st&&st.name?st.name.en:meta.role, nmKo=st&&st.name?st.name.ko:meta.roleKo;
-  const cx=63,cy=63,R=52,apo=R*Math.cos(Math.PI/6);let pips="";
+  /* 육각형 칸(pip) — 탭하기 쉽게 크게. st.hexCost[i] 가 있으면 그 칸의 비용 숫자를 안에 표시 */
+  const cx=72,cy=72,R=56,apo=R*Math.cos(Math.PI/6);let pips="";
   HEX_ANGLES.forEach((a,i)=>{const r=a*Math.PI/180,px=cx+apo*Math.cos(r),py=cy-apo*Math.sin(r),on=i<filled;
-    pips+=`<circle class="pip ${on?'full':'empty'}" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${on?7:5.5}" ${on?`style="fill:var(--g-${key})"`:`style="stroke:var(--edge-bright)"`} data-hex="${key}" data-idx="${i}"></circle>`;});
+    const cost=st&&st.hexCost?st.hexCost[i]:null;
+    pips+=`<circle class="pip ${on?'full':'empty'}" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${on?13:12}" ${on?`style="fill:var(--g-${key})"`:`style="stroke:var(--edge-bright)"`} data-hex="${key}" data-idx="${i}"></circle>`;
+    if(cost!=null)pips+=`<text class="pip-num" x="${px.toFixed(1)}" y="${py.toFixed(1)}" text-anchor="middle" dominant-baseline="central" style="fill:${on?'#12101a':'var(--ink-faint)'}">${cost}</text>`;
+  });
   return `<div class="hex-cell">
     <button class="fuse-btn" data-fuse="${key}" ${filled?'':'disabled'} title="Fuse 융합: 육각형 1칸을 되돌리고 레벨은 그대로 유지(효과로 전환)" style="display:block;width:100%;margin:0 0 7px;min-height:34px;font-size:13px;font-weight:700;letter-spacing:.3px;border-radius:8px;${filled?`border:1px solid var(--g-${key});color:var(--g-${key});background:color-mix(in srgb,var(--c-${key}) 18%,transparent);cursor:pointer`:'border:1px dashed var(--edge-bright);color:var(--ink-faint);background:transparent;cursor:default;opacity:.5'}">Fuse 융합${filled?` <span style="font-weight:600">· ${filled}칸</span>`:''}</button>
-    <svg class="hex-svg" viewBox="0 0 126 126">
+    <svg class="hex-svg" viewBox="0 0 144 144">
       <path class="hex-poly" d="${hexPath(cx,cy,R)}" style="fill:color-mix(in srgb,var(--c-${key}) 26%,#12101a);stroke:var(--g-${key})"/>
       ${pips}
-      <text class="hex-val" x="63" y="58" text-anchor="middle" dominant-baseline="middle" style="fill:var(--g-${key})">${val}</text>
-      <text class="hex-sub" x="63" y="80" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
+      <text class="hex-val" x="72" y="67" text-anchor="middle" dominant-baseline="middle" style="fill:var(--g-${key})">${val}</text>
+      <text class="hex-sub" x="72" y="90" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
     </svg>
     ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg)}`:""}
     <div class="hex-mod">
@@ -414,7 +417,7 @@ function boardBody(char){
     <div class="identity">
       <div class="cat-row">${catTags(cls)}</div>
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
-      <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}${(()=>{const a=GREATER_ASPECTS.find(x=>x.id===char.aspectId);return a?` · 양상 <b>${a.name.en} (${a.name.ko})</b>`:"";})()}</div>
+      <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}${(()=>{const a=GREATER_ASPECTS.find(x=>x.id===char.aspectId);const shown=a&&char.abilities.some(x=>x.src==="greater"&&x.name.en===a.name.en);return shown?` · 양상 <b>${a.name.en} (${a.name.ko})</b>`:(char.aspectId?` · 양상 <b style="color:var(--ink-faint)">미공개</b>`:"");})()}</div>
       <div class="flavor">${race.flavor||""}</div>
       ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
@@ -602,10 +605,13 @@ function addFoeModal(){
 function addAspectModal(){
   const have=APP.char.abilities.map(a=>a.name.en);
   const btn=(attr,n)=>`<button class="btn slot" ${attr} style="margin:0 6px 6px 0">${n.en}<span style="font-size:.88em">${n.ko}</span></button>`;
-  const greater=GREATER_ASPECTS.filter(a=>!have.includes(a.name.en)).map(a=>btn(`data-gapick="${a.id}"`,a.name)).join("");
+  const mine=GREATER_ASPECTS.find(a=>a.id===APP.char.aspectId&&!have.includes(a.name.en));
+  const greater=GREATER_ASPECTS.filter(a=>!have.includes(a.name.en)&&a.id!==APP.char.aspectId).map(a=>btn(`data-gapick="${a.id}"`,a.name)).join("");
   const normal=Object.values(SHARED.traits).filter(t=>t.type==="aspect"&&!have.includes(t.name.en)).map(t=>btn(`data-aspick="${t.id}"`,t.name)).join("");
   openModal(`<h3>Aspect 양상 추가</h3>
-    <div class="field"><label>Greater Aspect 위대한 양상 — 공개</label>
+    ${mine?`<div class="field"><label>내 위대한 양상 — 공개하기</label>
+      <button class="btn primary" data-gapick="${mine.id}" style="width:100%;padding:11px">${mine.name.en}<span style="font-size:.88em">${mine.name.ko}</span> 공개</button></div>`:""}
+    <div class="field"><label>Greater Aspect 위대한 양상${mine?" — 그 외":" — 공개"}</label>
       ${greater?`<div style="display:flex;flex-wrap:wrap">${greater}</div>`:`<div class="empty-note" style="padding:6px 0">공개할 위대한 양상이 없습니다.</div>`}</div>
     <div class="field"><label>Aspect 양상</label>
       ${normal?`<div style="display:flex;flex-wrap:wrap">${normal}</div>`:`<div class="empty-note" style="padding:6px 0">목록이 아직 비어 있습니다.</div>`}</div>
