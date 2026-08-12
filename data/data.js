@@ -556,7 +556,7 @@ const SHARED = {
             {lab:"Boost 동료 공격·방어", color:"attack", val:E.lv("firstMastery").toFixed(1)},
             ...(E.lv("firstMastery")>=8?[{lab:"Boost 대상 행동", color:"attack", val:E.lv("attack").toFixed(1)}]:[]),
           ],
-          desc:`턴당 <b>1회</b>까지 사용해, 당신의 <b>Time시간</b>을 <b>3</b> 늘리거나 이번 턴 모든 이동 유형의 속도를 <b>1</b> 올린다(<b>Camping야영</b> 포함). <b>Event 페이즈</b>에 사용해 쓰지 않은 이동력을 원하는 만큼 쓸 수도 있다. 이 초과 이동은 그룹의 이동 유형을 바꾸지 않는다. <b>전투:</b> 이번 라운드 동료 하나의 공격·방어 랭크를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. <lvl n="5">이번 턴에 {defence}도 사용할 수 있다.</lvl> <lvl n="8">다음 라운드에 대상 하나의 행동 랭크를 {attack} 랭크만큼 <kw>boost</kw>한다.</lvl>`,
+          desc:`턴당 <b>1회</b>까지 사용해, 당신의 <b>Time시간</b>을 <b>3</b> 늘리거나 이번 턴 모든 이동 유형의 속도를 <b>1</b> 올린다(<b>Camping야영</b> 포함). <b>Event 페이즈</b>에 사용해 쓰지 않은 이동력을 원하는 만큼 쓸 수도 있다. 이 초과 이동은 그룹의 이동 유형을 바꾸지 않는다. <b>전투:</b> 이번 라운드 동료 하나의 <act>attack</act>·<act>defend</act> 랭크를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. <lvl n="5">이번 턴에 {defence}도 사용할 수 있다.</lvl> <lvl n="8">다음 라운드에 대상 하나의 행동 랭크를 {attack} 랭크만큼 <kw>boost</kw>한다.</lvl>`,
         },
         secondMastery:{base:2, name:{en:"Umbral Arrow",ko:"암영 화살"}, cost:1,
           readout:(E)=>[
@@ -802,7 +802,7 @@ const SHARED = {
             {lab:"Boost 능력 증폭", color:"attack", val:Math.max(1,E.lv("secondMastery")/3).toFixed(1)},
             ...(E.lv("secondMastery")>=5?[{lab:"아이템 사용 수", color:"explore", val:(E.lv("explore")/2).toFixed(1)}]:[]),
           ],
-          desc:`이번 라운드가 끝날 때까지 모든 영웅의 능력 랭크를 {secondMastery} 랭크의 <b>1/3</b>만큼(<b>최소 1</b>) <kw>boost</kw>하고, 전투가 끝날 때까지 적에게 <b>Mark표식</b>을 남긴다. 표식이 남은 적에게는 모든 공격 능력이 <kw>piercing</kw> 피해를 준다. 방어를 사용하는 영웅 <b>1명마다</b> 표식이 남은 대상이 받는 회복이 <b>5</b>씩 줄어든다. {attack}는 표식이 남은 적에게 라운드당 <b>2회</b> 사용할 수 있다. <lvl n="5">표식이 남은 적과 맞선 상태에서 {defence}를 사용할 때, 아이템을 <b>1개</b> 대신 {explore} 랭크의 <b>절반</b>만큼 사용할 수 있다.</lvl>`,
+          desc:`이번 라운드가 끝날 때까지 모든 영웅의 능력 랭크를 {secondMastery} 랭크의 <b>1/3</b>만큼(<b>최소 1</b>) <kw>boost</kw>하고, 전투가 끝날 때까지 적에게 <b>Mark표식</b>을 남긴다. 표식이 남은 적에게는 모든 공격 능력이 <kw>piercing</kw> 피해를 준다. <act>defend</act>를 사용하는 영웅 <b>1명마다</b> 표식이 남은 대상이 받는 회복이 <b>5</b>씩 줄어든다. {attack}는 표식이 남은 적에게 라운드당 <b>2회</b> 사용할 수 있다. <lvl n="5">표식이 남은 적과 맞선 상태에서 {defence}를 사용할 때, 아이템을 <b>1개</b> 대신 {explore} 랭크의 <b>절반</b>만큼 사용할 수 있다.</lvl>`,
         },
         navigate:{base:2, name:{en:"Navigate",ko:"길찾기"}},
         explore:{base:3, name:{en:"Explore",ko:"탐험"}},

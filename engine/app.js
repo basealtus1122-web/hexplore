@@ -19,6 +19,7 @@ const APP={
   screen:"builder",              // builder | series | board
   sel:{raceId:null,classId:null,traitIds:[],subRaceId:null,aspectId:null},
   builderTab:"race",             // race | class | trait
+  sort:{race:"default",class:"default"},  // default(수록순) | abc(이름순) | ed(편순)
   char:null,
   tab:"board",                   // board | keyword id...
 };
@@ -131,17 +132,24 @@ function statTerm(k){
 /* 숙적 표기 — 영문이 없거나 한글과 같으면 하나만 표시(시트 내부 참조는 한국어만) */
 function foeLabel(f){return (f.en&&f.ko&&f.en!==f.ko)?`${f.en} (${f.ko})`:(f.ko||f.en||"");}
 function statLabel(k){const d=DMG[k],m=STAT_META[k];return{en:d?d.en:(m?m.role:k),ko:d?d.ko:(m?m.roleKo:"")};}
+/* <act>defend</act> → Defend방어 (영웅 행동). 키워드가 아니라 행동이므로 오버레이는 열리지 않는다.
+   {defence} 는 그 직업의 방어 능력명이라, "아무 영웅이나 방어를 쓸 때"에는 이 토큰을 쓴다. */
+const ACTS={attack:{en:"Attack",ko:"공격",c:"attack"},defend:{en:"Defend",ko:"방어",c:"defence"}};
+function actTerm(k){const a=ACTS[k];if(!a)return k;
+  return `<b style="color:var(--g-${a.c})">${a.en}${_ko(a.ko)}</b>`;}
 /* 캐릭터가 없는 화면(빌더 미리보기)용 — 토큰을 영한 평문으로 바꾸고 나머지 태그는 제거 */
 function previewText(t){
   if(!t)return"";
   const findKw=k=>{for(const s of Object.values(SERIES)){const v=(s.keywords&&s.keywords[k])||(s.exKeywords&&s.exKeywords[k])||(s.conditions&&s.conditions[k]);if(v)return v;}return null;};
-  return t.replace(/<st>(\w+)<\/st>/g,(m,k)=>{const l=statLabel(k);return l.en+l.ko;})
+  return t.replace(/<act>(\w+)<\/act>/g,(m,k)=>ACTS[k]?ACTS[k].en+ACTS[k].ko:k)
+    .replace(/<st>(\w+)<\/st>/g,(m,k)=>{const l=statLabel(k);return l.en+l.ko;})
     .replace(/<(?:kw|state)>(.*?)<\/(?:kw|state)>/g,(m,x)=>{const v=findKw(x.toLowerCase());return v?v.name.en+v.name.ko:x;})
     .replace(/<[^>]+>/g,"");
 }
 function expand(char,t){
   const cls=SHARED.classes[char.classId], S=SERIES[char.series]||{};
   return t.replace(/\{(\w+)\}/g,(m,k)=>cls.stats[k]?`<span class="ref" style="color:var(--g-${k})">${cls.stats[k].name.en}</span>`:m)
+    .replace(/<act>(\w+)<\/act>/g,(m,k)=>actTerm(k))
     .replace(/<st>(\w+)<\/st>/g,(m,k)=>statTerm(k))
     .replace(/<hp>(.*?)<\/hp>/g,'<b class="hpc">$1</b>')
     .replace(/<en>(.*?)<\/en>/g,'<b class="enc">$1</b>')
@@ -385,6 +393,7 @@ function renderBuilder(){
     <div class="segbar">${seg("race","Race 종족")}${seg("class","Class 직업")}${seg("trait","Traits 특성")}</div>
     <div class="build-body">${body}</div>
     ${summary}
+    ${cls?previewTotals(APP.sel):""}
     <div class="build-actions">
       <button class="btn primary big" id="toSeries" ${ready?'':'disabled'}>확정 → 시리즈 선택</button>
       ${ready?'':`<span class="hint">${needExtra&&APP.sel.raceId?'기반 종족과 위대한 양상까지 선택하세요':'종족과 직업을 선택하세요'} (특성은 선택 사항 · 게임 중 추가 가능)</span>`}
@@ -392,6 +401,7 @@ function renderBuilder(){
   </div>`;
 
   root.querySelectorAll("[data-btab]").forEach(b=>b.onclick=()=>{APP.builderTab=b.dataset.btab;renderBuilder();});
+  root.querySelectorAll("[data-sort]").forEach(b=>b.onclick=()=>{APP.sort[b.dataset.sortkind]=b.dataset.sort;renderBuilder();});
   root.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
     const kind=b.dataset.kind,id=b.dataset.pick;
     if(kind==="race"){APP.sel.raceId=(APP.sel.raceId===id?null:id);APP.sel.subRaceId=null;APP.sel.aspectId=null;}
@@ -410,13 +420,51 @@ function renderBuilder(){
 }
 /* 줄바꿈 위치가 폭에 따라 달라지므로 창 크기가 바뀌면 다시 배치 */
 window.addEventListener("resize",()=>{if(APP.screen==="builder")placeInlinePreview();});
+/* 목록 정렬 — 기본(데이터 수록순) · 이름순 · 편순(편→확장→이름) */
+const SORTS=[["default","기본순"],["abc","이름순"],["ed","편순"]];
+function sortList(list,mode){
+  const a=[...list];
+  if(mode==="abc")a.sort((x,y)=>x.name.en.localeCompare(y.name.en));
+  else if(mode==="ed")a.sort((x,y)=>(x.ed||"").localeCompare(y.ed||"")||(x.exp||"").localeCompare(y.exp||"")||x.name.en.localeCompare(y.name.en));
+  return a;
+}
+function sortBar(kind){
+  const cur=APP.sort[kind]||"default";
+  return `<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
+    <span class="pv-lbl" style="margin:0">Sort 정렬</span>
+    ${SORTS.map(([id,ko])=>`<button data-sort="${id}" data-sortkind="${kind}" style="font-size:11.5px;padding:4px 10px;border-radius:8px;cursor:pointer;${cur===id?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 18%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${ko}</button>`).join("")}
+  </div>`;
+}
+/* 확정 전 합계 능력치 — 직업 base + 종족 보정 + 특성/양상 보정 */
+function previewTotals(sel){
+  const cls=SHARED.classes[sel.classId];if(!cls)return"";
+  const stub={raceId:sel.raceId,subRaceId:sel.subRaceId,raceForm:null};
+  const race=SHARED.races[sel.raceId];
+  if(race&&race.forms)stub.raceForm=race.forms[0].id;
+  const rm=sel.raceId?modsOf(stub):zero();
+  const extra=zero();
+  sel.traitIds.forEach(tid=>{const t=SHARED.traits[tid];if(t&&t.mods)STAT_ORDER.forEach(k=>extra[k]+=(t.mods[k]||0));});
+  if(sel.aspectId){const a=GREATER_ASPECTS.find(x=>x.id===sel.aspectId);
+    if(a&&a.mods)STAT_ORDER.forEach(k=>extra[k]+=(a.mods[k]||0));}
+  const cells=STAT_ORDER.map(k=>{
+    const base=(cls.stats[k]&&cls.stats[k].base)||0, add=(rm[k]||0)+(extra[k]||0), l=statLabel(k);
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 11px;border-radius:10px;border:1px solid var(--edge-bright);background:var(--panel-2);min-width:74px">
+      <span style="font-family:'Cinzel';font-size:10px;letter-spacing:.04em;color:var(--g-${k})">${l.en}<span style="font-size:.9em;color:var(--ink-faint);margin-left:1px">${l.ko}</span></span>
+      <span style="font-family:'Cinzel';font-weight:700;font-size:19px;color:var(--g-${k})">${base+add}</span>
+      <span style="font-size:9.5px;color:var(--ink-faint)">${base}${add?(add>0?` +${add}`:` ${add}`):""}</span></div>`;}).join("");
+  const note=race&&race.forms?` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· ${race.forms[0].name.ko} 형태 기준</span>`:"";
+  return `<div class="build-body" style="padding:13px"><div class="pv-lbl" style="margin:0 0 8px">Total Stats · 합계 능력치${note}</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">${cells}</div>
+    <div class="hint" style="margin-top:8px;text-align:left">직업 기본값 + 종족 보정${sel.traitIds.length||sel.aspectId?" + 특성/양상":""} · 육각형은 판에서 채웁니다</div></div>`;
+}
 function pickList(list,selId,kind,previewFn){
   if(!list.length)return`<div class="empty-note">데이터가 아직 없습니다. data.js에 추가하세요.</div>`;
+  list=sortList(list,APP.sort[kind]);
   const cards=list.map(x=>`<button class="pick-card ${selId===x.id?'on':''}" data-pick="${x.id}" data-kind="${kind}">
     <div class="pc-name">${x.name.en}</div><div class="pc-ko">${x.name.ko}</div>${x.ed?`<span class="ed-badge" title="${EXP_META[x.exp]?EXP_META[x.exp].ko+" · ":""}${x.ed}편 수록">${x.exp&&EXP_META[x.exp]?`<b style="color:${EXP_META[x.exp].c}">${x.exp}</b>`:""}${x.ed}</span>`:""}</button>`).join("");
   const sel=list.find(x=>x.id===selId);
   /* 미리보기를 그리드 안에 넣어두면, placeInlinePreview()가 선택한 카드의 행 바로 아래로 옮긴다 */
-  return `<div class="pick-grid">${cards}${sel?`<div class="preview inline">${previewFn(sel)}</div>`:""}</div>${sel?"":`<div class="empty-note">위에서 하나 선택하면 상세가 표시됩니다.</div>`}`;
+  return `${sortBar(kind)}<div class="pick-grid">${cards}${sel?`<div class="preview inline">${previewFn(sel)}</div>`:""}</div>${sel?"":`<div class="empty-note">위에서 하나 선택하면 상세가 표시됩니다.</div>`}`;
 }
 /* 선택한 카드가 속한 줄의 끝으로 미리보기를 옮겨, 그 줄 바로 아래에 펼쳐지게 한다(아코디언 그리드).
    미리보기는 width:100% 라 항상 새 줄을 차지하므로, 그리드 끝에 둔 상태로 각 카드의 줄 위치를 잰다. */
@@ -903,7 +951,15 @@ function applyTheme(){
   if(s&&s!=="4")document.documentElement.setAttribute("data-series",s);
   else document.documentElement.removeAttribute("data-series");
 }
+/* 배경 무늬 레이어 — 한 번만 만들어 모든 화면에서 재사용 */
+function ensureHexBg(){
+  if(document.getElementById("hexbg"))return;
+  const d=document.createElement("div");d.id="hexbg";d.setAttribute("aria-hidden","true");
+  d.innerHTML="<i></i><i></i><i></i>";
+  document.body.insertBefore(d,document.body.firstChild);
+}
 function render(){
+  ensureHexBg();
   applyTheme();
   if(APP.screen==="builder")renderBuilder();
   else if(APP.screen==="series")renderSeries();
