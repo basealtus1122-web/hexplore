@@ -953,7 +953,9 @@ function applyTheme(){
 }
 /* 배경 무늬 — 은빛 격자는 CSS 배경(정적), 색 헥스만 SVG로 그려 윤곽을 따라 흐르게 한다.
    격자 규격은 style.css 의 --hexgrid 와 같아야 색 헥스가 격자에 정확히 겹친다. */
-const HEXBG={R:26, ratio:.14, colors:["#f3a8c0","#bf94f5","#63d688"]};
+const HEXBG={R:26, ratio:.14, colors:["#f3a8c0","#bf94f5","#63d688"],
+  dur:11,      /* 한 헥스가 밝아졌다 가라앉는 주기(초) */
+  waves:1.6};  /* 화면 대각선에 동시에 보이는 파도 수 */
 function paintHexBg(){
   const svg=document.querySelector("#hexbg svg");if(!svg)return;
   const R=HEXBG.R, dx=Math.sqrt(3)*R, dy=1.5*R, peri=6*R;
@@ -963,20 +965,25 @@ function paintHexBg(){
   if(svg.dataset.size===cols+"x"+rows)return;
   svg.dataset.size=cols+"x"+rows;
   let seed=7, rnd=()=>((seed=(seed*1103515245+12345)&0x7fffffff)/0x7fffffff);
-  const parts=[];
+  /* 파도는 좌하단 → 우상단으로 간다. 화면 y는 아래로 커지므로 s=(x-y)가 클수록 우상단이다. */
+  const cells=[];
   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
     if(rnd()>=HEXBG.ratio){rnd();continue;}                    /* 색 없는 칸은 배경 격자가 담당 */
     const col=HEXBG.colors[Math.floor(rnd()*3)%3];
     const cx=c*dx+(r%2?dx/2:0), cy=r*dy;
+    cells.push({cx,cy,col,s:cx-cy});
+  }
+  if(!cells.length){svg.innerHTML="";return;}
+  const sMin=Math.min(...cells.map(c=>c.s)), sMax=Math.max(...cells.map(c=>c.s));
+  const span=(sMax-sMin)||1, DUR=HEXBG.dur, WAVES=HEXBG.waves;
+  const parts=cells.map(({cx,cy,col,s})=>{
     const pts=[];
     for(let i=0;i<6;i++){const a=(60*i-90)*Math.PI/180;
       pts.push((cx+R*Math.cos(a)).toFixed(1)+","+(cy+R*Math.sin(a)).toFixed(1));}
-    const d="M"+pts.join("L")+"Z";
-    const dur=(13+rnd()*16).toFixed(1), delay=(-rnd()*30).toFixed(1);
-    const dir=rnd()<.5?peri:-peri;                              /* 도는 방향도 섞는다 */
-    parts.push(`<path class="base" d="${d}" stroke="${col}"/>`+
-      `<path class="flow" d="${d}" stroke="${col}" style="--seg:${(R*0.9).toFixed(1)};--gap:${(peri-R*0.9).toFixed(1)};--peri:${dir};--dur:${dur}s;--delay:${delay}s"/>`);
-  }
+    /* 우상단일수록 늦게 밝아진다. 화면 전체가 WAVES 주기에 걸쳐 훑이므로 파도가 이어진다. */
+    const delay=-((sMax-s)/span)*WAVES*DUR;
+    return `<path d="M${pts.join("L")}Z" stroke="${col}" style="--dur:${DUR}s;--delay:${delay.toFixed(2)}s"/>`;
+  });
   svg.innerHTML=parts.join("");
 }
 function ensureHexBg(){

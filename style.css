@@ -41,12 +41,18 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 #hexbg i{position:absolute;inset:0;display:block;background-position:center top;background-image:var(--hexgrid)}
 #hexbg svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 #hexbg path{fill:none;stroke-linejoin:round;stroke-linecap:round}
-#hexbg path.base{stroke-width:1.15;opacity:.16}                    /* 색 헥스의 은은한 바탕 윤곽 */
-#hexbg path.flow{stroke-width:1.5;opacity:.8;
-  stroke-dasharray:var(--seg) var(--gap);
-  animation:hexrun var(--dur,18s) linear infinite;
+/* 파도 — 좌하단에서 우상단으로 지나간다. 헥스마다 위치에 따라 시작 시점(--delay)만 다르고
+   주기는 모두 같아서, 밝아지는 지점이 줄지어 이동하며 물결처럼 보인다. */
+#hexbg path{stroke-width:1.15;opacity:.16;
+  animation:hexwave var(--dur,11s) linear infinite;
   animation-delay:var(--delay,0s)}
-@keyframes hexrun{from{stroke-dashoffset:0}to{stroke-dashoffset:var(--peri)}}
+@keyframes hexwave{
+  0%{opacity:.16;stroke-width:1.15}
+  4%{opacity:.55;stroke-width:1.5}    /* 파도가 다가온다 */
+  9%{opacity:.95;stroke-width:1.9}    /* 마루 */
+  16%{opacity:.5;stroke-width:1.5}
+  30%{opacity:.16;stroke-width:1.15}  /* 천천히 가라앉는다 */
+  100%{opacity:.16;stroke-width:1.15}}
 /* 캐릭터판에서는 읽기를 방해하지 않게 옅게 */
 :root[data-screen="board"]{--hexbg-op:.5}
 @media (prefers-reduced-motion:reduce){#hexbg path.flow{animation:none}}
