@@ -310,13 +310,30 @@ function renderBuilder(){
     renderBuilder();
   });
   const ts=$("#toSeries");if(ts)ts.onclick=()=>{if(ready){APP.screen="series";render();}};
+  placeInlinePreview();
 }
+/* 줄바꿈 위치가 폭에 따라 달라지므로 창 크기가 바뀌면 다시 배치 */
+window.addEventListener("resize",()=>{if(APP.screen==="builder")placeInlinePreview();});
 function pickList(list,selId,kind,previewFn){
   if(!list.length)return`<div class="empty-note">데이터가 아직 없습니다. data.js에 추가하세요.</div>`;
   const cards=list.map(x=>`<button class="pick-card ${selId===x.id?'on':''}" data-pick="${x.id}" data-kind="${kind}">
     <div class="pc-name">${x.name.en}</div><div class="pc-ko">${x.name.ko}</div>${x.ed?`<span class="ed-badge" title="${EXP_META[x.exp]?EXP_META[x.exp].ko+" · ":""}${x.ed}편 수록">${x.exp&&EXP_META[x.exp]?`<b style="color:${EXP_META[x.exp].c}">${x.exp}</b>`:""}${x.ed}</span>`:""}</button>`).join("");
   const sel=list.find(x=>x.id===selId);
-  return `<div class="pick-grid">${cards}</div>${sel?`<div class="preview">${previewFn(sel)}</div>`:`<div class="empty-note">위에서 하나 선택하면 상세가 표시됩니다.</div>`}`;
+  /* 미리보기를 그리드 안에 넣어두면, placeInlinePreview()가 선택한 카드의 행 바로 아래로 옮긴다 */
+  return `<div class="pick-grid">${cards}${sel?`<div class="preview inline">${previewFn(sel)}</div>`:""}</div>${sel?"":`<div class="empty-note">위에서 하나 선택하면 상세가 표시됩니다.</div>`}`;
+}
+/* 선택한 카드가 속한 줄의 끝으로 미리보기를 옮겨, 그 줄 바로 아래에 펼쳐지게 한다(아코디언 그리드).
+   미리보기는 width:100% 라 항상 새 줄을 차지하므로, 그리드 끝에 둔 상태로 각 카드의 줄 위치를 잰다. */
+function placeInlinePreview(){
+  const grid=root.querySelector(".pick-grid");if(!grid)return;
+  const pv=grid.querySelector(":scope > .preview.inline"),sel=grid.querySelector(":scope > .pick-card.on");
+  if(!pv||!sel)return;
+  grid.appendChild(pv);
+  const rowTop=sel.offsetTop;
+  let last=sel;
+  grid.querySelectorAll(":scope > .pick-card").forEach(c=>{if(Math.abs(c.offsetTop-rowTop)<2)last=c;});
+  if(last.nextElementSibling!==pv)last.after(pv);
+  sel.classList.add("expanded");
 }
 function racePreview(r){
   const mods=STAT_ORDER.filter(k=>r.mods[k]).map(k=>{const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${r.mods[k]>0?'+':''}${r.mods[k]}</span>`;}).join("")||`<span class="empty-note" style="padding:0">보정 없음</span>`;
