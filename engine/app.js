@@ -18,7 +18,7 @@ const COND_NOTE=window.HEX.COND_NOTE||"";
 const APP={
   screen:"builder",              // builder | series | board
   sel:{raceId:null,classId:null,traitIds:[],subRaceId:null,aspectId:null},
-  builderTab:"race",             // race | class | trait
+  builderTab:"class",            // class | race | trait
   sort:{race:"abc",class:"abc"},  // abc(이름순) | ed(편순)
   char:null,
   tab:"board",                   // board | keyword id...
@@ -82,7 +82,7 @@ function formSwitcher(char,race){
   const lowE=!!(race.formCostEnergy&&char.curEnergy<race.formCostEnergy);
   const btns=race.forms.map(f=>{const on=f.id===cur;const dis=!on&&lowE;
     const base=on?'border:1px solid var(--g-attack);color:var(--ink);background:color-mix(in srgb,var(--c-attack) 16%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent';
-    return `<button data-form="${f.id}"${dis?' disabled title="에너지 부족 — 변신할 수 없음"':''} style="font-family:'Cinzel';font-size:12.5px;padding:6px 13px;border-radius:9px;cursor:${dis?'not-allowed':'pointer'};${base}${dis?';opacity:.4':''}">${f.name.en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:3px">${f.name.ko}</span></button>`;}).join("");
+    return `<button data-form="${f.id}"${dis?' disabled title="에너지 부족 — 변신할 수 없음"':''} style="font-family:'Cinzel';font-size:13.5px;padding:11px 18px;min-height:44px;border-radius:9px;cursor:${dis?'not-allowed':'pointer'};${base}${dis?';opacity:.4':''}">${f.name.en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:3px">${f.name.ko}</span></button>`;}).join("");
   const cost=[];
   if(race.formCostEnergy)cost.push(`<b style="color:var(--g-energy)">Energy</b>에너지 ${race.formCostEnergy} 소모`);
   if(race.formHealOnSwitch)cost.push(`<b style="color:var(--g-health)">Health</b>체력 ${race.formHealOnSwitch} 회복`);
@@ -222,14 +222,14 @@ function vitalSwitcher(char,cls){
   if(!cls.declareVital)return"";
   const list=(cls.stats.attack&&cls.stats.attack.dmg)||[];
   const btns=list.filter(d=>DMG[d]).map(d=>{const on=char.vitalPick===d;
-    return `<button data-vital-pick="${d}" style="font-family:'Cinzel';font-size:12px;padding:5px 11px;border-radius:8px;cursor:pointer;${on?`border:1px solid ${DMG[d].color};color:var(--ink);background:color-mix(in srgb,${DMG[d].color} 18%,transparent)`:'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${DMG[d].en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:2px">${DMG[d].ko}</span></button>`;}).join("");
+    return `<button data-vital-pick="${d}" style="font-family:'Cinzel';font-size:13px;padding:11px 16px;min-height:44px;border-radius:9px;cursor:pointer;${on?`border:1px solid ${DMG[d].color};color:var(--ink);background:color-mix(in srgb,${DMG[d].color} 18%,transparent)`:'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${DMG[d].en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:2px">${DMG[d].ko}</span></button>`;}).join("");
   return `<div style="margin-top:9px"><div class="foe-label" style="margin-bottom:5px">Declared Vital · 선언한 생명력${char.vitalPick?"":` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 전투를 시작하며 하나 고르세요</span>`}</div><div style="display:flex;gap:7px;flex-wrap:wrap">${btns}</div></div>`;
 }
 /* 지금 상대하는 적 유형 — cls.declareFoe 이면 특성 박스에서 고른다(트로피 계산 등에 쓰임) */
 function foeSwitcher(char,cls){
   if(!cls.declareFoe)return"";
   const btns=FOE_TYPES.map(f=>{const on=char.foePick===f.en;
-    return `<button data-foe-pick="${f.en}" style="font-size:11.5px;padding:4px 9px;border-radius:8px;cursor:pointer;white-space:nowrap;${on?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 20%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${f.en}<span style="font-size:.88em;color:var(--ink-faint);margin-left:2px">${f.ko}</span></button>`;}).join("");
+    return `<button data-foe-pick="${f.en}" style="font-size:12.5px;padding:10px 14px;min-height:42px;border-radius:9px;cursor:pointer;white-space:nowrap;${on?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 20%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${f.en}<span style="font-size:.88em;color:var(--ink-faint);margin-left:2px">${f.ko}</span></button>`;}).join("");
   return `<div style="margin-top:10px"><div class="foe-label" style="margin-bottom:5px">Current Opponent · 지금 상대<span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)"> · 고르면 같은 유형 트로피가 계산에 반영됩니다</span></div><div style="display:flex;gap:6px;flex-wrap:wrap">${btns}</div></div>`;
 }
 /* 직접 채우는 목록 — cls.roster:[{id,name,fields:[{id,label,color}],countHint:(E)=>n}]
@@ -242,13 +242,13 @@ function renderRoster(char,cls){
     const hint=r.countHint?r.countHint(makeE(char,"special")):null;
     const rows=list.map((e,i)=>{const on=pick===i;
       return `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 9px;border-radius:10px;border:1px solid ${on?'var(--accent)':'var(--edge)'};background:${on?'color-mix(in srgb,var(--accent-dim) 12%,transparent)':'transparent'}">
-        <button data-roster-pick="${r.id}" data-idx="${i}" title="활성으로 지정" style="font-family:'Cinzel';font-size:11px;padding:3px 9px;border-radius:7px;cursor:pointer;border:1px solid ${on?'var(--accent)':'var(--edge-bright)'};background:transparent;color:${on?'var(--ink)':'var(--ink-faint)'}">${on?'● 변신 중':'○ 대기'}</button>
-        <input data-roster-name="${r.id}" data-idx="${i}" value="${(e.name||"").replace(/"/g,'&quot;')}" placeholder="이름" style="flex:1;min-width:90px;padding:4px 8px;border-radius:7px;border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);font-family:'Noto Serif KR';font-size:12.5px">
+        <button data-roster-pick="${r.id}" data-idx="${i}" title="활성으로 지정" style="font-family:'Cinzel';font-size:12.5px;padding:10px 14px;min-height:42px;border-radius:8px;cursor:pointer;border:1px solid ${on?'var(--accent)':'var(--edge-bright)'};background:transparent;color:${on?'var(--ink)':'var(--ink-faint)'}">${on?'● 변신 중':'○ 대기'}</button>
+        <input data-roster-name="${r.id}" data-idx="${i}" value="${(e.name||"").replace(/"/g,'&quot;')}" placeholder="이름" style="flex:1;min-width:110px;padding:10px 11px;border-radius:8px;border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);font-family:'Noto Serif KR';font-size:12.5px">
         ${r.fields.map(f=>`<span style="display:flex;align-items:center;gap:4px"><span style="font-size:10.5px;color:var(--ink-faint);white-space:nowrap">${f.label}</span>
           <button class="sq" data-roster-num="${r.id}" data-idx="${i}" data-field="${f.id}" data-dir="-1">−</button>
           <span style="font-family:'Cinzel';font-weight:700;min-width:12px;text-align:center;color:${f.color?statColor(f.color):'var(--ink)'}">${e[f.id]||0}</span>
           <button class="sq" data-roster-num="${r.id}" data-idx="${i}" data-field="${f.id}" data-dir="1">＋</button></span>`).join("")}
-        <button data-roster-del="${r.id}" data-idx="${i}" style="border:none;background:transparent;color:var(--ink-faint);cursor:pointer;font-size:13px">✕</button>
+        <button data-roster-del="${r.id}" data-idx="${i}" style="border:none;background:transparent;color:var(--ink-faint);cursor:pointer;font-size:17px;padding:8px 10px;min-height:40px">✕</button>
       </div>`;}).join("");
     return `<div style="margin-top:10px"><div class="foe-label" style="margin-bottom:6px">${r.name.en} · ${r.name.ko}
         <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 보유 ${list.length}${hint!=null?` / 획득 가능 ${hint}`:""} · 변신 중인 하나만 계산에 반영</span></div>
@@ -367,8 +367,8 @@ function emblem(){
     <path d="M0,-24 L20.8,-12 L20.8,12 L0,24 L-20.8,12 L-20.8,-12 Z" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
   </svg>`;
 }
-function brandHead(sub){
-  return `<div class="builder-head"><div class="brand">${emblem()}<div class="wordmark">HEXPLORE IT</div></div><div class="sub">${sub}</div></div>`;
+function brandHead(sub,extra){
+  return `<div class="builder-head"><div class="brand">${emblem()}<div class="wordmark">HEXPLORE IT</div></div><div class="sub-row"><div class="sub">${sub}</div>${extra||""}</div></div>`;
 }
 function renderBuilder(){
   const raceList=Object.values(SHARED.races), classList=Object.values(SHARED.classes), traitList=Object.values(SHARED.traits);
@@ -391,15 +391,13 @@ function renderBuilder(){
   </div>`;
 
   root.innerHTML=`<div class="wrap">
-    ${brandHead("Character Builder · 캐릭터 생성")}
+    ${brandHead("Character Builder · 캐릭터 생성",
+      `<button class="btn primary" id="toSeries" ${ready?"":"disabled"}>확정 → 시리즈 선택</button>`)}
     ${cls?previewTotals(APP.sel):""}
-    <div class="segbar">${seg("race","Race 종족")}${seg("class","Class 직업")}${seg("trait","Traits 특성")}</div>
+    <div class="segbar">${seg("class","Class 직업")}${seg("race","Race 종족")}${seg("trait","Traits 특성")}</div>
     <div class="build-body">${body}</div>
     ${summary}
-    <div class="build-actions">
-      <button class="btn primary big" id="toSeries" ${ready?'':'disabled'}>확정 → 시리즈 선택</button>
-      ${ready?'':`<span class="hint">${needExtra&&APP.sel.raceId?'기반 종족과 위대한 양상까지 선택하세요':'종족과 직업을 선택하세요'} (특성은 선택 사항 · 게임 중 추가 가능)</span>`}
-    </div>
+    ${ready?"":`<div class="hint">${needExtra&&APP.sel.raceId?"기반 종족과 위대한 양상까지 선택하세요":"직업과 종족을 선택하세요"} (특성은 선택 사항 · 게임 중 추가 가능)</div>`}
   </div>`;
 
   root.querySelectorAll("[data-btab]").forEach(b=>b.onclick=()=>{APP.builderTab=b.dataset.btab;renderBuilder();});
@@ -434,7 +432,7 @@ function sortBar(kind){
   const cur=APP.sort[kind]||"default";
   return `<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
     <span class="pv-lbl" style="margin:0">Sort 정렬</span>
-    ${SORTS.map(([id,ko])=>`<button data-sort="${id}" data-sortkind="${kind}" style="font-size:11.5px;padding:4px 10px;border-radius:8px;cursor:pointer;${cur===id?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 18%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${ko}</button>`).join("")}
+    ${SORTS.map(([id,ko])=>`<button data-sort="${id}" data-sortkind="${kind}" style="font-size:13px;padding:10px 16px;min-height:42px;border-radius:9px;cursor:pointer;${cur===id?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 18%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${ko}</button>`).join("")}
   </div>`;
 }
 /* 확정 전 합계 능력치 — 직업 base + 종족 보정 + 특성/양상 보정 */
@@ -707,7 +705,7 @@ function refList(char,title,list,note){
     const q=(v.q||[]).filter(x=>COND_Q[x]).map(x=>`<span title="${COND_Q[x].t}" style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;margin-left:5px;color:${COND_Q[x].c};border:1px solid ${COND_Q[x].c};background:color-mix(in srgb,${COND_Q[x].c} 13%,transparent)">${COND_Q[x].ko}</span>`).join("");
     const plain=`${v.titleEn||v.name.en} ${v.name.ko} ${(v.q||[]).map(x=>COND_Q[x]?COND_Q[x].ko:"").join(" ")} ${(v.desc||"").replace(/<[^>]+>/g,"")}`.toLowerCase().replace(/"/g,"&quot;");
     return `<div class="ref-block refrow" data-s="${plain}" style="padding:0;margin:0;overflow:hidden;flex:0 0 auto;max-width:100%;transition:background .15s">
-      <div class="refhead" style="display:flex;align-items:center;gap:7px;padding:7px 11px;cursor:pointer;user-select:none;white-space:nowrap">
+      <div class="refhead" style="display:flex;align-items:center;gap:8px;padding:13px 14px;min-height:46px;cursor:pointer;user-select:none;white-space:nowrap">
         <span class="chev" style="color:var(--ink-faint);font-size:10px;transition:transform .15s;display:inline-block">▶</span>
         <span class="ref-name" style="font-size:13.5px">${v.titleEn||v.name.en}<span class="ko" style="margin-left:1px">${v.name.ko}</span></span>${q}
       </div>
@@ -717,7 +715,7 @@ function refList(char,title,list,note){
   return `<div class="section"><div class="sec-head">${title}</div>
     ${note?`<div class="special" style="margin:0 0 12px;border-left-color:var(--edge-bright)">${note}</div>`:""}
     <div class="reftools" style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-      <input id="refSearch" placeholder="검색 — 영문·한글·설명" autocomplete="off" style="flex:1;min-width:0;padding:8px 11px;border-radius:9px;border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);font-family:'Noto Serif KR';font-size:13px">
+      <input id="refSearch" placeholder="검색 — 영문·한글·설명" autocomplete="off" style="flex:1;min-width:0;padding:12px 13px;min-height:44px;border-radius:9px;border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);font-family:'Noto Serif KR';font-size:13px">
       <button id="refAll" class="tbtn" style="white-space:nowrap">모두 펼치기</button>
     </div>
     <div id="refCount" style="font-size:11px;color:var(--ink-faint);margin:-4px 0 8px"></div>
@@ -981,8 +979,11 @@ function applyTheme(){
   /* 남은 체력에 따라 배경 오로라가 빨라진다 — 30% 이하 low, 10% 이하 crit(붉은 심장 박동) */
   let hp="";
   if(APP.screen==="board"&&APP.char){
-    const mx=effOf(APP.char,"health");
-    if(mx>0){const r=APP.char.curHealth/mx; hp=r<=.10?"crit":r<=.30?"low":"";}
+    const mx=effOf(APP.char,"health"),c=APP.char.curHealth;
+    /* 최대 체력이 작으면 비율만으로는 10% 구간에 못 들어가므로(예: 최대 9면 1도 11%)
+       각 기준을 최소 1·2로 올려 잡는다. 두 기준이 겹치면 10%(crit)가 우선. */
+    if(mx>0)hp = c<=Math.max(1,Math.ceil(mx*.10)) ? "crit"
+             : c<=Math.max(2,Math.ceil(mx*.30)) ? "low" : "";
   }
   setHpState(hp);
   const s=(APP.screen==="board"&&APP.char)?APP.char.series:null;

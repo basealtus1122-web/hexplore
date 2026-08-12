@@ -59,6 +59,13 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 :root[data-screen="board"]{--hexbg-op:.5}
 /* 남은 체력이 30% 이하면 흐름이 빨라지고, 10% 이하면 붉은색 단일 + 심장 박동이 된다 */
 :root[data-hp="low"]{--hexbg-op:.62}
+:root[data-hp="low"] #hexbg .aurora{
+  background-image:
+    radial-gradient(38% 44% at 20% 32%, rgba(226,72,72,.9),   transparent 70%),
+    radial-gradient(44% 40% at 66% 20%, rgba(191,148,245,.85), transparent 72%),
+    radial-gradient(40% 46% at 44% 74%, rgba(214,86,96,.8),   transparent 70%),
+    radial-gradient(32% 36% at 88% 62%, rgba(243,168,192,.7),  transparent 72%),
+    radial-gradient(34% 38% at 8% 84%,  rgba(226,72,72,.7),   transparent 74%)}
 :root[data-hp="crit"]{--hexbg-op:.8}
 :root[data-hp="crit"] #hexbg .aurora{
   background-image:
@@ -85,13 +92,15 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .brand{display:flex;align-items:center;justify-content:center;gap:12px}
 .emb{width:34px;height:34px;flex:none}
 .wordmark{font-family:"Cinzel";font-weight:700;font-size:26px;letter-spacing:.28em;color:var(--ink);text-indent:.28em}
-.sub{font-family:"Cinzel";font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);margin-top:6px}
+.sub{font-family:"Cinzel";font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint)}
+/* 부제 + 확정 버튼을 한 줄에 — 좁으면 자연스럽게 줄바꿈된다 */
+.sub-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:9px}
 .segbar,.build-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.seg{font-family:"Cinzel";font-size:13px;letter-spacing:.06em;padding:9px 18px;border-radius:10px;border:1px solid var(--edge-bright);background:var(--panel);color:var(--ink-dim);cursor:pointer}
+.seg{font-family:"Cinzel";font-size:14px;letter-spacing:.06em;padding:13px 24px;min-height:46px;border-radius:10px;border:1px solid var(--edge-bright);background:var(--panel);color:var(--ink-dim);cursor:pointer}
 .seg.on{background:var(--panel-2);color:var(--ink);border-color:var(--accent)}
 .build-body{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
 .pick-grid{display:flex;flex-wrap:wrap;gap:10px}
-.pick-card{position:relative;background:var(--panel-2);border:1px solid var(--edge-bright);border-radius:12px;padding:14px 18px;cursor:pointer;color:var(--ink);text-align:left;min-width:130px}
+.pick-card{position:relative;background:var(--panel-2);border:1px solid var(--edge-bright);border-radius:12px;padding:16px 20px;min-height:62px;cursor:pointer;color:var(--ink);text-align:left;min-width:130px}
 .ed-badge{position:absolute;right:7px;bottom:5px;font-family:"Cinzel";font-size:10px;font-weight:600;color:var(--ink-faint);opacity:.75;letter-spacing:.05em}
 .pick-card.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent-dim) 12%,var(--panel-2))}
 /* 펼친 카드는 아래 미리보기와 이어 보이게 강조 */
@@ -119,7 +128,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .bs.set{color:var(--ink);border-color:var(--edge-bright)}
 .bs b{color:var(--accent)}
 .hint{font-size:12px;color:var(--ink-faint);text-align:center;font-style:italic}
-.btn.big{font-size:15px;padding:12px 26px}
+.btn.big{font-size:16px;padding:15px 30px}
 .chosen{text-align:center;font-family:"Cinzel";font-size:16px;color:var(--ink-dim)}
 .chosen .ko{font-family:"Noto Serif KR";font-size:13px;color:var(--ink-faint)}
 .series-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -137,7 +146,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .tb-id{font-family:"Cinzel";font-size:14px;color:var(--ink-dim)}
 .series-pill{font-family:"Cinzel";font-size:10px;letter-spacing:.08em;color:var(--accent);border:1px solid var(--edge-bright);border-radius:10px;padding:1px 7px;margin-left:6px}
 .toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
-.tbtn{font-size:12px;font-family:"Noto Serif KR";padding:6px 12px;border-radius:8px;border:1px solid var(--edge-bright);background:var(--panel);color:var(--ink-dim);cursor:pointer}
+.tbtn{font-size:13px;font-family:"Noto Serif KR";padding:10px 15px;min-height:42px;border-radius:8px;border:1px solid var(--edge-bright);background:var(--panel);color:var(--ink-dim);cursor:pointer}
 .tbtn:hover{color:var(--ink)}
 .tbtn.warn{border-color:rgba(201,51,58,.5);color:#f0a0a8}
 .tabbar{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;border-bottom:1px solid var(--edge);position:sticky;top:0;background:var(--void);z-index:5}
@@ -171,7 +180,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .foe-list{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .chip{display:inline-flex;align-items:center;gap:6px;background:rgba(201,51,58,.12);border:1px solid rgba(201,51,58,.4);color:#f0b8bc;border-radius:16px;padding:4px 6px 4px 11px;font-size:13px}
 .chip button{background:none;border:none;color:#f0b8bc;cursor:pointer;font-size:15px;line-height:1;padding:0 2px;opacity:.7}
-.add-btn{background:none;border:1px dashed var(--edge-bright);color:var(--ink-faint);border-radius:16px;padding:5px 12px;font-size:13px;cursor:pointer;font-family:"Noto Serif KR"}
+.add-btn{background:none;border:1px dashed var(--edge-bright);color:var(--ink-faint);border-radius:16px;padding:10px 16px;min-height:42px;font-size:13.5px;cursor:pointer;font-family:"Noto Serif KR"}
 .add-btn:hover{color:var(--ink);border-color:var(--accent)}
 
 .section{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:14px 16px 18px;box-shadow:var(--shadow)}
@@ -216,7 +225,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .maxv{font-size:22px;color:var(--ink-dim);font-family:"Cinzel"}
 .row{display:flex;gap:6px;align-items:center;margin-top:6px}
 .row .lbl{font-size:10px;color:var(--ink-faint);font-family:"Cinzel";letter-spacing:.08em;text-transform:uppercase;min-width:42px}
-.sq{width:32px;height:32px;border-radius:8px;border:1px solid var(--edge-bright);background:var(--panel-2);color:var(--ink);font-size:17px;cursor:pointer;line-height:1}
+.sq{width:42px;height:42px;border-radius:9px;border:1px solid var(--edge-bright);background:var(--panel-2);color:var(--ink);font-size:19px;cursor:pointer;line-height:1}
 .rval{font-family:"Cinzel";font-weight:700;font-size:17px;min-width:22px;text-align:center}
 
 .mastery-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;align-items:start}
@@ -282,7 +291,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .res .val{font-size:30px;font-weight:700;font-family:"Cinzel";margin:4px 0;font-variant-numeric:tabular-nums}
 .res.gold .val{color:var(--gold)}
 .res .rowbtn{display:flex;gap:6px;justify-content:center}
-.res .rowbtn button{width:30px;height:30px;border-radius:8px;border:1px solid var(--edge-bright);background:var(--panel);color:var(--ink);font-size:16px;cursor:pointer;line-height:1}
+.res .rowbtn button{width:44px;height:44px;border-radius:9px;border:1px solid var(--edge-bright);background:var(--panel);color:var(--ink);font-size:19px;cursor:pointer;line-height:1}
 .items{margin-top:14px}
 .item-list{display:flex;flex-direction:column;gap:6px}
 .item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;background:var(--panel-2);border:1px solid var(--edge);font-size:13.5px}
@@ -313,7 +322,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .field input,.field textarea,.field select{width:100%;background:var(--void);border:1px solid var(--edge);color:var(--ink);border-radius:8px;padding:9px 11px;font-size:14px;font-family:"Noto Serif KR"}
 .field textarea{min-height:64px;resize:vertical}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
-.btn{padding:9px 18px;border-radius:9px;border:1px solid var(--edge-bright);background:var(--panel-2);color:var(--ink);cursor:pointer;font-size:14px;font-family:"Noto Serif KR"}
+.btn{padding:13px 22px;min-height:46px;border-radius:9px;border:1px solid var(--edge-bright);background:var(--panel-2);color:var(--ink);cursor:pointer;font-size:14.5px;font-family:"Noto Serif KR"}
 .btn.primary{background:var(--accent-dim);border-color:var(--accent);color:#fff;font-weight:500}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 button:active{transform:scale(.97)}
