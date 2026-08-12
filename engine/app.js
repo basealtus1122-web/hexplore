@@ -19,7 +19,7 @@ const APP={
   screen:"builder",              // builder | series | board
   sel:{raceId:null,classId:null,traitIds:[],subRaceId:null,aspectId:null},
   builderTab:"race",             // race | class | trait
-  sort:{race:"default",class:"default"},  // default(수록순) | abc(이름순) | ed(편순)
+  sort:{race:"abc",class:"abc"},  // abc(이름순) | ed(편순)
   char:null,
   tab:"board",                   // board | keyword id...
 };
@@ -390,10 +390,10 @@ function renderBuilder(){
 
   root.innerHTML=`<div class="wrap">
     ${brandHead("Character Builder · 캐릭터 생성")}
+    ${cls?previewTotals(APP.sel):""}
     <div class="segbar">${seg("race","Race 종족")}${seg("class","Class 직업")}${seg("trait","Traits 특성")}</div>
     <div class="build-body">${body}</div>
     ${summary}
-    ${cls?previewTotals(APP.sel):""}
     <div class="build-actions">
       <button class="btn primary big" id="toSeries" ${ready?'':'disabled'}>확정 → 시리즈 선택</button>
       ${ready?'':`<span class="hint">${needExtra&&APP.sel.raceId?'기반 종족과 위대한 양상까지 선택하세요':'종족과 직업을 선택하세요'} (특성은 선택 사항 · 게임 중 추가 가능)</span>`}
@@ -421,11 +421,11 @@ function renderBuilder(){
 /* 줄바꿈 위치가 폭에 따라 달라지므로 창 크기가 바뀌면 다시 배치 */
 window.addEventListener("resize",()=>{if(APP.screen==="builder")placeInlinePreview();});
 /* 목록 정렬 — 기본(데이터 수록순) · 이름순 · 편순(편→확장→이름) */
-const SORTS=[["default","기본순"],["abc","이름순"],["ed","편순"]];
+const SORTS=[["abc","이름순"],["ed","편순"]];
 function sortList(list,mode){
   const a=[...list];
-  if(mode==="abc")a.sort((x,y)=>x.name.en.localeCompare(y.name.en));
-  else if(mode==="ed")a.sort((x,y)=>(x.ed||"").localeCompare(y.ed||"")||(x.exp||"").localeCompare(y.exp||"")||x.name.en.localeCompare(y.name.en));
+  if(mode==="ed")a.sort((x,y)=>(x.ed||"").localeCompare(y.ed||"")||(x.exp||"").localeCompare(y.exp||"")||x.name.en.localeCompare(y.name.en));
+  else a.sort((x,y)=>x.name.en.localeCompare(y.name.en));
   return a;
 }
 function sortBar(kind){
@@ -951,49 +951,13 @@ function applyTheme(){
   if(s&&s!=="4")document.documentElement.setAttribute("data-series",s);
   else document.documentElement.removeAttribute("data-series");
 }
-/* 배경 무늬 — 은빛 격자는 CSS 배경(정적), 색 헥스만 SVG로 그려 윤곽을 따라 흐르게 한다.
-   격자 규격은 style.css 의 --hexgrid 와 같아야 색 헥스가 격자에 정확히 겹친다. */
-const HEXBG={R:26, ratio:.14, colors:["#f3a8c0","#bf94f5","#63d688"],
-  dur:11,      /* 한 헥스가 밝아졌다 가라앉는 주기(초) */
-  waves:1.6};  /* 화면 대각선에 동시에 보이는 파도 수 */
-function paintHexBg(){
-  const svg=document.querySelector("#hexbg svg");if(!svg)return;
-  const R=HEXBG.R, dx=Math.sqrt(3)*R, dy=1.5*R, peri=6*R;
-  const w=window.innerWidth, h=window.innerHeight;
-  const cols=Math.ceil(w/dx)+2, rows=Math.ceil(h/dy)+2;
-  /* 화면 크기가 같으면 다시 그리지 않는다(리렌더마다 무늬가 바뀌면 산만하다) */
-  if(svg.dataset.size===cols+"x"+rows)return;
-  svg.dataset.size=cols+"x"+rows;
-  let seed=7, rnd=()=>((seed=(seed*1103515245+12345)&0x7fffffff)/0x7fffffff);
-  /* 파도는 좌하단 → 우상단으로 간다. 화면 y는 아래로 커지므로 s=(x-y)가 클수록 우상단이다. */
-  const cells=[];
-  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
-    if(rnd()>=HEXBG.ratio){rnd();continue;}                    /* 색 없는 칸은 배경 격자가 담당 */
-    const col=HEXBG.colors[Math.floor(rnd()*3)%3];
-    const cx=c*dx+(r%2?dx/2:0), cy=r*dy;
-    cells.push({cx,cy,col,s:cx-cy});
-  }
-  if(!cells.length){svg.innerHTML="";return;}
-  const sMin=Math.min(...cells.map(c=>c.s)), sMax=Math.max(...cells.map(c=>c.s));
-  const span=(sMax-sMin)||1, DUR=HEXBG.dur, WAVES=HEXBG.waves;
-  const parts=cells.map(({cx,cy,col,s})=>{
-    const pts=[];
-    for(let i=0;i<6;i++){const a=(60*i-90)*Math.PI/180;
-      pts.push((cx+R*Math.cos(a)).toFixed(1)+","+(cy+R*Math.sin(a)).toFixed(1));}
-    /* 우상단일수록 늦게 밝아진다. 화면 전체가 WAVES 주기에 걸쳐 훑이므로 파도가 이어진다. */
-    const delay=-((sMax-s)/span)*WAVES*DUR;
-    return `<path d="M${pts.join("L")}Z" stroke="${col}" style="--dur:${DUR}s;--delay:${delay.toFixed(2)}s"/>`;
-  });
-  svg.innerHTML=parts.join("");
-}
+/* 배경 — 오로라(엷게) → 은빛 헥스 격자 → 오로라(헥스 선 모양으로 잘라 진하게).
+   모양·색·흐름은 전부 style.css 가 맡는다(#hexbg 규칙). */
 function ensureHexBg(){
-  if(!document.getElementById("hexbg")){
-    const d=document.createElement("div");d.id="hexbg";d.setAttribute("aria-hidden","true");
-    d.innerHTML='<i></i><svg xmlns="http://www.w3.org/2000/svg"></svg>';
-    document.body.insertBefore(d,document.body.firstChild);
-    let t;window.addEventListener("resize",()=>{clearTimeout(t);t=setTimeout(paintHexBg,200);});
-  }
-  paintHexBg();
+  if(document.getElementById("hexbg"))return;
+  const d=document.createElement("div");d.id="hexbg";d.setAttribute("aria-hidden","true");
+  d.innerHTML='<i class="aurora wash"></i><i class="grid"></i><i class="aurora line"></i>';
+  document.body.insertBefore(d,document.body.firstChild);
 }
 function render(){
   ensureHexBg();
