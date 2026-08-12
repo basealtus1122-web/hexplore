@@ -506,6 +506,10 @@ const SHARED = {
       name:{en:"Cursed One",ko:"저주받은 자"},
       category:{key:"assist"},
       flavor:"화가난 날 좋아하지 않을 걸?",
+      /* 또다른 자아는 여러 개 보유할 수 있고(Ego 4랭크마다 +1), 변신 중인 하나만 계산에 반영된다 */
+      roster:[{id:"alterEgo", name:{en:"Alter Ego",ko:"또다른 자아"},
+        fields:[{id:"level",label:"Lv 레벨",color:"neutral"},{id:"health",label:"HP 체력",color:"health"}],
+        countHint:(E)=>1+Math.floor(E.lv("firstMastery")/4)}],
       special:{ko:`게임 시작 시, <b>Horde무리·Swarm떼</b>가 아닌 <b>Monstrous Humanoid인간형 괴수</b> <b>Encounter조우</b> 중 레벨이 가장 낮은 것을 찾아 <b>Alter Ego또다른 자아</b>로 획득한다. {firstMastery} 랭크 <b>4마다</b>, 현재 또다른 자아보다 레벨이 <b>1</b> 높은 Monstrous Humanoid인간형 괴수를 찾아 추가로 획득한다.`},
       stats:{
         health:{base:7}, energy:{base:4},
@@ -516,6 +520,9 @@ const SHARED = {
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Heal 비전투 회복", color:"health", val:(E.lv("firstMastery")/3).toFixed(1)},
             {lab:"Boost 재사용 증폭", color:"attack", val:E.lv("firstMastery").toFixed(1)},
+            /* 변신 중인 또다른 자아의 값에서 자동 계산 */
+            {lab:"변신 최대 체력 +", color:"health", val:((E.sel("alterEgo").health||0)/2).toFixed(1)},
+            {lab:"목표 주사위 페널티", color:"neutral", val:E.sel("alterEgo").level||0},
           ],
           desc:`<b>비전투:</b> 대상의 <st>health</st>을 {firstMastery} 랭크의 <b>1/3</b>만큼 <kw>heal</kw>한다. <b>전투:</b> 전투가 끝날 때까지 원하는 <b>또다른 자아</b>로 변신한다. 현재·최대 <st>health</st>이 그 또다른 자아 <st>health</st>의 <b>절반</b>만큼 올라가고, 목표 주사위에 그 레벨만큼 페널티를 받는다. 전투 중 {firstMastery}를 다시 사용하면 다음 공격의 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. <lvl n="6">이 라운드에 {attack} 또는 {defence}를 사용할 수 있다.</lvl>`,
         },
@@ -569,6 +576,8 @@ const SHARED = {
       name:{en:"Enchanter",ko:"인챈터"},
       category:{key:"healer"},
       flavor:"약간의 마법이면 놀라운 일을 해낼 수 있지.",
+      /* 손에 든 정수 장수 — 게임 시작 3장에서 시작한다 */
+      counters:[{id:"essence", name:{en:"Essence",ko:"정수"}}],
       special:{ko:`게임 시작 전, 파워업을 <b>3</b>장 뽑아 당신의 <b>Essence정수</b>로 획득한다. {secondMastery} 랭크 <b>4마다</b> 턴당 <b>1회</b>, 파워업 버린 더미의 맨 위 카드를 가져와 정수에 추가할 수 있다. 정수를 버릴 때는 파워업 버린 더미의 <b>맨 아래</b>에 놓는다.`},
       stats:{
         health:{base:4}, energy:{base:7},
@@ -588,7 +597,7 @@ const SHARED = {
             {lab:"Raise 체력 증가", color:"health", val:(E.lv("secondMastery")+E.lv("attack")/2).toFixed(1)},
             {lab:"Essence 회수 주기", color:"secondMastery", val:Math.floor(E.lv("secondMastery")/4)},
           ],
-          desc:`<b>정수</b> <b>1</b>장을 버리고, 영웅 하나에게 원하는 <b>Gear Upgrade장비 강화</b>를 턴이 끝날 때까지 부여한다. 그 영웅의 <st>health</st>을 {secondMastery} 랭크 + {attack} 랭크의 <b>절반</b>만큼 <kw>raise</kw>한다. <lvl n="8">정수를 <b>3</b>장 더 버려 그 Gear Upgrade장비 강화를 <b>영구</b>로 만들 수 있다.</lvl>`,
+          desc:`<b>정수</b> <b>1</b>장을 버리고, 영웅 하나에게 원하는 <b>Gear Upgrade장비 강화</b>를 턴이 끝날 때까지 부여한다. 그 영웅의 <st>health</st>을 {secondMastery} 랭크 + {attack} 랭크의 <b>절반</b>만큼 <kw>raise</kw>한다. <lvl n="8">정수를 <b>3</b>장 더 버려 그 장비 강화를 <b>영구</b>로 만들 수 있다.</lvl>`,
         },
         navigate:{base:1, name:{en:"Navigate",ko:"길찾기"}},
         explore:{base:2, name:{en:"Explore",ko:"탐험"}},
@@ -665,7 +674,9 @@ const SHARED = {
       name:{en:"Witch",ko:"마녀"},
       category:{key:"sapper"},
       flavor:"장막을 꿰뚫어 보렴 모든 것이 밝혀질 것이란다",
-      special:{ko:`게임 시작 시 원하는 <b>Familiar사역마</b> 하나를 골라 가지고 시작한다. {defence} 랭크 대신 당신의 Familiar사역마 능력 랭크를 사용할 수 있다.`},
+      /* 고통 카드 보유 수 — 4랭크 이상에서 피해 계산에 그대로 들어간다 */
+      counters:[{id:"affliction", name:{en:"Affliction",ko:"고통"}}],
+      special:{ko:`게임 시작 시 원하는 <b>Familiar사역마</b> 하나를 골라 가지고 시작한다. {defence} 랭크 대신 당신의 사역마 능력 랭크를 사용할 수 있다.`},
       stats:{
         health:{base:4}, energy:{base:8},
         attack:{base:2, name:{en:"Baneful Curse",ko:"파멸의 저주"}, dmg:["health","energy"]},
@@ -673,18 +684,20 @@ const SHARED = {
         firstMastery:{base:2, name:{en:"Hex",ko:"주술"}, cost:1,
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
-            {lab:"Damage 피해", color:"energy", val:(E.lv("attack")+E.lv("firstMastery")).toFixed(1)},
+            {lab:"Damage 피해", color:"energy",
+             val:(E.lv("attack")+E.lv("firstMastery")+(E.lv("firstMastery")>=4?6*E.cnt("affliction"):0)).toFixed(1)},
             {lab:"Raise 증가", color:"energy", val:(E.lv("firstMastery")/2).toFixed(1)},
           ],
-          desc:`적을 약화시키고 당신과 동료에게 힘을 준다. {attack} 랭크 + {firstMastery} 랭크만큼 <st>energy</st> 피해를 주고, {firstMastery} 랭크의 <b>절반</b>만큼 <st>energy</st>를 원하는 영웅들에게 나눠 <kw>raise</kw>한다. <lvl n="4">전투 중이 아닐 때 {firstMastery}를 사용해, 플레이 중이거나 버린 더미에 있는 <b>Affliction고통</b> 카드 1장을 가져와 획득한다. {firstMastery}는 당신이 가진 <b>Affliction고통</b> 1장마다 <st>energy</st> 피해 <b>6</b>을 추가로 준다.</lvl> <lvl n="7">이 라운드에 {attack}도 함께 사용할 수 있다.</lvl>`,
+          desc:`적을 약화시키고 당신과 동료에게 힘을 준다. {attack} 랭크 + {firstMastery} 랭크만큼 <st>energy</st> 피해를 주고, {firstMastery} 랭크의 <b>절반</b>만큼 <st>energy</st>를 원하는 영웅들에게 나눠 <kw>raise</kw>한다. <lvl n="4">전투 중이 아닐 때 {firstMastery}를 사용해, 플레이 중이거나 버린 더미에 있는 <b>Affliction고통</b> 카드 1장을 가져와 획득한다. {firstMastery}는 당신이 가진 <b>고통</b> 1장마다 <st>energy</st> 피해 <b>6</b>을 추가로 준다.</lvl> <lvl n="7">이 라운드에 {attack}도 함께 사용할 수 있다.</lvl>`,
         },
         secondMastery:{base:2, name:{en:"Coven",ko:"마녀 집회"}, cost:1,
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Ally Spend 동료 소모 상한", color:"defence", val:E.lv("defence").toFixed(1)},
             {lab:"Reduce 감소 기본", color:"secondMastery", val:(E.lv("secondMastery")/2).toFixed(1)},
+            ...(E.lv("secondMastery")>=6?[{lab:"Piercing 관통 피해", color:"health", val:(3*E.cnt("affliction")).toFixed(1)}]:[]),
           ],
-          desc:`동료는 각자 {defence} 랭크까지 <st>energy</st>를 소모할 수 있다. 적 공격의 피해를 {secondMastery} 랭크의 <b>절반</b> + <st>energy</st>를 소모한 동료 <b>1명당 1</b>만큼 감소시킨다. <lvl n="6">적의 <st>energy</st>가 0이면, 당신이 가진 <b>Affliction고통</b> 1장마다 <kw>piercing</kw> <st>health</st> 피해 <b>3</b>도 준다.</lvl>`,
+          desc:`동료는 각자 {defence} 랭크까지 <st>energy</st>를 소모할 수 있다. 적 공격의 피해를 {secondMastery} 랭크의 <b>절반</b> + <st>energy</st>를 소모한 동료 <b>1명당 1</b>만큼 감소시킨다. <lvl n="6">적의 <st>energy</st>가 0이면, 당신이 가진 <b>고통</b> 1장마다 <kw>piercing</kw> <st>health</st> 피해 <b>3</b>도 준다.</lvl>`,
         },
         navigate:{base:2, name:{en:"Navigate",ko:"길찾기"}},
         explore:{base:1, name:{en:"Explore",ko:"탐험"}},
@@ -696,13 +709,15 @@ const SHARED = {
       name:{en:"Inquisitor",ko:"심문관"},
       category:{key:"utility"},
       flavor:"네 눈으로 봐도 믿지 못할 것이다.",
+      declareFoe:true,   /* 지금 상대하는 적 유형 — 같은 유형 트로피가 계산에 들어간다 */
       /* 트로피는 숙적과 같은 유형별로 센다. 마스터 트로피는 같은 유형 2개마다 1로 자동 계산 */
       counters:[
         {id:"trophy", name:{en:"Trophy",ko:"트로피"}, perType:true},
         {id:"masterTrophy", name:{en:"Master Trophy",ko:"마스터 트로피"},
          derive:(c)=>Object.values(c.trophy||{}).reduce((a,n)=>a+Math.floor(n/2),0)},
       ],
-      special:{ko:`적을 쓰러뜨릴 때마다 그 유형을 <b>Trophy트로피</b>로 기록한다. 피해를 줄 때, 대상과 유형이 같은 트로피 <b>1개마다 피해 1</b>을 추가로 준다. 같은 유형의 트로피를 <b>2개</b> 모을 때마다 <b>Master Trophy마스터 트로피</b>가 <b>1</b> 증가한다.`},
+      special:{ko:`적을 쓰러뜨릴 때마다 그 유형을 <b>Trophy트로피</b>로 기록한다. 피해를 줄 때, 대상과 유형이 같은 트로피 <b>1개마다 피해 1</b>을 추가로 준다. 같은 유형의 트로피를 <b>2개</b> 모을 때마다 <b>Master Trophy마스터 트로피</b>가 <b>1</b> 증가한다.`,
+        readout:(E)=>E.foe()?[{lab:"추가 피해 · 같은 유형", color:"attack", val:E.cnt("trophy",E.foe())}]:[]},
       stats:{
         health:{base:7}, energy:{base:5},
         attack:{base:2, name:{en:"Blessed Crossbow",ko:"축복받은 석궁"}, dmg:["health","outlast"]},
@@ -710,7 +725,9 @@ const SHARED = {
         firstMastery:{base:1, name:{en:"Trophy Hunter",ko:"트로피 사냥꾼"}, cost:1,
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
-            {lab:"Damage 피해", color:"health", val:(E.lv("attack")+E.lv("firstMastery")).toFixed(1)},
+            {lab:"Damage 피해", color:"health",
+             val:(E.lv("attack")+E.lv("firstMastery")+(E.lv("firstMastery")>=8?3*E.cntEvery("trophy",2):0)).toFixed(1)},
+            ...(E.lv("firstMastery")>=6?[{lab:"Reflect 반사", color:"defence", val:E.cntEvery("trophy",2)}]:[]),
           ],
           desc:`{attack} 랭크 + {firstMastery} 랭크만큼 <st>health</st> 피해를 준다. <lvl n="6">라운드가 끝날 때까지 가진 마스터 트로피 <b>개수</b>만큼 <kw>reflect</kw>를 얻는다.</lvl> <lvl n="8">가진 마스터 트로피 <b>1개마다</b> 이 기술의 피해를 <b>3</b>씩 <kw>boost</kw>한다.</lvl>`,
         },
@@ -719,6 +736,7 @@ const SHARED = {
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Skill 스킬 보너스", color:"secondMastery", val:(E.lv("secondMastery")/3).toFixed(1)},
             {lab:"피해 감소", color:"defence", val:(E.lv("defence")/3).toFixed(1)},
+            {lab:"지속 라운드", color:"neutral", val:1+(E.foe()?E.cnt("trophy",E.foe()):0)},
           ],
           desc:`라운드가 끝날 때까지 그룹이 모든 스킬 판정에 {secondMastery} 랭크의 <b>1/3</b>만큼 보너스를 받고, 받는 모든 피해를 {defence} 랭크의 <b>1/3</b>만큼 줄인다. 적과 유형이 같은 트로피를 <b>1개 가질 때마다</b> 이 효과의 지속시간이 <b>1라운드</b> 늘어난다. <lvl n="8">전투가 끝날 때까지, 영웅들은 매 라운드 <b>Favored Opponent 주사위</b>를 <b>1회</b> 다시 굴려 더 유리한 결과를 택할 수 있다. 이 효과는 중첩되지 않는다.</lvl>`,
         },

@@ -95,8 +95,18 @@ function effOf(char,k){return Math.max(0,baseCharOf(char,k)+char.filled[k]+char.
 function makeE(char,key){
   const s=(char.boosts&&char.boosts[key])||{};
   const cur=k=>k==="health"?char.curHealth:k==="energy"?char.curEnergy:effOf(char,k);
+  /* cnt(id) 카운터 총합 · cnt(id,type) 그 유형만 — cls.counters 로 만든 값을 계산에 쓴다 */
+  const cnt=(id,type)=>{const v=(char.counters||{})[id];
+    if(v==null)return 0;
+    if(typeof v==="number")return v;
+    return type?(v[type]||0):Object.values(v).reduce((a,b)=>a+b,0);};
   return{lv:k=>effOf(char,k),b:n=>s[n]||0,on:n=>(s[n]||0)>0,
-    cur,miss:k=>Math.max(0,effOf(char,k)-cur(k))};
+    cur,miss:k=>Math.max(0,effOf(char,k)-cur(k)),cnt,
+    /* foe() 선언한 적 유형 · sel(id) 활성 목록 항목(없으면 빈 객체) */
+    foe:()=>char.foePick||null,
+    sel:id=>{const l=(char.roster||{})[id]||[],i=(char.rosterPick||{})[id];return (i!=null&&l[i])?l[i]:{};},
+    /* 유형별 카운터에서 "n개마다 1" 로 파생되는 값(예: 마스터 트로피) */
+    cntEvery:(id,per)=>Object.values((char.counters||{})[id]||{}).reduce((a,n)=>a+Math.floor(n/per),0)};
 }
 /* 강화(boost): 기술별 저장소 + 임의 랭크 스케줄. 구버전(평면) 저장본은 firstMastery로 마이그레이션 */
 function normBoosts(char){if(!char.boosts||typeof char.boosts!=="object"){char.boosts={};return;}const ks=Object.keys(char.boosts);if(ks.length&&ks.every(k=>/^\d+$/.test(k)))char.boosts={firstMastery:Object.assign({},char.boosts)};}
@@ -159,10 +169,12 @@ const DMG={
 /* readout·태그 색 토큰 → CSS 색. 9스탯=--g-*, 특수(influence/outlast)·neutral은 별도 */
 function statColor(c){return c==='neutral'?'var(--ink)':c==='influence'?CLR_INFLUENCE:c==='outlast'?CLR_OUTLAST:`var(--g-${c})`;}
 /* st.dmg = "health" 또는 ["health","influence"] → 기본공격 피해타입: EnglishKorean, 여러개는 / 로 구분 */
-function dmgTags(dmg,pick){
+function dmgTags(dmg,pick,needPick){
   if(!dmg)return"";
+  /* 생명력을 선언하는 직업은 고른 유형만 표시하고, 아직 안 골랐으면 고르라고 안내한다 */
+  if(needPick&&!pick)return `<div class="hex-dmg" style="font-size:11.5px;color:var(--ink-faint);font-style:italic">직업 특성에서 생명력을 선택하세요</div>`;
   let list=(Array.isArray(dmg)?dmg:[dmg]).filter(d=>DMG[d]);
-  if(pick)list=list.filter(d=>d===pick);   /* 생명력을 선언하는 직업은 고른 유형만 표시 */
+  if(pick)list=list.filter(d=>d===pick);
   if(!list.length)return"";
   const inner=list.map(d=>`<span style="color:${DMG[d].color};font-weight:700">${DMG[d].en}<span style="font-size:.9em;opacity:.92">${DMG[d].ko}</span></span>`).join(`<span style="opacity:.4"> / </span>`);
   return `<div class="dmg-tag" style="margin-top:5px;font-size:12px;letter-spacing:.2px">${inner}</div>`;
@@ -187,7 +199,7 @@ function renderHex(char,key,showName=true){
       <text class="hex-val" x="72" y="67" text-anchor="middle" dominant-baseline="middle" style="fill:var(--g-${key})">${val}</text>
       <text class="hex-sub" x="72" y="90" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
     </svg>
-    ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg, (key==="attack"&&cls.declareVital)?char.vitalPick:null)}`:""}
+    ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg, (key==="attack"&&cls.declareVital)?char.vitalPick:null, key==="attack"&&!!cls.declareVital)}`:""}
     <div class="hex-mod">
       <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>
       <span class="mtag">${m?`<b>${m>0?'+':''}${m}</b>`:'효과'}</span>
@@ -202,6 +214,37 @@ function vitalSwitcher(char,cls){
   const btns=list.filter(d=>DMG[d]).map(d=>{const on=char.vitalPick===d;
     return `<button data-vital-pick="${d}" style="font-family:'Cinzel';font-size:12px;padding:5px 11px;border-radius:8px;cursor:pointer;${on?`border:1px solid ${DMG[d].color};color:var(--ink);background:color-mix(in srgb,${DMG[d].color} 18%,transparent)`:'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${DMG[d].en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:2px">${DMG[d].ko}</span></button>`;}).join("");
   return `<div style="margin-top:9px"><div class="foe-label" style="margin-bottom:5px">Declared Vital · 선언한 생명력${char.vitalPick?"":` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 전투를 시작하며 하나 고르세요</span>`}</div><div style="display:flex;gap:7px;flex-wrap:wrap">${btns}</div></div>`;
+}
+/* 지금 상대하는 적 유형 — cls.declareFoe 이면 특성 박스에서 고른다(트로피 계산 등에 쓰임) */
+function foeSwitcher(char,cls){
+  if(!cls.declareFoe)return"";
+  const btns=FOE_TYPES.map(f=>{const on=char.foePick===f.en;
+    return `<button data-foe-pick="${f.en}" style="font-size:11.5px;padding:4px 9px;border-radius:8px;cursor:pointer;white-space:nowrap;${on?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 20%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${f.en}<span style="font-size:.88em;color:var(--ink-faint);margin-left:2px">${f.ko}</span></button>`;}).join("");
+  return `<div style="margin-top:10px"><div class="foe-label" style="margin-bottom:5px">Current Opponent · 지금 상대<span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)"> · 고르면 같은 유형 트로피가 계산에 반영됩니다</span></div><div style="display:flex;gap:6px;flex-wrap:wrap">${btns}</div></div>`;
+}
+/* 직접 채우는 목록 — cls.roster:[{id,name,fields:[{id,label,color}],countHint:(E)=>n}]
+   여러 개를 보유하되 활성은 항상 하나. 활성 항목의 값이 readout 계산(E.sel)에 들어간다. */
+function renderRoster(char,cls){
+  if(!cls.roster||!cls.roster.length)return"";
+  const R=char.roster||(char.roster={}),P=char.rosterPick||(char.rosterPick={});
+  return cls.roster.map(r=>{
+    const list=R[r.id]||(R[r.id]=[]),pick=P[r.id];
+    const hint=r.countHint?r.countHint(makeE(char,"special")):null;
+    const rows=list.map((e,i)=>{const on=pick===i;
+      return `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 9px;border-radius:10px;border:1px solid ${on?'var(--accent)':'var(--edge)'};background:${on?'color-mix(in srgb,var(--accent-dim) 12%,transparent)':'transparent'}">
+        <button data-roster-pick="${r.id}" data-idx="${i}" title="활성으로 지정" style="font-family:'Cinzel';font-size:11px;padding:3px 9px;border-radius:7px;cursor:pointer;border:1px solid ${on?'var(--accent)':'var(--edge-bright)'};background:transparent;color:${on?'var(--ink)':'var(--ink-faint)'}">${on?'● 변신 중':'○ 대기'}</button>
+        <input data-roster-name="${r.id}" data-idx="${i}" value="${(e.name||"").replace(/"/g,'&quot;')}" placeholder="이름" style="flex:1;min-width:90px;padding:4px 8px;border-radius:7px;border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);font-family:'Noto Serif KR';font-size:12.5px">
+        ${r.fields.map(f=>`<span style="display:flex;align-items:center;gap:4px"><span style="font-size:10.5px;color:var(--ink-faint);white-space:nowrap">${f.label}</span>
+          <button class="sq" data-roster-num="${r.id}" data-idx="${i}" data-field="${f.id}" data-dir="-1">−</button>
+          <span style="font-family:'Cinzel';font-weight:700;min-width:12px;text-align:center;color:${f.color?statColor(f.color):'var(--ink)'}">${e[f.id]||0}</span>
+          <button class="sq" data-roster-num="${r.id}" data-idx="${i}" data-field="${f.id}" data-dir="1">＋</button></span>`).join("")}
+        <button data-roster-del="${r.id}" data-idx="${i}" style="border:none;background:transparent;color:var(--ink-faint);cursor:pointer;font-size:13px">✕</button>
+      </div>`;}).join("");
+    return `<div style="margin-top:10px"><div class="foe-label" style="margin-bottom:6px">${r.name.en} · ${r.name.ko}
+        <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 보유 ${list.length}${hint!=null?` / 획득 가능 ${hint}`:""} · 변신 중인 하나만 계산에 반영</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px">${rows}</div>
+      <button class="add-btn" data-roster-add="${r.id}" style="margin-top:7px">+ ${r.name.ko} 추가</button></div>`;
+  }).join("");
 }
 /* 직업 전용 카운터 — cls.counters:[{id,name,perType?,derive?}]
    perType:true 면 숙적 유형(FOE_TYPES)별로 센다. derive 는 다른 카운터에서 자동 계산(읽기 전용). */
@@ -530,7 +573,7 @@ function boardBody(char){
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
       <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}${(()=>{const as=char.abilities.filter(a=>a.src==="aspect"||a.src==="greater");return as.length?` · 양상 ${as.map(a=>`<b>${a.name.en} (${a.name.ko})</b>`).join(", ")}`:"";})()}</div>
       <div class="flavor">${race.flavor||""}</div>
-      ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}${specialReadout(char,cls)}${vitalSwitcher(char,cls)}${renderCounters(char,cls)}</div>`:""}
+      ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}${specialReadout(char,cls)}${vitalSwitcher(char,cls)}${foeSwitcher(char,cls)}${renderCounters(char,cls)}${renderRoster(char,cls)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
     </div>
     <div class="section"><div class="sec-head">Vital · 생명력</div>
@@ -658,6 +701,21 @@ function bindBoard(char){
   root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const f=b.dataset.form;if(char.raceForm===f)return;const r=SHARED.races[char.raceId];if(r&&r.formCostEnergy){if(char.curEnergy<r.formCostEnergy)return;char.curEnergy-=r.formCostEnergy;}char.raceForm=f;if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-vital-pick]").forEach(b=>b.onclick=()=>{const d=b.dataset.vitalPick;char.vitalPick=(char.vitalPick===d?null:d);renderBoard();});
+  root.querySelectorAll("[data-foe-pick]").forEach(b=>b.onclick=()=>{const d=b.dataset.foePick;char.foePick=(char.foePick===d?null:d);renderBoard();});
+  root.querySelectorAll("[data-roster-add]").forEach(b=>b.onclick=()=>{const id=b.dataset.rosterAdd;
+    if(!char.roster)char.roster={};const l=char.roster[id]||(char.roster[id]=[]);l.push({name:""});
+    if(!char.rosterPick)char.rosterPick={};if(char.rosterPick[id]==null)char.rosterPick[id]=l.length-1;renderBoard();});
+  root.querySelectorAll("[data-roster-pick]").forEach(b=>b.onclick=()=>{const id=b.dataset.rosterPick,i=+b.dataset.idx;
+    if(!char.rosterPick)char.rosterPick={};char.rosterPick[id]=(char.rosterPick[id]===i?null:i);renderBoard();});
+  root.querySelectorAll("[data-roster-num]").forEach(b=>b.onclick=()=>{const id=b.dataset.rosterNum,i=+b.dataset.idx,f=b.dataset.field;
+    const e=char.roster[id][i];e[f]=Math.max(0,(e[f]||0)+ +b.dataset.dir);renderBoard();});
+  root.querySelectorAll("[data-roster-name]").forEach(inp=>inp.onchange=()=>{const id=inp.dataset.rosterName,i=+inp.dataset.idx;
+    char.roster[id][i].name=inp.value;renderBoard();});
+  root.querySelectorAll("[data-roster-del]").forEach(b=>b.onclick=()=>{const id=b.dataset.rosterDel,i=+b.dataset.idx;
+    char.roster[id].splice(i,1);
+    const p=(char.rosterPick||{})[id];
+    if(p===i)char.rosterPick[id]=null;else if(p>i)char.rosterPick[id]=p-1;   /* 삭제로 인덱스가 밀리는 것 보정 */
+    renderBoard();});
   root.querySelectorAll("[data-cnt]").forEach(b=>b.onclick=()=>{
     const id=b.dataset.cnt,ty=b.dataset.type,dir=+b.dataset.dir;
     if(!char.counters)char.counters={};
