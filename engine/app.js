@@ -52,6 +52,7 @@ function buildCharacter(sel,seriesId){
     favoredEnemies:race?[clone(foeOf(sel.raceId,sel.subRaceId))]:[],
     items:[],boosts:{},mchecks:{},uses:{},abilities:[],
     difficulty:"easy",                            /* 게임 난이도 — 판 최상단에서 변경 */
+    starving:0,                                   /* 굶주림 단계 0~3 */
     counters:{},                                  /* 직업 전용 카운터(예: 심문관 트로피) */
     vitalPick:(cls&&cls.declareVital)?null:undefined,  /* 전투마다 선언하는 생명력(예: 정찰병) */
     stancePick:(cls&&cls.stances)?null:undefined,      /* 전투 중 유지하는 자세(예: 사무라이) */
@@ -693,7 +694,7 @@ function boardBody(char){
       <button class="add-btn" data-addability="event">+ Event 능력</button>
     </div>`)}
     ${grp("vital","Vital","생명력",
-      `<div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>`)}
+      `<div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>${renderStarving(char)}`)}
     ${grp("ability","Ability","능력",
       `${race.forms?formSwitcher(char,race):""}<div class="hex-wrap">${combat}</div>${masteries}`,
       `<button class="tbtn" id="resetTurn" title="턴 사용 초기화">↺ 턴</button><button class="tbtn" id="resetCombat" title="전투 사용 초기화">↺ 전투</button>`)}
@@ -703,6 +704,20 @@ function boardBody(char){
        <div class="items"><div class="sec-head" style="font-size:11px;margin:16px 0 10px">Items · 아이템</div><div class="item-list">${itemHTML}</div>
         <div class="ability-actions"><button class="add-btn" id="addItem">+ 아이템 추가</button></div>
       </div>`)}`;
+}
+/* 굶주림 미터 — 음식이 모자란 턴마다 한 칸씩. 칸을 눌러 올리고, 같은 칸을 다시 누르면 내린다. */
+const STARVE=[{n:1,ko:"에너지를 쓸 수 없다",c:"var(--g-energy)"},
+              {n:2,ko:"에너지 사용 불가 + 생존 굴림 불가(치명적 실패)",c:"var(--g-explore)"},
+              {n:3,ko:"사망",c:"var(--g-attack)"}];
+function renderStarving(char){
+  const lv=char.starving||0;
+  const cells=STARVE.map(s=>{const on=lv>=s.n;
+    return `<button data-starve="${s.n}" title="${s.ko}" style="flex:1;min-width:0;min-height:46px;padding:9px 8px;border-radius:9px;cursor:pointer;text-align:left;
+      ${on?`border:1px solid ${s.c};background:color-mix(in srgb,${s.c} 15%,transparent);color:var(--ink)`:'border:1px solid var(--edge-bright);background:transparent;color:var(--ink-faint)'}">
+      <b style="font-family:'Cinzel'">${s.n}</b><span style="font-size:11.5px;margin-left:6px">${s.ko}</span></button>`;}).join("");
+  return `<div style="margin-top:12px">
+    <div class="foe-label" style="margin-bottom:6px">Starving · 굶주림${lv?` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:${STARVE[lv-1].c}">· ${lv}단계</span>`:` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 음식이 모자란 턴마다 한 칸</span>`}</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">${cells}</div></div>`;
 }
 /* 난이도 — 판 최상단. 한 줄이 한 난이도이며 눌러서 고른다. 고른 줄만 진하게 보인다. */
 function renderDifficulty(char){
@@ -844,6 +859,8 @@ function bindBoard(char){
   root.querySelectorAll("[data-fuse]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const k=b.dataset.fuse;if(char.filled[k]>0){char.filled[k]-=1;char.mod[k]+=1;renderBoard();}});
   root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const f=b.dataset.form;if(char.raceForm===f)return;const r=SHARED.races[char.raceId];if(r&&r.formCostEnergy){if(char.curEnergy<r.formCostEnergy)return;char.curEnergy-=r.formCostEnergy;}char.raceForm=f;if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
+  root.querySelectorAll("[data-starve]").forEach(b=>b.onclick=()=>{const n=+b.dataset.starve;
+    char.starving=(char.starving===n?n-1:n);renderBoard();});
   root.querySelectorAll("[data-diff]").forEach(r=>r.onclick=()=>{char.difficulty=r.dataset.diff;renderBoard();});
   root.querySelectorAll("[data-grp]").forEach(h=>h.onclick=e=>{
     if(e.target.closest("[data-noclose]"))return;
