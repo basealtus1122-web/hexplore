@@ -212,7 +212,7 @@ function renderHex(char,key,showName=true){
       <text class="hex-val" x="72" y="67" text-anchor="middle" dominant-baseline="middle" style="fill:var(--g-${key})">${val}</text>
       <text class="hex-sub" x="72" y="90" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
     </svg>
-    ${st&&st.bribe?`<span class="bribe-dot" title="Bribe 뇌물 — 방어 대신 뇌물로 쓸 수 있다"></span>`:""}
+    ${st&&st.bribe?`<span class="bribe-dot" title="Bribe 뇌물 — 전투 전 방어 스탯 테스트에 성공하면 뇌물 비용을 방어 랭크만큼 줄인다(백금 비용은 대성공에만)"></span>`:""}
     ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg, (key==="attack"&&cls.declareVital)?char.vitalPick:null, key==="attack"&&!!cls.declareVital)}`:""}
     <div class="hex-mod">
       <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>

@@ -476,7 +476,7 @@ const SHARED = {
         health:{base:5},
         energy:{base:6},
         attack:{base:1, name:{en:"Strafing Sidestep",ko:"측면 이동"}, dmg:["health","influence"]},  // 체력 또는 영향력(택1)
-        defence:{base:3, name:{en:"Second String",ko:"두번째 현"}},  // 특수규칙 뇌물(Bribe) = 추후작성
+        defence:{base:3, name:{en:"Second String",ko:"두번째 현"}, bribe:true},  // 특수규칙 뇌물(Bribe) = 추후작성
         firstMastery:{base:1, name:{en:"Dirge of the Dead",ko:"장송곡"}, cost:1,
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
