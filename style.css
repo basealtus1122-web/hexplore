@@ -188,6 +188,12 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .sec-head::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--edge-bright),transparent)}
 
 .hex-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+/* 판의 접이식 그룹 — 머리글을 누르면 접힌다. 머리글 오른쪽 버튼은 접기와 무관하게 동작 */
+.grp-head{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;min-height:46px}
+.grp-chev{font-size:11px;color:var(--ink-faint);flex:none}
+.grp-title{flex:1}
+.grp-extra{display:flex;gap:6px;flex:none}
+.grp-head:hover .grp-title{color:var(--ink)}
 .hex-cell{position:relative;width:164px;display:flex;flex-direction:column;align-items:center;text-align:center}
 /* 뇌물 표식 — 방어 대신 뇌물로 쓸 수 있는 직업(정찰병·최면술사)의 방어 육각형에 붙는다 */
 .bribe-dot{position:absolute;right:10px;top:44px;width:15px;height:15px;border-radius:50%;

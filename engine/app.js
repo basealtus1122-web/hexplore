@@ -19,7 +19,9 @@ const APP={
   screen:"builder",              // builder | series | board
   sel:{raceId:null,classId:null,traitIds:[],subRaceId:null,aspectId:null},
   builderTab:"class",            // class | race | trait
-  sort:{race:"abc",class:"abc"},  // abc(이름순) | ed(편순)
+  sort:{race:"abc",class:"abc"},  // abc(이름순) | ed(편순) | cat(계열순, 직업만)
+  filter:{dual:true,H:true,R:true},   // 빌더 목록에서 보일 것
+  open:{},                            // 판의 접이식 그룹 열림 상태(기본 열림)
   char:null,
   tab:"board",                   // board | keyword id...
 };
@@ -415,6 +417,7 @@ function renderBuilder(){
 
   root.querySelectorAll("[data-btab]").forEach(b=>b.onclick=()=>{APP.builderTab=b.dataset.btab;renderBuilder();});
   root.querySelectorAll("[data-sort]").forEach(b=>b.onclick=()=>{APP.sort[b.dataset.sortkind]=b.dataset.sort;renderBuilder();});
+  root.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{const k=b.dataset.filter;APP.filter[k]=!APP.filter[k];renderBuilder();});
   root.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
     const kind=b.dataset.kind,id=b.dataset.pick;
     if(kind==="race"){APP.sel.raceId=(APP.sel.raceId===id?null:id);APP.sel.subRaceId=null;APP.sel.aspectId=null;}
@@ -434,18 +437,38 @@ function renderBuilder(){
 /* 줄바꿈 위치가 폭에 따라 달라지므로 창 크기가 바뀌면 다시 배치 */
 window.addEventListener("resize",()=>{if(APP.screen==="builder")placeInlinePreview();});
 /* 목록 정렬 — 기본(데이터 수록순) · 이름순 · 편순(편→확장→이름) */
-const SORTS=[["abc","이름순"],["ed","편순"]];
+const SORTS={race:[["abc","이름순"],["ed","편순"]],
+             class:[["abc","이름순"],["ed","편순"],["cat","계열순"]]};
+/* 계열순 — CAT 정의 순서(스트라이커·새퍼·유틸리티·힐러·어시스트), dual 은 같은 계열 안에서 뒤로 */
+const CAT_ORDER=Object.keys(CAT);
+function catRank(x){const ks=catKeysOf(x),i=CAT_ORDER.indexOf(ks[0]);
+  return [(i<0?99:i),(x.category&&x.category.key==="dual")?1:0];}
 function sortList(list,mode){
   const a=[...list];
   if(mode==="ed")a.sort((x,y)=>(x.ed||"").localeCompare(y.ed||"")||(x.exp||"").localeCompare(y.exp||"")||x.name.en.localeCompare(y.name.en));
+  else if(mode==="cat")a.sort((x,y)=>{const q=catRank(x),r=catRank(y);
+    return q[0]-r[0]||q[1]-r[1]||x.name.en.localeCompare(y.name.en);});
   else a.sort((x,y)=>x.name.en.localeCompare(y.name.en));
   return a;
 }
+/* 목록에서 감출 것 — 직업의 dual, 종족의 HEXclusive(H)·Rare(R) */
+function filterList(list,kind){
+  const f=APP.filter;
+  return list.filter(x=>{
+    if(kind==="class"&&!f.dual&&x.category&&x.category.key==="dual")return false;
+    if(kind==="race"&&x.exp==="H"&&!f.H)return false;
+    if(kind==="race"&&x.exp==="R"&&!f.R)return false;
+    return true;});
+}
 function sortBar(kind){
-  const cur=APP.sort[kind]||"default";
-  return `<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
+  const cur=APP.sort[kind]||"abc", f=APP.filter;
+  const btn=(sel,attrs,label)=>`<button ${attrs} style="font-size:13px;padding:10px 16px;min-height:42px;border-radius:9px;cursor:pointer;${sel?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 18%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${label}</button>`;
+  const fbtn=(k,label)=>`<button data-filter="${k}" style="font-size:12.5px;padding:9px 14px;min-height:42px;border-radius:9px;cursor:pointer;${f[k]?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 18%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-faint);background:transparent;text-decoration:line-through'}">${label}</button>`;
+  const filters=kind==="class"?fbtn("dual","Dual 듀얼"):fbtn("H","H 확장")+fbtn("R","R 희귀");
+  return `<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
     <span class="pv-lbl" style="margin:0">Sort 정렬</span>
-    ${SORTS.map(([id,ko])=>`<button data-sort="${id}" data-sortkind="${kind}" style="font-size:13px;padding:10px 16px;min-height:42px;border-radius:9px;cursor:pointer;${cur===id?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 18%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${ko}</button>`).join("")}
+    ${(SORTS[kind]||SORTS.race).map(([id,ko])=>btn(cur===id,`data-sort="${id}" data-sortkind="${kind}"`,ko)).join("")}
+    <span class="pv-lbl" style="margin:0 0 0 10px">Show 표시</span>${filters}
   </div>`;
 }
 /* 확정 전 합계 능력치 — 직업 base + 종족 보정 + 특성/양상 보정 */
@@ -492,7 +515,7 @@ function catTitle(x){
 }
 function pickList(list,selId,kind,previewFn){
   if(!list.length)return`<div class="empty-note">데이터가 아직 없습니다. data.js에 추가하세요.</div>`;
-  list=sortList(list,APP.sort[kind]);
+  list=sortList(filterList(list,kind),APP.sort[kind]);
   const cards=list.map(x=>`<button class="pick-card ${selId===x.id?'on':''}" data-pick="${x.id}" data-kind="${kind}">
     <div class="pc-name">${x.name.en}</div><div class="pc-ko">${x.name.ko}</div>${x.ed?`<span class="ed-badge" title="${catTitle(x)}${EXP_META[x.exp]?EXP_META[x.exp].ko+" · ":""}${x.ed}편 수록">${catLetters(x)}${x.exp&&EXP_META[x.exp]?`<b style="color:${EXP_META[x.exp].c}">${x.exp}</b>`:""}${x.ed}</span>`:""}</button>`).join("");
   const sel=list.find(x=>x.id===selId);
@@ -649,6 +672,7 @@ function boardBody(char){
   const itemHTML=char.items.length?char.items.map(it=>`<div class="item"><span class="txt">${it.text}</span><button data-itemremove="${it.id}">\u2715</button></div>`).join(""):`<div class="empty-note">아직 아이템 없음</div>`;
 
   return `
+    ${grp("id","Race & Traits","종족 · 특수 능력",`
     <div class="identity">
       <div class="cat-row">${catTags(cls)}</div>
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
@@ -657,25 +681,34 @@ function boardBody(char){
       ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}${specialReadout(char,cls)}${vitalSwitcher(char,cls)}${stanceSwitcher(char,cls)}${foeSwitcher(char,cls)}${renderCounters(char,cls)}${renderRoster(char,cls)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
     </div>
-    <div class="section"><div class="sec-head">Vital · 생명력</div>
-      <div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>
-    </div>
-    <div class="section"><div class="sec-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span>Ability · 능력</span><span style="display:flex;gap:6px"><button class="tbtn" id="resetTurn" title="턴 사용 초기화">↺ 턴</button><button class="tbtn" id="resetCombat" title="전투 사용 초기화">↺ 전투</button></span></div>${race.forms?formSwitcher(char,race):""}<div class="hex-wrap">${combat}</div>${masteries}</div>
-    <div class="section"><div class="sec-head">Skill · 기술</div><div class="hex-wrap">${skills}</div></div>
-    <div class="section"><div class="sec-head">Special Abilities · 특수 능력</div>${abilityHTML}
-      <div class="ability-actions">
-        <button class="add-btn" data-addability="free">+ 능력 직접 추가</button>
-        <button class="add-btn" id="addAspect">+ Aspect 양상</button>
-        <button class="add-btn" data-addability="keepsake">+ Keepsake 공개</button>
-        <button class="add-btn" data-addability="event">+ Event 능력</button>
-      </div>
-    </div>
-    <div class="section"><div class="sec-head">Resources · 자원</div>
-      <div class="res-grid">${resCard(char,"gold","Gold","골드","gold")}${resCard(char,"food","Food","음식","food")}${resCard(char,"foodUse","Food Use","소모량","foodUse")}</div>
-      <div class="items"><div class="sec-head" style="font-size:11px;margin:16px 0 10px">Items · 아이템</div><div class="item-list">${itemHTML}</div>
+    <div class="sec-head" style="margin:18px 0 10px">Special Abilities · 특수 능력</div>${abilityHTML}
+    <div class="ability-actions">
+      <button class="add-btn" data-addability="free">+ 능력 직접 추가</button>
+      <button class="add-btn" id="addAspect">+ Aspect 양상</button>
+      <button class="add-btn" data-addability="keepsake">+ Keepsake 공개</button>
+      <button class="add-btn" data-addability="event">+ Event 능력</button>
+    </div>`)}
+    ${grp("vital","Vital","생명력",
+      `<div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>`)}
+    ${grp("ability","Ability","능력",
+      `${race.forms?formSwitcher(char,race):""}<div class="hex-wrap">${combat}</div>${masteries}`,
+      `<button class="tbtn" id="resetTurn" title="턴 사용 초기화">↺ 턴</button><button class="tbtn" id="resetCombat" title="전투 사용 초기화">↺ 전투</button>`)}
+    ${grp("skill","Skill","기술",`<div class="hex-wrap">${skills}</div>`)}
+    ${grp("res","Resources","자원 · 아이템",
+      `<div class="res-grid">${resCard(char,"gold","Gold","골드","gold")}${resCard(char,"food","Food","음식","food")}${resCard(char,"foodUse","Food Use","소모량","foodUse")}</div>
+       <div class="items"><div class="sec-head" style="font-size:11px;margin:16px 0 10px">Items · 아이템</div><div class="item-list">${itemHTML}</div>
         <div class="ability-actions"><button class="add-btn" id="addItem">+ 아이템 추가</button></div>
-      </div>
-    </div>`;
+      </div>`)}`;
+}
+/* 판을 묶어 접었다 펼 수 있는 그룹. extra 는 머리글 오른쪽 버튼(접기와 별개로 동작) */
+function grp(id,en,ko,body,extra){
+  const open=APP.open[id]!==false;
+  return `<div class="section grp">
+    <div class="sec-head grp-head" data-grp="${id}">
+      <span class="grp-chev">${open?"▾":"▸"}</span><span class="grp-title">${en} · ${ko}</span>
+      ${extra?`<span class="grp-extra" data-noclose="1">${extra}</span>`:""}
+    </div>
+    <div class="grp-body"${open?"":` style="display:none"`}>${body}</div></div>`;
 }
 function vitalCard(char,cls,en,ko,hexKey,curKey,regKey){
   const max=effOf(char,hexKey);
@@ -781,6 +814,9 @@ function bindBoard(char){
   root.querySelectorAll("[data-fuse]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const k=b.dataset.fuse;if(char.filled[k]>0){char.filled[k]-=1;char.mod[k]+=1;renderBoard();}});
   root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const f=b.dataset.form;if(char.raceForm===f)return;const r=SHARED.races[char.raceId];if(r&&r.formCostEnergy){if(char.curEnergy<r.formCostEnergy)return;char.curEnergy-=r.formCostEnergy;}char.raceForm=f;if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
+  root.querySelectorAll("[data-grp]").forEach(h=>h.onclick=e=>{
+    if(e.target.closest("[data-noclose]"))return;
+    const id=h.dataset.grp;APP.open[id]=(APP.open[id]===false);renderBoard();});
   root.querySelectorAll("[data-vital-pick]").forEach(b=>b.onclick=()=>{const d=b.dataset.vitalPick;char.vitalPick=(char.vitalPick===d?null:d);renderBoard();});
   root.querySelectorAll("[data-stance]").forEach(b=>b.onclick=()=>{const s=b.dataset.stance;char.stancePick=(char.stancePick===s?null:s);renderBoard();});
   root.querySelectorAll("[data-foe-pick]").forEach(b=>b.onclick=()=>{const d=b.dataset.foePick;char.foePick=(char.foePick===d?null:d);renderBoard();});
