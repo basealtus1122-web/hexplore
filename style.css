@@ -188,7 +188,11 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .sec-head::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--edge-bright),transparent)}
 
 .hex-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.hex-cell{width:164px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.hex-cell{position:relative;width:164px;display:flex;flex-direction:column;align-items:center;text-align:center}
+/* 뇌물 표식 — 방어 대신 뇌물로 쓸 수 있는 직업(정찰병·최면술사)의 방어 육각형에 붙는다 */
+.bribe-dot{position:absolute;right:10px;top:44px;width:15px;height:15px;border-radius:50%;
+  background:radial-gradient(circle at 34% 32%,#f8e498,#c9a227 62%,#8a6a12);
+  box-shadow:0 0 0 1px rgba(0,0,0,.4),0 0 7px rgba(201,162,39,.45);pointer-events:auto}
 .hex-wrap .hex-cell{max-width:calc(50% - 4px)}   /* 좁은 화면에서도 두 개씩 */
 .vital .hex-cell{width:150px}
 .hex-svg{width:100%;max-width:150px;aspect-ratio:1;height:auto;display:block;overflow:visible}

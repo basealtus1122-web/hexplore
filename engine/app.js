@@ -177,6 +177,7 @@ const DMG={
   energy:   {en:"Energy",   ko:"에너지", color:"var(--g-energy)"},
   influence:{en:"Influence",ko:"영향력", color:CLR_INFLUENCE},
   outlast:  {en:"Outlast",  ko:"지속력", color:CLR_OUTLAST},
+  drain:    {en:"Energy Drain",ko:"에너지 흡수", color:"var(--g-energy)"},
 };
 /* readout·태그 색 토큰 → CSS 색. 9스탯=--g-*, 특수(influence/outlast)·neutral은 별도 */
 function statColor(c){return c==='neutral'?'var(--ink)':c==='influence'?CLR_INFLUENCE:c==='outlast'?CLR_OUTLAST:`var(--g-${c})`;}
@@ -211,6 +212,7 @@ function renderHex(char,key,showName=true){
       <text class="hex-val" x="72" y="67" text-anchor="middle" dominant-baseline="middle" style="fill:var(--g-${key})">${val}</text>
       <text class="hex-sub" x="72" y="90" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
     </svg>
+    ${st&&st.bribe?`<span class="bribe-dot" title="Bribe 뇌물 — 방어 대신 뇌물로 쓸 수 있다"></span>`:""}
     ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg, (key==="attack"&&cls.declareVital)?char.vitalPick:null, key==="attack"&&!!cls.declareVital)}`:""}
     <div class="hex-mod">
       <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>
@@ -233,7 +235,8 @@ function stanceSwitcher(char,cls){
   if(!cls.stances||!cls.stances.length)return"";
   const btns=cls.stances.map(s=>{const on=char.stancePick===s.id;
     return `<button data-stance="${s.id}" style="font-size:13px;padding:10px 15px;min-height:44px;border-radius:9px;cursor:pointer;text-align:left;${on?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 20%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${s.name.en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:2px">${s.name.ko}</span>${s.note?`<div style="font-size:11px;color:var(--ink-faint);margin-top:2px">${s.note}</div>`:""}</button>`;}).join("");
-  return `<div style="margin-top:10px"><div class="foe-label" style="margin-bottom:5px">Stance · 자세${char.stancePick?"":` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 하나를 선택하세요</span>`}</div><div style="display:flex;gap:7px;flex-wrap:wrap">${btns}</div></div>`;
+  const L=cls.stanceLabel||{en:"Stance",ko:"자세"};
+  return `<div style="margin-top:10px"><div class="foe-label" style="margin-bottom:5px">${L.en} · ${L.ko}${char.stancePick?"":` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· ${cls.stances.length>1?"하나를 선택하세요":"눌러서 켜고 끕니다"}</span>`}</div><div style="display:flex;gap:7px;flex-wrap:wrap">${btns}</div></div>`;
 }
 /* 지금 상대하는 적 유형 — cls.declareFoe 이면 특성 박스에서 고른다(트로피 계산 등에 쓰임) */
 function foeSwitcher(char,cls){
