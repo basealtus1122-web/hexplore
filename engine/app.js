@@ -951,12 +951,42 @@ function applyTheme(){
   if(s&&s!=="4")document.documentElement.setAttribute("data-series",s);
   else document.documentElement.removeAttribute("data-series");
 }
-/* 배경 무늬 레이어 — 한 번만 만들어 모든 화면에서 재사용 */
+/* 배경 무늬 — 은빛 격자는 CSS 배경(정적), 색 헥스만 SVG로 그려 윤곽을 따라 흐르게 한다.
+   격자 규격은 style.css 의 --hexgrid 와 같아야 색 헥스가 격자에 정확히 겹친다. */
+const HEXBG={R:26, ratio:.14, colors:["#f3a8c0","#bf94f5","#63d688"]};
+function paintHexBg(){
+  const svg=document.querySelector("#hexbg svg");if(!svg)return;
+  const R=HEXBG.R, dx=Math.sqrt(3)*R, dy=1.5*R, peri=6*R;
+  const w=window.innerWidth, h=window.innerHeight;
+  const cols=Math.ceil(w/dx)+2, rows=Math.ceil(h/dy)+2;
+  /* 화면 크기가 같으면 다시 그리지 않는다(리렌더마다 무늬가 바뀌면 산만하다) */
+  if(svg.dataset.size===cols+"x"+rows)return;
+  svg.dataset.size=cols+"x"+rows;
+  let seed=7, rnd=()=>((seed=(seed*1103515245+12345)&0x7fffffff)/0x7fffffff);
+  const parts=[];
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    if(rnd()>=HEXBG.ratio){rnd();continue;}                    /* 색 없는 칸은 배경 격자가 담당 */
+    const col=HEXBG.colors[Math.floor(rnd()*3)%3];
+    const cx=c*dx+(r%2?dx/2:0), cy=r*dy;
+    const pts=[];
+    for(let i=0;i<6;i++){const a=(60*i-90)*Math.PI/180;
+      pts.push((cx+R*Math.cos(a)).toFixed(1)+","+(cy+R*Math.sin(a)).toFixed(1));}
+    const d="M"+pts.join("L")+"Z";
+    const dur=(13+rnd()*16).toFixed(1), delay=(-rnd()*30).toFixed(1);
+    const dir=rnd()<.5?peri:-peri;                              /* 도는 방향도 섞는다 */
+    parts.push(`<path class="base" d="${d}" stroke="${col}"/>`+
+      `<path class="flow" d="${d}" stroke="${col}" style="--seg:${(R*0.9).toFixed(1)};--gap:${(peri-R*0.9).toFixed(1)};--peri:${dir};--dur:${dur}s;--delay:${delay}s"/>`);
+  }
+  svg.innerHTML=parts.join("");
+}
 function ensureHexBg(){
-  if(document.getElementById("hexbg"))return;
-  const d=document.createElement("div");d.id="hexbg";d.setAttribute("aria-hidden","true");
-  d.innerHTML="<i></i><i></i><i></i>";
-  document.body.insertBefore(d,document.body.firstChild);
+  if(!document.getElementById("hexbg")){
+    const d=document.createElement("div");d.id="hexbg";d.setAttribute("aria-hidden","true");
+    d.innerHTML='<i></i><svg xmlns="http://www.w3.org/2000/svg"></svg>';
+    document.body.insertBefore(d,document.body.firstChild);
+    let t;window.addEventListener("resize",()=>{clearTimeout(t);t=setTimeout(paintHexBg,200);});
+  }
+  paintHexBg();
 }
 function render(){
   ensureHexBg();
