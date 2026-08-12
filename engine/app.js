@@ -50,6 +50,7 @@ function buildCharacter(sel,seriesId){
     items:[],boosts:{},mchecks:{},uses:{},abilities:[],
     counters:{},                                  /* 직업 전용 카운터(예: 심문관 트로피) */
     vitalPick:(cls&&cls.declareVital)?null:undefined,  /* 전투마다 선언하는 생명력(예: 정찰병) */
+    stancePick:(cls&&cls.stances)?null:undefined,      /* 전투 중 유지하는 자세(예: 사무라이) */
     startDate:new Date().toISOString(),
   };
   if(race&&race.ability&&!race.inheritsRace)char.abilities.push({id:"aRace",src:"race",name:clone(race.ability.name),desc:race.ability.desc,track:initTrack(race.ability.track)});
@@ -105,11 +106,12 @@ function makeE(char,key){
     cur,miss:k=>Math.max(0,effOf(char,k)-cur(k)),cnt,
     /* foe() 선언한 적 유형 · sel(id) 활성 목록 항목(없으면 빈 객체) */
     foe:()=>char.foePick||null,
+    stance:()=>char.stancePick||null,
     sel:id=>{const l=(char.roster||{})[id]||[],i=(char.rosterPick||{})[id];return (i!=null&&l[i])?l[i]:{};},
     /* 유형별 카운터에서 "n개마다 1" 로 파생되는 값(예: 마스터 트로피) */
     cntEvery:(id,per)=>Object.values((char.counters||{})[id]||{}).reduce((a,n)=>a+Math.floor(n/per),0)};
 }
-/* 강화(boost): 기술별 저장소 + 임의 랭크 스케줄. 구버전(평면) 저장본은 firstMastery로 마이그레이션 */
+/* 강화(boost): 마스터리별 저장소 + 임의 랭크 스케줄. 구버전(평면) 저장본은 firstMastery로 마이그레이션 */
 function normBoosts(char){if(!char.boosts||typeof char.boosts!=="object"){char.boosts={};return;}const ks=Object.keys(char.boosts);if(ks.length&&ks.every(k=>/^\d+$/.test(k)))char.boosts={firstMastery:Object.assign({},char.boosts)};}
 function boostEarned(char,key){const st=SHARED.classes[char.classId].stats[key],lv=effOf(char,key);return st&&st.boostAt?st.boostAt.filter(t=>lv>=t).length:Math.floor(lv/3);}
 
@@ -225,6 +227,14 @@ function vitalSwitcher(char,cls){
     return `<button data-vital-pick="${d}" style="font-family:'Cinzel';font-size:13px;padding:11px 16px;min-height:44px;border-radius:9px;cursor:pointer;${on?`border:1px solid ${DMG[d].color};color:var(--ink);background:color-mix(in srgb,${DMG[d].color} 18%,transparent)`:'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${DMG[d].en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:2px">${DMG[d].ko}</span></button>`;}).join("");
   return `<div style="margin-top:9px"><div class="foe-label" style="margin-bottom:5px">Declared Vital · 선언한 생명력${char.vitalPick?"":` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 전투를 시작하며 하나 고르세요</span>`}</div><div style="display:flex;gap:7px;flex-wrap:wrap">${btns}</div></div>`;
 }
+/* 자세 — cls.stances:[{id,name,note}] 이면 특성 박스에서 하나를 고른다.
+   고른 자세는 E.stance() 로 계산에 들어간다(예: 사무라이 검술·합기도). */
+function stanceSwitcher(char,cls){
+  if(!cls.stances||!cls.stances.length)return"";
+  const btns=cls.stances.map(s=>{const on=char.stancePick===s.id;
+    return `<button data-stance="${s.id}" style="font-size:13px;padding:10px 15px;min-height:44px;border-radius:9px;cursor:pointer;text-align:left;${on?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 20%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${s.name.en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:2px">${s.name.ko}</span>${s.note?`<div style="font-size:11px;color:var(--ink-faint);margin-top:2px">${s.note}</div>`:""}</button>`;}).join("");
+  return `<div style="margin-top:10px"><div class="foe-label" style="margin-bottom:5px">Stance · 자세${char.stancePick?"":` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 하나를 선택하세요</span>`}</div><div style="display:flex;gap:7px;flex-wrap:wrap">${btns}</div></div>`;
+}
 /* 지금 상대하는 적 유형 — cls.declareFoe 이면 특성 박스에서 고른다(트로피 계산 등에 쓰임) */
 function foeSwitcher(char,cls){
   if(!cls.declareFoe)return"";
@@ -324,7 +334,7 @@ function renderMastery(char,key){
     }).join("");
     checksHTML=`<div class="boosts"><div class="boost-head"><span>Sustained 보너스</span><span class="pick-badge">해당 랭크부터 사용</span></div>${rows}</div>`;
   }
-  // 스킬 사용 트래커: 각 기술 카드에 체크(max:1) 또는 카운터. 전투 섹션의 턴/전투 리셋으로 초기화
+  // 사용 트래커: 각 마스터리 카드에 체크(max:1) 또는 카운터. 전투 섹션의 턴/전투 리셋으로 초기화
   const uCur=(char.uses&&char.uses[key])||0, uMax=st.uses?st.uses.max:0, uScopeKo=((st.uses&&st.uses.scope)||'turn')==='combat'?'전투':'턴';
   const _bS="min-width:24px;height:24px;padding:0 6px;border-radius:6px;border:1px solid var(--edge-bright);background:transparent;color:var(--ink);cursor:pointer;font-weight:700;font-size:14px;line-height:1";
   const _wS="display:flex;align-items:center;gap:6px;margin:4px 0 9px;font-size:12px";
@@ -465,11 +475,23 @@ function previewTotals(sel){
     ${traits.length?`<div class="pv-ability" style="margin-top:8px">${traits.map(t=>`<div><b>${t.name.en}<span style="font-size:.88em;color:var(--ink-faint)">${t.name.ko}</span></b> — ${previewText(t.desc||"",cls)}</div>`).join("")}</div>`:""}
     <div class="hint" style="margin-top:8px;text-align:left">직업 기본값 + 종족 보정${traits.length?" + 특성/양상":""} · 육각형은 판에서 채웁니다</div></div>`;
 }
+/* 직업 카드 배지 — 계통을 앞글자 한 글자로, 계통 색을 입혀 편 번호 앞에 붙인다.
+   dual 은 'dual' 자체가 아니라 속한 계통들의 앞글자를 나란히 쓴다(Striker·Sapper 는 둘 다 S 라 색으로 구분). */
+function catKeysOf(x){const c=x.category;if(!c)return[];
+  return c.key==="dual"?(c.members||[]):[c.key];}
+function catLetters(x){
+  return catKeysOf(x).filter(k=>CAT[k])
+    .map(k=>`<b style="color:${CAT[k].c};margin-right:2px">${CAT[k].en[0]}</b>`).join("");
+}
+function catTitle(x){
+  const ks=catKeysOf(x).filter(k=>CAT[k]);
+  return ks.length?ks.map(k=>`${CAT[k].en} ${CAT[k].ko}`).join(" · ")+" · ":"";
+}
 function pickList(list,selId,kind,previewFn){
   if(!list.length)return`<div class="empty-note">데이터가 아직 없습니다. data.js에 추가하세요.</div>`;
   list=sortList(list,APP.sort[kind]);
   const cards=list.map(x=>`<button class="pick-card ${selId===x.id?'on':''}" data-pick="${x.id}" data-kind="${kind}">
-    <div class="pc-name">${x.name.en}</div><div class="pc-ko">${x.name.ko}</div>${x.ed?`<span class="ed-badge" title="${EXP_META[x.exp]?EXP_META[x.exp].ko+" · ":""}${x.ed}편 수록">${x.exp&&EXP_META[x.exp]?`<b style="color:${EXP_META[x.exp].c}">${x.exp}</b>`:""}${x.ed}</span>`:""}</button>`).join("");
+    <div class="pc-name">${x.name.en}</div><div class="pc-ko">${x.name.ko}</div>${x.ed?`<span class="ed-badge" title="${catTitle(x)}${EXP_META[x.exp]?EXP_META[x.exp].ko+" · ":""}${x.ed}편 수록">${catLetters(x)}${x.exp&&EXP_META[x.exp]?`<b style="color:${EXP_META[x.exp].c}">${x.exp}</b>`:""}${x.ed}</span>`:""}</button>`).join("");
   const sel=list.find(x=>x.id===selId);
   /* 미리보기를 그리드 안에 넣어두면, placeInlinePreview()가 선택한 카드의 행 바로 아래로 옮긴다 */
   return `${sortBar(kind)}<div class="pick-grid">${cards}${sel?`<div class="preview inline">${previewFn(sel)}</div>`:""}</div>${sel?"":`<div class="empty-note">위에서 하나 선택하면 상세가 표시됩니다.</div>`}`;
@@ -629,14 +651,14 @@ function boardBody(char){
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
       <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}${(()=>{const as=char.abilities.filter(a=>a.src==="aspect"||a.src==="greater");return as.length?` · 양상 ${as.map(a=>`<b>${a.name.en} (${a.name.ko})</b>`).join(", ")}`:"";})()}</div>
       <div class="flavor">${race.flavor||""}</div>
-      ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}${specialReadout(char,cls)}${vitalSwitcher(char,cls)}${foeSwitcher(char,cls)}${renderCounters(char,cls)}${renderRoster(char,cls)}</div>`:""}
+      ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}${specialReadout(char,cls)}${vitalSwitcher(char,cls)}${stanceSwitcher(char,cls)}${foeSwitcher(char,cls)}${renderCounters(char,cls)}${renderRoster(char,cls)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
     </div>
     <div class="section"><div class="sec-head">Vital · 생명력</div>
       <div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>
     </div>
     <div class="section"><div class="sec-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span>Ability · 능력</span><span style="display:flex;gap:6px"><button class="tbtn" id="resetTurn" title="턴 사용 초기화">↺ 턴</button><button class="tbtn" id="resetCombat" title="전투 사용 초기화">↺ 전투</button></span></div>${race.forms?formSwitcher(char,race):""}<div class="hex-wrap">${combat}</div>${masteries}</div>
-    <div class="section"><div class="sec-head">Skill · 스킬</div><div class="hex-wrap">${skills}</div></div>
+    <div class="section"><div class="sec-head">Skill · 기술</div><div class="hex-wrap">${skills}</div></div>
     <div class="section"><div class="sec-head">Special Abilities · 특수 능력</div>${abilityHTML}
       <div class="ability-actions">
         <button class="add-btn" data-addability="free">+ 능력 직접 추가</button>
@@ -757,6 +779,7 @@ function bindBoard(char){
   root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const f=b.dataset.form;if(char.raceForm===f)return;const r=SHARED.races[char.raceId];if(r&&r.formCostEnergy){if(char.curEnergy<r.formCostEnergy)return;char.curEnergy-=r.formCostEnergy;}char.raceForm=f;if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-vital-pick]").forEach(b=>b.onclick=()=>{const d=b.dataset.vitalPick;char.vitalPick=(char.vitalPick===d?null:d);renderBoard();});
+  root.querySelectorAll("[data-stance]").forEach(b=>b.onclick=()=>{const s=b.dataset.stance;char.stancePick=(char.stancePick===s?null:s);renderBoard();});
   root.querySelectorAll("[data-foe-pick]").forEach(b=>b.onclick=()=>{const d=b.dataset.foePick;char.foePick=(char.foePick===d?null:d);renderBoard();});
   root.querySelectorAll("[data-roster-add]").forEach(b=>b.onclick=()=>{const id=b.dataset.rosterAdd;
     if(!char.roster)char.roster={};const l=char.roster[id]||(char.roster[id]=[]);l.push({name:""});

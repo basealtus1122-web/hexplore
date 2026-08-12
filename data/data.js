@@ -30,8 +30,8 @@ const STAT_META = {
   energy:       {role:"Vital",  roleKo:"에너지",group:"vital"},
   attack:       {role:"Attack", roleKo:"공격",  group:"combat"},
   defence:      {role:"Defence",roleKo:"방어",  group:"combat"},
-  firstMastery: {role:"First Mastery", roleKo:"기술 1", group:"combat"},
-  secondMastery:{role:"Second Mastery",roleKo:"기술 2", group:"combat"},
+  firstMastery: {role:"First Mastery", roleKo:"마스터리 1", group:"combat"},
+  secondMastery:{role:"Second Mastery",roleKo:"마스터리 2", group:"combat"},
   navigate:     {role:"Navigate",roleKo:"길찾기",group:"skill"},
   explore:      {role:"Explore", roleKo:"탐험",  group:"skill"},
   survival:     {role:"Survival",roleKo:"생존",  group:"skill"},
@@ -48,6 +48,11 @@ const FOE_TYPES = [
   {en:"Monstrous Humanoid",ko:"인간형 괴수"},
   {en:"Spirit",   ko:"영혼"},
   {en:"Ascendant",ko:"초월자"},
+  /* 아래는 적 서브타입 — 카드에 함께 표기되며 숙적으로도 지정된다 */
+  {en:"Horde",    ko:"무리"},
+  {en:"Swarm",    ko:"떼"},
+  {en:"Titanic",  ko:"거대"},
+  {en:"Elemental",ko:"원소"},
 ];
 
 /* Greater Aspects(위대한 양상) — '다시 깨어난 자'가 하나를 선택한다.
@@ -271,7 +276,7 @@ const SHARED = {
       foodUse:2,
       mods:{health:0,energy:1,attack:0,defence:0,firstMastery:2,secondMastery:2,navigate:0,explore:0,survival:2},
       ability:{name:{en:"Racial Ability",ko:"종족 능력"},
-        desc:"게임 턴당 <b>1회</b>, <st>energy</st> 2를 소모해 당신의 가장 낮은 Mastery(기술) 랭크 이하의 골드 비용을 가진 아이템 하나를 만들어 낸다. 이 아이템은 즉시 사용해야 하며, 게임 턴이 끝나면 사라진다.",
+        desc:"게임 턴당 <b>1회</b>, <st>energy</st> 2를 소모해 당신의 가장 낮은 Mastery(마스터리) 랭크 이하의 골드 비용을 가진 아이템 하나를 만들어 낸다. 이 아이템은 즉시 사용해야 하며, 게임 턴이 끝나면 사라진다.",
         track:{type:"check"}},
       flavor:"타누키는 근원에 둘러싸인 다재다능한 마법 생명체입니다.",
     },
@@ -387,7 +392,7 @@ const SHARED = {
       name:{en:"Warlock",ko:"워록"},
       category:{key:"striker"},
       flavor:"나의 권능에 경탄하라!",
-      special:{ko:"기술의 비용으로 당신의 <st>health</st>이나 <st>energy</st>를 지불할 수 있다."},
+      special:{ko:"마스터리의 비용으로 당신의 <st>health</st>이나 <st>energy</st>를 지불할 수 있다."},
       /* stats: base = 직업 고유 시작값. 최종값 = base + 종족보정 + 육각형 + 효과 */
       stats:{
         health:{base:6},
@@ -443,7 +448,7 @@ const SHARED = {
               {lab:"Cost 비용", color:"energy", val:1},
               {lab:"Attacks 공격 횟수", color:"attack", val:2},
               {lab:"Block/Defend/Reflect 감소", color:"neutral", val:fm},
-              ...(fm>=7 ? [{lab:"Attack boost (기술2 후)", color:"attack", val:(fm/2).toFixed(1)}] : [])
+              ...(fm>=7 ? [{lab:"Attack boost (마스터리2 후)", color:"attack", val:(fm/2).toFixed(1)}] : [])
             ];
           },
           desc:`이번 라운드에 {attack} 행동을 <b>두 번</b> 사용한다. 대상이 <kw>energetic</kw> 상태가 아니면 대상의 <kw>block</kw>·<kw>defend</kw>·<kw>reflect</kw>를 {firstMastery} 랭크만큼 감소시킨다. 직전 라운드에 {secondMastery} 사용 시 이번 라운드 적들의 타겟 수가 <b>1</b> 감소한다(최소 1). <lvl n="7">직전 라운드에 {secondMastery} 사용 시 이번 라운드 {attack}의 피해를 {firstMastery} 랭크 <b>절반</b>만큼 <kw>boost</kw>한다.</lvl>`,
@@ -452,7 +457,7 @@ const SHARED = {
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Damage 피해", color:"health", val:(E.lv("attack")+E.lv("secondMastery")).toFixed(1)},
-            {lab:"+Damage (기술1 후)", color:"defence", val:E.lv("defence").toFixed(1)},
+            {lab:"+Damage (마스터리1 후)", color:"defence", val:E.lv("defence").toFixed(1)},
           ],
           desc:`{attack} 랭크 + {secondMastery} 랭크만큼 <st>health</st> 피해를 준다. 직전 라운드에 {firstMastery}을(를) 사용했다면 이 피해를 {defence} 랭크만큼 <kw>boost</kw>한다. <lvl n="8"><st>energy</st> 3을 추가로 지불하면 이번 라운드에 {secondMastery} 행동을 한 번 더 사용할 수 있다.</lvl>`,
         },
@@ -477,7 +482,7 @@ const SHARED = {
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Damage boost 피해 증가", color:"neutral", val:E.lv("firstMastery")},
           ],
-          desc:`숙적에게 그룹이 주는 <st>health</st>·<st>energy</st>·<st>influence</st> 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <st>outlast</st>을 감소시키기 위해 선택한 스탯 테스트를 자동으로 성공시킨다. 이 기술은 <kw>sustain</kw>할 수 있다.`,
+          desc:`숙적에게 그룹이 주는 <st>health</st>·<st>energy</st>·<st>influence</st> 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <st>outlast</st>을 감소시키기 위해 선택한 스탯 테스트를 자동으로 성공시킨다. 이 마스터리는 <kw>sustain</kw>할 수 있다.`,
           checks:[
             {at:6, txt:`<kw>sustain</kw> 중일 때는 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 받는다.`},
             {at:9, txt:`<kw>sustain</kw> 중일 때 모든 영웅이 원하는 기술 하나에 임시 기어 업그레이드 <b>1</b>을 추가로 받는다.`},
@@ -489,7 +494,7 @@ const SHARED = {
             {lab:"Heal 비전투·동료 에너지", color:"energy", val:(E.lv("secondMastery")/3).toFixed(1)},
             {lab:"Block 전투·그룹", color:"defence", val:(E.lv("secondMastery")/2).toFixed(1)},
           ],
-          desc:`<b>비전투:</b> 모든 동료의 <st>energy</st>를 {secondMastery} 랭크 <b>1/3</b>만큼 <kw>heal</kw>하거나, 이번 게임 턴에 영웅 하나의 모든 스탯 테스트에 <b>-1</b> 보너스를 준다. <b>전투:</b> 그룹이 {secondMastery} 랭크 <b>1/2</b>만큼 <kw>block</kw>을 얻는다. 이 기술은 <kw>sustain</kw>할 수 있다. <b>4·8랭크에 아래에서 하나 선택(중복 가능):</b>`,
+          desc:`<b>비전투:</b> 모든 동료의 <st>energy</st>를 {secondMastery} 랭크 <b>1/3</b>만큼 <kw>heal</kw>하거나, 이번 게임 턴에 영웅 하나의 모든 스탯 테스트에 <b>-1</b> 보너스를 준다. <b>전투:</b> 그룹이 {secondMastery} 랭크 <b>1/2</b>만큼 <kw>block</kw>을 얻는다. 이 마스터리는 <kw>sustain</kw>할 수 있다. <b>4·8랭크에 아래에서 하나 선택(중복 가능):</b>`,
           boosts:[
             {stack:true, txt:`모든 동료가 <st>energy</st> <kw>regen</kw> 2를 획득한다.`},
             {stack:true, txt:`모든 영웅은 스탯 테스트에 <b>-2</b> 보너스를 받는다.`},
@@ -529,10 +534,10 @@ const SHARED = {
         secondMastery:{base:1, name:{en:"Speciality",ko:"특기"}, cost:1,
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
-            {lab:"Skill 스킬 보너스", color:"neutral", val:"-1"},
+            {lab:"Skill 기술 보너스", color:"neutral", val:"-1"},
             {lab:"Boost 전투 증폭", color:"attack", val:E.lv("secondMastery").toFixed(1)},
           ],
-          desc:`<b>비전투:</b> 해당 페이즈(Movement·Skill 등)가 끝날 때까지 모든 영웅이 스킬 판정에 <b>-1</b> 보너스를 받는다. 특정 스킬의 랭크 <b>5마다</b> 그 스킬에 <b>-1</b> 보너스가 추가된다. <b>전투:</b> 또다른 자아로 변신한 뒤 사용하면, 그 Encounter조우의 행동 중 하나를 수행하고 그 피해를 {secondMastery} 랭크만큼 <kw>boost</kw>한다. <lvl n="8">{secondMastery}로 피해를 입은 대상은 다음 라운드에 목표를 <b>1</b> 적게 잡는다(최소 1).</lvl>`,
+          desc:`<b>비전투:</b> 해당 페이즈(Movement·Skill 등)가 끝날 때까지 모든 영웅이 기술 판정에 <b>-1</b> 보너스를 받는다. 특정 기술의 랭크 <b>5마다</b> 그 기술에 <b>-1</b> 보너스가 추가된다. <b>전투:</b> 또다른 자아로 변신한 뒤 사용하면, 그 Encounter조우의 행동 중 하나를 수행하고 그 피해를 {secondMastery} 랭크만큼 <kw>boost</kw>한다. <lvl n="8">{secondMastery}로 피해를 입은 대상은 다음 라운드에 목표를 <b>1</b> 적게 잡는다(최소 1).</lvl>`,
         },
         navigate:{base:2, name:{en:"Navigate",ko:"길찾기"}},
         explore:{base:2, name:{en:"Explore",ko:"탐험"}},
@@ -544,7 +549,7 @@ const SHARED = {
       name:{en:"Shadow Rider",ko:"그림자 기수"},
       category:{key:"assist"},
       flavor:"그림자와 먼지로 이루어진.",
-      special:{ko:`각 기술이 <b>처음으로 8랭크</b>가 될 때마다, 그룹의 <b>Movement Speed이동 속도</b>가 <b>1</b> 증가한다(<b>Moving Cautiously신중한 이동</b> 포함).`},
+      special:{ko:`각 마스터리가 <b>처음으로 8랭크</b>가 될 때마다, 그룹의 <b>Movement Speed이동 속도</b>가 <b>1</b> 증가한다(<b>Moving Cautiously신중한 이동</b> 포함).`},
       stats:{
         health:{base:6}, energy:{base:5},
         attack:{base:2, name:{en:"Death Aura",ko:"죽음의 오라"}, dmg:["health","energy"]},
@@ -729,16 +734,16 @@ const SHARED = {
              val:(E.lv("attack")+E.lv("firstMastery")+(E.lv("firstMastery")>=8?3*E.cntEvery("trophy",2):0)).toFixed(1)},
             ...(E.lv("firstMastery")>=6?[{lab:"Reflect 반사", color:"defence", val:E.cntEvery("trophy",2)}]:[]),
           ],
-          desc:`{attack} 랭크 + {firstMastery} 랭크만큼 <st>health</st> 피해를 준다. <lvl n="6">라운드가 끝날 때까지 가진 마스터 트로피 <b>개수</b>만큼 <kw>reflect</kw>를 얻는다.</lvl> <lvl n="8">가진 마스터 트로피 <b>1개마다</b> 이 기술의 피해를 <b>3</b>씩 <kw>boost</kw>한다.</lvl>`,
+          desc:`{attack} 랭크 + {firstMastery} 랭크만큼 <st>health</st> 피해를 준다. <lvl n="6">라운드가 끝날 때까지 가진 마스터 트로피 <b>개수</b>만큼 <kw>reflect</kw>를 얻는다.</lvl> <lvl n="8">가진 마스터 트로피 <b>1개마다</b> 이 마스터리의 피해를 <b>3</b>씩 <kw>boost</kw>한다.</lvl>`,
         },
         secondMastery:{base:2, name:{en:"Bestiary",ko:"마물 도감"}, cost:1,
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
-            {lab:"Skill 스킬 보너스", color:"secondMastery", val:(E.lv("secondMastery")/3).toFixed(1)},
+            {lab:"Skill 기술 보너스", color:"secondMastery", val:(E.lv("secondMastery")/3).toFixed(1)},
             {lab:"피해 감소", color:"defence", val:(E.lv("defence")/3).toFixed(1)},
             {lab:"지속 라운드", color:"neutral", val:1+(E.foe()?E.cnt("trophy",E.foe()):0)},
           ],
-          desc:`라운드가 끝날 때까지 그룹이 모든 스킬 판정에 {secondMastery} 랭크의 <b>1/3</b>만큼 보너스를 받고, 받는 모든 피해를 {defence} 랭크의 <b>1/3</b>만큼 줄인다. 적과 유형이 같은 트로피를 <b>1개 가질 때마다</b> 이 효과의 지속시간이 <b>1라운드</b> 늘어난다. <lvl n="8">전투가 끝날 때까지, 영웅들은 매 라운드 <b>Favored Opponent 주사위</b>를 <b>1회</b> 다시 굴려 더 유리한 결과를 택할 수 있다. 이 효과는 중첩되지 않는다.</lvl>`,
+          desc:`라운드가 끝날 때까지 그룹이 모든 기술 판정에 {secondMastery} 랭크의 <b>1/3</b>만큼 보너스를 받고, 받는 모든 피해를 {defence} 랭크의 <b>1/3</b>만큼 줄인다. 적과 유형이 같은 트로피를 <b>1개 가질 때마다</b> 이 효과의 지속시간이 <b>1라운드</b> 늘어난다. <lvl n="8">전투가 끝날 때까지, 영웅들은 매 라운드 <b>Favored Opponent 주사위</b>를 <b>1회</b> 다시 굴려 더 유리한 결과를 택할 수 있다. 이 효과는 중첩되지 않는다.</lvl>`,
         },
         navigate:{base:2, name:{en:"Navigate",ko:"길찾기"}},
         explore:{base:2, name:{en:"Explore",ko:"탐험"}},
@@ -794,7 +799,7 @@ const SHARED = {
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Stat Test 판정 횟수", color:"firstMastery", val:E.lv("firstMastery")>=7?"3 / 6":"3"},
           ],
-          desc:`이 기술은 <b>Movement 페이즈</b>에만 사용할 수 있다. {firstMastery}에 대해 스탯 테스트를 <b>3회</b> 굴린다. 성공한 만큼 그 게임 턴 동안 다음 중 하나로 쓸 수 있다 — <b>Moon 주사위</b>를 굴려 그 결과를 대상의 <b>Favored Opponent</b> 판정에 더하기 · 실패한 스탯 테스트를 성공으로 바꾸기 · 방금 굴린 <b>Circumstance상황</b>을 다시 굴리기. <lvl n="7"><st>energy</st> <b>1</b>을 추가로 소모해 <b>3회</b> 대신 <b>6회</b> 굴릴 수 있다.</lvl>`,
+          desc:`이 마스터리는 <b>Movement 페이즈</b>에만 사용할 수 있다. {firstMastery}에 대해 스탯 테스트를 <b>3회</b> 굴린다. 성공한 만큼 그 게임 턴 동안 다음 중 하나로 쓸 수 있다 — <b>Moon 주사위</b>를 굴려 그 결과를 대상의 <b>Favored Opponent</b> 판정에 더하기 · 실패한 스탯 테스트를 성공으로 바꾸기 · 방금 굴린 <b>Circumstance상황</b>을 다시 굴리기. <lvl n="7"><st>energy</st> <b>1</b>을 추가로 소모해 <b>3회</b> 대신 <b>6회</b> 굴릴 수 있다.</lvl>`,
         },
         secondMastery:{base:1, name:{en:"Honed Instinct",ko:"벼려진 직감"}, cost:1,
           readout:(E)=>[
@@ -813,12 +818,210 @@ const SHARED = {
     deathKnight:{ id:"deathKnight", ed:"4", name:{en:"Death Knight",ko:"데스 나이트"},  category:{key:"dual",members:["healer","sapper"]},  stats:{} },
     demonologist:{id:"demonologist",ed:"4", name:{en:"Demonologist",ko:"악마학자"},     category:{key:"dual",members:["utility","assist"]}, stats:{} },
     // ===== 5편 · The Mountains of Godai (이름만 초벌) =====
-    dragoon:{     id:"dragoon",     ed:"5", name:{en:"Dragoon",ko:"드라군"},           category:{key:"striker"}, stats:{} },
-    samurai:{     id:"samurai",     ed:"5", name:{en:"Samurai",ko:"사무라이"},          category:{key:"striker"}, stats:{} },
-    spearMaster:{ id:"spearMaster", ed:"5", name:{en:"Spear Master",ko:"창술사"},       category:{key:"assist"},  stats:{} },
-    astrologist:{ id:"astrologist", ed:"5", name:{en:"Astrologist",ko:"점성술사"},      category:{key:"healer"},  stats:{} },
-    sage:{        id:"sage",        ed:"5", name:{en:"Sage",ko:"현자"},                 category:{key:"healer"},  stats:{} },
-    magician:{    id:"magician",    ed:"5", name:{en:"Magician",ko:"마술사"},           category:{key:"sapper"},  stats:{} },
+    dragoon: {
+      id:"dragoon", ed:"5",
+      name:{en:"Dragoon",ko:"드라군"},
+      category:{key:"striker"},
+      flavor:"진노는 위에서 내리친다.",
+      special:{ko:`게임 턴당 <b>1회</b>, 전투 중에 <st>health</st> <b>1</b>을 소모해 <state>berserk</state> 상태가 될 수 있다. 이 효과는 <kw>sustain</kw>할 수 있지만, 매 라운드 <st>energy</st> <b>1</b> 대신 <st>health</st> <b>1</b>을 소모한다.`},
+      stats:{
+        health:{base:7}, energy:{base:4},
+        attack:{base:2, name:{en:"Wind Lance",ko:"바람 창"}, dmg:["health","outlast"]},
+        defence:{base:3, name:{en:"Deflect",ko:"쳐내기"}},
+        firstMastery:{base:1, name:{en:"Leap",ko:"도약"}, cost:1,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:1},
+            {lab:"타겟 주사위 +", color:"neutral", val:E.lv("firstMastery").toFixed(1)},
+            {lab:"Counterattack 반격", color:"attack", val:(E.lv("attack")/2).toFixed(1)},
+            ...(E.lv("firstMastery")>=4?[{lab:"Block 차단", color:"defence", val:(E.lv("defence")/2).toFixed(1)}]:[]),
+          ],
+          desc:`<b>비전투:</b> 게임 턴이 끝날 때까지 <kw>soar</kw>을 얻는다. <b>전투:</b> 라운드가 끝날 때까지 당신의 타겟 주사위를 {firstMastery} 랭크만큼 올리고, {attack} 랭크의 <b>절반</b>만큼 <kw>counterattack</kw>을 얻는다. <lvl n="4">이번 라운드에 {defence} 랭크의 <b>절반</b>만큼 <kw>block</kw>도 얻는다.</lvl>`,
+        },
+        secondMastery:{base:1, name:{en:"Downstrike",ko:"내리찍기"}, cost:1,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:1},
+            {lab:"Damage 피해", color:"health", val:(E.lv("attack")+E.lv("secondMastery")).toFixed(1)},
+          ],
+          desc:`{attack} 랭크 + {secondMastery} 랭크만큼 <st>health</st> 피해를 준다. <b>직전 라운드에 {firstMastery}를 썼다면</b> 이 피해는 <kw>piercing</kw>을 얻고 피해를 <b>1</b> <kw>strengthen</kw>한다. <b>직전 라운드에 {defence}를 썼다면</b> 이번 라운드에 <kw>counterattack</kw>도 얻는다.`,
+        },
+        navigate:{base:1, name:{en:"Navigate",ko:"길찾기"}},
+        explore:{base:1, name:{en:"Explore",ko:"탐험"}},
+        survival:{base:4, name:{en:"Survival",ko:"생존"}},
+      }
+    },
+    samurai: {
+      id:"samurai", ed:"5",
+      name:{en:"Samurai",ko:"사무라이"},
+      category:{key:"striker"},
+      flavor:"모든 것에 나의 명예를 건다.",
+      /* 전투 중 자세 하나를 유지한다 — 고른 자세가 검술·합기도 계산에 반영된다 */
+      stances:[
+        {id:"iaido", name:{en:"Iaido",ko:"거합"},   note:"Evasion회피 10"},
+        {id:"itto",  name:{en:"Itto-ryu",ko:"일도류"}, note:"Counterattack반격 = 검술 ÷2"},
+        {id:"nito",  name:{en:"Nito-ryu",ko:"이도류"}, note:"Block차단 = 카루타 ÷2"},
+      ],
+      special:{ko:`{defence} 랭크 <b>4마다</b> 타겟 주사위에 <b>+1</b> 페널티를 얻는다.`,
+        readout:(E)=>[{lab:"타겟 주사위 페널티", color:"neutral", val:"+"+Math.floor(E.lv("defence")/4)}]},
+      stats:{
+        health:{base:7}, energy:{base:5},
+        attack:{base:2, name:{en:"Katana",ko:"카타나"}},
+        defence:{base:2, name:{en:"Karuta",ko:"카루타"}},
+        firstMastery:{base:1, name:{en:"Kenjutsu",ko:"검술"}, cost:1,
+          readout:(E)=>{
+            const s=E.stance();
+            return [{lab:"Cost 비용", color:"energy", val:1},
+              ...(s==="iaido"?[{lab:"Evasion 회피", color:"survival", val:10}]:[]),
+              ...(s==="itto"?[{lab:"Counterattack 반격", color:"attack", val:(E.lv("firstMastery")/2).toFixed(1)}]:[]),
+              ...(s==="nito"?[{lab:"Block 차단", color:"defence", val:(E.lv("defence")/2).toFixed(1)}]:[]),
+              {lab:"자세 강화 횟수", color:"firstMastery", val:E.lv("firstMastery")>=4?1+Math.floor((E.lv("firstMastery")-4)/2):0}];
+          },
+          desc:`전투가 끝나거나 이 마스터리를 다시 쓸 때까지 <b>Stance자세</b> 셋 중 하나를 취한다 — <b>Iaido거합</b>(<kw>evasion</kw> <b>10</b>) · <b>Itto-ryu일도류</b>({firstMastery} 랭크의 <b>절반</b>만큼 <kw>counterattack</kw>) · <b>Nito-ryu이도류</b>({defence} 랭크의 <b>절반</b>만큼 <kw>block</kw>). <lvl n="4">4랭크부터 <b>2랭크마다</b> 자세 하나를 골라 강화한다 — 그 자세일 때 주는 모든 피해를 <kw>boost</kw>하고 자세 보너스가 <b>1</b> 올라간다.</lvl> <lvl n="10">자세 <b>2개</b>를 동시에 취할 수 있다. 단 둘 다 유지하려면 {firstMastery}를 <kw>sustain</kw>해야 한다.</lvl>`,
+        },
+        secondMastery:{base:1, name:{en:"Aikido",ko:"합기도"}, cost:1,
+          readout:(E)=>{
+            const s=E.stance(), base=E.lv("secondMastery");
+            const dmg=s==="iaido"?base+E.lv("attack")/2 : s==="itto"?base+E.lv("attack") : base;
+            return [{lab:"Cost 비용", color:"energy", val:1},
+              {lab:s==="nito"?"Damage 피해 ×2회":"Damage 피해", color:"health", val:dmg.toFixed(1)},
+              ...(s==="iaido"?[{lab:"회피 성공 시", color:"health", val:(dmg*2).toFixed(1)}]:[])];
+          },
+          desc:`{secondMastery} 랭크만큼 <st>health</st> 피해를 주며, 자세에 따라 효과가 붙는다 — <b>거합</b>: 피해를 {attack} 랭크의 <b>절반</b>만큼 <kw>boost</kw>하고, 이번 라운드에 공격을 <kw>evasion</kw>했다면 피해가 <b>2배</b>가 된다 · <b>일도류</b>: 피해를 {attack} 랭크만큼 <kw>boost</kw>하고 <kw>piercing</kw>을 얻는다 · <b>이도류</b>: 피해가 <b>2번</b> 발생하며, 두 번째는 다른 적을 목표로 삼을 수 있다. <lvl n="6">라운드가 끝날 때 자세를 바꿀 수 있다.</lvl>`,
+        },
+        navigate:{base:2, name:{en:"Navigate",ko:"길찾기"}},
+        explore:{base:2, name:{en:"Explore",ko:"탐험"}},
+        survival:{base:2, name:{en:"Survival",ko:"생존"}},
+      }
+    },
+    spearMaster: {
+      id:"spearMaster", ed:"5",
+      name:{en:"Spear Master",ko:"창왕"},
+      category:{key:"assist"},
+      flavor:"내 손이 닿지 않는 곳은 없다.",
+      special:{ko:`기본 공격을 할 때 <st>energy</st> <b>1</b>을 소모해, 대상 하나에게 {defence} 랭크의 <b>절반</b>만큼 <kw>block</kw>을 줄 수 있다.`,
+        readout:(E)=>[{lab:"Block 차단", color:"defence", val:(E.lv("defence")/2).toFixed(1)}]},
+      stats:{
+        health:{base:5}, energy:{base:6},
+        attack:{base:2, name:{en:"Lunge",ko:"찌르기"}},
+        defence:{base:1, name:{en:"Reposition",ko:"재배치"}},
+        firstMastery:{base:2, name:{en:"Atlatl",ko:"아틀라틀"}, cost:1,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:1},
+            {lab:"Damage 피해", color:"health", val:(E.lv("attack")+E.lv("firstMastery")).toFixed(1)},
+            {lab:"Bleeding 출혈", color:"health", val:(E.lv("firstMastery")/3).toFixed(1)},
+            ...(E.lv("firstMastery")>=5?[{lab:"Vulnerable 추가 피해", color:"attack", val:(E.lv("firstMastery")/2).toFixed(1)}]:[]),
+          ],
+          desc:`{firstMastery} 랭크 + {attack} 랭크만큼 <st>health</st> 피해를 주고 적은 <state>bleeding</state> 상태가 된다. 이 <state>bleeding</state> 피해는 1이 아니라 {firstMastery} 랭크의 <b>1/3</b>이다. <lvl n="5"><st>energy</st> <b>1</b>을 추가로 소모해 <state>vulnerable</state>이나 <state>slowed</state>도 걸 수 있다. <state>vulnerable</state> 상태인 적은 1이 아니라 {firstMastery} 랭크의 <b>절반</b>만큼 추가 피해를 받는다.</lvl> <lvl n="7">적이 <state>bleeding</state> 상태인 동안 그 적의 <st>health</st>·<st>energy</st> 회복 효과를 <kw>negate</kw>한다.</lvl>`,
+        },
+        secondMastery:{base:2, name:{en:"Sōjutsu",ko:"창술"}, cost:1,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:1},
+            {lab:"① 방어 전환 · Defend", color:"defence", val:(E.lv("defence")/2).toFixed(1)},
+            {lab:"① 반격 피해", color:"health", val:E.lv("attack").toFixed(1)},
+            {lab:"② 동료 피해 증폭", color:"attack", val:(E.lv("secondMastery")+E.lv("attack")/2).toFixed(1)},
+            {lab:"③ 피해 감소", color:"secondMastery", val:Math.max(1,E.lv("secondMastery")/3).toFixed(1)},
+          ],
+          desc:`이 마스터리를 쓸 때 다음 중 <b>하나</b>를 고른다 — <b>①</b> 단일 대상 공격의 목표를 자신으로 바꾸고, {defence} 랭크의 <b>절반</b>만큼 <kw>defend</kw>를 얻으며 {attack} 랭크만큼 <st>health</st> 피해를 준다 · <b>②</b> 동료 공격의 <st>health</st> 피해를 {secondMastery} 랭크 + {attack} 랭크의 <b>절반</b>만큼 <kw>boost</kw>한다 · <b>③</b> 적 공격의 피해를 {secondMastery} 랭크의 <b>1/3</b>만큼 줄인다(<b>최소 1</b>). <lvl n="9"><st>energy</st> <b>2</b>를 추가로 소모해 효과를 <b>2개</b> 쓸 수 있다.</lvl>`,
+        },
+        navigate:{base:2, name:{en:"Navigate",ko:"길찾기"}},
+        explore:{base:2, name:{en:"Explore",ko:"탐험"}},
+        survival:{base:2, name:{en:"Survival",ko:"생존"}},
+      }
+    },
+    astrologist: {
+      id:"astrologist", ed:"5",
+      name:{en:"Astrologist",ko:"점성술사"},
+      category:{key:"healer"},
+      flavor:"끝없는 순환과 무한한 가능성.",
+      stats:{
+        health:{base:3}, energy:{base:8},
+        attack:{base:1, name:{en:"Starfall",ko:"별똥별"}, dmg:["health","influence"]},
+        defence:{base:2, name:{en:"Akashic Link",ko:"아카식 연결"}},
+        firstMastery:{base:2, name:{en:"Sky Reading",ko:"천문 읽기"}, cost:2,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:2},
+            {lab:"비전투 · 뒤집는 카드", color:"defence", val:Math.max(1,Math.floor(E.lv("defence")/4))},
+            {lab:"Defend 방어", color:"defence", val:3},
+            {lab:"Raise 그룹 체력", color:"health", val:(E.lv("firstMastery")/2).toFixed(1)},
+          ],
+          desc:`<b>비전투:</b> 턴당 <b>1회</b>, {defence} 랭크 <b>4마다</b>(<b>최소 1</b>) <b>아무 덱</b>이나 맨 위 카드를 뒤집는다. <b>전투:</b> 라운드당 <b>3회</b>까지 쓸 수 있다. 사용할 때마다 <kw>defend</kw> <b>3</b>을 얻고, 다음 라운드 <b>Declaration 페이즈</b>에 그룹의 <st>health</st>을 {firstMastery} 랭크의 <b>절반</b>만큼 <kw>raise</kw>한다. 이 <kw>raise</kw> 효과는 <b>서로 중첩된다</b>. <lvl n="6">전투 밖에서도 <kw>raise</kw> 효과를 얻는다.</lvl> <lvl n="8">한 라운드에 이 마스터리를 <b>3번</b> 쓰면 <kw>raise</kw> 양을 <b>1</b> <kw>strengthen</kw>한다.</lvl>`,
+        },
+        secondMastery:{base:1, name:{en:"Energetic Connection",ko:"에너지 연결"}, cost:1,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:1},
+            {lab:"Heal 체력", color:"health", val:E.lv("secondMastery").toFixed(1)},
+            {lab:"Heal 에너지", color:"energy", val:3},
+            {lab:"스탯 테스트 보너스", color:"neutral", val:"-2"},
+          ],
+          desc:`<b>비전투 · 전투 라운드당 2회</b>까지, 동료의 <st>health</st>을 {secondMastery} 랭크만큼 <kw>heal</kw>하거나 <st>energy</st>를 <b>3</b> <kw>heal</kw>한다. 그 대상의 다음 스탯 테스트에 <b>-2</b> 보너스가 붙는다(중첩되지 않음). <lvl n="7"><b>Camping야영</b> 중 <b>Movement 페이즈</b>에 사용해 쓰러진 영웅을 <kw>revive</kw>시킬 수 있다. 되살아난 영웅은 <st>health</st> 랭크 <b>1</b> 또는 <st>energy</st> 랭크 <b>2</b>를 잃는다(본인 선택).</lvl>`,
+        },
+        navigate:{base:4, name:{en:"Navigate",ko:"길찾기"}},
+        explore:{base:2, name:{en:"Explore",ko:"탐험"}},
+        survival:{base:1, name:{en:"Survival",ko:"생존"}},
+      }
+    },
+    sage: {
+      id:"sage", ed:"5",
+      name:{en:"Sage",ko:"현자"},
+      category:{key:"healer"},
+      flavor:"중요한 말이 아니라면, 침묵하라.",
+      special:{ko:`게임 턴당 <b>2회</b>까지 <st>energy</st> <b>2</b>를 소모해 다음 중 하나를 한다 — 대상 하나에게 원하는 <b>Element원소</b> 하위 유형을 게임 턴이 끝날 때까지 <b>숙적</b>으로 부여한다 · <kw>harvest</kw> 판정에 <b>-3</b> 보너스를 준다.`},
+      stats:{
+        health:{base:4}, energy:{base:8},
+        attack:{base:1, name:{en:"Inner Light",ko:"내면의 빛"}, dmg:["health","influence"]},
+        defence:{base:1, name:{en:"Epistemic Resolve",ko:"확고한 인식"}},
+        firstMastery:{base:2, name:{en:"Resonance",ko:"공명"}, cost:1,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:1},
+            {lab:"Heal 회복", color:"health", val:(E.lv("defence")+E.lv("attack")/2).toFixed(1)},
+            ...(E.lv("firstMastery")>=5?[
+              {lab:"Regen 재생", color:"health", val:(E.lv("firstMastery")/3).toFixed(1)},
+              {lab:"스탯 테스트 보너스", color:"neutral", val:"-"+Math.floor(E.lv("firstMastery")/3)}]:[]),
+          ],
+          desc:`대상 하나의 <st>health</st>을 {defence} 랭크 + {attack} 랭크의 <b>절반</b>만큼 <kw>heal</kw>한다. 이 마스터리는 전투 밖에서도 쓸 수 있다. <lvl n="5">대상은 다음 중 하나를 함께 얻는다(본인 선택) — 전투가 끝날 때까지 {firstMastery} 랭크의 <b>1/3</b>만큼 <st>health</st> <kw>regen</kw> · {firstMastery} 랭크 <b>3마다</b> 다음 스탯 테스트에 <b>-1</b> 보너스. 이 스탯 테스트 보너스는 이후 게임 턴에도 쓸 수 있지만 <b>서로 중첩되지 않는다</b>.</lvl>`,
+        },
+        secondMastery:{base:2, name:{en:"Attune",ko:"조율"}, cost:2,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:2},
+            {lab:"Element Tier +", color:"secondMastery", val:Math.floor(E.lv("secondMastery")/4)},
+          ],
+          desc:`이 마스터리는 전투 밖에서도 쓸 수 있다. 당신이 원하는 영웅 하나가 <b>Stockpile</b>에 있는 <b>Element원소</b> 하나의 <b>Augment보강</b> 효과를 얻는다. {secondMastery} 랭크 <b>4마다</b> 그 <b>Element Tier</b>를 <b>1</b> 올린다. 이 효과는 페이즈가 끝날 때나 라운드가 끝날 때 중 <b>먼저 오는 쪽</b>까지 지속된다. 전투 중에는 <kw>sustain</kw>할 수 있다. <lvl n="5">다음 중 하나를 대신 할 수도 있다 — 페이즈가 끝날 때까지 적의 키워드 효과 하나를 <kw>negate</kw> · 대상 하나의 <kw>regen</kw> 효과를 <b>2배</b>로 만들고 그것을 원하는 다른 대상에게도 준다.</lvl>`,
+        },
+        navigate:{base:3, name:{en:"Navigate",ko:"길찾기"}},
+        explore:{base:3, name:{en:"Explore",ko:"탐험"}},
+        survival:{base:1, name:{en:"Survival",ko:"생존"}},
+      }
+    },
+    magician: {
+      id:"magician", ed:"5",
+      name:{en:"Magician",ko:"마술사"},
+      category:{key:"sapper"},
+      flavor:"매직 미사일을 얕보지 마라.",
+      special:{ko:`당신의 공격 능력은 <b>마스터리로도 취급</b>되며, 쓰는 데 <st>energy</st> <b>1</b>이 든다. 마스터리 랭크 보너스를 주는 파워업을 얻을 때마다, 그 보너스를 당신의 마스터리 중 <b>아무 하나</b>에 적용할 수 있다.`},
+      stats:{
+        health:{base:4}, energy:{base:10},
+        attack:{base:1, name:{en:"Magic Missile",ko:"매직 미사일"}, dmg:["health","energy"]},
+        defence:{base:1, name:{en:"Earth Shroud",ko:"대지의 장막"}},
+        firstMastery:{base:3, name:{en:"Nexus Arc",ko:"넥서스 아크"}, cost:1,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:1},
+            {lab:"Damage 에너지 피해", color:"energy", val:(E.lv("attack")+E.lv("firstMastery")).toFixed(1)},
+          ],
+          desc:`적에게 {attack} 랭크 + {firstMastery} 랭크만큼 <st>energy</st> 피해를 주고 이번 라운드에 <kw>counterattack</kw>을 얻는다. <kw>counterattack</kw>할 때는 <st>energy</st>가 들지 않으며, 그 피해는 <st>energy</st> 피해로 바뀐다. 이 마스터리는 <kw>counterattack</kw> 효과를 유지하기 위해 <kw>sustain</kw>할 수 있다. <lvl n="7">이 마스터리를 <kw>sustain</kw>하는 중에 죽으면 {defence}에 대해 스탯 테스트를 굴린다. <b>대성공</b>이면 <st>health</st> <b>1</b>로 라운드를 마치며, 다음 라운드에는 {firstMastery}를 <kw>sustain</kw>할 수 없다.</lvl>`,
+        },
+        secondMastery:{base:3, name:{en:"Quantum Leap",ko:"양자 도약"}, cost:2,
+          readout:(E)=>[
+            {lab:"Cost 비용", color:"energy", val:2},
+            {lab:"비전투 · 사용 횟수", color:"secondMastery", val:Math.floor(E.lv("secondMastery")/5)},
+            {lab:"Teleport 헥스", color:"navigate", val:(E.lv("secondMastery")/2).toFixed(1)},
+            {lab:"Boost 다음 라운드", color:"attack", val:E.lv("secondMastery").toFixed(1)},
+          ],
+          desc:`<b>비전투:</b> {secondMastery} 랭크 <b>5마다</b> 게임 턴당 <b>1회</b>씩 사용해, 그룹을 {secondMastery} 랭크의 <b>절반</b>까지의 헥스만큼 <kw>teleport</kw>시킨다. <b>전투:</b> 이번 라운드에 대상 <b>1명</b>을 적이 목표로 삼을 수 없게 만든다. 다음 라운드에 그 대상은 행동 랭크에 {secondMastery} 랭크만큼 <kw>boost</kw>을 얻는다.`,
+        },
+        navigate:{base:1, name:{en:"Navigate",ko:"길찾기"}},
+        explore:{base:1, name:{en:"Explore",ko:"탐험"}},
+        survival:{base:1, name:{en:"Survival",ko:"생존"}},
+      }
+    },
     mesmer:{      id:"mesmer",      ed:"5", name:{en:"Mesmer",ko:"최면술사"},             category:{key:"sapper"},  stats:{} },
     ninja:{       id:"ninja",       ed:"5", name:{en:"Ninja",ko:"닌자"},               category:{key:"utility"}, stats:{} },
     windRider:{   id:"windRider",   ed:"5", name:{en:"Wind Rider",ko:"바람 기수"},      category:{key:"utility"}, stats:{} },
@@ -834,7 +1037,7 @@ const SHARED = {
   traits: {
     // 예시 (실데이터로 교체 예정)
     bloodPact:   {id:"bloodPact", type:"trait",  name:{en:"Blood Pact",ko:"피의 서약"},
-      desc:"전투당 1회, 체력 2를 지불해 기술 하나를 즉시 재사용. (예시)", track:{type:"check"}},
+      desc:"전투당 1회, 체력 2를 지불해 마스터리 하나를 즉시 재사용. (예시)", track:{type:"check"}},
     voidHunger:  {id:"voidHunger", type:"aspect", name:{en:"Hunger of the Void",ko:"공허의 굶주림"},
       desc:"<kw>heal</kw>할 때마다 공허 충전 +1 (최대 3). (예시)", track:{type:"count",max:3}},
   },
@@ -846,7 +1049,7 @@ const SHARED = {
    ===================================================================== */
 /* =====================================================================
    KEYWORDS — 공용(4·5편) + 5편 전용(Siege). 이름=영문/한글, 설명은 우선 영문 원문(한글화 예정)
-   key = 소문자 영문(스킬 <kw> 토큰과 매칭). 여러 단어는 공백 유지.
+   key = 소문자 영문(기술 <kw> 토큰과 매칭). 여러 단어는 공백 유지.
    ===================================================================== */
 const KW_COMMON = {
   aegis:{name:{en:"Aegis",ko:"이지스"}, desc:`주황색 방패로 표기. 주로 적의 레벨 방패를 대체. 영웅의 공격 기어 업그레이드가 이지스 1/2 이상(올림)이거나 <st>energy</st>가 0이어야 <st>health</st> 피해를 줄 수 있다. 따로 언급이 없다면, 이지스 값은 적의 레벨과 같다.`},
@@ -896,7 +1099,7 @@ const KW_COMMON = {
 const KW_SIEGE = {
   augment:{name:{en:"Augment",ko:"보강"}, desc:`원소를 Defender나 영웅에 엮는다. Temple(사원)·Elements(원소) 참조표 및 Element 카드 참조 (TMoG).`},
   arcing:{name:{en:"Arcing",ko:"방전"}, desc:`Defender를 공격할 때, 그 Defender로부터 X헥스 이내의 다른 Defender는 가해진 Siege(공성) 피해의 절반을 받는다. 방전은 목표 Defender가 가진 Specialist(전문가) 수만큼 1씩 감소한다.`},
-  bolster:{name:{en:"Bolster",ko:"임시강화"}, desc:`Siege가 진행 중일 때, Villain 페이즈에 그룹이 Defender 안에 있다면 각 영웅은 <st>energy</st> 1을 소모하고 원하는 스킬 하나를 굴려 임시 보너스를 줄 수 있다. <st>navigate</st>: 이번 턴 이 Defender의 Range를 2 증가시킨다. <st>explore</st>: Range 안의 Siege 적에게 Siege 피해 1을 준다. <st>survival</st>: 이 Defender가 이번 턴에 Siege 피해를 받았고 Resilience가 1 이상 남아 있다면 Resilience 1을 얻는다. 굴림이 치명적 성공이면 소모한 <st>energy</st>를 되돌려받는다.`},
+  bolster:{name:{en:"Bolster",ko:"임시강화"}, desc:`Siege가 진행 중일 때, Villain 페이즈에 그룹이 Defender 안에 있다면 각 영웅은 <st>energy</st> 1을 소모하고 원하는 기술 하나를 굴려 임시 보너스를 줄 수 있다. <st>navigate</st>: 이번 턴 이 Defender의 Range를 2 증가시킨다. <st>explore</st>: Range 안의 Siege 적에게 Siege 피해 1을 준다. <st>survival</st>: 이 Defender가 이번 턴에 Siege 피해를 받았고 Resilience가 1 이상 남아 있다면 Resilience 1을 얻는다. 굴림이 치명적 성공이면 소모한 <st>energy</st>를 되돌려받는다.`},
   bulwark:{name:{en:"Bulwark",ko:"방벽"}, desc:`방벽을 가진 대상은 받는 Siege 피해를 방벽 수치만큼 감소시킨다(최소 0). 이 키워드 뒤에 Element 타입이 붙으면 해당 타입의 피해에만 적용된다. 이 키워드를 가진 Siege 적을 상대할 때는, 공격하는 Defender가 가진 Specialist 수만큼 방벽이 1씩 감소한다.`},
   consume:{name:{en:"Consume",ko:"소모"}, desc:`이 키워드 뒤에는 자원 종류와 수량이 붙는다. 표시된 자원의 Stockpile을 소모 수치만큼 줄인다. 이 키워드를 가진 Siege 적은 Defender에게 Siege 피해를 조금이라도 줄 때마다 Stockpile을 줄인다. 소모할 자원이 남아 있지 않다면 대신 원하는 City-State 하나가 Resilience 1을 잃는다.`},
   cripple:{name:{en:"Cripple",ko:"손상"}, desc:`이 Siege 피해를 조금이라도 받은 Defender는 Power도 1 잃는다(최소 1).`},
@@ -905,7 +1108,7 @@ const KW_SIEGE = {
   freeze:{name:{en:"Freeze",ko:"빙결"}, desc:`이 Siege 적에게 피해를 받은 Defender는 이번 턴 Equip 효과를 잃는다.`},
   ignite:{name:{en:"Ignite",ko:"발화"}, desc:`이 Siege 적에게 피해를 받은 Defender 안에 있는 영웅은 X만큼 <kw>energy drain</kw>를 받고 <state>wounded</state> 상태가 된다. 발화는 목표 Defender가 가진 Specialist 수만큼 1씩 감소한다.`},
   imbalance:{name:{en:"Imbalance",ko:"불균형"}, desc:`Siege 카드를 뽑을 때마다 Elemental Imbalance가 발생한다. 불균형은 Jaethi의 참조판에 기록하며 각 Element마다 0~9 범위를 가진다.`},
-  overpower:{name:{en:"Overpower",ko:"압도"}, desc:`Defender를 공격할 때, 이 Siege 적의 압도 수치가 그 Defender의 Power보다 크면 Siege 피해를 1 더 주고, 영웅들은 이번 턴 그 Defender를 <kw>bolster</kw>하는 데 가장 높은 랭크의 스킬을 사용할 수 없다. 압도는 목표 Defender가 가진 Specialist 수만큼 1씩 감소한다.`},
+  overpower:{name:{en:"Overpower",ko:"압도"}, desc:`Defender를 공격할 때, 이 Siege 적의 압도 수치가 그 Defender의 Power보다 크면 Siege 피해를 1 더 주고, 영웅들은 이번 턴 그 Defender를 <kw>bolster</kw>하는 데 가장 높은 랭크의 기술을 사용할 수 없다. 압도는 목표 Defender가 가진 Specialist 수만큼 1씩 감소한다.`},
   retreat:{name:{en:"Retreat",ko:"후퇴"}, desc:`슬롯 2·3·4의 Siege 적이 처치되면 코어 주사위를 굴린다. 결과가 후퇴 수치 이하라면 죽음을 피한다(보상을 얻지 못한다). 이 Siege 적을 현재 슬롯의 왼쪽 슬롯 맨 아래에 놓는다. 후퇴는 공격하는 Defender가 가진 Recruit 수만큼 1씩 감소한다.`},
   siege:{name:{en:"Siege",ko:"공성"}, desc:`피해의 한 종류다. Siege 적이나 Defender는 받은 Siege 피해 1점마다 Resilience를 1 잃는다. Siege 피해를 조금이라도 받은 영웅은 대신 <kw>piercing</kw> <kw>energy drain</kw> 20을 받는다.`},
   swift:{name:{en:"Swift",ko:"신속"}, desc:`이 키워드를 가진 Siege 적은 2헥스 추가로 이동하며, City-State만 Magnetic으로 취급한다.`},
@@ -927,11 +1130,11 @@ const CONDITIONS = {
   captured:{name:{en:"Captured",ko:"포획"}, q:[], desc:`포획된 영웅은 매 라운드 Declaration 페이즈에 <st>explore</st> 굴림에 성공해야 하며, 실패하면 행동을 잃는다.`},
   charmed:{name:{en:"Charmed",ko:"매혹"}, q:[], desc:`매혹된 대상은 다음 라운드에 무작위 동료에게 <st>attack</st>을 사용해야 한다. 그럴 수 없다면 대신 적의 레벨만큼 <st>energy</st> 피해를 받는다. 그 후 매혹이 해제된다.`},
   confused:{name:{en:"Confused",ko:"혼란"}, q:["A"], desc:`이 상태는 피해보다 먼저 처리된다. 매 라운드 Resolution 페이즈에 아무 주사위나 굴린다. 결과가 짝수면 혼란 대상은 행동을 잃고, 홀수면 행동의 수치 효과가 절반으로 감소한다.`},
-  cursed:{name:{en:"Cursed",ko:"저주"}, q:["P"], desc:`저주받은 영웅은 <kw>heal</kw>될 수 없다. 매 라운드 Declaration 페이즈와 매 게임 턴 Movement 페이즈에 스킬 3종을 모두 굴린다. 세 굴림에 모두 성공하면 저주가 해제된다.`},
+  cursed:{name:{en:"Cursed",ko:"저주"}, q:["P"], desc:`저주받은 영웅은 <kw>heal</kw>될 수 없다. 매 라운드 Declaration 페이즈와 매 게임 턴 Movement 페이즈에 기술 3종을 모두 굴린다. 세 굴림에 모두 성공하면 저주가 해제된다.`},
   debilitated:{name:{en:"Debilitated",ko:"쇠약"}, q:["S"], desc:`쇠약해진 영웅은 피라미드 주사위 또는 달 주사위를 굴려, 나온 능력을 사용할 수 없다. 이 상태에 숫자가 지정되어 있다면 주사위를 굴리지 않고 지정된 능력을 사용할 수 없다. 영웅은 이 상태를 동시에 최대 3개까지만 받을 수 있다.`},
-  disarmed:{name:{en:"Disarmed",ko:"무장해제"}, q:[], desc:`무장해제된 영웅은 무기를 잃는다. 매 라운드 <st>defence</st> 행동을 하고 10면 주사위를 <st>attack</st> 랭크에 대해(스킬처럼) 굴려 무기를 되찾으려 시도할 수 있다. 무장해제 중에는 직업의 기본 랭크 + 종족의 기본 보정치만큼만 피해를 줄 수 있다.`},
+  disarmed:{name:{en:"Disarmed",ko:"무장해제"}, q:[], desc:`무장해제된 영웅은 무기를 잃는다. 매 라운드 <st>defence</st> 행동을 하고 10면 주사위를 <st>attack</st> 랭크에 대해(기술처럼) 굴려 무기를 되찾으려 시도할 수 있다. 무장해제 중에는 직업의 기본 랭크 + 종족의 기본 보정치만큼만 피해를 줄 수 있다.`},
   diseased:{name:{en:"Diseased",ko:"감염"}, q:["P"], desc:`감염된 영웅이 <st>energy</st>를 쓰려면 먼저 <st>survival</st> 굴림에 성공해야 한다. 이 상태를 없애려면 <kw>heal</kw>을 제공하는 장소(마을·수도원 등)에서 <kw>heal</kw>해야 한다.`},
-  disoriented:{name:{en:"Disoriented",ko:"균형상실"}, q:["S"], desc:`균형을 잃은 영웅은 스킬 굴림에서 치명적 실패 확률이 높아진다. 균형상실을 얻을 때마다 치명적 실패 범위가 2씩 늘어난다(첫 번째는 8-10, 두 번째는 6-10 등).`},
+  disoriented:{name:{en:"Disoriented",ko:"균형상실"}, q:["S"], desc:`균형을 잃은 영웅은 기술 굴림에서 치명적 실패 확률이 높아진다. 균형상실을 얻을 때마다 치명적 실패 범위가 2씩 늘어난다(첫 번째는 8-10, 두 번째는 6-10 등).`},
   dissonant:{name:{en:"Dissonant",ko:"부조화"}, q:["A","P","S"], desc:`대상의 패턴이 뒤틀려 흐트러지기 시작한다. 대상이 <st>energy</st> 피해를 받을 때마다 같은 양의 <kw>nonlethal</kw> <st>health</st> 피해를 함께 받는다. 부조화 상태의 영웅은 스탯 테스트에 -2 페널티를 받는다. 중첩은 페널티에만 적용된다.`},
   drained:{name:{en:"Drained",ko:"소진"}, q:["A","S"], desc:`소진 대상은 매 라운드 Declaration 페이즈 시작에 <st>energy</st> 3을 잃고, <st>energy</st>를 <kw>heal</kw>할 때마다 3 적게 회복한다. 회복 감소는 중첩되지만 피해는 중첩되지 않는다.`},
   encased:{name:{en:"Encased",ko:"감금"}, q:["A"], desc:`감금된 대상은 전투에서 적의 표적이 되지 않지만, 자신을 가둔 구속물은 자신이나 동료가 대상으로 삼을 수 있다. 감금된 대상은 매 라운드 <st>attack</st>만 사용할 수 있으며 구속물만 노릴 수 있다. 이 상태에는 괄호 안에 숫자가 있는데, 대상을 풀어주기 위해 구속물에 줘야 하는 <st>health</st> 피해량이다. 이 상태는 다른 수단으로 제거할 수 없고 전투가 끝나면 해제된다.`},
@@ -941,7 +1144,7 @@ const CONDITIONS = {
   frozen:{name:{en:"Frozen",ko:"동결"}, q:[], desc:`동결된 영웅은 행동할 수 없다. 매 라운드 Declaration 페이즈에 <st>survival</st>을 굴린다. 2회 성공하면 정상적으로 행동할 수 있고 동결이 해제된다.`},
   imprisoned:{name:{en:"Imprisoned",ko:"투옥"}, q:[], desc:`투옥된 영웅은 자신의 의지와 무관하게 붙잡혀 있다. 소지금과 음식, 배낭을 사용할 수 없다. 영웅들이 City-State에 있지 않다면 피라미드 주사위를 굴려 City-State 중 한 곳으로 이동시킨다. 그룹은 Arena(투기장)에 한 번 참가하기로 선택할 수 있다. 획득한 소지금은 몰수된다. 이 상태에는 괄호 안에 숫자가 있으며, 그룹이 투옥되어 보낸 시간을 나타낸다. 게임 턴이 끝날 때 이 숫자만큼 Remnant를 보드에 놓는다. 그 후 그룹은 풀려나고 배낭을 다시 사용할 수 있다. 이 상태는 아이템으로 제거할 수 없다.`},
   irradiated:{name:{en:"Irradiated",ko:"피폭"}, q:[], desc:`이 상태를 얻은 대상은 괄호 안의 숫자에서 자신의 음식 소모량을 뺀 만큼 <kw>energy drain</kw>를 받는다. 이 상태를 얻은 영웅은 코어 주사위를 굴려 <kw>mutate</kw>되는 것에 저항할 수 있다. 굴리지 않거나 결과가 음식 소모량의 2배보다 크면 즉시 변이 카드를 뽑는다.`},
-  "knocked down":{name:{en:"Knocked Down",ko:"넘어짐"}, q:[], desc:`넘어진 영웅은 행동할 수 없고, 스킬 굴림에 치명적 실패한다. 일어나기 위해 한 라운드를 <st>defence</st>해야 한다. 이렇게 <st>defence</st>하는 동안 아이템을 사용하거나 건넬 수 없다.`},
+  "knocked down":{name:{en:"Knocked Down",ko:"넘어짐"}, q:[], desc:`넘어진 영웅은 행동할 수 없고, 기술 굴림에 치명적 실패한다. 일어나기 위해 한 라운드를 <st>defence</st>해야 한다. 이렇게 <st>defence</st>하는 동안 아이템을 사용하거나 건넬 수 없다.`},
   petrified:{name:{en:"Petrified",ko:"석화"}, q:[], desc:`석화된 영웅은 행동할 수 없다. 대신 매 라운드 <st>defence</st>한다(아이템은 사용할 수 없다). 전투의 마지막 라운드가 끝난 뒤 <st>survival</st>을 굴린다. 성공하면 석화를 깨뜨리고, 실패하면 그 영웅은 죽는다.`},
   poisoned:{name:{en:"Poisoned",ko:"중독"}, q:["P"], desc:`중독된 영웅은 전투 중 매 라운드 Declaration 페이즈 시작과 매 Movement 페이즈 시작에 <st>health</st> 1을 잃는다. 또한 <st>energy</st>를 쓰려면 <st>survival</st> 굴림에 성공해야 한다. <st>survival</st> 굴림에 3회 성공하면 이 상태를 제거한다.`},
   slowed:{name:{en:"Slowed",ko:"감속"}, q:["A"], desc:`감속된 대상은 마법적 무기력에 사로잡힌다. <kw>immune</kw>을 제외한 모든 수동 방어 키워드를 잃고, 다른 모든 행동이 처리된 뒤에 자신의 행동을 한꺼번에 처리한다.`},
@@ -952,7 +1155,7 @@ const CONDITIONS = {
   trapped:{name:{en:"Trapped",ko:"덫에 걸림"}, q:[], desc:`덫에 걸린 영웅은 정상적으로 행동하려면 매 라운드 Declaration 페이즈에 <st>explore</st> 굴림에 성공해야 한다. 실패하면 <st>defence</st>만 할 수 있다.`},
   unconscious:{name:{en:"Unconscious",ko:"기절"}, q:["A"], desc:`기절한 대상은 행동할 수 없다. 매 라운드가 끝날 때 그 대상은 6면 주사위를 굴린다. 결과가 헥스면 깨어난다. 라운드마다 깨어날 확률이 1씩 올라간다. 영웅은 <st>defence</st> 행동을 해서 기절한 대상을 억지로 깨울 수 있지만, 그동안 아이템을 사용할 수 없다. 깨어난 다음 라운드에 그 대상은 모든 능력 랭크에 -3 페널티를 받는다.`},
   vulnerable:{name:{en:"Vulnerable",ko:"취약"}, q:["A","S"], desc:`취약한 대상은 전투 중 타겟 주사위 결과에 +2를 받고, 피해를 받을 때 1의 추가 피해를 받는다.`},
-  wounded:{name:{en:"Wounded",ko:"상처"}, q:["P","S"], desc:`상처 입은 영웅은 <kw>heal</kw>을 받을 때까지 모든 능력·스킬 랭크에 -2 페널티를 받는다.`},
+  wounded:{name:{en:"Wounded",ko:"상처"}, q:["P","S"], desc:`상처 입은 영웅은 <kw>heal</kw>을 받을 때까지 모든 능력·기술 랭크에 -2 페널티를 받는다.`},
 };
 
 const SERIES = {
