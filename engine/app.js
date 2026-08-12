@@ -47,9 +47,11 @@ function buildCharacter(sel,seriesId){
     subRaceId:sel.subRaceId||null,aspectId:sel.aspectId||null,raceForm:(race&&race.forms)?race.forms[0].id:null,
     filled:zero(),mod:zero(),
     curHealth:0,curEnergy:0,regenHealth:0,regenEnergy:0,
-    gold:0,food:0,foodUse:race?race.foodUse:0,
+    gold:10,food:(race&&race.foodUse?race.foodUse:1)*3,foodUse:race?race.foodUse:0,
+    goldMax:(race&&race.foodUse?race.foodUse:1)*100,   /* 초기 소모량 기준 고정 */
     favoredEnemies:race?[clone(foeOf(sel.raceId,sel.subRaceId))]:[],
     items:[],boosts:{},mchecks:{},uses:{},abilities:[],
+    difficulty:"easy",                            /* 게임 난이도 — 판 최상단에서 변경 */
     counters:{},                                  /* 직업 전용 카운터(예: 심문관 트로피) */
     vitalPick:(cls&&cls.declareVital)?null:undefined,  /* 전투마다 선언하는 생명력(예: 정찰병) */
     stancePick:(cls&&cls.stances)?null:undefined,      /* 전투 중 유지하는 자세(예: 사무라이) */
@@ -202,7 +204,8 @@ function renderHex(char,key,showName=true){
   /* 육각형 칸(pip) — 탭하기 쉽게 크게. st.hexCost[i] 가 있으면 그 칸의 비용 숫자를 안에 표시 */
   const cx=72,cy=72,R=56,apo=R*Math.cos(Math.PI/6);let pips="";
   HEX_ANGLES.forEach((a,i)=>{const r=a*Math.PI/180,px=cx+apo*Math.cos(r),py=cy-apo*Math.sin(r),on=i<filled;
-    const cost=st&&st.hexCost?st.hexCost[i]:null;
+    const hs=cls.hexStart&&cls.hexStart[meta.group];
+    const cost=st&&st.hexCost?st.hexCost[i]:(hs!=null?hs+i:null);
     pips+=`<circle class="pip ${on?'full':'empty'}" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${on?13:12}" ${on?`style="fill:var(--g-${key})"`:`style="stroke:var(--edge-bright)"`} data-hex="${key}" data-idx="${i}"></circle>`;
     if(cost!=null)pips+=`<text class="pip-num" x="${px.toFixed(1)}" y="${py.toFixed(1)}" text-anchor="middle" dominant-baseline="central" style="fill:${on?'#12101a':'var(--ink-faint)'}">${cost}</text>`;
   });
@@ -672,6 +675,7 @@ function boardBody(char){
   const itemHTML=char.items.length?char.items.map(it=>`<div class="item"><span class="txt">${it.text}</span><button data-itemremove="${it.id}">\u2715</button></div>`).join(""):`<div class="empty-note">아직 아이템 없음</div>`;
 
   return `
+    ${grp("diff","Difficulty","난이도",renderDifficulty(char))}
     ${grp("id","Race & Traits","종족 · 특수 능력",`
     <div class="identity">
       <div class="cat-row">${catTags(cls)}</div>
@@ -700,6 +704,25 @@ function boardBody(char){
         <div class="ability-actions"><button class="add-btn" id="addItem">+ 아이템 추가</button></div>
       </div>`)}`;
 }
+/* 난이도 — 판 최상단. 한 줄이 한 난이도이며 눌러서 고른다. 고른 줄만 진하게 보인다. */
+function renderDifficulty(char){
+  const cur=char.difficulty||"easy";
+  const cols=[["passive","Passive 패시브"],["vitals","Vitals 적 생명력"],["outlast","Outlast 지속력"],
+              ["damage","Damage 적 피해"],["penalty","Stat Test 페널티"],["gear","Gear Upgrade 보상"]];
+  const rows=DIFFICULTY.map(d=>{const on=d.id===cur;
+    return `<tr data-diff="${d.id}" style="cursor:pointer;background:${on?`color-mix(in srgb,${d.c} 16%,transparent)`:"transparent"}">
+      <td style="padding:9px 10px;white-space:nowrap;border-left:3px solid ${on?d.c:"transparent"}">
+        <span style="display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;vertical-align:middle;
+          background:${on?d.c:"transparent"};border:1px solid ${d.c}"></span>
+        <b style="font-family:'Cinzel';color:${on?"var(--ink)":"var(--ink-dim)"}">${d.en}</b>
+        <span style="font-size:.86em;color:var(--ink-faint);margin-left:3px">${d.ko}</span></td>
+      ${cols.map(([k])=>`<td style="padding:9px 10px;color:${on?"var(--ink-dim)":"var(--ink-faint)"};font-size:12.5px">${expand(char,d[k])}</td>`).join("")}
+    </tr>`;}).join("");
+  return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:760px">
+      <thead><tr>${["Difficulty 난이도",...cols.map(c=>c[1])].map(h=>`<th style="text-align:left;padding:7px 10px;font-family:'Cinzel';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);border-bottom:1px solid var(--edge)">${h}</th>`).join("")}</tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <div class="hint" style="text-align:left;margin-top:9px">게임 중 상승 — 마을에서 <b>Collector 3마리</b> 격파 시 +1 · <b>파워업 덱</b>이 떨어지면 +1</div>`;
+}
 /* 판을 묶어 접었다 펼 수 있는 그룹. extra 는 머리글 오른쪽 버튼(접기와 별개로 동작) */
 function grp(id,en,ko,body,extra){
   const open=APP.open[id]!==false;
@@ -719,8 +742,15 @@ function vitalCard(char,cls,en,ko,hexKey,curKey,regKey){
       <div class="row"><span class="lbl">Regen 재생</span><button class="sq" data-vital="${regKey}" data-dir="-1">\u2212</button><span class="rval">${char[regKey]}</span><button class="sq" data-vital="${regKey}" data-dir="1">\uFF0B</button></div>
     </div></div>`;
 }
+/* 최대치 — 골드는 초기 소모량×100(고정), 음식은 현재 소모량×5(소모량이 오르면 같이 오른다) */
+function resMax(char,key){
+  if(key==="gold")return char.goldMax||((char.foodUse||1)*100);
+  if(key==="food")return (char.foodUse||1)*5;
+  return null;
+}
 function resCard(char,cls,en,ko,key){
-  return `<div class="res ${cls}"><div class="lab">${en}</div><div class="ko">${ko}</div><div class="val">${char[key]}</div>
+  const mx=resMax(char,key);
+  return `<div class="res ${cls}"><div class="lab">${en}</div><div class="ko">${ko}</div><div class="val">${char[key]}${mx!=null?`<span style="font-size:.5em;color:var(--ink-faint)"> / ${mx}</span>`:""}</div>
     <div class="rowbtn"><button data-res="${key}" data-dir="-1">\u2212</button><button data-res="${key}" data-dir="1">\uFF0B</button></div></div>`;
 }
 
@@ -814,6 +844,7 @@ function bindBoard(char){
   root.querySelectorAll("[data-fuse]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const k=b.dataset.fuse;if(char.filled[k]>0){char.filled[k]-=1;char.mod[k]+=1;renderBoard();}});
   root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const f=b.dataset.form;if(char.raceForm===f)return;const r=SHARED.races[char.raceId];if(r&&r.formCostEnergy){if(char.curEnergy<r.formCostEnergy)return;char.curEnergy-=r.formCostEnergy;}char.raceForm=f;if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
+  root.querySelectorAll("[data-diff]").forEach(r=>r.onclick=()=>{char.difficulty=r.dataset.diff;renderBoard();});
   root.querySelectorAll("[data-grp]").forEach(h=>h.onclick=e=>{
     if(e.target.closest("[data-noclose]"))return;
     const id=h.dataset.grp;APP.open[id]=(APP.open[id]===false);renderBoard();});
@@ -840,7 +871,9 @@ function bindBoard(char){
     if(ty){const m=char.counters[id]||(char.counters[id]={});m[ty]=Math.max(0,(m[ty]||0)+dir);}
     else char.counters[id]=Math.max(0,(char.counters[id]||0)+dir);
     renderBoard();});
-  root.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>{const k=b.dataset.res;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
+  root.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>{const k=b.dataset.res;
+    const mx=resMax(char,k), v=Math.max(0,char[k]+ +b.dataset.dir);
+    char[k]=(mx!=null)?Math.min(mx,v):v;renderBoard();});
   root.querySelectorAll("[data-boost]").forEach(b=>b.onclick=()=>{
     if(b.disabled)return;const n=+b.dataset.boost,key=b.dataset.mkey||"firstMastery",stack=b.dataset.stack==="1";
     if(!char.boosts[key])char.boosts[key]={};const store=char.boosts[key];

@@ -389,6 +389,8 @@ const SHARED = {
   classes: {
     warlock: {
       id:"warlock", ed:"4",
+      /* 육각형 칸의 골드 비용 — 그룹별 시작값에서 칸마다 1씩 오른다(생명력 2·능력 4·기술 3) */
+      hexStart:{vital:2, combat:4, skill:3},
       name:{en:"Warlock",ko:"워록"},
       category:{key:"striker"},
       flavor:"나의 권능에 경탄하라!",
@@ -1254,6 +1256,39 @@ const CONDITIONS = {
   wounded:{name:{en:"Wounded",ko:"상처"}, q:["P","S"], desc:`상처 입은 영웅은 <kw>heal</kw>을 받을 때까지 모든 능력·기술 랭크에 -2 페널티를 받는다.`},
 };
 
+/* 전투 흐름 — 두 편 공통 */
+const RULES_COMBAT = {title:{en:"Combat Reference", ko:"전투 참조표"}, body:`
+  <b>1. Declaration 선언</b> — 영웅들이 이번 라운드에 할 행동을 고른다. <b>목표는 아직 정하지 않는다.</b>
+  <span style="color:var(--ink-faint)">(뇌물·도주 규칙 추가 예정)</span><br>
+  <b>2. Opponent 적</b> — <b>헥스 주사위</b>로 적의 행동을 정한다(적마다 따로 굴린다).
+  <b>목표 지정</b> — 영웅마다 <b>코어 주사위</b>를 굴리고 보정치를 더한다. <b>수치가 높은 영웅</b>이 목표가 된다.<br>
+  <b>3. Resolution 처리</b> — 양쪽 효과를 <b>동시에</b> 적용한다.
+  <b>피해 감소</b> 효과를 <b>먼저</b> 적용하고, 남은 피해와 회복 효과를 계산한 뒤 피해를 적용한다.
+  <b>상태</b>는 모든 피해 계산이 끝난 <b>마지막</b>에 적용한다.
+  <span style="color:var(--ink-faint)">(격파 시 규칙·죽음 규칙 추가 예정)</span><br>
+  <span style="color:var(--ink-faint)">Combat: Declaration (choose actions, no targets yet) &rarr; Opponent (roll Hex die per opponent for its action;
+  each hero rolls a Core die plus modifiers, highest becomes the target) &rarr; Resolution (apply simultaneously:
+  damage reduction first, then remaining damage and healing; Conditions apply last, after all damage is calculated).</span>`};
+
+/* 게임 난이도 — 캐릭터판 최상단에서 고른다.
+   게임 중 상승 조건: 마을에서 Collector 3마리 격파 시 +1, 파워업 덱이 떨어지면 +1 */
+const DIFFICULTY = [
+  {id:"starter", en:"Starter", ko:"스타터", c:"#8fb6a8",
+   passive:"적은 <kw>block</kw>·<kw>defend</kw>·<kw>evasion</kw>을 얻지 못한다",
+   vitals:"레벨만큼 감소", outlast:"-2 (최소 1)", damage:"-1 (최소 1)", penalty:"변화 없음", gear:"변화 없음"},
+  {id:"easy", en:"Easy", ko:"쉬움", c:"#5bbf5b",
+   passive:"변화 없음", vitals:"변화 없음", outlast:"변화 없음", damage:"변화 없음", penalty:"변화 없음", gear:"변화 없음"},
+  {id:"moderate", en:"Moderate", ko:"보통", c:"#d8c341",
+   passive:"변화 없음", vitals:"영웅당 +5", outlast:"+1", damage:"+1", penalty:"변화 없음", gear:"기어 업그레이드 <b>2 이하</b>"},
+  {id:"difficult", en:"Difficult", ko:"어려움", c:"#e8912f",
+   passive:"보스가 <b>Difficult</b> 패시브를 얻는다",
+   vitals:"영웅당 +10", outlast:"+2", damage:"+2", penalty:"+1", gear:"기어 업그레이드 <b>5 이하</b>"},
+  {id:"heroic", en:"Heroic", ko:"영웅적", c:"#e8622f",
+   passive:"변화 없음", vitals:"영웅당 +25", outlast:"+4", damage:"+4", penalty:"+2", gear:"기어 업그레이드 <b>9 이하</b>"},
+  {id:"epic", en:"Epic", ko:"에픽", c:"#e03a3a",
+   passive:"변화 없음", vitals:"영웅당 +50", outlast:"+6", damage:"+6", penalty:"+3", gear:"기어 업그레이드 <b>제한 없음</b>"},
+];
+
 const SERIES = {
   "4": {
     id:"4", name:{en:"Hexplore It — Edition 4", ko:"헥스플로어 잇 — 4편"}, short:"4",
@@ -1261,13 +1296,122 @@ const SERIES = {
     keywords: KW_COMMON,
     conditions: CONDITIONS,
     rules: [
-      // {title:{en,ko}, body:"..."}  형식으로 추가
+      {title:{en:"Game Setup", ko:"게임 준비"}, body:`
+        <b>1. 판 깔기</b> — 시작 타일 <b>A~D</b>를 배치한다. 헥스 타일과 던전 타일은 <b>뒷면으로 섞어</b> 둔다.
+        각종 토큰과 카드 덱을 섞어 자리에 놓는다.<br>
+        <b>2. 상황 카드 공개</b> — <b>낮</b> 카드와 <b>밤</b> 카드를 각 <b>4장</b>씩 공개한다.
+        (<b>Interrupt</b>가 나오면 덱에 다시 섞고 새로 뽑는다.)
+        공개된 <b>Investigation</b> 장소에 <b>룬 스톤</b>을 놓는다.<br>
+        <b>3. 시작 마을</b> — 낮·밤을 정한 뒤 시작 마을을 굴린다(<b>밤이면 굴림에 +1</b>).
+        정해진 마을에 따라 <b>시작 장비</b>를 받는다.<br>
+        <b>4. 장비 배분</b> — 그룹은 <b>기어 업그레이드 6개</b>를 나눠 갖는다.
+        마을에서 골드를 쓴 뒤 게임을 시작한다.<br>
+        <span style="color:var(--ink-faint)">Setup: place starting tiles A–D (hex &amp; dungeon tiles shuffled face-down), shuffle tokens and decks,
+        reveal 4 Day and 4 Night cards (reshuffle Interrupts and redraw), place Rune Stones on revealed Investigations,
+        determine Day/Night, roll for the starting town (+1 at Night), take that town's starting gear,
+        split 6 Gear Upgrades among the group, spend gold, begin.</span>`},
+
+      {title:{en:"Turn Sequence", ko:"차례 진행"}, body:`
+        <b>1. 낮·밤 결정</b> 후 그룹이 이동한다. 지도 경계에 닿으면 <b>맵 타일을 배치한 뒤</b> 이동을 이어간다.<br>
+        <b>2. 기술 굴림</b> — 영웅마다 각자 굴린다.<br>
+        <b>3. 현재 위치에 따라 상황 발생</b> — <b>보스 · 지하묘지 · 수도원 · 마을</b>은 각각 해당 조우로 처리한다.
+        그 외에는 <b>6면체</b>를 굴려 낮·밤에 맞는 카드를 적용한다.
+        <b>5</b> 또는 <b>헥스</b>가 나오면 조우 덱을 공개한다.<br>
+        <b>4. 결과 처리</b> — <b>Investigation</b>이면 해당 슬롯에 <b>단서 큐브</b>를 놓는다(<b>최대 3개</b>).
+        해결된 카드는 버리고 새 카드로 채운다.<br>
+        <b>5.</b> 이어서 <b>이벤트 단계</b>(마을·수도원·지하묘지·보스)와 <b>빌런 단계</b>(녹티스)를 진행한다.<br>
+        <span style="color:var(--ink-faint)">Turn: determine Day/Night → group movement (place a map tile at the map edge, then continue) →
+        each hero rolls Skills → resolve the current location (Boss, Catacomb, Monastery, Town use their own encounters;
+        otherwise roll a d6 and apply the matching Day/Night card; a 5 or Hex reveals the Encounter deck) →
+        place a Clue on Investigations (max 3), discard resolved cards and refill → Event phase → Villain phase (Noctis).</span>`},
+
+      {title:{en:"Circumstance Cards", ko:"상황 카드"}, body:`
+        <b>Interrupt 인터럽트</b> — 뽑는 즉시 해결한다.<br>
+        <b>Unavoidable 회피 불가</b> — 이동 효과로는 버릴 수 없다(플레이 중이 아니라면 아이템이나 효과로는 가능).<br>
+        <span style="color:var(--ink-faint)">Interrupts resolve immediately when drawn. Unavoidable cards cannot be discarded by movement effects
+        (items or effects may still remove them if they are not currently in play).</span>`},
+
+      {title:{en:"Circumstance Types", ko:"상황 카드 종류"}, body:`
+        <b>Investigations 조사</b> — 이 단계에 조사 카드가 나오면 해당 슬롯에 <b>단서</b>를 놓는다.
+        그룹은 <b>특정 장소로 이동</b>해 <b>이벤트 단계</b>에 그 효과를 해결해야 한다.
+        다른 종류와 달리 결과가 나왔다고 버려지지 않고, <b>조사를 완료하거나</b> 게임 효과로 버려질 때까지 상황 바에 남는다.<br>
+        <b>Afflictions 고통</b> — 그룹에 걸리는 <b>부정적</b> 상황. <b>여러 개</b>가 동시에 걸릴 수 있다.
+        뽑은 게임 턴부터 카드에 적힌 <b>턴 수</b>만큼 유지되며, <b>수도원</b>을 방문해도 제거할 수 있다.
+        일부는 카드를 <b>추가로 뽑게</b> 한다.<br>
+        <b>Events · Discoveries · Treasure 사건 · 발견 · 보물</b> — 각 상황 덱에 다양하게 들어 있다.
+        <b>발견</b>은 따로 명시가 없으면 <b>같은 장소에 겹쳐</b> 놓을 수 있다.<br>
+        <b>Nature 자연</b> — 그룹에 영향을 주는 환경 상황. <b>한 번에 하나만</b> 유지된다.
+        명시가 없으면 새로 뽑은 자연 카드가 기존 효과를 <b>대체</b>한다.<br>
+        <b>Heroic 영웅</b> — 각 카드가 <b>미르자 녹티스의 직업 하나</b>와 짝지어져 있다.
+        게임 시작 전에 원하는 영웅 카드를 덱에서 <b>빼둘 수</b> 있다. 진행 중 뽑았을 때 그 직업이 게임에 있으면 슬롯에 놓고, 없으면 버리고 다시 뽑는다.
+        공개된 영웅 카드가 굴림으로 나오면, 해당 영웅은 <b>단서</b>를 놓거나(최대 3개) 카드에 적힌 <b>마스터리</b>로 <b>스탯 테스트</b>를 해 사용할 수 있다.
+        이 카드에 붙은 단서는 항상 마스터리 굴림 결과를 <b>1씩 낮춘다</b>. 성공하면 효과를 얻고 카드를 참고용으로 보관하며, 실패하면 버린다.`},
+      RULES_COMBAT,
     ],
     items: [
       // {name:{en,ko}, desc:"...", tags:[]}
     ],
     extras: [
-      // {id:"...", label:{en,ko}, entries:[ {name:{en,ko}, desc:"..."} ]}
+      {id:"dungeon", label:{en:"Dungeon", ko:"던전"}, entries:[
+        {name:{en:"Dungeon Rules",ko:"던전 규칙"}, desc:"(4편 전용 · 내용 추후 입력)"},
+      ]},
+      {id:"rune", label:{en:"Runes", ko:"룬"}, entries:[
+        {name:{en:"Rune Reference",ko:"룬 참조"}, desc:"(내용 추후 입력)"},
+      ]},
+      {id:"modes", label:{en:"Play Styles", ko:"게임 모드"}, entries:[
+        {name:{en:"Bounty Hunter",ko:"현상금 사냥꾼"}, desc:`<b>현상금과 보스 사냥</b>에 집중하는 방식. 위험도 보상도 큰, 숙련자용 구성이다.<br>
+          &#9312; 낮·밤 덱에서 <b>Bounty 카드</b>를 모두 찾아 <b>각각의 덱</b>으로 따로 섞는다(낮과 밤은 섞지 않는다).<br>
+          &#9313; 각 바의 <b>1·2번 슬롯</b>은 현상금 슬롯이 되어 해당 현상금 덱에서만 채운다. <b>3·4번</b>은 원래 상황 덱에서 평소대로 채운다.<br>
+          &#9314; 시작 카드를 놓을 때 뽑힌 <b>Interrupt 현상금</b>은 평소 규칙대로 덱에 다시 섞는다.<br>
+          &#9315; 현상금 슬롯은 <b>버릴 수 없다</b>. 완료하면 해당 덱에서 새 현상금을 뽑아 채운다.<br>
+          &#9316; <b>보스를 쓰러뜨릴 때마다</b>, 다음 게임 턴에 그 자리에서 야영하면 그룹의 생명력을 <b>전부 회복</b>한다.<br>
+          &#9317; 현상금을 <b>2개 완료할 때마다</b>, 원하는 덱에서 다음에 나오는 <b>보물</b>을 얻는다. 그 과정에서 나온 다른 카드는 덱에 다시 섞는다.`},
+        {name:{en:"Blighted Lairs",ko:"오염된 소굴"}, desc:`지도의 <b>무작위 보스 위치</b>(달 주사위 표시)를 <b>여러 헥스짜리 소굴</b>로 바꾼다. 소굴 전체를 정리해야 그 보스와 맞설 수 있다. 번호가 붙은 보스 위치에는 적용되지 않는다.<br>
+          &#9312; 소굴 타일은 <b>3헥스 4장 · 4헥스 6장</b>이다.<br>
+          &#9313; 게임 시작 시 지도와 바를 놓은 뒤, 공개된 무작위 보스 위치 위에 소굴 타일을 덮는다(가능하면 <b>전부</b> 덮는다). 지형 유형도 그에 따라 바뀐다.<br>
+          &#9314; 무작위 보스 위치가 있는 새 헥스 타일을 놓을 때마다, 남은 소굴 타일이 있으면 그 위에 덮는다.<br>
+          &#9315; 마을·수도원·지하묘지·번호가 붙은 보스 소굴 등 다른 장소는 <b>덮을 수 없다</b>.<br>
+          &#9316; 특수 장소(사건·발견·조사)는 소굴 위에 놓을 수 있지만, <b>소굴을 정리하기 전에는 이용할 수 없다</b>.<br>
+          &#9317; 소굴의 각 헥스에는 <b>룬</b> 기호가 있다.<br>
+          &#9318; 소굴 타일에 들어서면 그 보스의 영향 아래 놓인다. 타일 안의 다른 헥스로 <b>더 움직일 필요는 없다</b>. 시간은 던전에 들어간 것처럼 소모되지만, <b>던전 안에 있는 것으로 치지는 않는다</b>.<br>
+          &#9319; 보스와 맞서기 전에, 있는 타일에 표시된 <b>룬과 맞는 던전 카드</b>를 뽑아 <b>한 장씩</b> 원하는 순서로 해결한다. 이때 그 카드들을 보상으로 가져가지는 않는다. 보스와 맞서려면 <b>시간이 최소 1</b> 남아 있어야 하며, 그 전에 시간이 떨어지면 <b>도주한 것으로</b> 처리한다.<br>
+          &#9320; 던전 카드 사이에 <b>도주</b>할 수 있으나 보상 없이 사건이 끝난다. 도주 후에는 <b>배회</b> 대신 <b>Roam</b>하며, 소굴 타일은 지도에 남는다. 한 번에 벗어나지 못하면 완전히 빠져나갈 때까지 계속 Roam한다.<br>
+          &#9321; 마지막 던전 카드를 해결하면 <b>즉시 보스 전투</b>가 시작된다. 쓰러뜨리면 사용한 던전 카드를 <b>모두 보상</b>으로 얻고, 실패하면 던전 카드도 보물도 얻지 못한다.<br>
+          &#9322; 던전 카드를 모두 해결하고 보스를 쓰러뜨리면 소굴이 정리되어 타일을 치운다. 원래 자리에 <b>헥스 토큰</b>을 놓고 타일은 다시 소굴 더미로 돌린다. 가려져 있던 특수 장소가 이용 가능해진다.`},
+        {name:{en:"Castle Noctis",ko:"녹티스 성"}, desc:`녹티스가 성을 <b>보강</b>해 가는 방식. <b>한 번 클리어한 뒤</b> 즐기기를 권한다. 여섯 갈래 길 중 하나로 잠입해야 하며, <b>피의 웅덩이가 100</b>이 되면 이 방식에서도 녹티스가 직접 나선다.<br>
+          &#9312; <b>7헥스짜리 녹티스 성 타일</b>을 따로 빼두었다가, 성이 있는 헥스 타일이 놓이는 순간 방향을 맞춰 그 위에 덮는다.<br>
+          &#9313; 이 타일의 각 헥스가 녹티스의 소굴이며 그의 보스 위치로 취급한다. 맞서기 전에 <b>고유 과제</b>를 먼저 완수해야 한다.<br>
+          &#9314; 기술 페이즈가 끝난 뒤 그룹이 이 구역의 어느 헥스든 있으면 <b>최종 전투를 시작</b>한다. 중앙 헥스가 아니라면 중앙으로 옮긴다.<br>
+          &#9315; 맞서기 전에, <b>지나온 헥스의 룬</b>과 맞는 던전 카드를 뽑아 해결한다. 여러 헥스를 지나왔다면 여러 장을 뽑는다. 이 카드들을 처리하는 동안 영웅이 <b>체력 피해를 입을 때마다 피의 웅덩이 +1</b>.<br>
+          &#9316; 카드를 처리한 직후, 각 영웅은 <b>직전 위치에 표시된 스탯</b>으로 스탯 테스트를 <b>한 번</b> 굴린다 —
+          <b>전원 성공</b>: 그룹이 녹티스를 <b>기습</b>한다. 영웅당 피의 웅덩이 <b>-5</b> 후 대결 ·
+          <b>한 명이라도 실패</b>: 영웅당 <b>+3</b> 후 대결하며 녹티스가 그룹을 기습한다 ·
+          <b>치명적 실패</b>가 나오면 진행 시점과 현재 피의 웅덩이에 따른 <b>보스</b>와 먼저 싸운다(이미 쓰러뜨린 보스가 나오면 녹티스와 대결). 피의 웅덩이 <b>30 미만 / 31~69 / 70 이상</b>으로 상대가 갈린다.`},
+        {name:{en:"Želja Awakens",ko:"젤랴의 각성"}, desc:`밴시 여왕 <b>Želja젤랴</b>가 게임 시작부터 지도에 놓인다. 녹티스에게 살해당한 옛 여왕이 수백 년 만에 분노에 삼켜진 채 일어섰다.<br>
+          &#9312; 밤 덱에서 젤랴의 현상금 <b>&ldquo;Banshee Queen&rdquo;</b>을 찾아 <b>밤 4번 슬롯</b>에 놓는다.<br>
+          &#9313; 젤랴의 <b>Roam 거리</b>가 피의 웅덩이와 연동된다. 거리를 굴릴 때(방향은 제외) <b>피 20마다 +1</b>(20에 +1, 40에 +2 …).<br>
+          &#9314; 젤랴를 쓰러뜨리면 격파 보상과 현상금 보상을 함께 얻고 그 현상금은 따로 빼둔다. <b>다시 돌아올 수 있다.</b><br>
+          &#9315; 피의 웅덩이가 <b>20의 배수</b>가 될 때마다 젤랴가 <b>부활</b>한다. 게임 턴이 끝날 때 밤 4번 슬롯의 카드를 버리고 그 자리에 현상금을 다시 놓는다. 돌아올 때마다 <b>Dangerous</b>가 되며, 여러 번 중첩될 수 있다.<br>
+          &#9316; <b>Dangerous</b>인 동안에는 녹티스의 <b>Collector</b>를 파괴한다. 콜렉터가 있는 곳에서 <b>1헥스 이내</b>로 이동할 때마다 그 자리에서 콜렉터를 <b>1개</b> 제거한다.<br>
+          &#9317; 녹티스와의 <b>최종 전투</b>에는 젤랴도 등장한다(지도에 없더라도). <b>2라운드 Declaration</b>에 도착하며, 녹티스와 젤랴는 서로를 영웅처럼 목표로 삼을 수 있다. 둘의 목표 주사위는 <b>보정 없이</b> 굴린다.<br>
+          &#9318; 젤랴는 녹티스의 <b>보스 2 능력과 패시브</b>의 영향을 받지 않는다.<br>
+          &#9319; 젤랴를 반드시 쓰러뜨릴 필요는 없다. <b>녹티스를 쓰러뜨리면</b> 평소 규칙대로 승리한다.`},
+      ]},
+      {id:"valor", label:{en:"Valor", ko:"용맹"}, entries:[
+        {name:{en:"Gaining Valor",ko:"용맹 얻기"}, desc:`특정 업적을 달성하면 <b>용맹 1점</b>을 얻는다. 용맹은 <b>미르자 녹티스 전용이 아니라</b> 시리즈 전체에서 통한다.<br>
+          플레이어의 용맹 점수는 시리즈의 어느 게임에서든 <b>모아 온 총합</b>이며, 함께 플레이하는 모두는 <b>가장 높은 사람</b>의 점수를 그대로 적용받는다.
+          용맹은 <b>같은 출처에서 한 번만</b> 얻을 수 있고(녹티스를 몇 번 쓰러뜨리든 1점), 다른 게임 효과로 <b>바뀌지 않는다</b>.<br>
+          <b>미르자 녹티스에서 얻는 법</b> — 쉬움에서 녹티스 격파 · 에픽에서 녹티스 격파 · 한 게임에서 <b>Grace 4개</b> 모두 획득 ·
+          한 게임에서 <b>피의 마법 10티어</b> 이상 도달 · <b>Raveziel the Fallen</b>을 격파하거나 설득 ·
+          지정된 <b>피의 웅덩이 수치</b>(0~100 구간, 6칸)에서 녹티스 격파.`},
+        {name:{en:"Using Valor",ko:"용맹 사용"}, desc:`게임을 시작할 때 총 용맹 점수로 <b>해당 티어와 그 아래 티어의 보너스를 모두</b> 얻는다.
+          다른 시리즈의 용맹 보너스와 <b>합쳐 쓸 수 없고</b>, 효과는 <b>그 게임에만</b> 적용된다.<br>
+          <b>Initiate 입문 (1~7)</b> — 각 영웅은 용맹 점수의 <b>절반</b>만큼 골드를 얻어 <b>기어 업그레이드에만</b> 쓴다. 남은 골드는 사라진다.<br>
+          <b>Adventurer 모험가 (8~19)</b> — 시작 전 <b>헥스 주사위</b>를 굴려 그 값을 이번 게임의 용맹 점수에 더한다(헥스플로드 가능). 그룹은 <b>지하묘지 열쇠 1개</b>를 갖고 시작한다.<br>
+          <b>Hero 영웅 (20~32)</b> — 각 영웅은 <b>킵세이크 2개</b>로 시작하며 시작 전에 각각 확인할 수 있다. 승리하려면 <b>어려움 이상</b>에서 빌런을 쓰러뜨려야 한다.<br>
+          <b>Champion 챔피언 (33~59)</b> — 그룹이 <b>피의 마법 1티어</b>를 갖고 시작한다. 승리하려면 <b>영웅적 이상</b>에서 빌런을 쓰러뜨려야 한다.<br>
+          <b>Avatar 아바타 (60+)</b> — 시작 시 각 영웅이 능력 하나를 고른다. 게임 턴당 <b>2회</b>까지 기술 페이즈에 <b>코어 주사위</b>를 굴려 그 능력의 랭크 이하가 나오면 <b>치명상 1개</b>를 제거한다. 승리하려면 <b>에픽</b>에서 빌런을 쓰러뜨려야 한다.`},
+      ]},
     ],
   },
 
@@ -1276,11 +1420,11 @@ const SERIES = {
     keywords: KW_COMMON,
     exKeywords: KW_SIEGE,
     conditions: CONDITIONS,
-    rules: [],
+    rules: [RULES_COMBAT],
     items: [],
     extras: [],
   },
 };
 
 /* 엔진에서 접근할 수 있게 전역으로 노출 */
-window.HEX = { CAT, STAT_ORDER, STAT_META, SHARED, SERIES, FOE_TYPES, GREATER_ASPECTS, COND_NOTE };
+window.HEX = { CAT, STAT_ORDER, STAT_META, SHARED, SERIES, FOE_TYPES, GREATER_ASPECTS, COND_NOTE, DIFFICULTY };
