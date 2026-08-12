@@ -955,6 +955,27 @@ function recordsModal(){
    ===================================================================== */
 /* 편별 테마 — 캐릭터판에서는 그 편의 분위기 색을 적용(능력치 9색은 공용이라 그대로) */
 const SERIES_ACCENT={"4":"#bf94f5","5":"#f3a8c0"};
+/* 오로라 흐름 — Web Animations API 로 굴린다.
+   속도를 바꿀 때 playbackRate 만 조정하면 재생 위치가 그대로 유지되므로,
+   체력 구간이 바뀌어도 흐르던 자리에서 자연스럽게 빨라지거나 느려진다.
+   (CSS animation-duration 을 바꾸면 위치가 튀기 때문에 이 방식을 쓴다) */
+const AURORA={base:20000, cycle:{"":20, low:9, crit:2.4}, anims:[]};
+function startAurora(){
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  AURORA.anims=[...document.querySelectorAll("#hexbg .aurora")].map(el=>
+    el.animate([{backgroundPosition:"0px 0px"},{backgroundPosition:"1400px -1000px"}],
+      {duration:AURORA.base,iterations:Infinity,easing:"linear"}));
+}
+function setHpState(hp){
+  const root=document.documentElement;
+  if(hp)root.setAttribute("data-hp",hp);else root.removeAttribute("data-hp");
+  const rate=AURORA.base/1000/(AURORA.cycle[hp]||AURORA.cycle[""]);
+  AURORA.anims.forEach(a=>{
+    if(Math.abs(a.playbackRate-rate)<1e-6)return;
+    /* updatePlaybackRate 는 현재 위치를 유지한 채 속도만 부드럽게 바꾼다 */
+    if(a.updatePlaybackRate)a.updatePlaybackRate(rate);else a.playbackRate=rate;
+  });
+}
 function applyTheme(){
   document.documentElement.setAttribute("data-screen",APP.screen);
   /* 남은 체력에 따라 배경 오로라가 빨라진다 — 30% 이하 low, 10% 이하 crit(붉은 심장 박동) */
@@ -963,8 +984,7 @@ function applyTheme(){
     const mx=effOf(APP.char,"health");
     if(mx>0){const r=APP.char.curHealth/mx; hp=r<=.10?"crit":r<=.30?"low":"";}
   }
-  if(hp)document.documentElement.setAttribute("data-hp",hp);
-  else document.documentElement.removeAttribute("data-hp");
+  setHpState(hp);
   const s=(APP.screen==="board"&&APP.char)?APP.char.series:null;
   if(s&&s!=="4")document.documentElement.setAttribute("data-series",s);
   else document.documentElement.removeAttribute("data-series");
@@ -976,6 +996,7 @@ function ensureHexBg(){
   const d=document.createElement("div");d.id="hexbg";d.setAttribute("aria-hidden","true");
   d.innerHTML='<i class="aurora wash"></i><i class="grid"></i><i class="aurora line"></i>';
   document.body.insertBefore(d,document.body.firstChild);
+  startAurora();
 }
 function render(){
   ensureHexBg();

@@ -48,9 +48,9 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
     radial-gradient(40% 46% at 44% 74%, rgba(99,214,136,.8),   transparent 70%),
     radial-gradient(32% 36% at 88% 62%, rgba(243,168,192,.7),  transparent 72%),
     radial-gradient(34% 38% at 8% 84%,  rgba(191,148,245,.65), transparent 74%);
-  background-size:1400px 1000px;background-repeat:repeat;
-  animation:auroraflow 20s linear infinite}
-@keyframes auroraflow{from{background-position:0 0}to{background-position:1400px -1000px}}
+  background-size:1400px 1000px;background-repeat:repeat}
+/* 흐름(background-position)은 engine/app.js 의 rAF 루프가 굴린다 —
+   체력 구간이 바뀌어도 위치가 이어지고 속도만 서서히 변한다 */
 #hexbg .wash{opacity:.09;filter:blur(6px)}                 /* 배경 전체에 엷게 */
 #hexbg .line{opacity:.85;                                   /* 헥스 선에만 진하게 */
   -webkit-mask-image:var(--hexmask);mask-image:var(--hexmask);
@@ -58,11 +58,9 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 /* 캐릭터판에서는 읽기를 방해하지 않게 옅게 */
 :root[data-screen="board"]{--hexbg-op:.5}
 /* 남은 체력이 30% 이하면 흐름이 빨라지고, 10% 이하면 붉은색 단일 + 심장 박동이 된다 */
-:root[data-hp="low"] #hexbg .aurora{animation-duration:9s}
 :root[data-hp="low"]{--hexbg-op:.62}
 :root[data-hp="crit"]{--hexbg-op:.8}
 :root[data-hp="crit"] #hexbg .aurora{
-  animation-duration:5s;
   background-image:
     radial-gradient(38% 44% at 20% 32%, rgba(226,52,52,.95), transparent 70%),
     radial-gradient(44% 40% at 66% 20%, rgba(198,28,36,.92), transparent 72%),
@@ -70,8 +68,8 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
     radial-gradient(32% 36% at 88% 62%, rgba(198,28,36,.8),  transparent 72%),
     radial-gradient(34% 38% at 8% 84%,  rgba(226,52,52,.75), transparent 74%)}
 /* 심장 박동 — 쿵(수축) 쿵(이완) 뒤 쉬는 구간. 흐름 애니메이션과 함께 돌린다 */
-:root[data-hp="crit"] #hexbg .line{animation:auroraflow 5s linear infinite,heartbeat 1.15s ease-out infinite}
-:root[data-hp="crit"] #hexbg .wash{animation:auroraflow 5s linear infinite,heartbeat 1.15s ease-out infinite}
+:root[data-hp="crit"] #hexbg .line{animation:heartbeat 1.15s ease-out infinite}
+:root[data-hp="crit"] #hexbg .wash{animation:heartbeat 1.15s ease-out infinite}
 @keyframes heartbeat{
   0%{opacity:.42}
   7%{opacity:1}      /* 첫 박 */
@@ -79,7 +77,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
   22%{opacity:.88}   /* 둘째 박 */
   32%{opacity:.42}
   100%{opacity:.42}}
-@media (prefers-reduced-motion:reduce){#hexbg .aurora,:root[data-hp="crit"] #hexbg .line,:root[data-hp="crit"] #hexbg .wash{animation:none}}
+@media (prefers-reduced-motion:reduce){:root[data-hp="crit"] #hexbg .line,:root[data-hp="crit"] #hexbg .wash{animation:none}}
 #app,.wrap{position:relative;z-index:1}
 
 /* ---------- builder / series ---------- */
