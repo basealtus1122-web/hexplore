@@ -57,7 +57,29 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
   -webkit-mask-position:center top;mask-position:center top}
 /* 캐릭터판에서는 읽기를 방해하지 않게 옅게 */
 :root[data-screen="board"]{--hexbg-op:.5}
-@media (prefers-reduced-motion:reduce){#hexbg .aurora{animation:none}}
+/* 남은 체력이 30% 이하면 흐름이 빨라지고, 10% 이하면 붉은색 단일 + 심장 박동이 된다 */
+:root[data-hp="low"] #hexbg .aurora{animation-duration:9s}
+:root[data-hp="low"]{--hexbg-op:.62}
+:root[data-hp="crit"]{--hexbg-op:.8}
+:root[data-hp="crit"] #hexbg .aurora{
+  animation-duration:5s;
+  background-image:
+    radial-gradient(38% 44% at 20% 32%, rgba(226,52,52,.95), transparent 70%),
+    radial-gradient(44% 40% at 66% 20%, rgba(198,28,36,.92), transparent 72%),
+    radial-gradient(40% 46% at 44% 74%, rgba(240,86,80,.85), transparent 70%),
+    radial-gradient(32% 36% at 88% 62%, rgba(198,28,36,.8),  transparent 72%),
+    radial-gradient(34% 38% at 8% 84%,  rgba(226,52,52,.75), transparent 74%)}
+/* 심장 박동 — 쿵(수축) 쿵(이완) 뒤 쉬는 구간. 흐름 애니메이션과 함께 돌린다 */
+:root[data-hp="crit"] #hexbg .line{animation:auroraflow 5s linear infinite,heartbeat 1.15s ease-out infinite}
+:root[data-hp="crit"] #hexbg .wash{animation:auroraflow 5s linear infinite,heartbeat 1.15s ease-out infinite}
+@keyframes heartbeat{
+  0%{opacity:.42}
+  7%{opacity:1}      /* 첫 박 */
+  14%{opacity:.5}
+  22%{opacity:.88}   /* 둘째 박 */
+  32%{opacity:.42}
+  100%{opacity:.42}}
+@media (prefers-reduced-motion:reduce){#hexbg .aurora,:root[data-hp="crit"] #hexbg .line,:root[data-hp="crit"] #hexbg .wash{animation:none}}
 #app,.wrap{position:relative;z-index:1}
 
 /* ---------- builder / series ---------- */

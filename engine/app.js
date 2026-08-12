@@ -138,8 +138,10 @@ const ACTS={attack:{en:"Attack",ko:"공격",c:"attack"},defend:{en:"Defend",ko:"
 function actTerm(k){const a=ACTS[k];if(!a)return k;
   return `<b style="color:var(--g-${a.c})">${a.en}${_ko(a.ko)}</b>`;}
 /* 캐릭터가 없는 화면(빌더 미리보기)용 — 토큰을 영한 평문으로 바꾸고 나머지 태그는 제거 */
-function previewText(t){
+/* cls 를 주면 {attack} 같은 능력 토큰도 그 직업의 능력명으로 바꾼다(캐릭터가 없는 화면용) */
+function previewText(t,cls){
   if(!t)return"";
+  t=t.replace(/\{(\w+)\}/g,(m,k)=>(cls&&cls.stats&&cls.stats[k])?cls.stats[k].name.en:m);
   const findKw=k=>{for(const s of Object.values(SERIES)){const v=(s.keywords&&s.keywords[k])||(s.exKeywords&&s.exKeywords[k])||(s.conditions&&s.conditions[k]);if(v)return v;}return null;};
   return t.replace(/<act>(\w+)<\/act>/g,(m,k)=>ACTS[k]?ACTS[k].en+ACTS[k].ko:k)
     .replace(/<st>(\w+)<\/st>/g,(m,k)=>{const l=statLabel(k);return l.en+l.ko;})
@@ -453,9 +455,17 @@ function previewTotals(sel){
       <span style="font-family:'Cinzel';font-weight:700;font-size:19px;color:var(--g-${k})">${base+add}</span>
       <span style="font-size:9.5px;color:var(--ink-faint)">${base}${add?(add>0?` +${add}`:` ${add}`):""}</span></div>`;}).join("");
   const note=race&&race.forms?` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· ${race.forms[0].name.ko} 형태 기준</span>`:"";
+  /* 다시 깨어난 자처럼 종족을 물려받는 경우엔 기반 종족의 능력을 보여준다 */
+  const abRace=race&&race.inheritsRace?(SHARED.races[sel.subRaceId]||{}):race;
+  const ab=abRace&&abRace.ability;
+  const traits=[...sel.traitIds.map(id=>SHARED.traits[id]).filter(Boolean),
+    ...(sel.aspectId?[GREATER_ASPECTS.find(a=>a.id===sel.aspectId)].filter(Boolean):[])];
   return `<div class="build-body" style="padding:13px"><div class="pv-lbl" style="margin:0 0 8px">Total Stats · 합계 능력치${note}</div>
     <div style="display:flex;gap:7px;flex-wrap:wrap">${cells}</div>
-    <div class="hint" style="margin-top:8px;text-align:left">직업 기본값 + 종족 보정${sel.traitIds.length||sel.aspectId?" + 특성/양상":""} · 육각형은 판에서 채웁니다</div></div>`;
+    ${ab?`<div class="pv-ability" style="margin-top:10px"><b>${abRace.name.en}<span style="font-size:.88em;color:var(--ink-faint)">${abRace.name.ko}</span> · 종족 특성</b> — ${previewText(ab.desc,cls)}</div>`:""}
+    ${cls.special?`<div class="pv-ability" style="margin-top:8px;border-left-color:${catColor(cls)}"><b style="color:${catColor(cls)}">${cls.name.en}<span style="font-size:.88em;color:var(--ink-faint)">${cls.name.ko}</span> · 직업 특성</b> — ${previewText(cls.special.ko,cls)}</div>`:""}
+    ${traits.length?`<div class="pv-ability" style="margin-top:8px">${traits.map(t=>`<div><b>${t.name.en}<span style="font-size:.88em;color:var(--ink-faint)">${t.name.ko}</span></b> — ${previewText(t.desc||"",cls)}</div>`).join("")}</div>`:""}
+    <div class="hint" style="margin-top:8px;text-align:left">직업 기본값 + 종족 보정${traits.length?" + 특성/양상":""} · 육각형은 판에서 채웁니다</div></div>`;
 }
 function pickList(list,selId,kind,previewFn){
   if(!list.length)return`<div class="empty-note">데이터가 아직 없습니다. data.js에 추가하세요.</div>`;
@@ -516,7 +526,7 @@ function classPreview(c){
     <div style="margin:6px 0">${tag}</div>
     <div class="pv-mods">${stats}</div>
     ${masteries}
-    <div class="pv-ability">${c.special?previewText(c.special.ko):""}</div>`;
+    <div class="pv-ability">${c.special?previewText(c.special.ko,c):""}</div>`;
 }
 function traitPicker(list){
   if(!list.length)return`<div class="empty-note">특성 데이터가 아직 없습니다. (traits / aspects / keepsakes)<br>data.js의 SHARED.traits 에 추가하세요. 게임 중에도 판에서 직접 추가할 수 있습니다.</div>`;
@@ -947,6 +957,14 @@ function recordsModal(){
 const SERIES_ACCENT={"4":"#bf94f5","5":"#f3a8c0"};
 function applyTheme(){
   document.documentElement.setAttribute("data-screen",APP.screen);
+  /* 남은 체력에 따라 배경 오로라가 빨라진다 — 30% 이하 low, 10% 이하 crit(붉은 심장 박동) */
+  let hp="";
+  if(APP.screen==="board"&&APP.char){
+    const mx=effOf(APP.char,"health");
+    if(mx>0){const r=APP.char.curHealth/mx; hp=r<=.10?"crit":r<=.30?"low":"";}
+  }
+  if(hp)document.documentElement.setAttribute("data-hp",hp);
+  else document.documentElement.removeAttribute("data-hp");
   const s=(APP.screen==="board"&&APP.char)?APP.char.series:null;
   if(s&&s!=="4")document.documentElement.setAttribute("data-series",s);
   else document.documentElement.removeAttribute("data-series");
