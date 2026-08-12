@@ -47,6 +47,8 @@ function buildCharacter(sel,seriesId){
     gold:0,food:0,foodUse:race?race.foodUse:0,
     favoredEnemies:race?[clone(foeOf(sel.raceId,sel.subRaceId))]:[],
     items:[],boosts:{},mchecks:{},uses:{},abilities:[],
+    counters:{},                                  /* 직업 전용 카운터(예: 심문관 트로피) */
+    vitalPick:(cls&&cls.declareVital)?null:undefined,  /* 전투마다 선언하는 생명력(예: 정찰병) */
     startDate:new Date().toISOString(),
   };
   if(race&&race.ability&&!race.inheritsRace)char.abilities.push({id:"aRace",src:"race",name:clone(race.ability.name),desc:race.ability.desc,track:initTrack(race.ability.track)});
@@ -87,7 +89,15 @@ function formSwitcher(char,race){
   return `<div class="foe" style="margin:2px 0 12px"><div class="foe-label">Form · 형태${note}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${btns}</div></div>`;
 }
 function effOf(char,k){return Math.max(0,baseCharOf(char,k)+char.filled[k]+char.mod[k]);}
-function makeE(char,key){const s=(char.boosts&&char.boosts[key])||{};return{lv:k=>effOf(char,k),b:n=>s[n]||0,on:n=>(s[n]||0)>0};}
+/* readout 에 넘기는 계산기.
+   lv(k) 최종 랭크 · b(n) 강화 스택 · on(n) 강화 활성 ·
+   cur(k) 현재값(health/energy 는 판의 현재 수치) · miss(k) 잃은 양(최대−현재) */
+function makeE(char,key){
+  const s=(char.boosts&&char.boosts[key])||{};
+  const cur=k=>k==="health"?char.curHealth:k==="energy"?char.curEnergy:effOf(char,k);
+  return{lv:k=>effOf(char,k),b:n=>s[n]||0,on:n=>(s[n]||0)>0,
+    cur,miss:k=>Math.max(0,effOf(char,k)-cur(k))};
+}
 /* 강화(boost): 기술별 저장소 + 임의 랭크 스케줄. 구버전(평면) 저장본은 firstMastery로 마이그레이션 */
 function normBoosts(char){if(!char.boosts||typeof char.boosts!=="object"){char.boosts={};return;}const ks=Object.keys(char.boosts);if(ks.length&&ks.every(k=>/^\d+$/.test(k)))char.boosts={firstMastery:Object.assign({},char.boosts)};}
 function boostEarned(char,key){const st=SHARED.classes[char.classId].stats[key],lv=effOf(char,key);return st&&st.boostAt?st.boostAt.filter(t=>lv>=t).length:Math.floor(lv/3);}
@@ -149,9 +159,10 @@ const DMG={
 /* readout·태그 색 토큰 → CSS 색. 9스탯=--g-*, 특수(influence/outlast)·neutral은 별도 */
 function statColor(c){return c==='neutral'?'var(--ink)':c==='influence'?CLR_INFLUENCE:c==='outlast'?CLR_OUTLAST:`var(--g-${c})`;}
 /* st.dmg = "health" 또는 ["health","influence"] → 기본공격 피해타입: EnglishKorean, 여러개는 / 로 구분 */
-function dmgTags(dmg){
+function dmgTags(dmg,pick){
   if(!dmg)return"";
-  const list=(Array.isArray(dmg)?dmg:[dmg]).filter(d=>DMG[d]);
+  let list=(Array.isArray(dmg)?dmg:[dmg]).filter(d=>DMG[d]);
+  if(pick)list=list.filter(d=>d===pick);   /* 생명력을 선언하는 직업은 고른 유형만 표시 */
   if(!list.length)return"";
   const inner=list.map(d=>`<span style="color:${DMG[d].color};font-weight:700">${DMG[d].en}<span style="font-size:.9em;opacity:.92">${DMG[d].ko}</span></span>`).join(`<span style="opacity:.4"> / </span>`);
   return `<div class="dmg-tag" style="margin-top:5px;font-size:12px;letter-spacing:.2px">${inner}</div>`;
@@ -176,7 +187,7 @@ function renderHex(char,key,showName=true){
       <text class="hex-val" x="72" y="67" text-anchor="middle" dominant-baseline="middle" style="fill:var(--g-${key})">${val}</text>
       <text class="hex-sub" x="72" y="90" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
     </svg>
-    ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg)}`:""}
+    ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg, (key==="attack"&&cls.declareVital)?char.vitalPick:null)}`:""}
     <div class="hex-mod">
       <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>
       <span class="mtag">${m?`<b>${m>0?'+':''}${m}</b>`:'효과'}</span>
@@ -184,6 +195,48 @@ function renderHex(char,key,showName=true){
     </div></div>`;
 }
 
+/* 전투마다 선언하는 생명력 — cls.declareVital 이면 특성 박스에서 고르고, 기본공격 피해 유형에 반영된다 */
+function vitalSwitcher(char,cls){
+  if(!cls.declareVital)return"";
+  const list=(cls.stats.attack&&cls.stats.attack.dmg)||[];
+  const btns=list.filter(d=>DMG[d]).map(d=>{const on=char.vitalPick===d;
+    return `<button data-vital-pick="${d}" style="font-family:'Cinzel';font-size:12px;padding:5px 11px;border-radius:8px;cursor:pointer;${on?`border:1px solid ${DMG[d].color};color:var(--ink);background:color-mix(in srgb,${DMG[d].color} 18%,transparent)`:'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${DMG[d].en}<span style="font-size:.86em;color:var(--ink-faint);margin-left:2px">${DMG[d].ko}</span></button>`;}).join("");
+  return `<div style="margin-top:9px"><div class="foe-label" style="margin-bottom:5px">Declared Vital · 선언한 생명력${char.vitalPick?"":` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 전투를 시작하며 하나 고르세요</span>`}</div><div style="display:flex;gap:7px;flex-wrap:wrap">${btns}</div></div>`;
+}
+/* 직업 전용 카운터 — cls.counters:[{id,name,perType?,derive?}]
+   perType:true 면 숙적 유형(FOE_TYPES)별로 센다. derive 는 다른 카운터에서 자동 계산(읽기 전용). */
+function renderCounters(char,cls){
+  if(!cls.counters||!cls.counters.length)return"";
+  const store=char.counters||(char.counters={});
+  const blocks=cls.counters.map(c=>{
+    if(c.derive){
+      return `<div style="margin-top:9px"><span class="foe-label">${c.name.en} · ${c.name.ko}</span>
+        <span style="font-family:'Cinzel';font-weight:700;font-size:17px;margin-left:8px;color:var(--accent)">${c.derive(store)}</span></div>`;
+    }
+    if(c.perType){
+      const m=store[c.id]||(store[c.id]={});
+      const rows=FOE_TYPES.map(f=>{const n=m[f.en]||0;
+        return `<div style="display:flex;align-items:center;gap:5px;padding:3px 7px;border:1px solid ${n?'var(--accent-dim)':'var(--edge)'};border-radius:9px;background:${n?'color-mix(in srgb,var(--accent-dim) 10%,transparent)':'transparent'}">
+          <span style="font-size:11.5px;color:${n?'var(--ink)':'var(--ink-faint)'};white-space:nowrap">${f.en}<span style="font-size:.88em;color:var(--ink-faint);margin-left:2px">${f.ko}</span></span>
+          <button class="sq" data-cnt="${c.id}" data-type="${f.en}" data-dir="-1">−</button>
+          <span style="font-family:'Cinzel';font-weight:700;min-width:11px;text-align:center;color:${n?'var(--accent)':'var(--ink-faint)'}">${n}</span>
+          <button class="sq" data-cnt="${c.id}" data-type="${f.en}" data-dir="1">＋</button></div>`;}).join("");
+      const total=Object.values(m).reduce((a,b)=>a+b,0);
+      return `<div style="margin-top:10px"><div class="foe-label" style="margin-bottom:6px">${c.name.en} · ${c.name.ko} <span style="color:var(--accent)">${total}</span></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">${rows}</div></div>`;
+    }
+    const n=store[c.id]||0;
+    return `<div style="margin-top:9px;display:flex;align-items:center;gap:6px"><span class="foe-label">${c.name.en} · ${c.name.ko}</span>
+      <button class="sq" data-cnt="${c.id}" data-dir="-1">−</button><span style="font-family:'Cinzel';font-weight:700;color:var(--accent)">${n}</span><button class="sq" data-cnt="${c.id}" data-dir="1">＋</button></div>`;
+  }).join("");
+  return blocks;
+}
+/* 직업 특성에도 실시간 수치를 붙일 수 있다 — special:{ko, readout:(E)=>[...]} */
+function specialReadout(char,cls){
+  const f=cls.special&&cls.special.readout;if(!f)return"";
+  const outs=f(makeE(char,"special"));if(!outs||!outs.length)return"";
+  return `<div class="readout" style="margin-top:8px">${outs.map(o=>`<div class="stat-out"><span class="lab">${o.lab}</span><span class="num" style="color:${statColor(o.color)}">${o.val}</span></div>`).join("")}</div>`;
+}
 /* ---------- mastery card (data-driven) ---------- */
 function renderMastery(char,key){
   const cls=SHARED.classes[char.classId],st=cls.stats[key];
@@ -477,7 +530,7 @@ function boardBody(char){
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
       <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}${(()=>{const as=char.abilities.filter(a=>a.src==="aspect"||a.src==="greater");return as.length?` · 양상 ${as.map(a=>`<b>${a.name.en} (${a.name.ko})</b>`).join(", ")}`:"";})()}</div>
       <div class="flavor">${race.flavor||""}</div>
-      ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}</div>`:""}
+      ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}${specialReadout(char,cls)}${vitalSwitcher(char,cls)}${renderCounters(char,cls)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
     </div>
     <div class="section"><div class="sec-head">Vital · 생명력</div>
@@ -604,6 +657,13 @@ function bindBoard(char){
   root.querySelectorAll("[data-fuse]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const k=b.dataset.fuse;if(char.filled[k]>0){char.filled[k]-=1;char.mod[k]+=1;renderBoard();}});
   root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const f=b.dataset.form;if(char.raceForm===f)return;const r=SHARED.races[char.raceId];if(r&&r.formCostEnergy){if(char.curEnergy<r.formCostEnergy)return;char.curEnergy-=r.formCostEnergy;}char.raceForm=f;if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
+  root.querySelectorAll("[data-vital-pick]").forEach(b=>b.onclick=()=>{const d=b.dataset.vitalPick;char.vitalPick=(char.vitalPick===d?null:d);renderBoard();});
+  root.querySelectorAll("[data-cnt]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.cnt,ty=b.dataset.type,dir=+b.dataset.dir;
+    if(!char.counters)char.counters={};
+    if(ty){const m=char.counters[id]||(char.counters[id]={});m[ty]=Math.max(0,(m[ty]||0)+dir);}
+    else char.counters[id]=Math.max(0,(char.counters[id]||0)+dir);
+    renderBoard();});
   root.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>{const k=b.dataset.res;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   root.querySelectorAll("[data-boost]").forEach(b=>b.onclick=()=>{
     if(b.disabled)return;const n=+b.dataset.boost,key=b.dataset.mkey||"firstMastery",stack=b.dataset.stack==="1";
