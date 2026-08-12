@@ -319,7 +319,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .modal h3{font-family:"Cinzel";font-size:16px;letter-spacing:.08em;margin:0 0 14px}
 .field{margin-bottom:12px}
 .field label{display:block;font-size:11px;font-family:"Cinzel";letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:5px}
-.field input,.field textarea,.field select{width:100%;background:var(--void);border:1px solid var(--edge);color:var(--ink);border-radius:8px;padding:9px 11px;font-size:14px;font-family:"Noto Serif KR"}
+.field input,.field textarea,.field select{width:100%;background:var(--void);border:1px solid var(--edge);color:var(--ink);border-radius:8px;padding:13px 13px;min-height:46px;font-size:14px;font-family:"Noto Serif KR"}
 .field textarea{min-height:64px;resize:vertical}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 .btn{padding:13px 22px;min-height:46px;border-radius:9px;border:1px solid var(--edge-bright);background:var(--panel-2);color:var(--ink);cursor:pointer;font-size:14.5px;font-family:"Noto Serif KR"}

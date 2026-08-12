@@ -831,9 +831,16 @@ function addFoeModal(){
     .map(t=>`<button class="btn slot" data-foepick="${t.en}" data-foeko="${t.ko}" style="margin:0 6px 6px 0">${t.en}<span style="font-size:.88em">${t.ko}</span></button>`).join("");
   openModal(`<h3>Favored Enemy 추가</h3>
     ${quick?`<div class="field"><label>목록에서 선택</label><div style="display:flex;flex-wrap:wrap">${quick}</div></div>`:""}
-    <div class="field"><label>English</label><input id="fEn" placeholder="Goblin"></div><div class="field"><label>한글</label><input id="fKo" placeholder="고블린"></div><div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="fSave">추가</button></div>`);
+    <div class="field"><label>직접 입력 · 특수 유형</label><input id="fTxt" placeholder="예: Goblin 고블린" autocomplete="off"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="fSave">추가</button></div>`);
   document.querySelectorAll("[data-foepick]").forEach(b=>b.onclick=()=>{APP.char.favoredEnemies.push({en:b.dataset.foepick,ko:b.dataset.foeko});closeModal();renderBoard();});
-  $("#fSave").onclick=()=>{const en=$("#fEn").value.trim(),ko=$("#fKo").value.trim();if(en||ko)APP.char.favoredEnemies.push({en:en||ko,ko:ko||en});closeModal();renderBoard();};
+  const inp=$("#fTxt");
+  /* 입력이 비어 있으면 닫지 않고 그대로 둔다 — 실수로 눌러도 내용이 날아가지 않는다 */
+  const save=()=>{const v=inp.value.trim();if(!v){inp.focus();return;}
+    APP.char.favoredEnemies.push({en:v,ko:v});closeModal();renderBoard();};
+  $("#fSave").onclick=save;
+  inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();save();}};   /* 엔터로도 추가 */
+  setTimeout(()=>inp.focus(),0);
 }
 /* 양상 추가 — 맨 위에 '위대한 양상 공개', 그 아래 일반 양상 목록, 마지막에 직접 입력.
    양상·keepsake는 종족과 같은 양식(mods 포함 가능)이라 보정치가 있으면 능력치에 자동 반영된다. */
