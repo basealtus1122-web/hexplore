@@ -219,6 +219,10 @@ function renderHex(char,key,showName=true){
       <text class="hex-val" x="72" y="67" text-anchor="middle" dominant-baseline="middle" style="fill:var(--g-${key})">${val}</text>
       <text class="hex-sub" x="72" y="90" text-anchor="middle">base ${bc}${filled?` +${filled}`:""}${m?(m>0?` \u25B2${m}`:` \u25BC${-m}`):""}</text>
     </svg>
+    ${(key==="survival"&&(char.starving||0)>=2)?`<div title="굶주림 2단계 — 생존 굴림을 할 수 없고 자동으로 치명적 실패한다"
+      style="margin:7px 0 0;padding:6px 8px;border-radius:7px;font-size:11px;line-height:1.35;text-align:center;
+      border:1px solid var(--g-attack);background:color-mix(in srgb,var(--c-attack) 22%,transparent);color:var(--ink)">
+      <b style="color:var(--g-attack)">굴림 불가</b> · 자동 대실패</div>`:""}
     ${st&&st.bribe?`<span class="bribe-dot" title="Bribe 뇌물 — 전투 전 방어 스탯 테스트에 성공하면 뇌물 비용을 방어 랭크만큼 줄인다(백금 비용은 대성공에만)"></span>`:""}
     ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg, (key==="attack"&&cls.declareVital)?char.vitalPick:null, key==="attack"&&!!cls.declareVital)}`:""}
     <div class="hex-mod">
@@ -618,6 +622,10 @@ function renderSeries(){
 /* =====================================================================
    SCREEN: BOARD  (+ top tabs + overlay + toolbar)
    ===================================================================== */
+/* 옆 칸에 띄워 둔 참조 탭은 다음에도 그대로 열린다 */
+function railPick(){try{return localStorage.getItem("hex.rail");}catch(e){return null;}}
+function railSave(v){try{localStorage.setItem("hex.rail",v);}catch(e){}}
+
 function renderBoard(){
   const char=APP.char,cls=SHARED.classes[char.classId],series=SERIES[char.series];
   normBoosts(char); if(!char.mchecks||typeof char.mchecks!=="object")char.mchecks={}; if(!char.uses||typeof char.uses!=="object")char.uses={};
@@ -640,18 +648,28 @@ function renderBoard(){
 
   let content = APP.tab==="board" ? boardBody(char) : referenceBody(char,series,APP.tab);
 
+  /* 넓은 화면(PC)에서만 뜨는 옆 칸 — 참조 탭 하나를 띄워 두고 판을 굴리는 동안 따라오게 한다.
+     좁은 화면에서는 CSS 가 통째로 감춘다(패드·휴대폰 폭은 그대로). */
+  const railTabs=tabs.filter(t=>t.id!=="board");
+  if(!railTabs.some(t=>t.id===APP.rail))APP.rail=railPick()||railTabs[0].id;
+  const railBar=railTabs.map(t=>`<button class="rtab ${APP.rail===t.id?'on':''}" data-rail="${t.id}">${t.label}</button>`).join("");
+  const rail=`<aside class="side-rail">
+    <div class="rail-bar">${railBar}</div>
+    <div class="rail-body">${referenceBody(char,series,APP.rail)}</div></aside>`;
+
   root.innerHTML=`<div class="wrap board-wrap">
     <div class="topbar">
       <div class="tb-id">${char.name?`<b style="color:var(--ink)">${char.name}</b> · `:""}${SHARED.races[char.raceId].name.en} · <span style="color:${catColor(cls)}">${cls.name.en}</span> <span class="series-pill">HEX ${series.short}</span></div>
       ${toolbar}
     </div>
     <div class="tabbar">${tabbar}</div>
-    <div class="tab-content">${content}</div>
+    <div class="tab-content board-cols"><div class="col-main">${content}</div>${rail}</div>
   </div>`;
 
   // tab switching
   applyTheme();
   root.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{APP.tab=b.dataset.tab;renderBoard();});
+  root.querySelectorAll("[data-rail]").forEach(b=>b.onclick=()=>{APP.rail=b.dataset.rail;railSave(APP.rail);renderBoard();});
   // toolbar
   $("#tbSave").onclick=saveCharacterModal;
   $("#tbLoad").onclick=loadCharacterModal;
@@ -663,6 +681,7 @@ function renderBoard(){
   $("#tbNew").onclick=()=>{if(confirm("현재 캐릭터를 두고 새 캐릭터를 만들까요? (저장하지 않은 변경은 사라집니다)")){APP.sel={raceId:null,classId:null,traitIds:[]};APP.char=null;APP.screen="builder";render();}};
 
   if(APP.tab==="board")bindBoard(char); else bindRefList();
+  bindAcc();         // 룰·참조표 접기 — 옆 칸에도 있으므로 탭과 무관하게 건다
   bindTerms(char);   // keyword/condition overlay from any tab
 }
 
@@ -704,8 +723,9 @@ function boardBody(char){
       <button class="add-btn" data-addability="keepsake">+ Keepsake 공개</button>
       <button class="add-btn" data-addability="event">+ Event 능력</button>
     </div>`)}
+    <div class="board-grid">
     ${grp("vital","Vital","생명력",
-      `<div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>${renderStarving(char)}`)}
+      `<div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>`)}
     ${grp("ability","Ability","능력",
       `${race.forms?formSwitcher(char,race):""}<div class="hex-wrap">${combat}</div>${masteries}`,
       `<button class="tbtn" id="resetTurn" title="턴당 사용 초기화">↺ 턴</button><button class="tbtn" id="resetRound" title="라운드당 사용 초기화">↺ 라운드</button><button class="tbtn" id="resetCombat" title="전투당 사용 초기화">↺ 전투</button>`)}
@@ -718,8 +738,10 @@ function boardBody(char){
         <div class="rule-k"><span style="color:var(--g-survival)">Survival 생존</span></div>
         <div class="rule-v">성공 시 그 턴 <b>음식을 먹지 않아도</b> 됨 · 실패 시 <b>소모량</b>만큼 섭취하거나 <b>Food</b> 아이템 1개 소비 · 소모량 <b>0</b>이면 굴리지 않아도 됨</div>
       </div>`)}`)}
+    </div>
     ${grp("res","Resources","자원 · 아이템",
       `<div class="res-grid">${resCard(char,"gold","Gold","골드","gold")}${resCard(char,"food","Food","음식","food")}${resCard(char,"foodUse","Food Use","소모량","foodUse")}</div>
+       ${renderStarving(char)}
        <div class="items"><div class="sec-head" style="font-size:11px;margin:16px 0 10px">Items · 아이템</div><div class="item-list">${itemHTML}</div>
         <div class="ability-actions"><button class="add-btn" id="addItem">+ 아이템 추가</button></div>
       </div>`)}`;
@@ -786,10 +808,15 @@ function grp(id,en,ko,body,extra){
 }
 function vitalCard(char,cls,en,ko,hexKey,curKey,regKey){
   const max=effOf(char,hexKey);
+  /* 굶주림 1단계부터는 에너지를 쓸 수 없다 — 차감 버튼을 잠근다(회복은 그대로 열어 둔다) */
+  const noSpend=curKey==="curEnergy"&&(char.starving||0)>=1;
   return `<div class="vital ${cls}"><div class="hexside">${renderHex(char,hexKey,false)}</div>
     <div class="ctl"><div class="vital-name">${en} <span class="ko">(${ko})</span></div>
       <div class="cur-max"><span class="cur">${char[curKey]}</span><span class="slash">/</span><span class="maxv">${max}</span></div>
-      <div class="row"><span class="lbl">Cur 현재</span><button class="sq" data-vital="${curKey}" data-dir="-1">\u2212</button><button class="sq" data-vital="${curKey}" data-dir="1">\uFF0B</button></div>
+      ${noSpend?`<div style="margin:2px 0 6px;padding:5px 8px;border-radius:7px;font-size:11px;line-height:1.35;
+        border:1px solid var(--g-energy);background:color-mix(in srgb,var(--c-energy) 22%,transparent);color:var(--ink-dim)">
+        <b style="color:var(--g-energy)">Starving 굶주림</b> — 에너지를 쓸 수 없다</div>`:""}
+      <div class="row"><span class="lbl">Cur 현재</span><button class="sq" data-vital="${curKey}" data-dir="-1" ${noSpend?`disabled title="굶주림 상태에서는 에너지를 쓸 수 없습니다" style="opacity:.3;cursor:not-allowed"`:""}>\u2212</button><button class="sq" data-vital="${curKey}" data-dir="1">\uFF0B</button></div>
       <div class="row"><span class="lbl">Regen 재생</span><button class="sq" data-vital="${regKey}" data-dir="-1">\u2212</button><span class="rval">${char[regKey]}</span><button class="sq" data-vital="${regKey}" data-dir="1">\uFF0B</button></div>
     </div></div>`;
 }
@@ -822,18 +849,33 @@ function referenceBody(char,series,tab){
   }
   if(tab==="rules"){
     const rs=series.rules||[];if(!rs.length)return empty("이 시리즈의 룰 참조표가 아직 비어 있습니다.");
-    return `<div class="section"><div class="sec-head">Rules · 룰</div>${rs.map(r=>`<div class="ref-block"><div class="ref-name">${r.title.en} <span class="ko">(${r.title.ko})</span></div><div class="ref-desc">${expand(char,r.body)}</div></div>`).join("")}</div>`;
+    return accList(char,"Rules · 룰",rs.map(r=>({name:r.title,body:r.body})));
   }
   if(tab==="items"){
     const its=series.items||[];if(!its.length)return empty("이 시리즈의 아이템 표가 아직 비어 있습니다.");
-    return `<div class="section"><div class="sec-head">Items · 아이템</div>${its.map(it=>refItem(char,it.name,it.desc,(it.tags||[]).join(" · "))).join("")}</div>`;
+    return accList(char,"Items · 아이템",its.map(it=>({name:it.name,body:it.desc,tag:(it.tags||[]).join(" · ")})));
   }
   if(tab.startsWith("extra:")){
     const id=tab.slice(6),x=(series.extras||[]).find(e=>e.id===id);
     if(!x||!(x.entries||[]).length)return empty("이 참조표가 아직 비어 있습니다.");
-    return `<div class="section"><div class="sec-head">${x.label.en} · ${x.label.ko}</div>${x.entries.map(e=>refItem(char,e.name,e.desc)).join("")}</div>`;
+    return accList(char,`${x.label.en} · ${x.label.ko}`,x.entries.map(e=>({name:e.name,body:e.desc})));
   }
   return empty("탭을 찾을 수 없습니다.");
+}
+/* 룰·참조표 — 소주제마다 접었다 편다. 기본은 전부 접힘.
+   목록이 길어 한 화면에 안 들어오던 것을 제목만 훑고 필요한 것만 여는 방식으로 바꿨다. */
+function accList(char,title,entries){
+  const rows=entries.map(e=>`<div class="acc">
+    <button class="acc-head" type="button">
+      <span class="chev">▶</span>
+      <span class="ref-name">${e.name.en} <span class="ko">(${e.name.ko})</span></span>
+      ${e.tag?`<span class="ref-tag">${e.tag}</span>`:""}
+    </button>
+    <div class="acc-body" style="display:none">${expand(char,e.body||"")}</div></div>`).join("");
+  return `<div class="section accscope">
+    <div class="sec-head" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <span>${title}</span><button class="tbtn accAll" type="button" style="white-space:nowrap">모두 펼치기</button></div>
+    ${rows}</div>`;
 }
 /* 참조표 항목 — 설명의 키워드·스탯 토큰도 본문과 똑같이 전개한다 */
 function refItem(char,name,desc,tag){
@@ -860,6 +902,25 @@ function refList(char,title,list,note){
     </div>
     <div id="refCount" style="font-size:11px;color:var(--ink-faint);margin:-4px 0 8px"></div>
     <div id="refWrap" style="display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start">${rows}</div></div>`;
+}
+/* 룰·참조표 접기 — 구획(.accscope)마다 따로 묶는다(본문과 옆 칸이 서로 간섭하지 않게) */
+function bindAcc(){
+  root.querySelectorAll(".accscope").forEach(scope=>{
+    const rows=Array.from(scope.querySelectorAll(".acc"));
+    const open=(r,on)=>{
+      r.querySelector(".acc-body").style.display=on?"block":"none";
+      r.querySelector(".chev").style.transform=on?"rotate(90deg)":"none";
+      r.classList.toggle("on",on);
+    };
+    rows.forEach(r=>r.querySelector(".acc-head").onclick=()=>
+      open(r,r.querySelector(".acc-body").style.display==="none"));
+    const all=scope.querySelector(".accAll");
+    if(all)all.onclick=()=>{
+      const anyClosed=rows.some(r=>r.querySelector(".acc-body").style.display==="none");
+      rows.forEach(r=>open(r,anyClosed));
+      all.textContent=anyClosed?"모두 접기":"모두 펼치기";
+    };
+  });
 }
 /* 검색·접기 동작 (탭 렌더 후 호출) */
 function bindRefList(){

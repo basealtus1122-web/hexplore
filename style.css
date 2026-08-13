@@ -48,6 +48,50 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
   background:radial-gradient(1100px 700px at 50% -12%,var(--glow-1),transparent 60%),
     radial-gradient(800px 500px at 90% 112%,var(--glow-2),transparent 60%),var(--void)}
 .wrap{max-width:1040px;margin:0 auto;padding:16px 12px 60px;display:flex;flex-direction:column;gap:14px}
+/* 넓은 화면에서 남는 좌우 여백 쓰기 —
+   1180px 부터는 판을 조금 넓히고, 1500px 부터는 옆 칸을 띄운다.
+   패드 폭(~1024)까지는 지금 그대로 둔다. */
+@media(min-width:1180px){.board-wrap{max-width:1160px}}
+@media(min-width:1500px){.board-wrap{max-width:1500px}}
+@media(min-width:1760px){.board-wrap{max-width:1680px}}
+.board-cols>.col-main{min-width:0}
+/* 넓은 화면에서는 생명력 · 능력 · 기술을 한 줄에 놓아 한눈에 본다.
+   좁은 화면(패드·휴대폰)에서는 지금처럼 위아래로 쌓인다. */
+.board-grid{display:flex;flex-direction:column;gap:14px}
+@media(min-width:1180px){
+  .board-grid{display:grid;grid-template-columns:minmax(210px,.8fr) minmax(400px,1.75fr) minmax(210px,.8fr);
+    gap:14px;align-items:start}
+  .board-grid .vital-grid{grid-template-columns:1fr}      /* 좁은 칸이므로 세로로 */
+  .board-grid .mastery-grid{grid-template-columns:1fr 1fr}
+}
+/* 룰·참조표 접기 */
+.acc{border-top:1px solid var(--edge);}
+.acc:first-of-type{border-top:0}
+.acc-head{display:flex;align-items:center;gap:9px;width:100%;padding:13px 2px;min-height:46px;
+  background:none;border:0;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.acc-head .chev{color:var(--ink-faint);font-size:10px;transition:transform .15s;display:inline-block;flex:0 0 auto}
+.acc-head .ref-name{font-size:13.5px}
+.acc.on>.acc-head .ref-name{color:var(--accent)}
+.acc-body{padding:0 2px 14px 21px}
+.side-rail{display:none}
+@media(min-width:1500px){
+  .tab-content.board-cols{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:20px;align-items:start;padding-top:14px}
+  .board-cols>.col-main{display:flex;flex-direction:column;gap:14px}
+  .side-rail{display:block;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;
+    border:1px solid var(--edge);border-radius:14px;background:color-mix(in srgb,var(--panel) 88%,transparent);
+    box-shadow:var(--shadow);overscroll-behavior:contain}
+  .rail-bar{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:5px;padding:10px;
+    background:color-mix(in srgb,var(--panel-2) 94%,transparent);border-bottom:1px solid var(--edge);border-radius:14px 14px 0 0}
+  .rtab{font-family:'Cinzel';font-size:10.5px;letter-spacing:.3px;padding:6px 9px;min-height:30px;border-radius:7px;cursor:pointer;
+    border:1px solid var(--edge-bright);background:transparent;color:var(--ink-faint);white-space:nowrap}
+  .rtab.on{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 15%,transparent)}
+  .rail-body{padding:0 10px 12px}
+  .rail-body .section{padding:12px;margin-top:10px}
+  .rail-body .sec-head{font-size:10.5px}
+  .rail-body .rule-grid{grid-template-columns:1fr;gap:2px 0}
+  .rail-body .rule-k{padding-bottom:0}
+  .rail-body .ref-item{padding:9px 0}
+}
 
 /* ---------- 선택 화면(빌더·시리즈) 전용 흑요석 테마 — 편별 분위기색과 별개인 시리즈 공통 톤 ---------- */
 :root[data-screen="builder"],:root[data-screen="series"]{
