@@ -1118,7 +1118,7 @@ const SERIES_ACCENT={"4":"#bf94f5","4b":"#c34a86","5":"#f3a8c0","5c":"#63d688","
    속도를 바꿀 때 playbackRate 만 조정하면 재생 위치가 그대로 유지되므로,
    체력 구간이 바뀌어도 흐르던 자리에서 자연스럽게 빨라지거나 느려진다.
    (CSS animation-duration 을 바꾸면 위치가 튀기 때문에 이 방식을 쓴다) */
-const AURORA={base:20000, cycle:{"":20, low:9, crit:2.4}, anims:[]};
+const AURORA={base:20000, cycle:{"":20, low:6, crit:2.4}, anims:[]};
 function startAurora(){
   if(!bgOn()||matchMedia("(prefers-reduced-motion:reduce)").matches)return;
   AURORA.anims=[...document.querySelectorAll("#hexbg .aurora")].map(el=>
@@ -1137,14 +1137,14 @@ function setHpState(hp){
 }
 function applyTheme(){
   document.documentElement.setAttribute("data-screen",APP.screen);
-  /* 남은 체력에 따라 배경 오로라가 빨라진다 — 30% 이하 low, 10% 이하 crit(붉은 심장 박동) */
+  /* 남은 체력에 따라 배경 오로라가 빨라진다 — 50% 이하 low, 10% 이하 crit(붉은 심장 박동) */
   let hp="";
   if(APP.screen==="board"&&APP.char){
     const mx=effOf(APP.char,"health"),c=APP.char.curHealth;
     /* 최대 체력이 작으면 비율만으로는 10% 구간에 못 들어가므로(예: 최대 9면 1도 11%)
        각 기준을 최소 1·2로 올려 잡는다. 두 기준이 겹치면 10%(crit)가 우선. */
     if(mx>0)hp = c<=Math.max(1,Math.ceil(mx*.10)) ? "crit"
-             : c<=Math.max(2,Math.ceil(mx*.30)) ? "low" : "";
+             : c<=Math.max(2,Math.ceil(mx*.50)) ? "low" : "";
   }
   setHpState(hp);
   const s=(APP.screen==="board"&&APP.char)?APP.char.series:null;
@@ -1162,7 +1162,8 @@ function ensureHexBg(){
   document.documentElement.setAttribute("data-bg",bgOn()?"on":"off");
   if(document.getElementById("hexbg"))return;
   const d=document.createElement("div");d.id="hexbg";d.setAttribute("aria-hidden","true");
-  d.innerHTML='<i class="wash"><b class="aurora"></b></i><i class="grid"></i><i class="line"><b class="aurora"></b></i>';
+  const layers='<b class="aurora"><s class="calm"></s><s class="blood"></s></b>';
+  d.innerHTML=`<i class="wash">${layers}</i><i class="grid"></i><i class="line">${layers}</i>`;
   document.body.insertBefore(d,document.body.firstChild);
   startAurora();
 }

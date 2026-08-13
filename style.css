@@ -64,54 +64,66 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 /* 바깥 틀(.wash/.line)은 제자리에 고정되고 — 특히 .line 의 헥스 마스크가 움직이면 안 된다 —
    그 안의 .aurora 만 transform 으로 흐른다. background-position 애니메이션은
    매 프레임 전면 재도색이라 모바일에서 크게 버벅였다. */
-#hexbg .aurora{position:absolute;inset:-1000px -1400px;will-change:transform;transform:translate3d(0,0,0)}
+#hexbg .aurora{position:absolute;inset:0 0 -1000px -1400px;will-change:transform;transform:translate3d(0,0,0)}
 #hexbg .grid{background-image:var(--hexgrid);background-position:center top}
-/* 오로라 — 시리즈 테마색(4편 보라 · 균열 자홍 · 5편 벚꽃 · 카프라칸 녹색)을 한 덩어리 안에
-   두세 색씩 섞어 한 타일에 담고, 타일 하나만큼 밀어 이음매 없이 순환시킨다 */
-#hexbg .aurora{
+/* 색은 두 겹으로 겹쳐 두고 투명도만 교차시킨다 — 구간이 바뀔 때 background-image 를
+   갈아끼우면 큰 레이어를 통째로 다시 그리느라 화면이 번쩍인다.
+   투명도는 합성 단계에서 처리돼 다시 그리는 일이 없다. */
+#hexbg .aurora s{position:absolute;inset:0;display:block;
+  background-size:1400px 1000px;background-repeat:repeat;
+  transition:opacity .9s ease}
+/* 평상시 — 시리즈 테마색(4편 보라 · 균열 자홍 · 5편 벚꽃 · 카프라칸 녹색 + 짙은 보라)을
+   한 덩어리에 두세 색씩 섞었다. 타일 경계를 넘는 덩어리는 반대편에도 같은 것이 놓여
+   이음매에 직선이 생기지 않는다. */
+#hexbg .calm{opacity:1;
   background-image:
-    radial-gradient(44% 44% at 71% 83%, rgba(191,148,245,0.95) 0%, rgba(224,122,176,0.77) 52%, transparent 72%),
-    radial-gradient(44% 39% at 37% 24%, rgba(243,168,192,0.91) 0%, rgba(138,84,212,0.73) 52%, transparent 72%),
-    radial-gradient(35% 30% at 64% 69%, rgba(243,168,192,0.87) 0%, rgba(138,84,212,0.69) 52%, transparent 72%),
-    radial-gradient(30% 44% at 38% 42%, rgba(224,122,176,0.83) 0%, rgba(191,148,245,0.65) 26%, rgba(99,214,136,0.47) 52%, transparent 72%),
-    radial-gradient(45% 30% at 43% 49%, rgba(224,122,176,0.79) 0%, rgba(99,214,136,0.61) 52%, transparent 72%),
-    radial-gradient(32% 38% at 66% 82%, rgba(191,148,245,0.75) 0%, rgba(99,214,136,0.57) 26%, rgba(243,168,192,0.39) 52%, transparent 72%),
-    radial-gradient(33% 42% at 22% 84%, rgba(99,214,136,0.71) 0%, rgba(224,122,176,0.53) 52%, transparent 72%),
-    radial-gradient(30% 36% at 22% 14%, rgba(243,168,192,0.67) 0%, rgba(224,122,176,0.49) 52%, transparent 72%),
-    radial-gradient(43% 32% at 62% 62%, rgba(99,214,136,0.63) 0%, rgba(138,84,212,0.45) 52%, transparent 72%);
-  background-size:1400px 1000px;background-repeat:repeat}
+    radial-gradient(36% 40% at 41% 19%, rgba(243,168,192,0.95) 0%, rgba(138,84,212,0.8) 50%, rgba(138,84,212,0) 78%),
+    radial-gradient(36% 40% at 41% 119%, rgba(243,168,192,0.95) 0%, rgba(138,84,212,0.8) 50%, rgba(138,84,212,0) 78%),
+    radial-gradient(30% 38% at 46% 74%, rgba(243,168,192,0.9) 0%, rgba(138,84,212,0.75) 50%, rgba(138,84,212,0) 78%),
+    radial-gradient(30% 38% at 46% -26%, rgba(243,168,192,0.9) 0%, rgba(138,84,212,0.75) 50%, rgba(138,84,212,0) 78%),
+    radial-gradient(31% 33% at 55% 53%, rgba(138,84,212,0.85) 0%, rgba(224,122,176,0.7) 50%, rgba(224,122,176,0) 78%),
+    radial-gradient(31% 33% at 7% 72%, rgba(138,84,212,0.8) 0%, rgba(224,122,176,0.65) 50%, rgba(224,122,176,0) 78%),
+    radial-gradient(31% 33% at 107% 72%, rgba(138,84,212,0.8) 0%, rgba(224,122,176,0.65) 50%, rgba(224,122,176,0) 78%),
+    radial-gradient(30% 38% at 6% 28%, rgba(99,214,136,0.75) 0%, rgba(224,122,176,0.6) 50%, rgba(224,122,176,0) 78%),
+    radial-gradient(30% 38% at 6% 128%, rgba(99,214,136,0.75) 0%, rgba(224,122,176,0.6) 50%, rgba(224,122,176,0) 78%),
+    radial-gradient(30% 38% at 106% 28%, rgba(99,214,136,0.75) 0%, rgba(224,122,176,0.6) 50%, rgba(224,122,176,0) 78%),
+    radial-gradient(30% 38% at 106% 128%, rgba(99,214,136,0.75) 0%, rgba(224,122,176,0.6) 50%, rgba(224,122,176,0) 78%),
+    radial-gradient(31% 39% at 18% 69%, rgba(138,84,212,0.7) 0%, rgba(191,148,245,0.55) 25%, rgba(243,168,192,0.4) 50%, rgba(243,168,192,0) 78%),
+    radial-gradient(31% 39% at 118% 69%, rgba(138,84,212,0.7) 0%, rgba(191,148,245,0.55) 25%, rgba(243,168,192,0.4) 50%, rgba(243,168,192,0) 78%),
+    radial-gradient(40% 33% at 74% 73%, rgba(243,168,192,0.65) 0%, rgba(138,84,212,0.5) 25%, rgba(99,214,136,0.35) 50%, rgba(99,214,136,0) 78%),
+    radial-gradient(40% 33% at -26% 73%, rgba(243,168,192,0.65) 0%, rgba(138,84,212,0.5) 25%, rgba(99,214,136,0.35) 50%, rgba(99,214,136,0) 78%)}
+/* 피 — 체력이 줄수록 위로 배어 나온다 */
+#hexbg .blood{opacity:0;
+  background-image:
+    radial-gradient(42% 38% at 86% 5%, rgba(198,28,36,1.0) 0%, rgba(195,74,134,0.85) 50%, rgba(195,74,134,0) 78%),
+    radial-gradient(42% 38% at 86% 105%, rgba(198,28,36,1.0) 0%, rgba(195,74,134,0.85) 50%, rgba(195,74,134,0) 78%),
+    radial-gradient(42% 38% at -14% 5%, rgba(198,28,36,1.0) 0%, rgba(195,74,134,0.85) 50%, rgba(195,74,134,0) 78%),
+    radial-gradient(42% 38% at -14% 105%, rgba(198,28,36,1.0) 0%, rgba(195,74,134,0.85) 50%, rgba(195,74,134,0) 78%),
+    radial-gradient(34% 39% at 44% 67%, rgba(240,86,80,0.95) 0%, rgba(226,52,52,0.8) 50%, rgba(226,52,52,0) 78%),
+    radial-gradient(35% 34% at 33% 52%, rgba(240,86,80,0.9) 0%, rgba(198,28,36,0.75) 50%, rgba(198,28,36,0) 78%),
+    radial-gradient(39% 33% at 2% 72%, rgba(198,28,36,0.85) 0%, rgba(226,52,52,0.7) 50%, rgba(226,52,52,0) 78%),
+    radial-gradient(39% 33% at 102% 72%, rgba(198,28,36,0.85) 0%, rgba(226,52,52,0.7) 50%, rgba(226,52,52,0) 78%),
+    radial-gradient(36% 41% at 69% 58%, rgba(226,52,52,0.8) 0%, rgba(198,28,36,0.65) 50%, rgba(198,28,36,0) 78%),
+    radial-gradient(39% 41% at 2% 12%, rgba(195,74,134,0.75) 0%, rgba(198,28,36,0.6) 25%, rgba(240,86,80,0.45) 50%, rgba(240,86,80,0) 78%),
+    radial-gradient(39% 41% at 2% 112%, rgba(195,74,134,0.75) 0%, rgba(198,28,36,0.6) 25%, rgba(240,86,80,0.45) 50%, rgba(240,86,80,0) 78%),
+    radial-gradient(39% 41% at 102% 12%, rgba(195,74,134,0.75) 0%, rgba(198,28,36,0.6) 25%, rgba(240,86,80,0.45) 50%, rgba(240,86,80,0) 78%),
+    radial-gradient(39% 41% at 102% 112%, rgba(195,74,134,0.75) 0%, rgba(198,28,36,0.6) 25%, rgba(240,86,80,0.45) 50%, rgba(240,86,80,0) 78%)}
 /* 흐름은 engine/app.js 의 WAAPI 애니메이션(transform)이 굴린다 —
    체력 구간이 바뀌어도 위치가 이어지고 playbackRate 로 속도만 서서히 변한다 */
+#hexbg{transition:opacity .9s ease}
 #hexbg .wash{opacity:.10}                                   /* 배경 전체에 엷게 */
 #hexbg .line{opacity:.85;                                   /* 헥스 선에만 진하게 */
   -webkit-mask-image:var(--hexmask);mask-image:var(--hexmask);
   -webkit-mask-position:center top;mask-position:center top}
 /* 캐릭터판에서는 읽기를 방해하지 않게 옅게 */
 :root[data-screen="board"]{--hexbg-op:.5}
-/* 남은 체력이 30% 이하면 흐름이 빨라지고, 10% 이하면 붉은색 단일 + 심장 박동이 된다 */
+/* 남은 체력이 50% 이하면 흐름이 빨라지며 피가 배어 나오고, 10% 이하면 붉은색만 남고
+   심장이 뛴다. 색 전환은 두 겹의 투명도 교차라 끊기지 않는다. */
 :root[data-hp="low"]{--hexbg-op:.62}
-:root[data-hp="low"] #hexbg .aurora{
-  background-image:
-    radial-gradient(30% 39% at 51% 22%, rgba(243,168,192,0.95) 0%, rgba(191,148,245,0.77) 26%, rgba(240,86,80,0.59) 52%, transparent 72%),
-    radial-gradient(38% 44% at 30% 36%, rgba(198,28,36,0.91) 0%, rgba(191,148,245,0.73) 52%, transparent 72%),
-    radial-gradient(33% 32% at 72% 15%, rgba(243,168,192,0.87) 0%, rgba(226,52,52,0.69) 26%, rgba(99,214,136,0.51) 52%, transparent 72%),
-    radial-gradient(36% 31% at 59% 19%, rgba(99,214,136,0.83) 0%, rgba(198,28,36,0.65) 26%, rgba(191,148,245,0.47) 52%, transparent 72%),
-    radial-gradient(41% 39% at 60% 84%, rgba(191,148,245,0.79) 0%, rgba(226,52,52,0.61) 26%, rgba(243,168,192,0.43) 52%, transparent 72%),
-    radial-gradient(44% 35% at 36% 73%, rgba(198,28,36,0.75) 0%, rgba(191,148,245,0.57) 52%, transparent 72%),
-    radial-gradient(36% 33% at 55% 78%, rgba(226,52,52,0.71) 0%, rgba(243,168,192,0.53) 52%, transparent 72%),
-    radial-gradient(38% 38% at 18% 84%, rgba(226,52,52,0.67) 0%, rgba(240,86,80,0.49) 26%, rgba(191,148,245,0.31) 52%, transparent 72%),
-    radial-gradient(44% 36% at 83% 51%, rgba(198,28,36,0.63) 0%, rgba(226,52,52,0.45) 26%, rgba(191,148,245,0.28) 52%, transparent 72%)}
+:root[data-hp="low"] #hexbg .blood{opacity:.55}
 :root[data-hp="crit"]{--hexbg-op:.95}
-:root[data-hp="crit"] #hexbg .aurora{
-  background-image:
-    radial-gradient(33% 42% at 15% 72%, rgba(226,52,52,1.0) 0%, rgba(195,74,134,0.82) 52%, transparent 72%),
-    radial-gradient(37% 34% at 28% 80%, rgba(226,52,52,0.96) 0%, rgba(240,86,80,0.78) 52%, transparent 72%),
-    radial-gradient(37% 44% at 21% 29%, rgba(198,28,36,0.92) 0%, rgba(240,86,80,0.74) 26%, rgba(226,52,52,0.56) 52%, transparent 72%),
-    radial-gradient(42% 40% at 29% 14%, rgba(198,28,36,0.88) 0%, rgba(195,74,134,0.7) 52%, transparent 72%),
-    radial-gradient(37% 36% at 64% 58%, rgba(195,74,134,0.84) 0%, rgba(240,86,80,0.66) 52%, transparent 72%),
-    radial-gradient(31% 35% at 84% 19%, rgba(198,28,36,0.8) 0%, rgba(226,52,52,0.62) 26%, rgba(240,86,80,0.44) 52%, transparent 72%),
-    radial-gradient(32% 46% at 62% 15%, rgba(198,28,36,0.76) 0%, rgba(226,52,52,0.58) 26%, rgba(195,74,134,0.4) 52%, transparent 72%),
-    radial-gradient(40% 37% at 61% 36%, rgba(226,52,52,0.72) 0%, rgba(198,28,36,0.54) 26%, rgba(240,86,80,0.36) 52%, transparent 72%)}
+:root[data-hp="crit"] #hexbg .calm{opacity:.18}
+:root[data-hp="crit"] #hexbg .blood{opacity:1}
 /* 심장 박동 — 쿵(수축) 쿵(이완) 뒤 쉬는 구간. 흐름 애니메이션과 함께 돌린다 */
 :root[data-hp="crit"] #hexbg .line{animation:heartbeat 1.15s ease-out infinite}
 :root[data-hp="crit"] #hexbg .wash{animation:heartbeat 1.15s ease-out infinite}
