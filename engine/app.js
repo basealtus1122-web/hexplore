@@ -1162,7 +1162,7 @@ function ensureHexBg(){
   document.documentElement.setAttribute("data-bg",bgOn()?"on":"off");
   if(document.getElementById("hexbg"))return;
   const d=document.createElement("div");d.id="hexbg";d.setAttribute("aria-hidden","true");
-  d.innerHTML='<i class="aurora wash"></i><i class="grid"></i><i class="aurora line"></i>';
+  d.innerHTML='<i class="wash"><b class="aurora"></b></i><i class="grid"></i><i class="line"><b class="aurora"></b></i>';
   document.body.insertBefore(d,document.body.firstChild);
   startAurora();
 }
