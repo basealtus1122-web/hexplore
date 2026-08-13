@@ -622,10 +622,6 @@ function renderSeries(){
 /* =====================================================================
    SCREEN: BOARD  (+ top tabs + overlay + toolbar)
    ===================================================================== */
-/* 옆 칸에 띄워 둔 참조 탭은 다음에도 그대로 열린다 */
-function railPick(){try{return localStorage.getItem("hex.rail");}catch(e){return null;}}
-function railSave(v){try{localStorage.setItem("hex.rail",v);}catch(e){}}
-
 function renderBoard(){
   const char=APP.char,cls=SHARED.classes[char.classId],series=SERIES[char.series];
   normBoosts(char); if(!char.mchecks||typeof char.mchecks!=="object")char.mchecks={}; if(!char.uses||typeof char.uses!=="object")char.uses={};
@@ -648,28 +644,18 @@ function renderBoard(){
 
   let content = APP.tab==="board" ? boardBody(char) : referenceBody(char,series,APP.tab);
 
-  /* 넓은 화면(PC)에서만 뜨는 옆 칸 — 참조 탭 하나를 띄워 두고 판을 굴리는 동안 따라오게 한다.
-     좁은 화면에서는 CSS 가 통째로 감춘다(패드·휴대폰 폭은 그대로). */
-  const railTabs=tabs.filter(t=>t.id!=="board");
-  if(!railTabs.some(t=>t.id===APP.rail))APP.rail=railPick()||railTabs[0].id;
-  const railBar=railTabs.map(t=>`<button class="rtab ${APP.rail===t.id?'on':''}" data-rail="${t.id}">${t.label}</button>`).join("");
-  const rail=`<aside class="side-rail">
-    <div class="rail-bar">${railBar}</div>
-    <div class="rail-body">${referenceBody(char,series,APP.rail)}</div></aside>`;
-
   root.innerHTML=`<div class="wrap board-wrap">
     <div class="topbar">
       <div class="tb-id">${char.name?`<b style="color:var(--ink)">${char.name}</b> · `:""}${SHARED.races[char.raceId].name.en} · <span style="color:${catColor(cls)}">${cls.name.en}</span> <span class="series-pill">HEX ${series.short}</span></div>
       ${toolbar}
     </div>
     <div class="tabbar">${tabbar}</div>
-    <div class="tab-content board-cols"><div class="col-main">${content}</div>${rail}</div>
+    <div class="tab-content">${content}</div>
   </div>`;
 
   // tab switching
   applyTheme();
   root.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{APP.tab=b.dataset.tab;renderBoard();});
-  root.querySelectorAll("[data-rail]").forEach(b=>b.onclick=()=>{APP.rail=b.dataset.rail;railSave(APP.rail);renderBoard();});
   // toolbar
   $("#tbSave").onclick=saveCharacterModal;
   $("#tbLoad").onclick=loadCharacterModal;
