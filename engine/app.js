@@ -51,6 +51,7 @@ function buildCharacter(sel,seriesId){
     goldMax:(race&&race.foodUse?race.foodUse:1)*100,   /* 초기 소모량 기준 고정 */
     favoredEnemies:race?[clone(foeOf(sel.raceId,sel.subRaceId))]:[],
     items:[],boosts:{},mchecks:{},uses:{},abilities:[],
+    name:"",                                      /* 영웅 이름 — 판에서 직접 입력 */
     difficulty:"easy",                            /* 게임 난이도 — 판 최상단에서 변경 */
     starving:0,                                   /* 굶주림 단계 0~3 */
     counters:{},                                  /* 직업 전용 카운터(예: 심문관 트로피) */
@@ -636,7 +637,7 @@ function renderBoard(){
 
   root.innerHTML=`<div class="wrap board-wrap">
     <div class="topbar">
-      <div class="tb-id">${SHARED.races[char.raceId].name.en} · <span style="color:${catColor(cls)}">${cls.name.en}</span> <span class="series-pill">HEX ${series.short}</span></div>
+      <div class="tb-id">${char.name?`<b style="color:var(--ink)">${char.name}</b> · `:""}${SHARED.races[char.raceId].name.en} · <span style="color:${catColor(cls)}">${cls.name.en}</span> <span class="series-pill">HEX ${series.short}</span></div>
       ${toolbar}
     </div>
     <div class="tabbar">${tabbar}</div>
@@ -679,6 +680,9 @@ function boardBody(char){
     ${grp("diff","Difficulty","난이도",renderDifficulty(char))}
     ${grp("id","Race & Traits","종족 · 특수 능력",`
     <div class="identity">
+      <input id="charName" value="${(char.name||"").replace(/"/g,"&quot;")}" placeholder="영웅 이름" autocomplete="off"
+        style="width:100%;margin-bottom:9px;padding:11px 13px;min-height:46px;border-radius:10px;border:1px solid var(--edge-bright);
+        background:rgba(0,0,0,.22);color:var(--ink);font-family:'Cinzel';font-size:17px;letter-spacing:.03em">
       <div class="cat-row">${catTags(cls)}</div>
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
       <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}${(()=>{const as=char.abilities.filter(a=>a.src==="aspect"||a.src==="greater");return as.length?` · 양상 ${as.map(a=>`<b>${a.name.en} (${a.name.ko})</b>`).join(", ")}`:"";})()}</div>
@@ -859,6 +863,7 @@ function bindBoard(char){
   root.querySelectorAll("[data-fuse]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const k=b.dataset.fuse;if(char.filled[k]>0){char.filled[k]-=1;char.mod[k]+=1;renderBoard();}});
   root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const f=b.dataset.form;if(char.raceForm===f)return;const r=SHARED.races[char.raceId];if(r&&r.formCostEnergy){if(char.curEnergy<r.formCostEnergy)return;char.curEnergy-=r.formCostEnergy;}char.raceForm=f;if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
+  const nm=$("#charName");if(nm)nm.onchange=()=>{char.name=nm.value.trim();renderBoard();};
   root.querySelectorAll("[data-starve]").forEach(b=>b.onclick=()=>{const n=+b.dataset.starve;
     char.starving=(char.starving===n?n-1:n);renderBoard();});
   root.querySelectorAll("[data-diff]").forEach(r=>r.onclick=()=>{char.difficulty=r.dataset.diff;renderBoard();});

@@ -1258,17 +1258,23 @@ const CONDITIONS = {
 
 /* 전투 흐름 — 두 편 공통 */
 const RULES_COMBAT = {title:{en:"Combat Reference", ko:"전투 참조표"}, body:`
-  <b>1. Declaration 선언</b> — 영웅들이 이번 라운드에 할 행동을 고른다. <b>목표는 아직 정하지 않는다.</b>
-  <span style="color:var(--ink-faint)">(뇌물·도주 규칙 추가 예정)</span><br>
-  <b>2. Opponent 적</b> — <b>헥스 주사위</b>로 적의 행동을 정한다(적마다 따로 굴린다).
-  <b>목표 지정</b> — 영웅마다 <b>코어 주사위</b>를 굴리고 보정치를 더한다. <b>수치가 높은 영웅</b>이 목표가 된다.<br>
-  <b>3. Resolution 처리</b> — 양쪽 효과를 <b>동시에</b> 적용한다.
-  <b>피해 감소</b> 효과를 <b>먼저</b> 적용하고, 남은 피해와 회복 효과를 계산한 뒤 피해를 적용한다.
-  <b>상태</b>는 모든 피해 계산이 끝난 <b>마지막</b>에 적용한다.
-  <span style="color:var(--ink-faint)">(격파 시 규칙·죽음 규칙 추가 예정)</span><br>
-  <span style="color:var(--ink-faint)">Combat: Declaration (choose actions, no targets yet) &rarr; Opponent (roll Hex die per opponent for its action;
-  each hero rolls a Core die plus modifiers, highest becomes the target) &rarr; Resolution (apply simultaneously:
-  damage reduction first, then remaining damage and healing; Conditions apply last, after all damage is calculated).</span>`};
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t"><b>Declaration 선언</b> — 영웅들이 이번 라운드에 할 행동을 고른다. <b>목표는 아직 정하지 않는다.</b></span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t"><b>Opponent 적</b> — <b>헥스 주사위</b>로 적의 행동을 정한다(적마다 따로).<br>
+      <b>목표 지정</b> — 영웅마다 <b>코어 주사위</b> + 보정치를 굴려 <b>가장 높은 영웅</b>이 목표가 된다.</span></div>
+    <div class="rule-step"><span class="n">3</span><span class="t"><b>Resolution 처리</b> — 양쪽 효과를 <b>동시에</b> 적용한다.</span></div>
+  </div>
+  <div class="rule-h">Resolution 적용 순서</div>
+  <div class="rule-grid">
+    <div class="rule-k">① 피해 감소</div><div class="rule-v">먼저 적용한다</div>
+    <div class="rule-k">② 피해 · 회복</div><div class="rule-v">남은 피해와 회복 효과를 계산해 적용한다</div>
+    <div class="rule-k">③ 상태</div><div class="rule-v">모든 피해 계산이 <b>끝난 뒤</b> 마지막에 적용한다</div>
+  </div>
+  <div class="rule-h">추가 예정</div>
+  <div class="rule-v">뇌물 · 도주 · 격파 시 규칙 · 죽음 규칙</div>
+  <div class="rule-en">Declaration (choose actions, no targets) &rarr; Opponent (Hex die per opponent; each hero rolls a Core die plus
+  modifiers, highest becomes the target) &rarr; Resolution (simultaneous: damage reduction first, then damage and healing;
+  Conditions apply last).</div>`};
 
 /* 게임 난이도 — 캐릭터판 최상단에서 고른다.
    게임 중 상승 조건: 마을에서 Collector 3마리 격파 시 +1, 파워업 덱이 떨어지면 +1 */
@@ -1297,106 +1303,143 @@ const SERIES = {
     conditions: CONDITIONS,
     rules: [
       {title:{en:"Game Setup", ko:"게임 준비"}, body:`
-        <b>1. 판 깔기</b> — 시작 타일 <b>A~D</b>를 배치한다. 헥스 타일과 던전 타일은 <b>뒷면으로 섞어</b> 둔다.
-        각종 토큰과 카드 덱을 섞어 자리에 놓는다.<br>
-        <b>2. 상황 카드 공개</b> — <b>낮</b> 카드와 <b>밤</b> 카드를 각 <b>4장</b>씩 공개한다.
-        (<b>Interrupt</b>가 나오면 덱에 다시 섞고 새로 뽑는다.)
-        공개된 <b>Investigation</b> 장소에 <b>룬 스톤</b>을 놓는다.<br>
-        <b>3. 시작 마을</b> — 낮·밤을 정한 뒤 시작 마을을 굴린다(<b>밤이면 굴림에 +1</b>).
-        정해진 마을에 따라 <b>시작 장비</b>를 받는다.<br>
-        <b>4. 장비 배분</b> — 그룹은 <b>기어 업그레이드 6개</b>를 나눠 갖는다.
-        마을에서 골드를 쓴 뒤 게임을 시작한다.<br>
-        <span style="color:var(--ink-faint)">Setup: place starting tiles A–D (hex &amp; dungeon tiles shuffled face-down), shuffle tokens and decks,
-        reveal 4 Day and 4 Night cards (reshuffle Interrupts and redraw), place Rune Stones on revealed Investigations,
-        determine Day/Night, roll for the starting town (+1 at Night), take that town's starting gear,
-        split 6 Gear Upgrades among the group, spend gold, begin.</span>`},
+        <div class="rule-steps">
+          <div class="rule-step"><span class="n">1</span><span class="t"><b>판 깔기</b> — 시작 타일 <b>A~D</b> 배치. 헥스 타일과 던전 타일은 <b>뒷면으로 섞어</b> 둔다. 토큰과 카드 덱을 섞어 자리에 놓는다.</span></div>
+          <div class="rule-step"><span class="n">2</span><span class="t"><b>상황 카드 공개</b> — 낮·밤 각 <b>4장</b>. <b>Interrupt</b>가 나오면 덱에 다시 섞고 새로 뽑는다.
+            공개된 <b>Investigation</b> 장소에 <b>룬 스톤</b>을 놓는다.</span></div>
+          <div class="rule-step"><span class="n">3</span><span class="t"><b>시작 마을</b> — 낮·밤을 정하고 마을을 굴린다(<b>밤이면 +1</b>). 그 마을의 <b>시작 장비</b>를 받는다.</span></div>
+          <div class="rule-step"><span class="n">4</span><span class="t"><b>장비 배분</b> — 그룹이 <b>기어 업그레이드 6개</b>를 나눈다. 마을에서 골드를 쓴 뒤 시작.</span></div>
+        </div>
+        <div class="rule-en">Place tiles A–D (hex &amp; dungeon tiles face-down), shuffle decks, reveal 4 Day and 4 Night cards
+        (reshuffle Interrupts), place Rune Stones on revealed Investigations, roll the starting village (+1 at Night),
+        take starting gear, split 6 Gear Upgrades, spend gold, begin.</div>`},
 
       {title:{en:"Turn Sequence", ko:"차례 진행"}, body:`
-        <b>1. 낮·밤 결정</b> 후 그룹이 이동한다. 지도 경계에 닿으면 <b>맵 타일을 배치한 뒤</b> 이동을 이어간다.<br>
-        <b>2. 기술 굴림</b> — 영웅마다 각자 굴린다.<br>
-        <b>3. 현재 위치에 따라 상황 발생</b> — <b>보스 · 지하묘지 · 수도원 · 마을</b>은 각각 해당 조우로 처리한다.
-        그 외에는 <b>6면체</b>를 굴려 낮·밤에 맞는 카드를 적용한다.
-        <b>5</b> 또는 <b>헥스</b>가 나오면 조우 덱을 공개한다.<br>
-        <b>4. 결과 처리</b> — <b>Investigation</b>이면 해당 슬롯에 <b>단서 큐브</b>를 놓는다(<b>최대 3개</b>).
-        해결된 카드는 버리고 새 카드로 채운다.<br>
-        <b>5.</b> 이어서 <b>이벤트 단계</b>(마을·수도원·지하묘지·보스)와 <b>빌런 단계</b>(녹티스)를 진행한다.<br>
-        <span style="color:var(--ink-faint)">Turn: determine Day/Night → group movement (place a map tile at the map edge, then continue) →
-        each hero rolls Skills → resolve the current location (Boss, Catacomb, Monastery, Town use their own encounters;
-        otherwise roll a d6 and apply the matching Day/Night card; a 5 or Hex reveals the Encounter deck) →
-        place a Clue on Investigations (max 3), discard resolved cards and refill → Event phase → Villain phase (Noctis).</span>`},
+        <div class="rule-steps">
+          <div class="rule-step"><span class="n">1</span><span class="t"><b>이동</b> — 낮·밤을 정하고 그룹이 함께 움직인다. 지도 경계에 닿으면 <b>맵 타일을 놓고</b> 이동을 이어간다.</span></div>
+          <div class="rule-step"><span class="n">2</span><span class="t"><b>기술 굴림</b> — 영웅마다 각자 굴린다.</span></div>
+          <div class="rule-step"><span class="n">3</span><span class="t"><b>상황 굴림</b> — <b>6면체</b>를 굴려 낮·밤에 맞는 카드를 적용한다. <b>5 또는 헥스</b>면 조우 덱을 공개한다.<br>
+            <span class="rule-tag">건너뜀</span> 보스 · 지하묘지 · 수도원 · 마을에서 이동을 끝냈다면 이 단계를 건너뛴다.</span></div>
+          <div class="rule-step"><span class="n">4</span><span class="t"><b>이벤트</b> — 마을 · 수도원 · 지하묘지 · 조사 · 보스에서 해당 사건을 처리한다.</span></div>
+          <div class="rule-step"><span class="n">5</span><span class="t"><b>빌런</b> — 미르자 녹티스.</span></div>
+        </div>
+        <div class="rule-h">결과 처리</div>
+        <div class="rule-grid">
+          <div class="rule-k">Investigation</div><div class="rule-v">해당 슬롯에 <b>단서 큐브</b>를 놓는다(<b>최대 3개</b>)</div>
+          <div class="rule-k">해결된 카드</div><div class="rule-v">버리고 <b>새 카드로 채운다</b></div>
+        </div>
+        <div class="rule-en">Move &rarr; roll Skills &rarr; roll a Circumstance (d6; 5 or Hex draws an Encounter; skipped at Boss/Crypt/
+        Monastery/Village) &rarr; Event phase &rarr; Villain phase. Investigations receive a Clue (max 3); resolved cards are
+        discarded and refilled.</div>`},
 
-      {title:{en:"Circumstance Cards", ko:"상황 카드"}, body:`
-        <b>Interrupt 인터럽트</b> — 뽑는 즉시 해결한다.<br>
-        <b>Unavoidable 회피 불가</b> — 상황 단계에 굴려 나오면 <b>신중한 이동을 했더라도 피할 수 없다</b>.
-        다만 그 카드를 <b>플레이 중이 아니라면</b> 아이템이나 효과로 버릴 수는 있다.<br>
-        <b>건너뛰는 경우</b> — 이동을 <b>보스 · 지하묘지 · 수도원 · 마을</b>에서 끝냈다면 상황 단계를 <b>건너뛴다</b>.<br>
-        <b>신중하게 버리기</b> — 그 턴에 <b>야영</b>했거나 <b>신중한 이동</b>을 했다면, 굴려 나온 상황 카드를 <b>플레이하지 않고 버릴</b> 수 있다.<br>
-        <span style="color:var(--ink-faint)">Interrupts resolve immediately when drawn. Unavoidable cards cannot be discarded by movement effects
-        (items or effects may still remove them if they are not currently in play).</span>`},
-
-      {title:{en:"Circumstance Types", ko:"상황 카드 종류"}, body:`
-        <b>Investigations 조사</b> — 이 단계에 조사 카드가 나오면 해당 슬롯에 <b>단서</b>를 놓는다.
-        그룹은 <b>특정 장소로 이동</b>해 <b>이벤트 단계</b>에 그 효과를 해결해야 한다.
-        다른 종류와 달리 결과가 나왔다고 버려지지 않고, <b>조사를 완료하거나</b> 게임 효과로 버려질 때까지 상황 바에 남는다.<br>
-        <b>Afflictions 고통</b> — 그룹에 걸리는 <b>부정적</b> 상황. <b>여러 개</b>가 동시에 걸릴 수 있다.
-        뽑은 게임 턴부터 카드에 적힌 <b>턴 수</b>만큼 유지되며, <b>수도원</b>을 방문해도 제거할 수 있다.
-        일부는 카드를 <b>추가로 뽑게</b> 한다.<br>
-        <b>Events · Discoveries · Treasure 사건 · 발견 · 보물</b> — 각 상황 덱에 다양하게 들어 있다.
-        <b>발견</b>은 따로 명시가 없으면 <b>같은 장소에 겹쳐</b> 놓을 수 있다.<br>
-        <b>Nature 자연</b> — 그룹에 영향을 주는 환경 상황. <b>한 번에 하나만</b> 유지된다.
-        명시가 없으면 새로 뽑은 자연 카드가 기존 효과를 <b>대체</b>한다.<br>
-        <b>Heroic 영웅</b> — 각 카드가 <b>미르자 녹티스의 직업 하나</b>와 짝지어져 있다.
-        게임 시작 전에 원하는 영웅 카드를 덱에서 <b>빼둘 수</b> 있다. 진행 중 뽑았을 때 그 직업이 게임에 있으면 슬롯에 놓고, 없으면 버리고 다시 뽑는다.
-        공개된 영웅 카드가 굴림으로 나오면, 해당 영웅은 <b>단서</b>를 놓거나(최대 3개) 카드에 적힌 <b>마스터리</b>로 <b>스탯 테스트</b>를 해 사용할 수 있다.
-        이 카드에 붙은 단서는 항상 마스터리 굴림 결과를 <b>1씩 낮춘다</b>. 성공하면 효과를 얻고 카드를 참고용으로 보관하며, 실패하면 버린다.`},
       {title:{en:"Movement", ko:"이동"}, body:`
-        낮·밤을 고른 뒤 그룹이 <b>함께</b> 움직인다. 시작 이동력은 <b>턴당 4헥스</b>이며 더 적게 움직여도 된다.
-        이동 방식은 <b>야영 · 신중 · 보통 · 무모</b> 네 가지이고, 이 선택이 <b>빌런 단계</b>에까지 영향을 준다.
-        지도 가장자리에 닿으면 새 맵 타일을 놓는데, <b>타일을 놓아도 이동이 끝나지 않는다</b>.<br>
-        <b>Moving Cautiously 신중한 이동</b> — 움직이지 않거나, 이동력 전부를 <b>강·도로만 따라</b> 쓰거나, 그 턴에 <b>1헥스만</b> 움직이면 신중한 이동이다.
-        (지나는 헥스마다 도로나 강이 있어야 '따라 이동'으로 친다.) 이렇게 움직이면 <b>배회 위험이 없고</b>, 상황 단계에 나온 <b>상황 카드를 버릴 수</b> 있다.<br>
-        <b>Camping 야영</b> — 그 게임 턴의 스탯 테스트에 <b>-1 보너스</b>. 이 보너스는 <b>중첩</b>되지만(오래 야영할수록), 다른 효과로 위치가 옮겨지면 사라진다.<br>
-        <b>Villain Action 보정</b> — 빠르게 움직일수록 녹티스의 첩자가 보고하기 어려워져 빌런 행동 굴림에 보정이 붙는다.
-        <span style="color:var(--ink-faint)">(방식별 수치는 Game Turn 참조판에 있음 — 추후 입력)</span><br>
-        <b>Uncrossable 통행 불가</b> — <b>산맥</b>과 <b>물</b> 헥스는 들어갈 수 없다(나오는 것은 가능).
-        <b>Scaling Kit</b>과 <b>Canoe</b>를 얻으면 들어갈 수 있다.`},
+        <div class="rule-grid">
+          <div class="rule-k">기본 이동력</div><div class="rule-v"><b>턴당 4헥스</b> (더 적게 움직여도 된다)</div>
+          <div class="rule-k">방식</div><div class="rule-v"><b>야영 · 신중 · 보통 · 무모</b> — 이 선택이 <b>빌런 단계</b>에까지 영향을 준다</div>
+          <div class="rule-k">지도 확장</div><div class="rule-v">가장자리에 닿으면 새 맵 타일을 놓는다. <b>타일을 놓아도 이동이 끝나지 않는다</b></div>
+        </div>
+        <div class="rule-h">Camping 야영</div>
+        <div class="rule-v">그 게임 턴의 스탯 테스트에 <b>-1 보너스</b>. <b>중첩</b>되지만(오래 야영할수록), 다른 효과로 위치가 옮겨지면 사라진다.</div>
+        <div class="rule-h">Moving Cautiously 신중한 이동</div>
+        <div class="rule-grid">
+          <div class="rule-k">조건 (택1)</div><div class="rule-v">움직이지 않음 · 이동력 전부를 <b>강·도로만 따라</b> 씀 · 그 턴에 <b>1헥스만</b> 이동<br>
+            <span style="color:var(--ink-faint)">지나는 헥스마다 도로나 강이 있어야 '따라 이동'으로 친다</span></div>
+          <div class="rule-k">보상</div><div class="rule-v"><kw>wander</kw> 위험이 <b>없다</b> · 상황 단계에 나온 <b>카드를 버릴 수</b> 있다</div>
+        </div>
+        <div class="rule-h">Uncrossable 통행 불가</div>
+        <div class="rule-v"><b>산맥</b>과 <b>물</b> 헥스는 들어갈 수 없다(나오는 것은 가능). <b>Scaling Kit</b> · <b>Canoe</b>를 얻으면 가능해진다.</div>
+        <div class="rule-h">Villain Action 보정</div>
+        <div class="rule-v">빠르게 움직일수록 녹티스의 첩자가 보고하기 어려워져 빌런 행동 굴림에 보정이 붙는다.
+          <span style="color:var(--ink-faint)">(방식별 수치는 Game Turn 참조판 — 추후 입력)</span></div>`},
 
       {title:{en:"Skill Phase & Stat Tests", ko:"기술 페이즈 · 스탯 테스트"}, body:`
-        기술 페이즈에는 모든 영웅이 <b>동시에</b> 코어 주사위를 굴린다. 굴림 결과가 해당 <b>기술 랭크 이하</b>면 성공이다.<br>
-        <b>치명적 성공</b> — <b>헥스</b>가 나오면 결과 <b>1</b>로 치며 <b>항상 성공</b>한다.
-        <b>12랭크부터</b> 랭크가 1 오를 때마다 치명적 성공 범위가 <b>1씩 넓어진다</b>(12랭크: 헥스~2, 13랭크: 헥스~3 …).<br>
-        <b>치명적 실패</b> — <b>10</b>은 <b>항상 실패</b>이며 치명적 실패다.<br>
-        보정으로 결과가 <b>1 이하</b>가 되면 치명적 성공, <b>10 이상</b>이 되면 치명적 실패가 된다(랭크가 더 높아도 마찬가지).
-        <state>disoriented</state> 같은 효과는 이 범위 자체를 바꾼다.<br>
-        기술 페이즈에 치명적 성공을 하면 평소 보상에 더해 <b>추가 보상</b>(골드·단서·파워업 등)을 얻는다.
-        <span style="color:var(--ink-faint)">(기술별 추가 보상은 Game Play 참조판에 있음 — 추후 입력)</span>`},
+        <div class="rule-v">기술 페이즈에는 모든 영웅이 <b>동시에</b> 코어 주사위를 굴린다. 결과가 해당 <b>기술 랭크 이하</b>면 성공.</div>
+        <div class="rule-h">치명적 성공 · 실패</div>
+        <div class="rule-grid">
+          <div class="rule-k">치명적 성공</div><div class="rule-v"><b>헥스</b> = 결과 <b>1</b>, <b>항상 성공</b></div>
+          <div class="rule-k">범위 확대</div><div class="rule-v"><b>12랭크부터</b> 1랭크마다 <b>1씩</b> 넓어진다 (12: 헥스~2 · 13: 헥스~3 …)</div>
+          <div class="rule-k">치명적 실패</div><div class="rule-v"><b>10</b> = <b>항상 실패</b></div>
+          <div class="rule-k">보정 적용 후</div><div class="rule-v"><b>1 이하</b>가 되면 치명적 성공 · <b>10 이상</b>이 되면 치명적 실패 (랭크가 더 높아도 마찬가지)</div>
+          <div class="rule-k">범위 변경</div><div class="rule-v"><state>disoriented</state> 같은 효과는 이 범위 자체를 바꾼다</div>
+        </div>
+        <div class="rule-h">기술 페이즈의 치명적 성공</div>
+        <div class="rule-v">평소 보상에 더해 <b>추가 보상</b>(골드 · 단서 · 파워업 등)을 얻는다.
+          <span style="color:var(--ink-faint)">(기술별 보상은 Game Play 참조판 — 추후 입력)</span></div>`},
 
       {title:{en:"Navigate · Explore · Survival", ko:"길찾기 · 탐험 · 생존"}, body:`
-        <b>Navigate 길찾기</b> — 영웅의 <b>절반</b>(올림)이 성공해야 <b>배회</b>를 피한다.
-        한 명이라도 <b>치명적 성공</b>하면 그 턴 그룹 전체가 배회를 면한다. <b>신중한 이동</b>을 했다면 애초에 배회 위험이 없다.<br>
-        <b>Explore 탐험</b> — 성공하면 <b>골드 2</b>어치 보물을 얻는다. 실패하면 아무것도 없다.<br>
-        <b>Survival 생존</b> — 성공하면 그 턴에 <b>음식을 먹지 않아도</b> 된다.
-        실패하면 <b>음식 소모량</b>만큼 음식을 먹거나 <b>Food 하위 유형</b> 아이템 하나를 소비해야 한다.
-        소모량이 <b>0</b>이면 생존 주사위를 <b>굴리지 않아도</b> 된다.`},
+        <div class="rule-grid">
+          <div class="rule-k"><span style="color:var(--g-navigate)">Navigate 길찾기</span></div>
+          <div class="rule-v">영웅의 <b>절반</b>(올림)이 성공해야 <kw>wander</kw>를 피한다.
+            한 명이라도 <b>치명적 성공</b>하면 그 턴 그룹 전체가 면한다. <b>신중한 이동</b>을 했다면 애초에 위험이 없다.</div>
+          <div class="rule-k"><span style="color:var(--g-explore)">Explore 탐험</span></div>
+          <div class="rule-v">성공하면 <b>골드 2</b>어치 보물. 실패하면 아무것도 없다.</div>
+          <div class="rule-k"><span style="color:var(--g-survival)">Survival 생존</span></div>
+          <div class="rule-v">성공하면 그 턴에 <b>음식을 먹지 않아도</b> 된다.
+            실패하면 <b>음식 소모량</b>만큼 먹거나 <b>Food 하위 유형</b> 아이템 하나를 소비한다.
+            소모량이 <b>0</b>이면 굴리지 않아도 된다.</div>
+        </div>`},
 
-      {title:{en:"Wandering & Roaming", ko:"배회와 Roam"}, body:`
-        <b>Wandering 배회</b> — 배회하면 <b>헥스 주사위</b>를 굴려 <b>배회 나침반</b>이 가리키는 방향으로 <b>1헥스 더</b> 움직인다.
-        배회로 사건 장소(보스·지하묘지·수도원·조사·마을)에 들어가면 그 사건을 <b>평소대로</b> 처리한다.
-        새 맵 타일이 필요하면 놓는다. 지도의 <b>단단한 경계</b>(상황 바 가장자리 등)나 장비 없이 들어갈 수 없는 <b>통행 불가</b> 지형이면 <b>제자리에 머문다</b>.<br>
-        <b>Roaming</b> — 일부 효과는 그룹이나 다른 말(밴시 여왕 등)을 Roam하게 한다. Roam은 그 턴의 이동을 <b>대체</b>하며, 따로 명시가 없으면 <b>보통 이동</b>으로 친다.
-        헥스 주사위를 <b>두 번</b> 굴려 <b>첫 번째로 방향</b>, <b>두 번째로 헥스 수</b>를 정한다.`},
+      {title:{en:"Wander & Roam", ko:"헤매다 · 배회"}, body:`
+        <div class="rule-h">Wander 헤매다</div>
+        <div class="rule-grid">
+          <div class="rule-k">굴림</div><div class="rule-v"><b>헥스 주사위</b> 1회 — <b>Wander Compass 배회 나침반</b>이 가리키는 방향으로 <b>1헥스</b> 더 이동</div>
+          <div class="rule-k">사건 장소</div><div class="rule-v">들어가면 그 사건을 <b>평소대로</b> 처리한다. 새 맵 타일이 필요하면 놓는다</div>
+          <div class="rule-k">막히면</div><div class="rule-v">지도의 <b>단단한 경계</b>나 장비 없이 못 가는 <b>통행 불가</b> 지형이면 <b>제자리에 머문다</b></div>
+        </div>
+        <div class="rule-h">Roam 배회</div>
+        <div class="rule-grid">
+          <div class="rule-k">굴림</div><div class="rule-v"><b>헥스 주사위 2회</b> — 첫 번째가 <b>방향</b>, 두 번째가 <b>헥스 수</b></div>
+          <div class="rule-k">성격</div><div class="rule-v">그 턴의 이동을 <b>대체</b>하며, 따로 명시가 없으면 <b>보통 이동</b>으로 친다</div>
+          <div class="rule-k">대상</div><div class="rule-v">그룹뿐 아니라 밴시 여왕 같은 다른 말도 배회한다</div>
+        </div>`},
 
       {title:{en:"Starving", ko:"굶주림"}, body:`
-        생존에 실패했는데 그 턴에 먹을 음식이 <b>부족하면</b> 굶주리기 시작한다.
-        음식이 모자란 <b>첫 게임 턴</b>의 기술 페이즈 뒤에 굶주림 미터의 <b>첫 칸</b>을 표시하고, 이후 부족한 턴마다 <b>다음 칸</b>으로 넘어간다.
-        따로 명시가 없으면 <b>한 게임 턴에 한 단계만</b> 오른다.<br>
-        <b>1단계</b> — <st>energy</st>를 <b>쓸 수 없다</b>.<br>
-        <b>2단계</b> — <st>energy</st>를 쓸 수 없고 <st>survival</st>을 <b>굴릴 수 없다</b>(모든 생존 굴림이 치명적 실패).<br>
-        <b>3단계</b> — <b>사망</b>한다.<br>
-        굶주린 영웅은 얻은 음식을 <b>반드시 먹어야</b> 한다. 한 단계를 없애려면 <b>소모량만큼</b> 음식을 구해 즉시 먹거나 <b>Food 하위 유형</b> 아이템을 소비한다.
-        <b>한 턴에 한 단계</b>만 회복되므로, 계속 굶주린 상태라면 다음 턴에 또 먹어야 완전히 벗어난다.<br>
-        굶주림은 <b>상태(Condition)가 아니다</b> — 상태를 제거하는 아이템·효과로는 없앨 수 없다.<br>
-        전투 밖에서는 <b>음식·골드·아이템</b>을 그룹원끼리 자유롭게 나눌 수 있다.`},
+        <div class="rule-v">생존에 실패했는데 그 턴에 먹을 음식이 <b>부족하면</b> 굶주린다.
+          부족한 <b>첫 게임 턴</b>의 기술 페이즈 뒤에 첫 칸을 표시하고, 이후 부족한 턴마다 다음 칸으로 넘어간다.
+          따로 명시가 없으면 <b>한 턴에 한 단계</b>만 오른다.</div>
+        <div class="rule-h">단계</div>
+        <div class="rule-grid">
+          <div class="rule-k" style="color:var(--g-energy)">1단계</div><div class="rule-v"><st>energy</st>를 <b>쓸 수 없다</b></div>
+          <div class="rule-k" style="color:var(--g-explore)">2단계</div><div class="rule-v"><st>energy</st> 사용 불가 + <st>survival</st>을 <b>굴릴 수 없다</b>(모두 치명적 실패)</div>
+          <div class="rule-k" style="color:var(--g-attack)">3단계</div><div class="rule-v"><b>사망</b></div>
+        </div>
+        <div class="rule-h">벗어나기</div>
+        <div class="rule-grid">
+          <div class="rule-k">방법</div><div class="rule-v"><b>소모량만큼</b> 음식을 구해 즉시 먹거나 <b>Food 하위 유형</b> 아이템을 소비 &rarr; <b>한 단계</b> 감소</div>
+          <div class="rule-k">제약</div><div class="rule-v">굶주린 영웅은 얻은 음식을 <b>반드시</b> 먹는다 · <b>한 턴에 한 단계</b>만 회복</div>
+          <div class="rule-k">주의</div><div class="rule-v">굶주림은 <b>상태가 아니다</b> — 상태 제거 아이템·효과로는 없앨 수 없다</div>
+        </div>
+        <div class="rule-v" style="margin-top:8px">전투 밖에서는 <b>음식 · 골드 · 아이템</b>을 그룹원끼리 자유롭게 나눌 수 있다.</div>`},
+
+      {title:{en:"Circumstance Cards", ko:"상황 카드"}, body:`
+        <div class="rule-grid">
+          <div class="rule-k">Interrupt</div><div class="rule-v">뽑는 <b>즉시</b> 해결한다. 카드를 들여다보는 효과로는 발동하지 않으며, 한 턴에 <b>여러 장</b>이 나올 수 있다</div>
+          <div class="rule-k">Unavoidable</div><div class="rule-v">상황 단계에 나오면 <b>신중한 이동을 했더라도 피할 수 없다</b>.
+            다만 <b>플레이 중이 아니라면</b> 아이템·효과로 버릴 수는 있다</div>
+          <div class="rule-k">건너뛰는 경우</div><div class="rule-v">이동을 <b>보스 · 지하묘지 · 수도원 · 마을</b>에서 끝냈다면 상황 단계를 건너뛴다</div>
+          <div class="rule-k">신중하게 버리기</div><div class="rule-v"><b>야영</b>했거나 <b>신중한 이동</b>을 했다면, 굴려 나온 카드를 <b>플레이하지 않고 버릴</b> 수 있다</div>
+        </div>`},
+
+      {title:{en:"Circumstance Types", ko:"상황 카드 종류"}, body:`
+        <div class="rule-h">Investigations 조사</div>
+        <div class="rule-v">결과가 나오면 해당 슬롯에 <b>단서</b>를 놓는다. 그룹은 <b>특정 장소로 이동</b>해 <b>이벤트 단계</b>에 해결해야 한다.
+          다른 종류와 달리 <b>버려지지 않고</b>, 조사를 완료하거나 게임 효과로 버려질 때까지 상황 바에 남는다.</div>
+        <div class="rule-h">Afflictions 고통</div>
+        <div class="rule-v">그룹에 걸리는 <b>부정적</b> 상황으로 <b>여러 개</b>가 동시에 걸릴 수 있다.
+          뽑은 턴부터 카드에 적힌 <b>턴 수</b>만큼 유지되며, <b>수도원</b> 방문으로도 제거된다. 일부는 카드를 <b>추가로 뽑게</b> 한다.</div>
+        <div class="rule-h">Events · Discoveries · Treasure</div>
+        <div class="rule-v">각 상황 덱에 다양하게 들어 있다. <b>발견</b>은 명시가 없으면 <b>같은 장소에 겹쳐</b> 놓을 수 있다.</div>
+        <div class="rule-h">Nature 자연</div>
+        <div class="rule-v">그룹에 영향을 주는 환경 상황. <b>한 번에 하나만</b> 유지되며, 새로 뽑은 카드가 기존 효과를 <b>대체</b>한다.</div>
+        <div class="rule-h">Heroic 영웅</div>
+        <div class="rule-grid">
+          <div class="rule-k">짝</div><div class="rule-v">각 카드가 <b>미르자 녹티스의 직업 하나</b>와 짝지어져 있다. 시작 전에 원하는 카드를 덱에서 <b>빼둘 수</b> 있다</div>
+          <div class="rule-k">뽑았을 때</div><div class="rule-v">그 직업이 게임에 있으면 슬롯에 놓고, 없으면 버리고 다시 뽑는다</div>
+          <div class="rule-k">사용</div><div class="rule-v">굴림으로 나오면 <b>단서를 놓거나</b>(최대 3개) 카드에 적힌 <b>마스터리</b>로 <b>스탯 테스트</b>를 한다</div>
+          <div class="rule-k">단서 효과</div><div class="rule-v">붙은 단서는 마스터리 굴림 결과를 <b>1씩 낮춘다</b></div>
+          <div class="rule-k">결과</div><div class="rule-v">성공 &rarr; 효과를 얻고 카드를 <b>참고용으로 보관</b> · 실패 &rarr; <b>버린다</b></div>
+        </div>`},
+
       RULES_COMBAT,
     ],
     items: [
@@ -1426,7 +1469,7 @@ const SERIES = {
           &#9317; 소굴의 각 헥스에는 <b>룬</b> 기호가 있다.<br>
           &#9318; 소굴 타일에 들어서면 그 보스의 영향 아래 놓인다. 타일 안의 다른 헥스로 <b>더 움직일 필요는 없다</b>. 시간은 던전에 들어간 것처럼 소모되지만, <b>던전 안에 있는 것으로 치지는 않는다</b>.<br>
           &#9319; 보스와 맞서기 전에, 있는 타일에 표시된 <b>룬과 맞는 던전 카드</b>를 뽑아 <b>한 장씩</b> 원하는 순서로 해결한다. 이때 그 카드들을 보상으로 가져가지는 않는다. 보스와 맞서려면 <b>시간이 최소 1</b> 남아 있어야 하며, 그 전에 시간이 떨어지면 <b>도주한 것으로</b> 처리한다.<br>
-          &#9320; 던전 카드 사이에 <b>도주</b>할 수 있으나 보상 없이 사건이 끝난다. 도주 후에는 <b>배회</b> 대신 <b>Roam</b>하며, 소굴 타일은 지도에 남는다. 한 번에 벗어나지 못하면 완전히 빠져나갈 때까지 계속 Roam한다.<br>
+          &#9320; 던전 카드 사이에 <b>도주</b>할 수 있으나 보상 없이 사건이 끝난다. 도주 후에는 <kw>wander</kw> 대신 <kw>roam</kw>하며, 소굴 타일은 지도에 남는다. 한 번에 벗어나지 못하면 완전히 빠져나갈 때까지 계속 <kw>roam</kw>한다.<br>
           &#9321; 마지막 던전 카드를 해결하면 <b>즉시 보스 전투</b>가 시작된다. 쓰러뜨리면 사용한 던전 카드를 <b>모두 보상</b>으로 얻고, 실패하면 던전 카드도 보물도 얻지 못한다.<br>
           &#9322; 던전 카드를 모두 해결하고 보스를 쓰러뜨리면 소굴이 정리되어 타일을 치운다. 원래 자리에 <b>헥스 토큰</b>을 놓고 타일은 다시 소굴 더미로 돌린다. 가려져 있던 특수 장소가 이용 가능해진다.`},
         {name:{en:"Castle Noctis",ko:"녹티스 성"}, desc:`녹티스가 성을 <b>보강</b>해 가는 방식. <b>한 번 클리어한 뒤</b> 즐기기를 권한다. 여섯 갈래 길 중 하나로 잠입해야 하며, <b>피의 웅덩이가 100</b>이 되면 이 방식에서도 녹티스가 직접 나선다.<br>
@@ -1440,7 +1483,7 @@ const SERIES = {
           <b>치명적 실패</b>가 나오면 진행 시점과 현재 피의 웅덩이에 따른 <b>보스</b>와 먼저 싸운다(이미 쓰러뜨린 보스가 나오면 녹티스와 대결). 피의 웅덩이 <b>30 미만 / 31~69 / 70 이상</b>으로 상대가 갈린다.`},
         {name:{en:"Želja Awakens",ko:"젤랴의 각성"}, desc:`밴시 여왕 <b>Želja젤랴</b>가 게임 시작부터 지도에 놓인다. 녹티스에게 살해당한 옛 여왕이 수백 년 만에 분노에 삼켜진 채 일어섰다.<br>
           &#9312; 밤 덱에서 젤랴의 현상금 <b>&ldquo;Banshee Queen&rdquo;</b>을 찾아 <b>밤 4번 슬롯</b>에 놓는다.<br>
-          &#9313; 젤랴의 <b>Roam 거리</b>가 피의 웅덩이와 연동된다. 거리를 굴릴 때(방향은 제외) <b>피 20마다 +1</b>(20에 +1, 40에 +2 …).<br>
+          &#9313; 젤랴의 <b><kw>roam</kw> 거리</b>가 피의 웅덩이와 연동된다. 거리를 굴릴 때(방향은 제외) <b>피 20마다 +1</b>(20에 +1, 40에 +2 …).<br>
           &#9314; 젤랴를 쓰러뜨리면 격파 보상과 현상금 보상을 함께 얻고 그 현상금은 따로 빼둔다. <b>다시 돌아올 수 있다.</b><br>
           &#9315; 피의 웅덩이가 <b>20의 배수</b>가 될 때마다 젤랴가 <b>부활</b>한다. 게임 턴이 끝날 때 밤 4번 슬롯의 카드를 버리고 그 자리에 현상금을 다시 놓는다. 돌아올 때마다 <b>Dangerous</b>가 되며, 여러 번 중첩될 수 있다.<br>
           &#9316; <b>Dangerous</b>인 동안에는 녹티스의 <b>Collector</b>를 파괴한다. 콜렉터가 있는 곳에서 <b>1헥스 이내</b>로 이동할 때마다 그 자리에서 콜렉터를 <b>1개</b> 제거한다.<br>
