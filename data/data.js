@@ -1772,6 +1772,104 @@ const R5_DEATH = {title:{en:"Death & Revival", ko:"죽음 · 부활"}, body:`
   <div class="rule-v">죽었다면 새 영웅을 만들 수 있다. <b>공성 물결마다 파워업 3장</b>, <b>골드 10</b>, <b>음식 소모량×3</b>을 갖고 시작하며,
     그룹이 <b>도시국가 · 사원 · 정착지 · 유적 · 탑 · 요새</b> 중 한 곳에서 이동을 끝낸 다음 <b>기술 단계 뒤에</b> 합류한다.</div>`};
 
+/* ── 5편 확장 게임 모드 — 카프라칸 귀환 · 이시단 귀환 ── */
+const C_TAG = `<span class="rule-tag" style="border-color:var(--g-attack);color:var(--g-attack)">변경</span>`;
+
+const RC_INTRO = {title:{en:"Return to Caprakan", ko:"카프라칸 귀환 — 개요"}, body:`
+  <div class="rule-v">Jaethi가 오기 <b>이전</b>의 시간선. 반신들이 힘을 키워 원소 균형이 무너지고,
+    영원한 황혼이 드리우며 <b>Kualotekutli</b>가 깨어난다. 세계의 장막이 얇아지면 Jaethi가 돌아온다.</div>
+  <div class="rule-h" style="color:var(--g-navigate)">승리 조건 <span style="font-family:'Noto Serif KR';text-transform:none;letter-spacing:0;color:var(--ink-faint)">— 하나만 달성하면 된다</span></div>
+  <div class="rule-grid">
+    <div class="rule-k">보스 격파</div><div class="rule-v"><b>Kualotekutli</b>(레벨 10 보스)를 쓰러뜨린다</div>
+    <div class="rule-k">태피스트리</div><div class="rule-v"><b>다섯 원소 모두</b>의 태피스트리를 <b>복원</b>한다</div>
+    <div class="rule-k">헌신</div><div class="rule-v"><b>다섯 보스 모두</b>에게 <b>Dedicated</b> 상태가 된다</div>
+  </div>
+  <div class="rule-h" style="color:var(--g-attack)">패배 조건</div>
+  <div class="rule-grid">
+    <div class="rule-k">도시국가</div><div class="rule-v"><b>Aztlant</b>가 파괴된다</div>
+    <div class="rule-k">시간</div><div class="rule-v">마지막 공성에서 <b>캘린더가 0</b>이 된다</div>
+    <div class="rule-k">자원</div><div class="rule-v">비축의 <b>Recruit 신병이 0</b>이 된다</div>
+  </div>
+  <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">이전 편들과 달리 <b>영웅의 죽음은 패배 조건이 아니다</b>.</div>`};
+
+const RC_DIFF = {title:{en:"What Changes", ko:"코어와 달라지는 것"}, body:`
+  <div class="rule-h">지도 ${C_TAG}</div>
+  <div class="rule-grid">
+    <div class="rule-k">타일</div><div class="rule-v"><b>카프라칸 타일만</b> 사용하며, 진행 중 <b>지도를 넓히지 않는다</b></div>
+    <div class="rule-k">공성 관문</div><div class="rule-v"><b>10개 대신 12개</b>. 배치를 굴릴 때 코어 주사위가 아니라 <b>Wellspring 주사위</b>를 쓴다</div>
+    <div class="rule-k">보스</div><div class="rule-v">보스 토큰을 <b>처음에 놓지 않으며</b>, 보스 소굴은 <b>통행 불가</b>로 시작한다</div>
+    <div class="rule-k">SkyTile</div><div class="rule-v"><b>Nether 면만</b> 쓴다 — 떠 있는 산과 Riser는 <b>사용하지 않는다</b></div>
+  </div>
+  <div class="rule-h">진행 ${C_TAG}</div>
+  <div class="rule-grid">
+    <div class="rule-k">획득량</div><div class="rule-v">시작값이 <b>2</b>로 줄어든다</div>
+    <div class="rule-k">야영</div><div class="rule-v">야영할 때마다 <b>추가 효과</b>를 얻는다 — Nether 타일 배치 · <b>치명상 제거</b> · Primordial Center 뒤집기 등</div>
+    <div class="rule-k">탑 · 요새</div><div class="rule-v"><b>건설할 수 없다</b>. 단 <b>사원 요새</b>는 지을 수 있다</div>
+    <div class="rule-k">Jaethi</div><div class="rule-v">말 · 공성 판 · <b>Imbalance를 쓰지 않는다</b>. 캘린더도 조금 다르다(<b>Short Count</b>)</div>
+    <div class="rule-k">빌런 덱</div><div class="rule-v"><b>Fifth Sun 덱</b>이 Jaethi 덱을 대신한다. 그 덱의 <b>siege! 카드마다 코어 보스 하나</b>가 묶여 있다</div>
+  </div>
+  <div class="rule-h">새로 생기는 것</div>
+  <div class="rule-grid">
+    <div class="rule-k">Aztlant</div><div class="rule-v">새 도시국가. <b>반드시 지켜야 한다</b>. 코어의 카프라칸 도시국가 둘도 등장하지만 <b>그 몰락은 승패와 무관</b>하다.
+      제국 타일 뒷면이 <b>Eternal Twilight 영원한 황혼</b>이며, 이때 새 빌런 <b>Kualotekutli</b>가 활동한다</div>
+    <div class="rule-k">사원</div><div class="rule-v">영원한 황혼에 <b>Temple of the Everlasting</b>이 나타난다</div>
+    <div class="rule-k">시작 자원</div><div class="rule-v">비축에 <b>Recruit 40 · Specialist 8</b>을 갖고 시작한다</div>
+    <div class="rule-k">Primordial Center</div><div class="rule-v">기본 4원소마다 하나씩, <b>네 곳</b>이 존재한다</div>
+    <div class="rule-k">Shaman 샤먼</div><div class="rule-v">최대 <b>6개</b>의 샤먼 토큰을 얻을 수 있다. <b>Aetherial Ore</b>처럼 소비할 수 있으며 <b>승리에 핵심</b>이다</div>
+    <div class="rule-k">태피스트리 · 헌신</div><div class="rule-v"><b>복원</b>과 <b>Dedication</b>이 각각 승리 조건이 된다(헌신은 코어와 작동 방식이 다르다)</div>
+  </div>`};
+
+const RI_INTRO = {title:{en:"Return to Ishidan", ko:"이시단 귀환 — 개요"}, body:`
+  <div class="rule-v">역시 Jaethi 이전의 시간선. 황금룡 <b>Tenryu</b>의 한 조각이 <b>네 원소로 갈라지고</b>,
+    황제에 반기를 든 사원들이 그것을 풀어주려 한다. 봉인이 무너지며 원소 균형이 기울고 <b>패턴</b>이 풀리기 직전에 이른다.</div>
+  <div class="rule-h" style="color:var(--g-navigate)">승리 조건</div>
+  <div class="rule-v"><b>네 신룡</b>을 모두 쓰러뜨린다.</div>
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t">신룡의 소굴은 시작할 때 <b>통행 불가</b>다</span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t">영웅이 <b>이동식 탑을 조종(Pilot)</b>해 <b>사원</b>으로 가서 <b>정복</b>한다</span></div>
+    <div class="rule-step"><span class="n">3</span><span class="t">정복에 성공하면 그 신룡을 지키던 <b>장벽이 내려가고</b>(타일을 소굴 면으로 뒤집는다) 전투가 가능해진다</span></div>
+  </div>
+  <div class="rule-h" style="color:var(--g-attack)">패배 조건</div>
+  <div class="rule-grid">
+    <div class="rule-k">시간</div><div class="rule-v"><b>마지막 빌런 카드</b>를 처리했는데 신룡이 하나라도 살아 있다</div>
+    <div class="rule-k">도시국가</div><div class="rule-v"><b>Hanei의 네 구역이 모두</b> 파괴된다</div>
+    <div class="rule-k">토큰</div><div class="rule-v"><b>Fortify 토큰</b>이 떨어진다</div>
+  </div>
+  <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">여기서도 <b>영웅의 죽음은 패배 조건이 아니다</b>.</div>`};
+
+const RI_DIFF = {title:{en:"What Changes", ko:"코어와 달라지는 것"}, body:`
+  <div class="rule-h">지도 ${C_TAG}</div>
+  <div class="rule-grid">
+    <div class="rule-k">타일</div><div class="rule-v"><b>이시단 타일만</b> 쓰고 <b>지도를 넓히지 않는다</b></div>
+    <div class="rule-k">공성 관문</div><div class="rule-v"><b>10개 대신 4개</b>. 배치는 <b>Dragon 주사위</b>로 굴린다</div>
+    <div class="rule-k">SkyTile</div><div class="rule-v">준비 단계에 <b>9장</b>을 놓는다 — <b>Riser 없는 5번</b>(사원이 있는 타일) + <b>Riser 있는 무작위 8장</b></div>
+    <div class="rule-k">처음부터 배치</div><div class="rule-v"><b>Waypoint 토큰 5개</b>(새 이벤트 장소) · <b>탑 4개 전부</b> · <b>신룡 소굴 4곳</b> ·
+      기본 4원소 <b>공성 덱</b>을 슬롯에</div>
+    <div class="rule-k">보스</div><div class="rule-v">보스 토큰을 처음에 놓지 않는다. 코어의 보스 <b>2·3·4·5·8번은 등장하지 않는다</b></div>
+  </div>
+  <div class="rule-h">진행 ${C_TAG}</div>
+  <div class="rule-grid">
+    <div class="rule-k">획득량</div><div class="rule-v">시작값이 <b>4</b>로 늘어난다. 매 턴 이 값으로 <b>자원을 얻거나 탑을 조종</b>한다</div>
+    <div class="rule-k">이동</div><div class="rule-v">그룹 이동력이 <b>조금 빨라진다</b></div>
+    <div class="rule-k">Jaethi</div><div class="rule-v">말과 공성 판을 쓰지 않고 <b>Imbalance는 무시</b>한다</div>
+    <div class="rule-k">캘린더</div><div class="rule-v"><b>Short Count 캘린더를 쓰지 않는다</b>. 공성 적이 쓰러지면 그 깃발이 배정된 관문에서 <b>즉시 재등장</b>한다 — <b>끊이지 않는 공성</b></div>
+    <div class="rule-k">빌런 덱</div><div class="rule-v"><b>Divine Dragon 덱</b>이 Jaethi 덱을 대신한다. 새 키워드
+      <b>Voidtouched · Fortify · Rage · March</b>가 등장하며, <b>"Begin Game" 공성 카드</b>로 시작한다.
+      이 덱의 siege! 카드는 <b>수확 카드를 뽑게</b> 만든다</div>
+  </div>
+  <div class="rule-h">디펜더와 사원</div>
+  <div class="rule-grid">
+    <div class="rule-k">Hanei</div><div class="rule-v"><b>네 구역</b>으로 나뉜 새 도시국가로, <b>각 구역이 곧 하나의 도시국가</b>다.
+      중앙의 <b>2헥스만</b>이 이 게임의 유일한 <b>Magnetic</b> 장소다</div>
+    <div class="rule-k">수동 디펜더</div><div class="rule-v">Hanei를 포함한 디펜더는 공성 적을 <b>공격하지 않는다</b>. <b>탑 추적판만</b> 사용한다</div>
+    <div class="rule-k">탑</div><div class="rule-v">시작부터 <b>4개 모두</b> 있고, 각자 <b>Tower Augment 카드</b>와 초기 보너스·기본 원소 Augment를 받는다.
+      <b>Bolster가 Piloting으로 대체</b>되며 새 행동들이 추가된다</div>
+    <div class="rule-k">원소</div><div class="rule-v"><b>영웅과 탑에만</b> Augment할 수 있다 — 원소판의 "디펜더에 부여" 부분은 쓰지 않는다</div>
+    <div class="rule-k">사원</div><div class="rule-v">이 모드에서는 <b>디펜더가 아니다</b>(코어 사원판 미사용).
+      다섯 중 <b>네 곳</b>이 신룡에게 바쳐져 있으며, 탑을 몰고 가 <b>Temple Guardian</b>과 싸워 정복한다</div>
+    <div class="rule-k">신룡 레벨</div><div class="rule-v">현재 <b>공성 물결</b>에 따라 정해진다</div>
+  </div>`};
+
 /* 게임 난이도 — 캐릭터판 최상단에서 고른다.
    게임 중 상승 조건: 마을에서 Collector 3마리 격파 시 +1, 파워업 덱이 떨어지면 +1 */
 const DIFFICULTY = [
@@ -2265,6 +2363,20 @@ const SERIES = {
     extras: [],     /* 아래에서 채운다 */
   },
 
+  "5c": {
+    id:"5c", name:{en:"Edition 5 · Return to Caprakan", ko:"5편 · 카프라칸 귀환"}, short:"5C", ord:4,
+    note:{ko:"Jaethi 이전의 시간선. 반신들이 균형을 무너뜨린다"},
+    keywords: KW_COMMON, exKeywords: KW_SIEGE, conditions: CONDITIONS,
+    rules: [], items: [], extras: [],
+  },
+
+  "5i": {
+    id:"5i", name:{en:"Edition 5 · Return to Ishidan", ko:"5편 · 이시단 귀환"}, short:"5I", ord:5,
+    note:{ko:"봉인이 무너지고 네 신룡이 깨어난다"},
+    keywords: KW_COMMON, exKeywords: KW_SIEGE, conditions: CONDITIONS,
+    rules: [], items: [], extras: [],
+  },
+
   "5": {
     id:"5", name:{en:"Hexplore It — Edition 5", ko:"헥스플로어 잇 — 5편"}, short:"5", ord:3,
     keywords: KW_COMMON,
@@ -2289,6 +2401,20 @@ const SERIES = {
   const ex = SERIES["4"].extras, byId = id => ex.find(x => x.id === id);
   SERIES["4b"].extras = [byId("dungeon"), byId("rune"), BREACH_TAB, byId("valor")].filter(Boolean);
   SERIES["4b"].items = SERIES["4"].items;
+})();
+
+/* 5편 확장 모드는 코어 5편의 공통 룰을 그대로 쓰고, 달라지는 것만 앞에 얹는다 */
+(function(){
+  const base = SERIES["5"].rules;
+  const pick = en => base.find(r => r.title.en === en);
+  const common = ["Movement Phase","Event Phase & Range","Resources & Elements","Defenders",
+                  "Special Tiles","Siege Portals","Combat Reference","Elemental Damage",
+                  "Outlast Opponents","Death & Revival"].map(pick).filter(Boolean);
+  SERIES["5c"].rules = [RC_INTRO, RC_DIFF, pick("Game Stages"), pick("Turn Sequence"),
+                        pick("Harvest Stage"), pick("Siege Stage"), ...common];
+  SERIES["5i"].rules = [RI_INTRO, RI_DIFF, pick("Game Stages"), pick("Turn Sequence"),
+                        pick("Harvest Stage"), pick("Siege Stage"), ...common];
+  SERIES["5c"].items = SERIES["5i"].items = SERIES["5"].items;
 })();
 
 /* 엔진에서 접근할 수 있게 전역으로 노출 */
