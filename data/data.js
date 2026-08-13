@@ -1874,7 +1874,7 @@ const RI_DIFF = {title:{en:"What Changes", ko:"코어와 달라지는 것"}, bod
    게임 중 상승 조건: 마을에서 Collector 3마리 격파 시 +1, 파워업 덱이 떨어지면 +1 */
 const DIFFICULTY = [
   {id:"starter", en:"Starter", ko:"스타터", c:"#8fb6a8",
-   passive:"적은 <kw>block</kw>·<kw>defend</kw>·<kw>evasion</kw>을 얻지 못한다",
+   passive:"적은 <kw>block</kw>·<kw>defend</kw>·<kw>evasion</kw>를 얻지 못한다",
    vitals:"레벨만큼 감소", outlast:"-2 (최소 1)", damage:"-1 (최소 1)", penalty:"변화 없음", gear:"변화 없음"},
   {id:"easy", en:"Easy", ko:"쉬움", c:"#5bbf5b",
    passive:"변화 없음", vitals:"변화 없음", outlast:"변화 없음", damage:"변화 없음", penalty:"변화 없음", gear:"변화 없음"},
@@ -1884,9 +1884,9 @@ const DIFFICULTY = [
    passive:"보스가 <b>Difficult</b> 패시브를 얻는다",
    vitals:"영웅당 +10", outlast:"+2", damage:"+2", penalty:"+1", gear:"기어 업그레이드 <b>5 이하</b>"},
   {id:"heroic", en:"Heroic", ko:"영웅적", c:"#e8622f",
-   passive:"변화 없음", vitals:"영웅당 +25", outlast:"+4", damage:"+4", penalty:"+2", gear:"기어 업그레이드 <b>9 이하</b>"},
+   passive:"보스가 <b>Difficult</b> 패시브를 얻는다", vitals:"영웅당 +25", outlast:"+4", damage:"+4", penalty:"+2", gear:"기어 업그레이드 <b>9 이하</b>"},
   {id:"epic", en:"Epic", ko:"에픽", c:"#e03a3a",
-   passive:"변화 없음", vitals:"영웅당 +50", outlast:"+6", damage:"+6", penalty:"+3", gear:"기어 업그레이드 <b>제한 없음</b>"},
+   passive:"보스가 <b>Difficult</b> 패시브를 얻는다", vitals:"영웅당 +50", outlast:"+6", damage:"+6", penalty:"+3", gear:"기어 업그레이드"},
 ];
 
 const SERIES = {

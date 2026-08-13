@@ -21,6 +21,27 @@
   --accent:#f3a8c0;--accent-dim:#a4425f;
   --glow-1:rgba(63,140,90,.13);--glow-2:rgba(243,168,192,.07);
 }
+/* 4B 균열 — 승천한 녹티스의 자줏빛 어스름 */
+:root[data-series="4b"]{
+  --void:#0d070f;--panel:#1a0f1c;--panel-2:#231428;--edge:#361d3a;--edge-bright:#4b2a52;
+  --ink:#f0e6f2;--ink-dim:#c0a6c4;--ink-faint:#856a8a;--gold:#c98fb0;
+  --accent:#e07ab0;--accent-dim:#8e3468;
+  --glow-1:rgba(160,40,110,.14);--glow-2:rgba(120,50,150,.07);
+}
+/* 5C 카프라칸 귀환 — 정글의 짙은 녹빛 */
+:root[data-series="5c"]{
+  --void:#060d08;--panel:#0d1a10;--panel-2:#132516;--edge:#1d3722;--edge-bright:#2b4e31;
+  --ink:#e8f3e9;--ink-dim:#a3c2a8;--ink-faint:#688a6e;--gold:#c9a227;
+  --accent:#63d688;--accent-dim:#2f7a45;
+  --glow-1:rgba(60,150,85,.15);--glow-2:rgba(100,200,130,.06);
+}
+/* 5I 이시단 귀환 — 벚꽃빛 어스름 */
+:root[data-series="5i"]{
+  --void:#0d0709;--panel:#1c1014;--panel-2:#26161c;--edge:#3a2028;--edge-bright:#512d38;
+  --ink:#f6e9ee;--ink-dim:#cfa8b6;--ink-faint:#8d6975;--gold:#d8a86a;
+  --accent:#f3a8c0;--accent-dim:#a4425f;
+  --glow-1:rgba(200,90,130,.14);--glow-2:rgba(240,170,195,.06);
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--void);color:var(--ink)}
 body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
@@ -37,8 +58,12 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 /* 배경 — 은빛 헥스 격자(틀)는 고정이고, 그 아래로 오로라가 좌하단→우상단으로 흐른다.
    오로라는 두 번 쓰인다: 배경 전체에 아주 옅게 + 헥스 선 모양으로 잘라 진하게.
    덕분에 선의 색이 오로라가 지나갈 때마다 바뀌며 흐르는 것처럼 보인다. */
-#hexbg{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--hexbg-op,1)}
+#hexbg{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--hexbg-op,1);
+  overflow:hidden;contain:strict}
 #hexbg i{position:absolute;inset:0;display:block}
+/* 흐름은 background-position 이 아니라 transform 으로 굴린다 —
+   background-position 은 매 프레임 전체를 다시 그려 모바일에서 크게 버벅인다. */
+#hexbg .aurora{inset:-1000px -1400px;will-change:transform;transform:translate3d(0,0,0)}
 #hexbg .grid{background-image:var(--hexgrid);background-position:center top}
 /* 오로라 — 색 덩어리들을 한 타일에 담고 타일 하나만큼 밀어 이음매 없이 순환시킨다 */
 #hexbg .aurora{
@@ -51,7 +76,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
   background-size:1400px 1000px;background-repeat:repeat}
 /* 흐름(background-position)은 engine/app.js 의 rAF 루프가 굴린다 —
    체력 구간이 바뀌어도 위치가 이어지고 속도만 서서히 변한다 */
-#hexbg .wash{opacity:.09;filter:blur(6px)}                 /* 배경 전체에 엷게 */
+#hexbg .wash{opacity:.10}                                   /* 배경 전체에 엷게 */
 #hexbg .line{opacity:.85;                                   /* 헥스 선에만 진하게 */
   -webkit-mask-image:var(--hexmask);mask-image:var(--hexmask);
   -webkit-mask-position:center top;mask-position:center top}
@@ -85,6 +110,10 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
   32%{opacity:.42}
   100%{opacity:.42}}
 @media (prefers-reduced-motion:reduce){:root[data-hp="crit"] #hexbg .line,:root[data-hp="crit"] #hexbg .wash{animation:none}}
+/* 좁은 화면(휴대폰)에서는 마스크 레이어를 생략한다 — 전면 마스크가 가장 무겁다 */
+@media (max-width:820px){#hexbg .line{display:none} #hexbg .wash{opacity:.16}}
+/* 배경 효과 끄기 — 툴바에서 전환하며 localStorage 에 남는다 */
+:root[data-bg="off"] #hexbg{display:none}
 #app,.wrap{position:relative;z-index:1}
 
 /* ---------- builder / series ---------- */

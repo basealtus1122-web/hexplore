@@ -635,6 +635,7 @@ function renderBoard(){
     <button class="tbtn" id="tbRecords">게임 기록</button>
     <button class="tbtn warn" id="tbEnd">게임 종료·기록</button>
     <button class="tbtn" id="tbNew">새 캐릭터</button>
+    <button class="tbtn" id="tbBg" title="배경 효과를 끄면 느린 기기에서 부드러워집니다">배경 효과</button>
   </div>`;
 
   let content = APP.tab==="board" ? boardBody(char) : referenceBody(char,series,APP.tab);
@@ -657,6 +658,8 @@ function renderBoard(){
   $("#tbExport").onclick=exportCharacter;
   $("#tbRecords").onclick=recordsModal;
   $("#tbEnd").onclick=endGameModal;
+  const bgb=$("#tbBg");if(bgb){bgb.textContent=bgOn()?"배경 효과 끄기":"배경 효과 켜기";
+    bgb.onclick=()=>{setBg(!bgOn());renderBoard();};}
   $("#tbNew").onclick=()=>{if(confirm("현재 캐릭터를 두고 새 캐릭터를 만들까요? (저장하지 않은 변경은 사라집니다)")){APP.sel={raceId:null,classId:null,traitIds:[]};APP.char=null;APP.screen="builder";render();}};
 
   if(APP.tab==="board")bindBoard(char); else bindRefList();
@@ -757,10 +760,18 @@ function renderDifficulty(char){
 /* 난이도 머리글 — 접어도 보이는 부분: 현재 난이도 + 상승 조건 */
 function difficultyHead(char){
   const d=DIFFICULTY.find(x=>x.id===(char.difficulty||"easy"))||DIFFICULTY[1];
+  /* 접어도 지금 난이도의 보정치가 보이도록 — '변화 없음' 항목은 생략한다 */
+  const eff=[["passive","패시브"],["vitals","적 생명력"],["outlast","지속력"],
+             ["damage","적 피해"],["penalty","페널티"],["gear","기어"]]
+    .filter(([k])=>d[k]&&d[k]!=="변화 없음")
+    .map(([k,ko])=>`<span style="white-space:nowrap"><span style="color:var(--ink-faint)">${ko}</span> ${d[k]}</span>`)
+    .join(`<span style="color:var(--edge-bright)">·</span>`);
   return `<span style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-family:'Noto Serif KR';text-transform:none;letter-spacing:0">
     <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;border:1px solid ${d.c};background:color-mix(in srgb,${d.c} 16%,transparent)">
       <b style="font-family:'Cinzel';color:${d.c}">${d.en}</b><span style="font-size:.86em;color:var(--ink-dim)">${d.ko}</span></span>
-    <span style="font-size:11.5px;color:var(--ink-faint)">게임 중 다음 경우 <b>1 상승</b> — 마을에서 <b>Collector 3마리</b> 격파 시 · <b>파워업 덱</b>이 다 떨어졌을 때</span>
+    ${eff?`<span style="display:flex;gap:7px;flex-wrap:wrap;font-size:12px;color:var(--ink-dim)">${eff}</span>`
+        :`<span style="font-size:12px;color:var(--ink-faint)">보정 없음</span>`}
+    <span style="flex-basis:100%;font-size:11.5px;color:var(--ink-faint)">게임 중 다음 경우 <b>1 상승</b> — 마을에서 <b>Collector 3마리</b> 격파 시 · <b>파워업 덱</b>이 다 떨어졌을 때</span>
   </span>`;
 }
 /* 판을 묶어 접었다 펼 수 있는 그룹. extra 는 머리글 오른쪽 버튼(접기와 별개로 동작) */
@@ -1102,16 +1113,16 @@ function recordsModal(){
    ROUTER
    ===================================================================== */
 /* 편별 테마 — 캐릭터판에서는 그 편의 분위기 색을 적용(능력치 9색은 공용이라 그대로) */
-const SERIES_ACCENT={"4":"#bf94f5","4b":"#e0574c","5":"#f3a8c0","5c":"#e8912f","5i":"#63d688"};
+const SERIES_ACCENT={"4":"#bf94f5","4b":"#c34a86","5":"#f3a8c0","5c":"#63d688","5i":"#f3a8c0"};
 /* 오로라 흐름 — Web Animations API 로 굴린다.
    속도를 바꿀 때 playbackRate 만 조정하면 재생 위치가 그대로 유지되므로,
    체력 구간이 바뀌어도 흐르던 자리에서 자연스럽게 빨라지거나 느려진다.
    (CSS animation-duration 을 바꾸면 위치가 튀기 때문에 이 방식을 쓴다) */
 const AURORA={base:20000, cycle:{"":20, low:9, crit:2.4}, anims:[]};
 function startAurora(){
-  if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  if(!bgOn()||matchMedia("(prefers-reduced-motion:reduce)").matches)return;
   AURORA.anims=[...document.querySelectorAll("#hexbg .aurora")].map(el=>
-    el.animate([{backgroundPosition:"0px 0px"},{backgroundPosition:"1400px -1000px"}],
+    el.animate([{transform:"translate3d(0,0,0)"},{transform:"translate3d(1400px,-1000px,0)"}],
       {duration:AURORA.base,iterations:Infinity,easing:"linear"}));
 }
 function setHpState(hp){
@@ -1140,9 +1151,15 @@ function applyTheme(){
   if(s&&s!=="4")document.documentElement.setAttribute("data-series",s);
   else document.documentElement.removeAttribute("data-series");
 }
+/* 배경 효과 on/off — 느린 기기를 위해 끌 수 있고 선택은 저장된다 */
+function bgOn(){try{return localStorage.getItem("hex.bg")!=="off";}catch(e){return true;}}
+function setBg(on){try{localStorage.setItem("hex.bg",on?"on":"off");}catch(e){}
+  document.documentElement.setAttribute("data-bg",on?"on":"off");
+  if(on&&!AURORA.anims.length)startAurora();}
 /* 배경 — 오로라(엷게) → 은빛 헥스 격자 → 오로라(헥스 선 모양으로 잘라 진하게).
    모양·색·흐름은 전부 style.css 가 맡는다(#hexbg 규칙). */
 function ensureHexBg(){
+  document.documentElement.setAttribute("data-bg",bgOn()?"on":"off");
   if(document.getElementById("hexbg"))return;
   const d=document.createElement("div");d.id="hexbg";d.setAttribute("aria-hidden","true");
   d.innerHTML='<i class="aurora wash"></i><i class="grid"></i><i class="aurora line"></i>';
