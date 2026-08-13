@@ -1605,6 +1605,52 @@ const SERIES = {
           <div class="rule-k">결과</div><div class="rule-v">성공 &rarr; 효과를 얻고 카드를 <b>참고용으로 보관</b> · 실패 &rarr; <b>버린다</b></div>
         </div>`},
 
+      {title:{en:"Villain Phase", ko:"빌런 단계 · 미르자 녹티스"}, body:`
+        <div class="rule-steps">
+          <div class="rule-step"><span class="n">1</span><span class="t"><b>피 수확</b> — 마을에 있는 <b>콜렉터 수만큼</b> 피의 웅덩이가 오른다(각 주사위 눈을 합산)</span></div>
+          <div class="rule-step"><span class="n">2</span><span class="t"><b>빌런 행동</b> — 그 턴의 <b>보정</b>을 확인한 뒤 <b>달 주사위</b>를 굴려 빌런 행동표의 효과를 처리한다</span></div>
+          <div class="rule-step"><span class="n">3</span><span class="t"><b>배회</b> — 이 단계 끝에 배회하는 보스와 토큰이 <kw>roam</kw>한다(따로 명시가 없다면)</span></div>
+        </div>
+        <div class="rule-h">Blood Pool 피의 웅덩이</div>
+        <div class="rule-grid">
+          <div class="rule-k">강해짐</div><div class="rule-v">피 <b>20마다</b> <kw>aegis</kw> <b>2</b>를 얻는다</div>
+          <div class="rule-k">유형 변화</div><div class="rule-v"><b>30 이상</b>이면 유형이 <b>Ascendant초월자</b>로 바뀐다</div>
+          <div class="rule-k">레벨</div><div class="rule-v"><kw>aegis</kw> 값과 무관하게 <b>항상 레벨 10</b></div>
+        </div>
+        <div class="rule-h">Villain Action Modifier 빌런 행동 보정</div>
+        <div class="rule-grid">
+          <div class="rule-k">얻는 곳</div><div class="rule-v">이동 방식(<b>야영 · 무모</b>)과 카드의 보정 아이콘</div>
+          <div class="rule-k">합산·초기화</div><div class="rule-v">그 턴의 보정은 <b>모두 합산</b>되고, 게임 턴이 끝나면 <b>0으로 초기화</b>된다</div>
+          <div class="rule-k">범위</div><div class="rule-v"><b>-5 ~ +6</b></div>
+        </div>`},
+
+      {title:{en:"Collectors", ko:"콜렉터"}, body:`
+        <div class="rule-grid">
+          <div class="rule-k">등장</div><div class="rule-v">빌런 행동표에서 <b>9 · 10 · 11</b>이 나오면 <b>무작위 마을</b>에 콜렉터가 나타난다</div>
+          <div class="rule-k">수 세기</div><div class="rule-v">마을마다 <b>콜렉터 주사위 1개</b>를 놓는다. 눈금 = <b>콜렉터 수</b> = 그 마을이 매 턴 녹티스에게 주는 <b>피의 양</b>.
+            처음이면 <b>1</b>로 놓고, 이미 있으면 <b>1씩 올린다</b>. 한 마을에 <b>최대 3</b></div>
+          <div class="rule-k">종류 결정</div><div class="rule-v">전투 전에 그 마을의 콜렉터 수만큼 <b>콜렉터 주사위</b>를 굴려 <b>1~3번</b> 종류를 정한다</div>
+        </div>
+        <div class="rule-h">Desolate Village 황폐한 마을</div>
+        <div class="rule-v"><b>4마리째</b>가 되려는 순간 <b>황폐한 마을 토큰</b>을 놓고 주사위는 <b>3</b>에 고정한다.
+          그 마을은 매 턴 <b>피 3</b>을 계속 생산하며, <b>구매 · 회복 · 룬 판매 · 콜렉터 전투가 모두 불가</b>해진다.
+          더 이상 이벤트 장소가 아니며, 그 자리에서는 <b>상황 카드</b>를 처리한다.</div>
+        <div class="rule-h">콜렉터와 싸우기</div>
+        <div class="rule-grid">
+          <div class="rule-k">찾기</div><div class="rule-v"><b>밤</b>에 마을에서 <b>이벤트 단계</b>에 <st>explore</st>를 굴린다. <b>절반 이상</b> 성공하면 콜렉터들을 찾아낸다</div>
+          <div class="rule-k">전투</div><div class="rule-v">찾아낸 콜렉터 <b>전부와 한 전투</b>로 맞선다. <b>치명적 성공</b>이 하나라도 있으면 <b>기습</b>한다</div>
+          <div class="rule-k">도주</div><div class="rule-v">도주하면 <b>쓰러뜨린 것까지 포함해 전부</b> 그 자리로 돌아온다</div>
+          <div class="rule-k">난이도</div><div class="rule-v">마을에서 콜렉터를 <b>3마리</b> 쓰러뜨릴 때마다 <b>게임 난이도 +1</b></div>
+        </div>`},
+
+      {title:{en:"Facing Noctis", ko:"녹티스와의 최종 전투"}, body:`
+        <div class="rule-grid">
+          <div class="rule-k">시작 조건</div><div class="rule-v">피의 웅덩이가 <b>100</b>에 도달하거나, 그룹이 <b>녹티스 성</b>(HEXtile G 중앙 헥스)에서 이동을 끝낼 때</div>
+          <div class="rule-k">증강 수</div><div class="rule-v">웅덩이 <b>10마다 1개</b>. 전투 전에 10당 <b>코어 주사위</b>를 굴려 증강표에서 결정한다</div>
+          <div class="rule-k">중복</div><div class="rule-v">같은 증강을 <b>두 번 얻을 수 없다</b>. 같은 결과가 또 나오면 <b>바로 위나 아래</b>의 남은 능력 중에서 고른다</div>
+          <div class="rule-k">보스 판</div><div class="rule-v">양면으로, <b>일반형</b>과 <b>승천형</b>이 있다. 증강된 능력은 조각을 <b>뒤집어</b> 표시한다</div>
+        </div>`},
+
       RULES_COMBAT,
     ],
     items: [

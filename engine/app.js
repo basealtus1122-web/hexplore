@@ -811,21 +811,22 @@ function referenceBody(char,series,tab){
   }
   if(tab==="rules"){
     const rs=series.rules||[];if(!rs.length)return empty("이 시리즈의 룰 참조표가 아직 비어 있습니다.");
-    return `<div class="section"><div class="sec-head">Rules · 룰</div>${rs.map(r=>`<div class="ref-block"><div class="ref-name">${r.title.en} <span class="ko">(${r.title.ko})</span></div><div class="ref-desc">${r.body}</div></div>`).join("")}</div>`;
+    return `<div class="section"><div class="sec-head">Rules · 룰</div>${rs.map(r=>`<div class="ref-block"><div class="ref-name">${r.title.en} <span class="ko">(${r.title.ko})</span></div><div class="ref-desc">${expand(char,r.body)}</div></div>`).join("")}</div>`;
   }
   if(tab==="items"){
     const its=series.items||[];if(!its.length)return empty("이 시리즈의 아이템 표가 아직 비어 있습니다.");
-    return `<div class="section"><div class="sec-head">Items · 아이템</div>${its.map(it=>refItem(it.name,it.desc,(it.tags||[]).join(" · "))).join("")}</div>`;
+    return `<div class="section"><div class="sec-head">Items · 아이템</div>${its.map(it=>refItem(char,it.name,it.desc,(it.tags||[]).join(" · "))).join("")}</div>`;
   }
   if(tab.startsWith("extra:")){
     const id=tab.slice(6),x=(series.extras||[]).find(e=>e.id===id);
     if(!x||!(x.entries||[]).length)return empty("이 참조표가 아직 비어 있습니다.");
-    return `<div class="section"><div class="sec-head">${x.label.en} · ${x.label.ko}</div>${x.entries.map(e=>refItem(e.name,e.desc)).join("")}</div>`;
+    return `<div class="section"><div class="sec-head">${x.label.en} · ${x.label.ko}</div>${x.entries.map(e=>refItem(char,e.name,e.desc)).join("")}</div>`;
   }
   return empty("탭을 찾을 수 없습니다.");
 }
-function refItem(name,desc,tag){
-  return `<div class="ref-block"><div class="ref-name">${name.en} <span class="ko">(${name.ko})</span>${tag?`<span class="ref-tag">${tag}</span>`:""}</div><div class="ref-desc">${desc||""}</div></div>`;
+/* 참조표 항목 — 설명의 키워드·스탯 토큰도 본문과 똑같이 전개한다 */
+function refItem(char,name,desc,tag){
+  return `<div class="ref-block"><div class="ref-name">${name.en} <span class="ko">(${name.ko})</span>${tag?`<span class="ref-tag">${tag}</span>`:""}</div><div class="ref-desc">${expand(char,desc||"")}</div></div>`;
 }
 /* 검색 + 접기 목록 — 평소엔 이름만, 탭하면 설명이 펼쳐진다 */
 function refList(char,title,list,note){
