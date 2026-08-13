@@ -1257,7 +1257,10 @@ const CONDITIONS = {
 };
 
 /* 전투 흐름 — 두 편 공통 */
-const RULES_COMBAT = {title:{en:"Combat Reference", ko:"전투 참조표"}, body:`
+/* 전투 절차 — 편마다 달라질 수 있어 객체를 갈라 둔다.
+   2026-08-13 확인: 4편 규칙서 71쪽과 5편 95쪽이 한 글자도 다르지 않아 지금은 본문을 함께 쓴다.
+   한쪽만 고쳐야 할 때는 COMBAT_BODY 를 복사해 그 편 객체에 떼어 넣는다. */
+const COMBAT_BODY = `
   <div class="rule-steps">
     <div class="rule-step"><span class="n">1</span><span class="t"><b>Declaration 선언</b> — 영웅들이 이번 라운드에 할 행동을 고른다. <b>목표는 아직 정하지 않는다.</b></span></div>
     <div class="rule-step"><span class="n">2</span><span class="t"><b>Opponent 적</b> — <b>헥스 주사위</b>로 적의 행동을 정한다(적마다 따로).<br>
@@ -1274,7 +1277,10 @@ const RULES_COMBAT = {title:{en:"Combat Reference", ko:"전투 참조표"}, body
   <div class="rule-v">뇌물 · 도주 · 격파 시 규칙 · 죽음 규칙</div>
   <div class="rule-en">Declaration (choose actions, no targets) &rarr; Opponent (Hex die per opponent; each hero rolls a Core die plus
   modifiers, highest becomes the target) &rarr; Resolution (simultaneous: damage reduction first, then damage and healing;
-  Conditions apply last).</div>`};
+  Conditions apply last).</div>`;
+
+const R4_COMBAT = {title:{en:"Combat Reference", ko:"전투 참조표"}, body:COMBAT_BODY};
+const R5_COMBAT = {title:{en:"Combat Reference", ko:"전투 참조표"}, body:COMBAT_BODY};
 
 
 const BREACH_TAB = {id:"breach", label:{en:"The Breach", ko:"균열"}, entries:[
@@ -1457,6 +1463,111 @@ const R5_STAGES = {title:{en:"Game Stages", ko:"게임의 두 단계"}, body:`
     <div class="rule-k">끝</div><div class="rule-v">공성은 영원하지 않다 — Wellspring이 깨진 <b>패턴</b>을 계속 되돌리려 하기 때문</div>
   </div>
   <div class="rule-v" style="margin-top:9px">두 단계 모두 진행 순서는 <b>이동 → 기술 → 이벤트 → 빌런</b>으로 같다.</div>`};
+
+/* 키워드 분류와 처리 순서 — 전 시리즈 공용.
+   문구는 5편 Game Guide 6~7쪽에서 가져왔다. 4편에도 같은 분류가 있으나
+   규칙서 목록이 가나다순이라 눈에 띄지 않을 뿐이며, 최신본을 기준으로 통일한다. */
+const RULES_KWORDER = {title:{en:"Keyword Order", ko:"키워드 분류 · 처리 순서"}, body:`
+  <div class="rule-h">네 갈래</div>
+  <div class="rule-grid">
+    <div class="rule-k">피해</div><div class="rule-v">피해의 <b>종류</b>나 <b>목표 수</b>를 정하거나 바꾼다</div>
+    <div class="rule-k">방어</div><div class="rule-v"><b>목표가 되는 것</b>과 <b>피해를 받는 것</b>에 관여한다</div>
+    <div class="rule-k">회복</div><div class="rule-v">대상의 <b>생명력·에너지</b>에 관여한다</div>
+    <div class="rule-k">유틸리티</div><div class="rule-v">그 밖의 전부</div>
+  </div>
+  <div class="rule-h">방어 키워드가 여럿일 때 — 이 순서로</div>
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t"><kw>evasion</kw> — 아예 <b>안 맞았는지</b> 먼저 가린다</span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t"><kw>immune</kw></span></div>
+    <div class="rule-step"><span class="n">3</span><span class="t"><kw>negate</kw></span></div>
+    <div class="rule-step"><span class="n">4</span><span class="t"><kw>reflect</kw></span></div>
+    <div class="rule-step"><span class="n">5</span><span class="t"><kw>block</kw> — <b>총 피해</b>를 줄인다(<st>energy</st> 피해부터)</span></div>
+    <div class="rule-step"><span class="n">6</span><span class="t"><kw>defend</kw> — <b>피해 하나하나</b>를 줄인다</span></div>
+    <div class="rule-step"><span class="n">7</span><span class="t"><kw>counterattack</kw> — 맞은 뒤에 되돌려준다</span></div>
+  </div>
+  <div class="rule-v" style="margin-top:9px"><kw>block</kw>과 <kw>defend</kw>를 <b>둘 다</b> 가졌다면 <b><kw>block</kw>이 먼저</b>다.</div>`};
+
+const R5_SETUP = {title:{en:"Game Setup", ko:"게임 준비"}, body:`
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t"><b>영웅 만들기</b></span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t"><b>판 깔기</b></span></div>
+    <div class="rule-step"><span class="n">3</span><span class="t"><b>빌런 덱 만들기 · Jaethi의 Resilience 내구도 기록</b> — 게임 길이와 난이도가 여기서 정해진다</span></div>
+    <div class="rule-step"><span class="n">4</span><span class="t"><b>시작 위치 굴림 · 초기 자원 획득</b></span></div>
+  </div>
+  <div class="rule-h">1 · 영웅</div>
+  <div class="rule-grid">
+    <div class="rule-k">구성</div><div class="rule-v"><b>직업 + 종족</b>을 골라 능력치를 채운다. 다른 편의 영웅 추가 요소도 얹을 수 있다</div>
+    <div class="rule-k">시작 소지품</div><div class="rule-v"><b>골드 10</b> · <b>음식 5</b> · <b>스탯 주사위 3개</b> · <b>수확 자원 참조 카드</b> 1장</div>
+    <div class="rule-k">말</div><div class="rule-v">그룹 전체를 나타낼 영웅 미니어처 <b>하나</b>를 고른다</div>
+  </div>
+  <div class="rule-h">2 · 판</div>
+  <div class="rule-grid">
+    <div class="rule-k">제국 정하기</div><div class="rule-v">먼저 어느 제국으로 할지 정한다 — <b>Caprakan</b> · <b>Ishidan</b> · <b>둘 다</b>. 이 선택이 게임 바와 제국 타일 배치를 결정한다</div>
+    <div class="rule-k">깔기</div><div class="rule-v"><b>게임 바 4개</b> · <b>제국 타일 2개</b> · <b>무작위 헥스타일 2개</b> · <b>Siege Portal 공성 관문 3개</b>.
+      제국 타일은 각 City-State 도시국가가 <b>허용된 3방향 중 하나</b>에 오도록 돌려 놓는다</div>
+    <div class="rule-k">하늘 타일</div><div class="rule-v"><b>SkyTile 하늘 타일 1장</b>을 놓는다. 놓는 자리에 따라 <b>새 헥스타일이 공개</b>될 수 있다</div>
+    <div class="rule-k">보스 소굴</div><div class="rule-v">공개된 소굴마다 <b>무작위 보스 토큰</b>을 <b>숫자 면이 위로</b> 오게 놓는다</div>
+    <div class="rule-k">추적판</div><div class="rule-v">각 City-State 도시국가의 초기 수치를 <b>Defender 방어자 추적판</b>에 적어 게임 바의 지정 자리에 놓는다.
+      나머지 추적판은 <b>"Enhancing Defenders" 면이 위로</b> 오게 모아 둔다</div>
+    <div class="rule-k">따로 빼둘 것</div><div class="rule-v"><b>Siege Banner 공성 깃발 4개</b> · <b>Jaethi 미니어처</b> · <b>Riser 승강기</b> · 참조판 전부</div>
+  </div>
+  <div class="rule-h">덱</div>
+  <div class="rule-grid">
+    <div class="rule-k">커미션</div><div class="rule-v">제국별 커미션 덱을 섞어 <b>맞는 제국 자리</b>에 놓고 <b>맨 위 카드를 공개</b>한다.
+      <b>한 제국만</b> 쓴다면 그 덱을 <b>무작위로 반씩 나눠</b> 양쪽에 놓는다</div>
+    <div class="rule-k">그 외</div><div class="rule-v"><b>수확 · 조우 · 파워업</b> 덱을 섞어 놓는다. <b>원소 공성 덱 5종</b>은 섞어서 <b>서로 섞이지 않게 따로</b> 판 옆에 둔다</div>
+    <div class="rule-k">Jaethi</div><div class="rule-v">아래 3단계에서 <b>특별한 방식</b>으로 만든다</div>
+  </div>
+  <div class="rule-h">3 · 빌런 덱 — 게임 길이가 여기서 정해진다</div>
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t"><b>siege! 카드 5장</b>을 찾아 <b>뒷면으로</b> 빼둔다</span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t">남은 카드로 <b>3장짜리 더미 5개</b>를 만든다(뒷면으로).
+      <b>더 긴 게임</b>을 원하면 더미당 <b>4장이나 5장</b>으로 한다</span></div>
+    <div class="rule-step"><span class="n">3</span><span class="t">그러고도 남은 카드는 <b>여섯 번째 더미</b>로 따로 둔다</span></div>
+    <div class="rule-step"><span class="n">4</span><span class="t"><b>보지 않고</b> siege! 카드를 <b>더미마다 1장씩</b> 섞어 넣는다</span></div>
+    <div class="rule-step"><span class="n">5</span><span class="t">다섯 더미 중 <b>원하는 3개</b>를 골라 <b>섞지도 보지도 말고</b> 그대로 쌓아 한 덱으로 만든다</span></div>
+    <div class="rule-step"><span class="n">6</span><span class="t">여섯 번째 더미에서 <b>맨 위 2장</b>을 <b>섞지 말고</b> 그 위에 얹는다</span></div>
+  </div>
+  <div class="rule-v" style="margin-top:9px">이렇게 하면 <b>공성 3번</b>짜리 게임이 된다. 남은 카드는 쓰지 않는다.
+    <b>어떤 게임 효과로도 빌런 덱을 섞을 수 없다.</b></div>
+  <div class="rule-grid">
+    <div class="rule-k">Jaethi의 내구도</div><div class="rule-v"><b>공성 물결 수 × 25</b>. 공성 <b>3번이면 75</b>, <b>4번이면 100</b>.
+      시작 전에 <b>배틀 매트</b>에 적어 둔다</div>
+  </div>
+  <div class="rule-h">4 · 시작 위치와 초기 자원</div>
+  <div class="rule-grid">
+    <div class="rule-k">시작 위치</div><div class="rule-v"><b>헥스 주사위</b>를 굴려 <b>홀수면 City-State 도시국가 1</b>, <b>짝수면 2</b>.
+      그 도시국가의 <b>아무 헥스</b>에나 그룹 말을 놓는다. (게임 중 무작위 도시국가를 정할 때도 같은 방법을 쓴다)</div>
+  </div>
+  <div class="rule-h">초기 장비 — 영웅마다 셋, 그룹이 하나</div>
+  <div class="rule-grid">
+    <div class="rule-k">기어 업그레이드</div><div class="rule-v"><b>생명력 2칸</b> · <b>기술 1칸</b> · <b>능력 1칸</b> 중 하나</div>
+    <div class="rule-k">아이템</div><div class="rule-v"><b>Viper Potion 3개</b> · <b>Ring of Command</b> · <b>Gryphon Mount</b> ·
+      <b>Peryton Mount</b>(음식 소모량 −1) 중 하나</div>
+    <div class="rule-k">자원</div><div class="rule-v"><b>백금 10</b> · <b>백금 4</b> · <b>기본 원소 1</b> 중 하나</div>
+    <div class="rule-k">그룹 테마</div><div class="rule-v">그룹이 하나를 고른다 —
+      <b>Hunters</b> 각 영웅이 원하는 능력 랭크 <b>2</b> · <b>Explorers</b> Leyline Compass + Expedition Contract ·
+      <b>Seeker</b> 커미션 카드 <b>5장</b> 공개 · <b>Collectors</b> 백금 1 + Wellspring Amplifier 3개</div>
+  </div>
+  <div class="rule-grid">
+    <div class="rule-k">첫 Tower 탑</div><div class="rule-v">세울지 <b>고를 수 있다</b>. 세우면 <b>무너져 가는 상태</b>라 Resilience 내구도가 <b>절반(5)</b>으로 시작한다.
+      게임 장소가 아닌(<b>색 테두리</b>) 아무 헥스에나 <b>Tower 1</b>을 놓고 추적판을 채운다.
+      <b>세우지 않으면</b> 대신 <b>백금 4</b>와 <b>원하는 기본 원소 1개</b>를 얻는다</div>
+  </div>
+  <div class="rule-h">원소 주사위 굴리기</div>
+  <div class="rule-v"><b>원소 주사위 5개</b>를 전부 굴려 초기 자원을 얻는다. 얻은 자원은 <b>Stockpile 비축량</b>에 기록한다.</div>
+  <div class="rule-grid">
+    <div class="rule-k">Air · Fire</div><div class="rule-v">결과마다 <b>목재 4</b></div>
+    <div class="rule-k">Earth · Water</div><div class="rule-v">결과마다 <b>광석 4</b></div>
+    <div class="rule-k">Void</div><div class="rule-v">결과마다 <b>백금 2</b> + <b>원하는 고급(Tier II) 자원 1</b></div>
+    <div class="rule-k">Surge 쇄도</div><div class="rule-v">위 보상에 더해 <b>백금 4</b>. 그리고 <b>쇄도한 주사위를 다시 굴려</b> 원소를 얻을 수 있다</div>
+  </div>
+  <div class="rule-h">원소 얻기 — 다시 굴릴 때</div>
+  <div class="rule-grid">
+    <div class="rule-k">기본 주사위</div><div class="rule-v"><b>불일치</b> 없음 · <b>일치</b> 나온 원소 1 · <b>쇄도</b> 같은 원소 2</div>
+    <div class="rule-k">Void 주사위</div><div class="rule-v"><b>불일치</b> 나온 원소 1 · <b>일치</b> 공허 1 ·
+      <b>쇄도</b> 다시 굴려 또 쇄도면 공허 2, 아니면 공허 1</div>
+  </div>`};
 
 const R5_TURN = {title:{en:"Turn Sequence", ko:"차례 진행"}, body:`
   <div class="rule-h">단계 시작 <span class="rule-tag">수확</span></div>
@@ -2112,7 +2223,7 @@ const SERIES = {
           <div class="rule-k">보스 판</div><div class="rule-v">양면으로, <b>일반형</b>과 <b>승천형</b>이 있다. 증강된 능력은 조각을 <b>뒤집어</b> 표시한다</div>
         </div>`},
 
-      RULES_COMBAT,
+      R4_COMBAT, RULES_KWORDER,
     ],
     items: [
       // {name:{en,ko}, desc:"...", tags:[]}
@@ -2382,7 +2493,7 @@ const SERIES = {
     keywords: KW_COMMON,
     exKeywords: KW_SIEGE,
     conditions: CONDITIONS,
-    rules: [R5_STAGES, R5_TURN, R5_HARVEST, R5_VILLAIN_H, R5_SIEGE, R5_VILLAIN_S, R5_CALENDAR, R5_MOVE, R5_EVENT, R5_RES, R5_DEFENDER, R5_MAP, R5_PORTAL, RULES_COMBAT, R5_ELEM, R5_OUTLAST, R5_DEATH],
+    rules: [R5_SETUP, R5_STAGES, R5_TURN, R5_HARVEST, R5_VILLAIN_H, R5_SIEGE, R5_VILLAIN_S, R5_CALENDAR, R5_MOVE, R5_EVENT, R5_RES, R5_DEFENDER, R5_MAP, R5_PORTAL, R5_COMBAT, RULES_KWORDER, R5_ELEM, R5_OUTLAST, R5_DEATH],
     items: [],
     extras: [],
   },
@@ -2415,7 +2526,7 @@ const V5_VALOR = {id:"valor5", label:{en:"Valor", ko:"용맹"}, entries:[
     B_DIFF, B_SETUP, B_TURN, B_CIRC,
     pick("Movement"), pick("Skill Phase & Stat Tests"),
     pick("Navigate · Explore · Survival"), pick("Wander & Roam"), pick("Starving"),
-    pick("Circumstance Types"), RULES_COMBAT,
+    pick("Circumstance Types"), R4_COMBAT, RULES_KWORDER,
   ].filter(Boolean);
   const ex = SERIES["4"].extras, byId = id => ex.find(x => x.id === id);
   SERIES["4b"].extras = [byId("dungeon"), byId("rune"), BREACH_TAB, byId("valor")].filter(Boolean);
@@ -2427,11 +2538,11 @@ const V5_VALOR = {id:"valor5", label:{en:"Valor", ko:"용맹"}, entries:[
   const base = SERIES["5"].rules;
   const pick = en => base.find(r => r.title.en === en);
   const common = ["Movement Phase","Event Phase & Range","Resources & Elements","Defenders",
-                  "Special Tiles","Siege Portals","Combat Reference","Elemental Damage",
+                  "Special Tiles","Siege Portals","Combat Reference","Keyword Order","Elemental Damage",
                   "Outlast Opponents","Death & Revival"].map(pick).filter(Boolean);
-  SERIES["5c"].rules = [RC_INTRO, RC_DIFF, pick("Game Stages"), pick("Turn Sequence"),
+  SERIES["5c"].rules = [RC_INTRO, RC_DIFF, pick("Game Setup"), pick("Game Stages"), pick("Turn Sequence"),
                         pick("Harvest Stage"), pick("Siege Stage"), ...common];
-  SERIES["5i"].rules = [RI_INTRO, RI_DIFF, pick("Game Stages"), pick("Turn Sequence"),
+  SERIES["5i"].rules = [RI_INTRO, RI_DIFF, pick("Game Setup"), pick("Game Stages"), pick("Turn Sequence"),
                         pick("Harvest Stage"), pick("Siege Stage"), ...common];
   SERIES["5c"].items = SERIES["5i"].items = SERIES["5"].items;
   SERIES["5"].extras = SERIES["5c"].extras = SERIES["5i"].extras = [V5_VALOR];
