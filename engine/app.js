@@ -20,7 +20,7 @@ const APP={
   sel:{raceId:null,classId:null,traitIds:[],subRaceId:null,aspectId:null},
   builderTab:"class",            // class | race | trait
   sort:{race:"abc",class:"abc"},  // abc(이름순) | ed(편순) | cat(계열순, 직업만)
-  filter:{dual:true,H:true,R:true},   // 빌더 목록에서 보일 것
+  filter:{dual:false,H:false,R:false},  // 빌더 목록에서 보일 것(기본은 감춤)
   open:{},                            // 판의 접이식 그룹 열림 상태(기본 열림)
   char:null,
   tab:"board",                   // board | keyword id...
@@ -345,10 +345,12 @@ function renderMastery(char,key){
     checksHTML=`<div class="boosts"><div class="boost-head"><span>Sustained 보너스</span><span class="pick-badge">해당 랭크부터 사용</span></div>${rows}</div>`;
   }
   // 사용 트래커: 각 마스터리 카드에 체크(max:1) 또는 카운터. 전투 섹션의 턴/전투 리셋으로 초기화
-  const uCur=(char.uses&&char.uses[key])||0, uMax=st.uses?st.uses.max:0, uScopeKo=((st.uses&&st.uses.scope)||'turn')==='combat'?'전투':'턴';
+  const uCur=(char.uses&&char.uses[key])||0, uMax=st.uses?st.uses.max:0, uScopeKo={turn:'턴',round:'라운드',combat:'전투'}[(st.uses&&st.uses.scope)||'turn'];
   const _bS="min-width:24px;height:24px;padding:0 6px;border-radius:6px;border:1px solid var(--edge-bright);background:transparent;color:var(--ink);cursor:pointer;font-weight:700;font-size:14px;line-height:1";
   const _wS="display:flex;align-items:center;gap:6px;margin:4px 0 9px;font-size:12px";
-  const usesHTML = uMax===1
+  /* 사용 트래커는 데이터에 uses 가 있을 때만 — 횟수 제한이 없는 마스터리엔 붙이지 않는다 */
+  const usesHTML = !st.uses ? ""
+    : uMax===1
     ? `<div class="m-uses" style="${_wS}"><span style="color:var(--ink-faint)">Used 사용</span><button data-usetog="${key}" style="${_bS}${uCur?`;border-color:var(--g-${key});color:var(--g-${key});background:color-mix(in srgb,var(--c-${key}) 26%,transparent)`:''}">${uCur?'✓':''}</button><span style="color:var(--ink-faint);font-size:11px">${uScopeKo}당 1회</span></div>`
     : `<div class="m-uses" style="${_wS}"><span style="color:var(--ink-faint)">Used 사용</span><button data-use="${key}" data-dir="-1" style="${_bS}">−</button><b style="min-width:16px;text-align:center;color:var(--g-${key})">${uCur}</b><button data-use="${key}" data-dir="1" style="${_bS}">+</button><span style="color:var(--ink-faint);font-size:11px">${uMax?`/ ${uMax} · `:''}${uScopeKo} 사용</span></div>`;
   return `<div class="mastery ${key==='firstMastery'?'fm':'sm'}">
@@ -594,10 +596,12 @@ function traitPicker(list){
    ===================================================================== */
 function renderSeries(){
   const race=SHARED.races[APP.sel.raceId], cls=SHARED.classes[APP.sel.classId];
-  const cards=Object.values(SERIES).map(s=>`<button class="series-card" data-series="${s.id}">
+  /* ord 로 화면 순서를 정한다(자바스크립트의 숫자형 키 정렬 때문에 명시가 필요) */
+  const cards=Object.values(SERIES).sort((a,b)=>(a.ord||99)-(b.ord||99))
+    .map(s=>`<button class="series-card" data-series="${s.id}">
     <div class="sc-badge" ${SERIES_ACCENT[s.id]?`style="color:${SERIES_ACCENT[s.id]}"`:""}>${s.short}</div>
     <div class="sc-name">${s.name.en}</div><div class="sc-ko">${s.name.ko}</div>
-    <div class="sc-note">키워드 · 상태 · 룰 · 아이템 · 기타 참조표가 이 시리즈 기준으로 적용됩니다.</div>
+    <div class="sc-note">${s.note?s.note.ko:"키워드 · 상태 · 룰 · 아이템 · 기타 참조표가 이 시리즈 기준으로 적용됩니다."}</div>
   </button>`).join("");
   root.innerHTML=`<div class="wrap">
     ${brandHead("Select Series · 시리즈 선택")}
@@ -677,7 +681,7 @@ function boardBody(char){
   const itemHTML=char.items.length?char.items.map(it=>`<div class="item"><span class="txt">${it.text}</span><button data-itemremove="${it.id}">\u2715</button></div>`).join(""):`<div class="empty-note">아직 아이템 없음</div>`;
 
   return `
-    ${grp("diff","Difficulty","난이도",renderDifficulty(char))}
+    ${grp("diff","Difficulty","난이도",renderDifficulty(char),difficultyHead(char))}
     ${grp("id","Race & Traits","종족 · 특수 능력",`
     <div class="identity">
       <input id="charName" value="${(char.name||"").replace(/"/g,"&quot;")}" placeholder="영웅 이름" autocomplete="off"
@@ -701,8 +705,16 @@ function boardBody(char){
       `<div class="vital-grid">${vitalCard(char,"hp","Health","체력","health","curHealth","regenHealth")}${vitalCard(char,"en","Energy","에너지","energy","curEnergy","regenEnergy")}</div>${renderStarving(char)}`)}
     ${grp("ability","Ability","능력",
       `${race.forms?formSwitcher(char,race):""}<div class="hex-wrap">${combat}</div>${masteries}`,
-      `<button class="tbtn" id="resetTurn" title="턴 사용 초기화">↺ 턴</button><button class="tbtn" id="resetCombat" title="전투 사용 초기화">↺ 전투</button>`)}
-    ${grp("skill","Skill","기술",`<div class="hex-wrap">${skills}</div>`)}
+      `<button class="tbtn" id="resetTurn" title="턴당 사용 초기화">↺ 턴</button><button class="tbtn" id="resetRound" title="라운드당 사용 초기화">↺ 라운드</button><button class="tbtn" id="resetCombat" title="전투당 사용 초기화">↺ 전투</button>`)}
+    ${grp("skill","Skill","기술",`<div class="hex-wrap">${skills}</div>
+      ${expand(char,`<div class="rule-grid" style="margin-top:14px">
+        <div class="rule-k"><span style="color:var(--g-navigate)">Navigate 길찾기</span></div>
+        <div class="rule-v">영웅의 <b>절반</b>(올림)이 성공해야 <kw>wander</kw>를 피한다. 한 명이라도 <b>치명적 성공</b>하면 그 턴은 전원 면제 · <b>신중한 이동</b>이면 애초에 위험 없음</div>
+        <div class="rule-k"><span style="color:var(--g-explore)">Explore 탐험</span></div>
+        <div class="rule-v">성공 시 <b>골드 2</b>어치 보물 · 실패 시 없음</div>
+        <div class="rule-k"><span style="color:var(--g-survival)">Survival 생존</span></div>
+        <div class="rule-v">성공 시 그 턴 <b>음식을 먹지 않아도</b> 됨 · 실패 시 <b>소모량</b>만큼 섭취하거나 <b>Food</b> 아이템 1개 소비 · 소모량 <b>0</b>이면 굴리지 않아도 됨</div>
+      </div>`)}`)}
     ${grp("res","Resources","자원 · 아이템",
       `<div class="res-grid">${resCard(char,"gold","Gold","골드","gold")}${resCard(char,"food","Food","음식","food")}${resCard(char,"foodUse","Food Use","소모량","foodUse")}</div>
        <div class="items"><div class="sec-head" style="font-size:11px;margin:16px 0 10px">Items · 아이템</div><div class="item-list">${itemHTML}</div>
@@ -740,7 +752,16 @@ function renderDifficulty(char){
   return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:760px">
       <thead><tr>${["Difficulty 난이도",...cols.map(c=>c[1])].map(h=>`<th style="text-align:left;padding:7px 10px;font-family:'Cinzel';font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);border-bottom:1px solid var(--edge)">${h}</th>`).join("")}</tr></thead>
       <tbody>${rows}</tbody></table></div>
-    <div class="hint" style="text-align:left;margin-top:9px">게임 중 상승 — 마을에서 <b>Collector 3마리</b> 격파 시 +1 · <b>파워업 덱</b>이 떨어지면 +1</div>`;
+`;
+}
+/* 난이도 머리글 — 접어도 보이는 부분: 현재 난이도 + 상승 조건 */
+function difficultyHead(char){
+  const d=DIFFICULTY.find(x=>x.id===(char.difficulty||"easy"))||DIFFICULTY[1];
+  return `<span style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-family:'Noto Serif KR';text-transform:none;letter-spacing:0">
+    <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;border:1px solid ${d.c};background:color-mix(in srgb,${d.c} 16%,transparent)">
+      <b style="font-family:'Cinzel';color:${d.c}">${d.en}</b><span style="font-size:.86em;color:var(--ink-dim)">${d.ko}</span></span>
+    <span style="font-size:11.5px;color:var(--ink-faint)">게임 중 다음 경우 <b>1 상승</b> — 마을에서 <b>Collector 3마리</b> 격파 시 · <b>파워업 덱</b>이 다 떨어졌을 때</span>
+  </span>`;
 }
 /* 판을 묶어 접었다 펼 수 있는 그룹. extra 는 머리글 오른쪽 버튼(접기와 별개로 동작) */
 function grp(id,en,ko,body,extra){
@@ -907,8 +928,12 @@ function bindBoard(char){
   root.querySelectorAll("[data-mcheck]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const key=b.dataset.mcheck,i=+b.dataset.idx;if(!char.mchecks[key])char.mchecks[key]={};char.mchecks[key][i]=!char.mchecks[key][i];renderBoard();});
   root.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{const k=b.dataset.use,st=SHARED.classes[char.classId].stats[k],mx=st.uses?st.uses.max:0;let v=(char.uses[k]||0)+ +b.dataset.dir;v=Math.max(0,v);if(mx>1)v=Math.min(mx,v);char.uses[k]=v;renderBoard();});
   root.querySelectorAll("[data-usetog]").forEach(b=>b.onclick=()=>{const k=b.dataset.usetog;char.uses[k]=char.uses[k]?0:1;renderBoard();});
-  const rT=$("#resetTurn");if(rT)rT.onclick=()=>{["firstMastery","secondMastery"].forEach(k=>{const st=SHARED.classes[char.classId].stats[k];if(st&&st.desc&&!(st.uses&&st.uses.scope==='combat'))char.uses[k]=0;});renderBoard();};
-  const rC=$("#resetCombat");if(rC)rC.onclick=()=>{["firstMastery","secondMastery"].forEach(k=>char.uses[k]=0);renderBoard();};
+  /* 초기화 — 각 버튼은 자기 범위(turn·round·combat)의 사용만 되돌린다 */
+  const resetScope=sc=>{["firstMastery","secondMastery"].forEach(k=>{
+    const st=SHARED.classes[char.classId].stats[k];
+    if(st&&st.uses&&(st.uses.scope||"turn")===sc)char.uses[k]=0;});renderBoard();};
+  const rT=$("#resetTurn");if(rT)rT.onclick=()=>resetScope("turn");
+  const rR=$("#resetRound");if(rR)rR.onclick=()=>resetScope("round");
   root.querySelectorAll("[data-abcheck]").forEach(b=>b.onclick=()=>{const a=char.abilities.find(x=>x.id===b.dataset.abcheck);a.track.used=!a.track.used;renderBoard();});
   root.querySelectorAll("[data-abcount]").forEach(b=>b.onclick=()=>{const a=char.abilities.find(x=>x.id===b.dataset.abcount);a.track.value=Math.max(0,Math.min(a.track.max,a.track.value+ +b.dataset.dir));renderBoard();});
   root.querySelectorAll("[data-abremove]").forEach(b=>b.onclick=()=>{char.abilities=char.abilities.filter(x=>x.id!==b.dataset.abremove);renderBoard();});
@@ -1076,7 +1101,7 @@ function recordsModal(){
    ROUTER
    ===================================================================== */
 /* 편별 테마 — 캐릭터판에서는 그 편의 분위기 색을 적용(능력치 9색은 공용이라 그대로) */
-const SERIES_ACCENT={"4":"#bf94f5","5":"#f3a8c0"};
+const SERIES_ACCENT={"4":"#bf94f5","4b":"#e0574c","5":"#f3a8c0"};
 /* 오로라 흐름 — Web Animations API 로 굴린다.
    속도를 바꿀 때 playbackRate 만 조정하면 재생 위치가 그대로 유지되므로,
    체력 구간이 바뀌어도 흐르던 자리에서 자연스럽게 빨라지거나 느려진다.

@@ -556,7 +556,7 @@ const SHARED = {
         health:{base:6}, energy:{base:5},
         attack:{base:2, name:{en:"Death Aura",ko:"죽음의 오라"}, dmg:["health","energy"]},
         defence:{base:1, name:{en:"Canter",ko:"구보"}},
-        firstMastery:{base:2, name:{en:"Tireless Shadowhorse",ko:"지치지 않는 그림자말"}, cost:1,
+        firstMastery:{base:2, name:{en:"Tireless Shadowhorse",ko:"지치지 않는 그림자말"}, cost:1, uses:{max:1,scope:"turn"},
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Time 시간", color:"neutral", val:"+3"},
@@ -652,7 +652,7 @@ const SHARED = {
         health:{base:9}, energy:{base:5},
         attack:{base:2, name:{en:"Torment Levy",ko:"고통 징수"}},
         defence:{base:3, name:{en:"Pain Tolerance",ko:"통증 내성"}},
-        firstMastery:{base:1, name:{en:"Wound Transfer",ko:"상처 전이"}, cost:1,
+        firstMastery:{base:1, name:{en:"Wound Transfer",ko:"상처 전이"}, cost:1, uses:{max:2,scope:"round"},
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"타겟 주사위 감소", color:"neutral", val:(E.lv("firstMastery")/3).toFixed(1)},
@@ -803,7 +803,7 @@ const SHARED = {
           ],
           desc:`이 마스터리는 <b>Movement 페이즈</b>에만 사용할 수 있다. {firstMastery}에 대해 스탯 테스트를 <b>3회</b> 굴린다. 성공한 만큼 그 게임 턴 동안 다음 중 하나로 쓸 수 있다 — <b>Moon 주사위</b>를 굴려 그 결과를 대상의 <b>Favored Opponent</b> 판정에 더하기 · 실패한 스탯 테스트를 성공으로 바꾸기 · 방금 굴린 <b>Circumstance상황</b>을 다시 굴리기. <lvl n="7"><st>energy</st> <b>1</b>을 추가로 소모해 <b>3회</b> 대신 <b>6회</b> 굴릴 수 있다.</lvl>`,
         },
-        secondMastery:{base:1, name:{en:"Honed Instinct",ko:"벼려진 직감"}, cost:1,
+        secondMastery:{base:1, name:{en:"Honed Instinct",ko:"벼려진 직감"}, cost:1, uses:{max:2,scope:"round"},
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Boost 능력 증폭", color:"attack", val:Math.max(1,E.lv("secondMastery")/3).toFixed(1)},
@@ -938,7 +938,7 @@ const SHARED = {
         health:{base:3}, energy:{base:8},
         attack:{base:1, name:{en:"Starfall",ko:"별똥별"}, dmg:["health","influence"]},
         defence:{base:2, name:{en:"Akashic Link",ko:"아카식 연결"}},
-        firstMastery:{base:2, name:{en:"Sky Reading",ko:"천문 읽기"}, cost:2,
+        firstMastery:{base:2, name:{en:"Sky Reading",ko:"천문 읽기"}, cost:2, uses:{max:3,scope:"round"},
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:2},
             {lab:"비전투 · 뒤집는 카드", color:"defence", val:Math.max(1,Math.floor(E.lv("defence")/4))},
@@ -947,7 +947,7 @@ const SHARED = {
           ],
           desc:`<b>비전투:</b> 턴당 <b>1회</b>, {defence} 랭크 <b>4마다</b>(<b>최소 1</b>) <b>아무 덱</b>이나 맨 위 카드를 뒤집는다. <b>전투:</b> 라운드당 <b>3회</b>까지 쓸 수 있다. 사용할 때마다 <kw>defend</kw> <b>3</b>을 얻고, 다음 라운드 <b>Declaration 페이즈</b>에 그룹의 <st>health</st>을 {firstMastery} 랭크의 <b>절반</b>만큼 <kw>raise</kw>한다. 이 <kw>raise</kw> 효과는 <b>서로 중첩된다</b>. <lvl n="6">전투 밖에서도 <kw>raise</kw> 효과를 얻는다.</lvl> <lvl n="8">한 라운드에 이 마스터리를 <b>3번</b> 쓰면 <kw>raise</kw> 양을 <b>1</b> <kw>strengthen</kw>한다.</lvl>`,
         },
-        secondMastery:{base:1, name:{en:"Energetic Connection",ko:"에너지 연결"}, cost:1,
+        secondMastery:{base:1, name:{en:"Energetic Connection",ko:"에너지 연결"}, cost:1, uses:{max:2,scope:"round"},
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Heal 체력", color:"health", val:E.lv("secondMastery").toFixed(1)},
@@ -1010,7 +1010,7 @@ const SHARED = {
           ],
           desc:`적에게 {attack} 랭크 + {firstMastery} 랭크만큼 <st>energy</st> 피해를 주고 이번 라운드에 <kw>counterattack</kw>을 얻는다. <kw>counterattack</kw>할 때는 <st>energy</st>가 들지 않으며, 그 피해는 <st>energy</st> 피해로 바뀐다. 이 마스터리는 <kw>counterattack</kw> 효과를 유지하기 위해 <kw>sustain</kw>할 수 있다. <lvl n="7">이 마스터리를 <kw>sustain</kw>하는 중에 죽으면 {defence}에 대해 스탯 테스트를 굴린다. <b>대성공</b>이면 <st>health</st> <b>1</b>로 라운드를 마치며, 다음 라운드에는 {firstMastery}를 <kw>sustain</kw>할 수 없다.</lvl>`,
         },
-        secondMastery:{base:3, name:{en:"Quantum Leap",ko:"양자 도약"}, cost:2,
+        secondMastery:{base:3, name:{en:"Quantum Leap",ko:"양자 도약"}, cost:2, uses:{max:1,scope:"turn"},
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:2},
             {lab:"비전투 · 사용 횟수", color:"secondMastery", val:Math.floor(E.lv("secondMastery")/5)},
@@ -1036,7 +1036,7 @@ const SHARED = {
         health:{base:6}, energy:{base:8},
         attack:{base:1, name:{en:"Hallucinate",ko:"환각"}, dmg:["drain"]},
         defence:{base:1, name:{en:"Duplicity",ko:"기만"}, bribe:true},
-        firstMastery:{base:2, name:{en:"Shapeshift",ko:"변신"}, cost:2,
+        firstMastery:{base:2, name:{en:"Shapeshift",ko:"변신"}, cost:2, uses:{max:1,scope:"turn"},
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:2},
             ...(E.stance()==="shifted"?[
@@ -1045,7 +1045,7 @@ const SHARED = {
           ],
           desc:`강력한 짐승의 모습으로 변한다. 전투 밖에서는 게임 페이즈당 <b>1회</b> 쓸 수 있고, 전투 중에는 <kw>sustain</kw>할 수 있다. 변신한 동안 {attack} 랭크와 기술 하나의 랭크를 {firstMastery} 랭크의 <b>절반</b>만큼 <kw>boost</kw>하고, {defence} 랭크의 <b>1/3</b>만큼 <kw>reflect</kw>를 얻는다. <lvl n="6"><st>outlast</st>을 가진 적과 맞설 때, {firstMastery}를 쓴 라운드에 행동을 하나 더 할 수 있다.</lvl> <lvl n="9">변신한 동안 <b>모든 기술</b>이 <kw>boost</kw>을 얻는다.</lvl>`,
         },
-        secondMastery:{base:2, name:{en:"Reflection",ko:"반영"}, cost:1,
+        secondMastery:{base:2, name:{en:"Reflection",ko:"반영"}, cost:1, uses:{max:2,scope:"round"},
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Reflect 반사", color:"defence", val:(E.lv("secondMastery")/2).toFixed(1)},
@@ -1109,7 +1109,7 @@ const SHARED = {
           ],
           desc:`적에게 {attack} 랭크만큼 <st>health</st> 피해를 주거나 적의 <st>outlast</st>을 <b>2</b> 조정한다. 이번 라운드에 적의 <kw>defend</kw>·<kw>block</kw>과 적이 주는 피해를 {firstMastery} 랭크의 <b>1/3</b>만큼 줄인다. <lvl n="6"><st>energy</st> <b>2</b>를 추가로 소모해, 게임 턴마다 처음 쓸 때 {firstMastery}의 피해를 <b>1</b> <kw>strengthen</kw>한다.</lvl>`,
         },
-        secondMastery:{base:1, name:{en:"Ascend",ko:"상승"}, cost:1,
+        secondMastery:{base:1, name:{en:"Ascend",ko:"상승"}, cost:1, uses:{max:1,scope:"turn"},
           readout:(E)=>[
             {lab:"Cost 비용", color:"energy", val:1},
             {lab:"비전투 이동 헥스", color:"navigate", val:(E.lv("secondMastery")/3).toFixed(1)},
@@ -1276,6 +1276,168 @@ const RULES_COMBAT = {title:{en:"Combat Reference", ko:"전투 참조표"}, body
   modifiers, highest becomes the target) &rarr; Resolution (simultaneous: damage reduction first, then damage and healing;
   Conditions apply last).</div>`};
 
+
+const BREACH_TAB = {id:"breach", label:{en:"The Breach", ko:"균열"}, entries:[
+        {name:{en:"Overview & Changes",ko:"개요 · 바뀌는 것"}, desc:`녹티스가 <b>승천에 성공한 뒤</b>의 미래를 다루는 대체 게임 모드. 균열에서 넘어온 <b>네 공포</b>를 막아야 하며, 이번엔 <b>녹티스가 유일한 아군</b>이다.<br>
+          <b>피의 웅덩이가 100에서 거꾸로 줄어든다.</b> 수도원에 룬을 바치거나 지하묘지에서 룬을 활성화해도 웅덩이가 줄지 않는다(그 효과는 무시).<br>
+          <b>미르자 녹티스와는 싸울 수 없다.</b> 코어의 녹티스 판 대신 <b>Mirza Noctis Ascended</b> 판을 쓰고, 녹티스는 매 게임 턴 <b>맨 처음</b>에 행동한다.<br>
+          지도는 <b>처음부터 전부 공개</b>된 상태로 시작한다(던전은 그대로).<br>
+          새로 <b>보라 룬</b>을 얻을 수 있고, 영웅은 <b>Madness광기</b>를 얻는다.<br>
+          네 공포는 <b>레벨이 변하는 보스</b>로, 각자 <b>전용 덱</b>이 상황 슬롯 하나를 차지한다. 행동은 매 턴 <b>빌런 단계</b>에 정해진다.<br>
+          <b>승리</b> — 네 공포를 모두 쓰러뜨리거나 <b>사건의 지평선에서 균열을 닫으면</b> 이긴다.<br>
+          <b>패배</b> — 피의 웅덩이가 <b>0</b>이 되었는데 공포가 하나라도 살아 있거나, <b>영웅이 전멸</b>하면 진다.`},
+
+        {name:{en:"Setup",ko:"준비"}, desc:`<b>지도</b> — A~N 전체를 원하는 방향으로 모두 깐다.<br>
+          <b>첫 공포</b> — 달 주사위를 굴려 균열을 뚫고 나온 첫 공포를 정한다(<b>~3 Calamity · 4~6 Tragedy · 7~9 Cataclysm · 10~12 Disaster</b>).
+          그 공포의 덱을 <b>밤 바 1번 슬롯</b>에 <b>뒷면으로</b> 놓고, 판을 꺼내 <b>레벨 5</b>로 기록한 뒤 토큰을 지정된 자리에 놓는다.<br>
+          <b>상황 카드</b> — 낮·밤 덱을 섞고 각 <b>2~4번 슬롯</b>에 3장씩 공개한다. <b>낮 1번은 비워 둔다</b>. Interrupt가 나오면 덱에 다시 섞고 다시 뽑는다.<br>
+          <b>룬 스톤</b> — 공개된 조사 위치마다 그 조사의 <b>룬 보상과 맞는</b> 룬 스톤을 놓는다.<br>
+          <b>기타</b> — 던전 덱 4종을 섞어 던전 타일 옆에 둔다. 각 플레이어에게 코어 주사위 3색과 <b>치명상·광기 트래커</b>를 준다.
+          콜렉터 주사위는 녹티스 단계에 굴리고, 단서 큐브는 조사 결과가 나올 때 놓는다.<br>
+          <b>시작 위치</b> — 낮·밤을 고른 뒤 <b>마을 · 수도원 · 지하묘지</b> 중에서 고른다(콜렉터 주사위로 무작위 결정도 가능 — 1 마을 · 2 수도원 · 3 지하묘지).
+          <b>마을</b>은 굴림으로 정한 마을에서 그 마을의 시작 장비를 받는다.
+          <b>수도원·지하묘지</b>는 달 주사위로 번호를 정하고(<b>~3</b> 1번 · <b>4~6</b> 2번 · <b>7~9</b> 3번 · <b>10~12</b> 4번) 아래를 얻는다 —
+          <b>수도원</b>: 각자 골드 5 · 음식 소모량×4 · 그룹 기어 업그레이드 3개 · 그 수도원의 <b>Grace</b> ·
+          <b>지하묘지</b>: 각자 골드 15 · 음식 소모량×2 · 그룹 기어 업그레이드 3개 · 그 지하묘지 <b>해금 + 피의 마법 1티어</b>.`},
+
+        {name:{en:"Noctis Acts",ko:"녹티스의 행동"}, desc:`녹티스는 매 턴 <b>균열을 닫으려</b> 애쓴다. 그 행동이 영웅들에게 영향을 주기도 한다.<br>
+          시작 시 <b>콜렉터 주사위 7개</b>를 갖고, 피의 웅덩이가 <b>90부터 20 줄어들 때마다 1개씩</b> 잃는다(90에 6개, 70에 5개, 50에 4개 …).<br>
+          이 단계에 주사위를 모두 굴려 <b>합계</b>로 Ascended 판의 행동을 처리한다.<br>
+          <b>Dark Grace</b> — 주사위 중 <b>4개 이상이 같은 값</b>이면(남은 주사위가 4개 미만이면 전부 일치) 그룹이 다크 그레이스를 얻는다.
+          어떤 것을 얻는지는 <b>일치한 눈(1·2·3)</b>으로 정해지고, <b>랭크는 일치한 개수</b>와 같다. <b>한 번에 하나만</b> 가질 수 있으나 새로 얻으면 교체할 수 있다.<br>
+          <b>콜렉터 주사위</b>는 이 모드에서 <b>지도에 놓지 않는다</b>. 콜렉터를 놓으라는 효과는 무시한다.<br>
+          <b>마을의 콜렉터</b> — 마을에는 여전히 콜렉터가 있는 것으로 친다. 밤에 마주치면 콜렉터 주사위로 수를 정하고 종류를 굴린다.
+          마을에서 콜렉터를 쓰러뜨릴 때마다 <b>싸운 콜렉터 수만큼 피의 웅덩이를 줄인다</b>. (콜렉터 <b>3마리</b>마다 게임 난이도 +1은 그대로.)`},
+
+        {name:{en:"The Horrors",ko:"공포"}, desc:`첫 공포는 게임 시작 전에 나오고, 나머지 셋은 피의 웅덩이가 <b>80 · 60 · 40</b>이 될 때 나온다. 나올 때마다 달 주사위로 어느 공포인지 정한다(이미 나왔거나 쓰러진 공포가 나오면 다시 굴린다).<br>
+          <b>레벨은 등장 순서로</b> 정해진다 — 첫 <b>5</b> · 둘째 <b>7</b> · 셋째 <b>9</b> · 넷째 <b>11</b>.
+          공포를 쓰러뜨렸는데 지도에 다른 공포가 없으면, 피의 웅덩이를 <b>다음 단계로 낮추고</b> 다음 공포가 등장한다.<br>
+          피의 웅덩이가 <b>0</b>이 되는 순간 다섯째 공포 <b>World Render</b>가 넘어오고, 그 시점에 <b>패배</b>한다.<br>
+          <b>레벨</b> — 진행 중에 오르내린다. 전투 시 생명력과 행동이 레벨의 영향을 받으며, 판에 레벨 기호가 있으면 그 값이 <b>현재 레벨</b>이다.
+          <b>7·9·11</b>처럼 숫자가 적힌 것은 그 레벨 <b>이상</b>일 때 얻는 추가 효과이며, 여러 개가 동시에 적용될 수 있다.
+          전투 전에 <b>보라 룬</b>을 버려 <b>1개당 레벨 1</b>을 낮출 수 있다(최소 1).<br>
+          <b>목표와 이동</b> — 공포는 통행 불가 지형을 <b>무시</b>하고, 서로 같은 칸에 겹칠 수 있으며, 지도의 틈을 <b>이동 1헥스 비용</b>으로 순간이동해 건넌다.
+          파괴된 목표는 더 이상 이벤트 장소가 아니다.
+          <b>Calamity</b>: 지하묘지 · 5레벨 3헥스 / 9레벨 5헥스 · 파괴하면 Encounter 버린 더미 맨 위 카드를 얻는다 ·
+          <b>Tragedy</b>: 마을 · 2헥스 / 9레벨 4헥스 · 파괴하면 Encounter 덱에서 1장을 형태로 얻는다 ·
+          <b>Disaster</b>: 수도원 · 2헥스 / 9레벨 4헥스 · 파괴하면 <b>레벨 +1</b> ·
+          <b>Cataclysm</b>: 보스 위치 · 5레벨 3헥스 / 9레벨 2헥스 / 11레벨 1헥스 · <b>2곳 파괴마다 레벨 +1</b>.<br>
+          <b>빌런 행동</b> — 웅덩이를 줄인 뒤 달 주사위를 굴려 공포 판의 표를 본다. <b>2·7 Tragedy · 3·8 Cataclysm · 4·9 Calamity · 5·10 Disaster</b>는 그 공포가 있을 때만,
+          <b>6</b>은 공포가 있으면 <b>한 번만</b> 공통으로, <b>11~12</b>는 <b>등장 순서대로 모든 공포</b>가 행동한다.`},
+
+        {name:{en:"Facing Horrors",ko:"공포와의 전투"}, desc:`공포와 맞설 때는 그 공포 판의 <b>반대면(보스 면)</b>을 쓴다. 같은 칸에 여럿이 있으면 <b>동시에</b> 상대할 수도 있다.<br>
+          전투 전에 <b>보라 룬</b>을 바쳐 레벨을 낮추거나 <b>보스 강화</b>를 버릴 수 있다. 그 뒤 생명력과 패시브를 적고 전투를 시작한다.<br>
+          <b>Titanic 거대</b> — 거대 적은 <b>체력과 에너지 생명력을 여러 개</b> 갖는다(그래도 적 하나로 친다). 쓰러뜨리려면 <b>모든 체력</b>을 0으로 만들어야 한다.
+          체력 생명력이 하나뿐인 적이 이 유형을 얻으면 원래 체력과 같은 값의 체력이 <b>하나 더</b> 생긴다.
+          각 영웅은 Resolution 단계에 <b>어느 생명력을 때릴지</b> 고른다. 체력을 참조하는 효과는 <b>가장 높은 현재 체력</b>을 쓴다.
+          숙적 피해는 라운드마다 <b>하나의 생명력에만</b> 들어간다.<br>
+          <b>격파 시</b> — 보스 판의 보상을 얻고(마지막 공포는 제외), <b>Horrific Choice</b> 중 하나를 고른다 —
+          ① 각 영웅이 <b>광기를 최대 3개</b> 제거 · ② 그 공포 덱에서 <b>레벨의 절반(내림)</b>만큼 카드를 뽑아 원하는 것을 즉시 사용(이걸 고르면 ①은 못 고른다).
+          그 뒤 토큰과 판을 치우고, 공포 덱도 빼서 <b>상황 슬롯을 원래대로</b> 되돌린다.`},
+
+        {name:{en:"Madness",ko:"광기"}, desc:`여러 효과가 영웅에게 <b>Madness광기</b>를 준다. 각 영웅은 <b>광기 트래커</b>를 0에서 시작한다.<br>
+          광기는 <b>최대 6</b>까지만 쌓인다. 6을 넘게 되면 큐브를 더 얻는 대신 <b>무작위 스탯 랭크 1을 잃는다</b> —
+          코어 주사위를 굴려 <b>1 본인 선택 · 2 체력 · 3 에너지 · 4 공격 · 5 방어 · 6 마스터리1 · 7 마스터리2 · 8 길찾기 · 9 탐험 · 10 생존</b>.<br>
+          랭크는 <b>0까지</b> 내려갈 수 있고, 0이 되면 그 스탯을 <b>쓸 수 없다</b>.<br>
+          영웅이 <b>죽으면 광기를 모두 잃는다</b>.`},
+
+        {name:{en:"Purple Runes & Breach Dungeon",ko:"보라 룬 · 균열 던전"}, desc:`<b>보라 룬 스톤</b> — 룬 스톤을 놓을 때 <b>같은 숫자가 2개 이상</b> 나오면, 따로 놓는 대신 합쳐서 <b>보라 룬 스톤 1개</b>가 된다.
+          보라 룬이 있는 헥스로 이동하면 <b>보라 던전 카드</b>를 뽑아 처리한다 — 위험하고 희귀하며 여러 유형이 섞여 있다.
+          일반 던전 카드는 룬 하나를 만들려면 <b>같은 것 2장</b>이 필요하지만, <b>보라 던전 카드는 1장이 곧 보라 룬 1개</b>다. 이 규칙은 일반 게임에서도 쓸 수 있다.<br>
+          <b>파괴된 지하묘지</b> — 던전에서 <b>나오는 출구</b>로는 쓸 수 있지만 <b>들어갈 수는</b> 없다. 수도원 아이템 해금에서는 <b>해금된 지하묘지</b>로 친다.<br>
+          <b>균열 타일</b> — 던전 안에만 놓을 수 있는 특수 타일. 놓는 방법은 둘 —
+          ① 보라 던전 카드 <b>“The Breach”</b>를 사용 · ② 피의 웅덩이가 <b>70 이하</b>가 되면, 녹티스 성(또는 던전의 그의 보스 위치)에서 이동 단계에 <b>균열 입구로 순간이동</b>.<br>
+          <b>균열 안에서의 이동</b> — 룬 스톤은 <b>놓지 않는다</b>. 이동 <b>1헥스마다 시간 5</b>가 든다(평소 1).
+          <b>뒤로 · 제자리 휴식 · 앞으로</b>만 가능하며 벽은 통과할 수 없다. 순간이동은 <b>Hearth Stone</b>으로만 가능하다.
+          균열 안에서는 <b>이동 단계와 빌런 단계만</b> 진행한다.<br>
+          <b>뒤로 이동</b>: 출구 쪽으로 1헥스 갈 때마다 각 영웅이 <b>자기 광기만큼</b> 체력·에너지를 회복한다. 시간을 다 쓰면 빌런 단계를 진행한다.<br>
+          <b>제자리 휴식</b>: 각 영웅이 <b>광기의 절반</b>만큼 회복한 뒤 빌런 단계를 진행한다.`},
+
+        {name:{en:"Rifts & Event Horizon",ko:"균열의 틈 · 사건의 지평선"}, desc:`<b>Rift 틈</b> — 균열 안에 <b>4개</b> 있다. 멈추지 않고 지나가도 된다.
+          틈에서 이동을 끝내면(Encounter를 뽑아 균열 더미에 넣은 뒤) 각 영웅이 <b>코어 주사위</b>를 굴려 <b>자기 광기 이하</b>면 성공, 초과하면 실패하고 <b>광기 3</b>을 얻는다.
+          <b>절반 이상</b> 성공하면 원하는 공포 하나의 <b>레벨을 3</b> 낮추고 그 틈 토큰을 치운다. 실패하면 다음 게임 턴에 다시 시도할 수 있다.<br>
+          <b>Spawn 지점</b> — 초월자 유형이 나오는 곳으로, 여기서는 <b>Encounter</b>를 상대한다.<br>
+          <b>균열 안에 있을 때 새 공포 등장</b> — 모든 영웅이 <b>현재 공포 수만큼</b> 광기를 얻고, 그 뒤 그 공포가 지도에 등장해 상황 슬롯 하나를 차지한다.<br>
+          <b>균열 안에서의 죽음</b> — 위대한 양상을 얻을 수 없다. 대신 <b>킵세이크가 자동으로 발동</b>한다(있다면).<br>
+          <b>Event Horizon 사건의 지평선</b> — 균열의 마지막 헥스. 여기서 이동을 끝내면 <b>공포들과의 전투</b>가 시작된다 —
+          <b>레벨이 가장 낮은</b> 공포부터 <b>하나씩</b> 상대하며, 시작하면 <b>도주할 수 없다</b>.
+          매 Declaration 단계마다(첫 라운드 포함) 모든 영웅이 <b>광기 1</b>을 얻고, 상대 중인 공포는 <b>레벨 3</b>을 잃는다.
+          Resolution 단계에 공포의 레벨이 <b>3 이하</b>가 되거나 죽으면 격파되고 다음 공포가 들어온다. 전투 사이에는 <b>보상을 얻지 않는다</b>.
+          아직 등장하지 않은 공포가 있으면, 마지막 공포가 쓰러진 순간 <b>다음 공포가 등장</b>하며 피의 웅덩이를 해당 단계로 낮춘다.<br>
+          <b>계열 보너스</b> — 사건의 지평선에서는 <b>어시스트·스트라이커</b>가 광기만큼 <kw>block</kw>을,
+          <b>힐러·새퍼</b>가 광기만큼 체력 또는 에너지 <kw>regen</kw>을(택1) 얻는다.
+          <b>유틸리티</b>는 둘 중 하나를 고른다. 계열이 둘 이상이면 <b>중첩</b>된다.`},
+
+        {name:{en:"Valor (Expansion)",ko:"용맹 (확장)"}, desc:`확장에서 추가로 얻을 수 있는 용맹 —
+          <b>사건의 지평선에서 균열을 닫아 승리</b> · <b>한 게임에서 네 공포를 모두 격파</b> ·
+          <b>한 게임에서 전설 카드 6장 이상 획득</b> · <b>영웅 하나의 킵세이크가 발동한 채로 승리</b>.`},
+      ]};
+
+/* ── 균열 모드 전용 룰 — 기본판과 달라지는 곳은 굵게 + '변경' 표시 ── */
+const B_TAG = `<span class="rule-tag" style="border-color:var(--g-attack);color:var(--g-attack)">변경</span>`;
+
+const B_DIFF = {title:{en:"What Changes", ko:"기본판과 달라지는 것"}, body:`
+  <div class="rule-grid">
+    <div class="rule-k">피의 웅덩이</div><div class="rule-v"><b>100에서 줄어든다</b> (기본판은 0에서 증가)</div>
+    <div class="rule-k">녹티스</div><div class="rule-v"><b>싸울 수 없는 아군</b>. 매 턴 <b>맨 먼저</b> 행동한다 · <b>Ascended 판</b>을 쓴다</div>
+    <div class="rule-k">지도</div><div class="rule-v">시작부터 <b>A~N 전부 공개</b> (던전은 그대로)</div>
+    <div class="rule-k">차례</div><div class="rule-v"><b>6단계</b> — 맨 앞에 <b>녹티스 행동</b>이 붙는다</div>
+    <div class="rule-k">승리</div><div class="rule-v"><b>네 공포 격파</b> 또는 <b>균열 닫기</b></div>
+    <div class="rule-k">패배</div><div class="rule-v">영웅 전멸 <b>또는 웅덩이 0</b>(공포가 살아 있을 때)</div>
+    <div class="rule-k">새 시스템</div><div class="rule-v"><b>광기 · 공포 4종 · Dark Grace · 보라 룬 · 균열 던전 · Nightmare Level</b></div>
+    <div class="rule-k">무시하는 규칙</div><div class="rule-v">수도원 룬 헌납 · 지하묘지 룬 활성화의 <b>웅덩이 감소</b> · <b>콜렉터 주사위 배치</b> · <b>빌런 행동 보정</b></div>
+  </div>
+  <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">공포 · 광기 · 균열 던전의 세부는 <b>균열</b> 탭에 있다.</div>`};
+
+const B_SETUP = {title:{en:"Game Setup (Breach)", ko:"게임 준비"}, body:`
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t"><b>지도</b> ${B_TAG} — <b>A~N 전체</b>를 원하는 방향으로 모두 깐다</span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t"><b>첫 공포</b> ${B_TAG} — 달 주사위로 정한다(<b>~3 Calamity · 4~6 Tragedy · 7~9 Cataclysm · 10~12 Disaster</b>).
+      그 덱을 <b>밤 1번 슬롯</b>에 뒷면으로 놓고, 판을 꺼내 <b>레벨 5</b>로 적은 뒤 토큰을 배치한다</span></div>
+    <div class="rule-step"><span class="n">3</span><span class="t"><b>상황 카드</b> ${B_TAG} — 낮·밤 각 <b>2~4번 슬롯</b>에만 3장씩 공개한다. <b>낮 1번은 비운다</b>.
+      Interrupt는 다시 섞어 뽑는다. 공개된 조사에 룬 스톤을 놓는다</span></div>
+    <div class="rule-step"><span class="n">4</span><span class="t"><b>시작 위치</b> ${B_TAG} — <b>마을 · 수도원 · 지하묘지</b> 중에서 고른다(콜렉터 주사위로 무작위도 가능).
+      수도원: 골드 5 · 음식 소모량×4 · 기어 3 · <b>Grace</b> / 지하묘지: 골드 15 · 음식 소모량×2 · 기어 3 · <b>해금 + 피의 마법 1티어</b></span></div>
+    <div class="rule-step"><span class="n">5</span><span class="t"><b>기타</b> — 던전 덱 4종을 섞고, 각자 <b>치명상 · 광기 트래커</b>를 받는다 ${B_TAG}</span></div>
+  </div>`};
+
+const B_TURN = {title:{en:"Turn Sequence (Breach)", ko:"차례 진행"}, body:`
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t"><b>녹티스 행동</b> ${B_TAG} — 콜렉터 주사위를 모두 굴려 <b>합계</b>로 Ascended 판의 행동을 처리한다.
+      <b>4개 이상 일치</b>하면 <b>Dark Grace</b>를 얻는다</span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t"><b>이동</b> — 낮·밤을 정하고 방식(야영·신중·보통·무모)을 골라 그룹이 함께 움직인다.
+      <b>빌런 행동 보정 주사위는 쓰지 않으며, 누적된 보정도 무시한다</b> ${B_TAG}</span></div>
+    <div class="rule-step"><span class="n">3</span><span class="t"><b>기술 굴림</b> — 영웅마다 길찾기·탐험·생존을 굴린다.
+      <b>탐험에서 치명적 성공</b>하면 기존 보너스 대신 <b>아무 영웅의 광기 1개를 제거</b>할 수 있다 ${B_TAG}</span></div>
+    <div class="rule-step"><span class="n">4</span><span class="t"><b>상황 굴림</b> — 6면체를 굴려 낮·밤 바의 해당 슬롯을 처리한다(<b>5 또는 헥스</b>면 조우 덱).
+      보스·지하묘지·수도원·마을에서 이동을 끝냈다면 건너뛴다.
+      결과가 <b>공포 슬롯</b>이면 그 공포 덱에서 뽑는다 ${B_TAG}</span></div>
+    <div class="rule-step"><span class="n">5</span><span class="t"><b>이벤트</b> — 마을·수도원·지하묘지·조사·보스에서 해당 사건을 처리한다.
+      <b>녹티스 성은 이벤트 장소가 아니며</b>, 수도원 룬 헌납·지하묘지 룬 활성화는 <b>웅덩이를 줄이지 않는다</b> ${B_TAG}</span></div>
+    <div class="rule-step"><span class="n">6</span><span class="t"><b>빌런: 공포</b> ${B_TAG} — 웅덩이를 <b>공포 수만큼(최소 1)</b> 줄이고 발동을 확인한다.
+      <b>달 주사위 1회</b>로 공포들의 효과를 처리한 뒤, 각 공포가 목표를 향해 이동한다</span></div>
+  </div>`};
+
+const B_CIRC = {title:{en:"Circumstance (Breach)", ko:"상황 카드"}, body:`
+  <div class="rule-h">공포 덱 ${B_TAG}</div>
+  <div class="rule-grid">
+    <div class="rule-k">구성</div><div class="rule-v">조사 · 고통 · 사건 · 발견 · 보물이 섞여 있으며 <b>전부 회피 불가</b>다</div>
+    <div class="rule-k">슬롯 잠식</div><div class="rule-v">공포가 나올 때마다 <b>다음 슬롯</b>을 차지한다(그 자리의 카드는 버린다). 격파하면 <b>원래대로</b> 돌아온다</div>
+    <div class="rule-k">덱이 떨어지면</div><div class="rule-v">그 슬롯이 나올 때마다 <b>모든 영웅이 광기 +1</b> — 그 공포를 잡을 때까지</div>
+    <div class="rule-k">Boss Enhance</div><div class="rule-v">뽑히면 그 공포가 <b>강해진다</b>. <b>보라 룬</b>을 바쳐 버릴 수 있다(뽑았을 때 또는 전투 전)</div>
+    <div class="rule-k">단서</div><div class="rule-v">공포 덱 슬롯에도 <b>놓고 뺄 수 있다</b>(한 슬롯 최대 3개)</div>
+  </div>
+  <div class="rule-h">공포 덱의 조사 ${B_TAG}</div>
+  <div class="rule-grid">
+    <div class="rule-k">처리</div><div class="rule-v">지도 장소에 <b>묶이지 않는다</b>. 뽑은 <b>그 자리에서 즉시</b>(인터럽트처럼) 처리한다</div>
+    <div class="rule-k">재시도</div><div class="rule-v">실패하면 그 자리에서 <b>야영</b>하며 다음 턴에 다시 시도할 수 있다. <b>자리를 뜨면 폐기</b>된다</div>
+    <div class="rule-k">완료 후</div><div class="rule-v">낮·밤 양쪽 바에서 그 슬롯의 <b>단서를 모두 제거</b>한다</div>
+    <div class="rule-k">룬 보상</div><div class="rule-v"><b>보라 룬</b>을 준다</div>
+    <div class="rule-k">Nightmare Level</div><div class="rule-v">기본판 <b>Suspicion Level</b>에 대응. 이 값 <b>이상</b>을 굴리면 카드의 <b>Trap</b>이 발동한다</div>
+    <div class="rule-k">새 Trap</div><div class="rule-v">발동한 영웅마다 <b>광기 +1</b> · 발동한 영웅마다 <b>웅덩이 감소</b></div>
+    <div class="rule-k">주의</div><div class="rule-v">낮·밤 덱의 조사는 <b>웅덩이를 올린다</b> — 녹티스의 잔재가 남아 있기 때문</div>
+  </div>`};
+
 /* 게임 난이도 — 캐릭터판 최상단에서 고른다.
    게임 중 상승 조건: 마을에서 Collector 3마리 격파 시 +1, 파워업 덱이 떨어지면 +1 */
 const DIFFICULTY = [
@@ -1297,7 +1459,7 @@ const DIFFICULTY = [
 
 const SERIES = {
   "4": {
-    id:"4", name:{en:"Hexplore It — Edition 4", ko:"헥스플로어 잇 — 4편"}, short:"4",
+    id:"4", name:{en:"Hexplore It — Edition 4", ko:"헥스플로어 잇 — 4편"}, short:"4", ord:1,
 
     keywords: KW_COMMON,
     conditions: CONDITIONS,
@@ -1323,11 +1485,6 @@ const SERIES = {
           <div class="rule-step"><span class="n">4</span><span class="t"><b>이벤트</b> — 마을 · 수도원 · 지하묘지 · 조사 · 보스에서 해당 사건을 처리한다.</span></div>
           <div class="rule-step"><span class="n">5</span><span class="t"><b>빌런</b> — 미르자 녹티스.</span></div>
         </div>
-        <div class="rule-h">결과 처리</div>
-        <div class="rule-grid">
-          <div class="rule-k">Investigation</div><div class="rule-v">해당 슬롯에 <b>단서 큐브</b>를 놓는다(<b>최대 3개</b>)</div>
-          <div class="rule-k">해결된 카드</div><div class="rule-v">버리고 <b>새 카드로 채운다</b></div>
-        </div>
         <div class="rule-en">Move &rarr; roll Skills &rarr; roll a Circumstance (d6; 5 or Hex draws an Encounter; skipped at Boss/Crypt/
         Monastery/Village) &rarr; Event phase &rarr; Villain phase. Investigations receive a Clue (max 3); resolved cards are
         discarded and refilled.</div>`},
@@ -1338,6 +1495,14 @@ const SERIES = {
           <div class="rule-k">방식</div><div class="rule-v"><b>야영 · 신중 · 보통 · 무모</b> — 이 선택이 <b>빌런 단계</b>에까지 영향을 준다</div>
           <div class="rule-k">지도 확장</div><div class="rule-v">가장자리에 닿으면 새 맵 타일을 놓는다. <b>타일을 놓아도 이동이 끝나지 않는다</b></div>
         </div>
+        <div class="rule-h">네 가지 방식</div>
+        <div class="rule-grid">
+          <div class="rule-k">Camp 야영</div><div class="rule-v">그 자리에 머문다. 스탯 테스트 <b>-1 보너스</b>(중첩) · 녹티스가 가장 감시하기 쉬워 빌런 행동에 <b>가장 불리</b></div>
+          <div class="rule-k">Cautious 신중</div><div class="rule-v">아래 조건 중 하나. 안전하지만 느리다 — <kw>wander</kw> 없음 + 상황 카드 <b>버리기</b> 가능</div>
+          <div class="rule-k">Normal 보통</div><div class="rule-v">이동력(<b>4헥스</b>) 범위에서 자유롭게 이동한다. 기본 방식</div>
+          <div class="rule-k">Reckless 무모</div><div class="rule-v">가장 빠르게 내달린다. 첩자가 쫓기 어려워 빌런 행동에 <b>가장 유리</b>하지만, 그만큼 위험을 안고 간다</div>
+        </div>
+        <div class="rule-v" style="color:var(--ink-faint);font-size:12px">방식별 이동 거리·빌런 보정 수치는 Game Turn 참조판에 있다 — 추후 입력</div>
         <div class="rule-h">Camping 야영</div>
         <div class="rule-v">그 게임 턴의 스탯 테스트에 <b>-1 보너스</b>. <b>중첩</b>되지만(오래 야영할수록), 다른 효과로 위치가 옮겨지면 사라진다.</div>
         <div class="rule-h">Moving Cautiously 신중한 이동</div>
@@ -1447,10 +1612,99 @@ const SERIES = {
     ],
     extras: [
       {id:"dungeon", label:{en:"Dungeon", ko:"던전"}, entries:[
-        {name:{en:"Dungeon Rules",ko:"던전 규칙"}, desc:"(4편 전용 · 내용 추후 입력)"},
+        {name:{en:"Overview & Entrances",ko:"개요 · 출입구"}, desc:`
+          <div class="rule-grid">
+            <div class="rule-k">구성</div><div class="rule-v"><b>7헥스</b>짜리 작은 타일들이 던전을 이룬다. 지상 맵 타일(A~N)과는 <b>절대 이어지지 않는다</b></div>
+            <div class="rule-k">들어가기</div><div class="rule-v"><b>이동 단계</b>에 <b>잠기지 않은 지하묘지</b>에서 들어간다</div>
+            <div class="rule-k">나오기</div><div class="rule-v"><b>지하묘지 아이콘</b>이 있는 헥스에서 나온다. 나온 뒤에는 <b>이벤트 단계</b>부터 이어서 진행한다</div>
+            <div class="rule-k">낮·밤</div><div class="rule-v">던전 안은 <b>항상 밤</b>이다</div>
+          </div>
+          <div class="rule-h">지하묘지 잠금 해제</div>
+          <div class="rule-v">지하묘지 <b>1~4번</b>이 각각 출입구다. 지도에 드러날 때마다 <b>잠긴 지하묘지 토큰</b>을 놓는다. 푸는 방법은 셋 —</div>
+          <div class="rule-grid">
+            <div class="rule-k">① 열쇠</div><div class="rule-v"><b>Crypt Key</b>를 그 자리에서 소모한다</div>
+            <div class="rule-k">② 기술 굴림</div><div class="rule-v">지하묘지에서 <b>이벤트 단계</b>에 모든 기술을 굴려, <b>한 영웅이 3개 모두</b> 성공하면 열린다</div>
+            <div class="rule-k">③ 안에서 나오기</div><div class="rule-v">던전에서 잠긴 지하묘지로 <b>나오면</b> 그대로 열린다</div>
+          </div>
+          <div class="rule-v" style="margin-top:8px;color:var(--ink-faint);font-size:12px">입구·지하묘지가 아직 드러나지 않았다면 해당 타일을 찾아 놓고 진행한다.
+            이렇게 드러난 지하묘지에는 잠금 토큰을 놓지 않는다.</div>`},
+
+        {name:{en:"Time & Movement",ko:"시간 · 이동"}, desc:`
+          <div class="rule-h">Time 시간</div>
+          <div class="rule-grid">
+            <div class="rule-k">매 턴 획득</div><div class="rule-v">한 영웅의 <b>길찾기 + 탐험</b> 랭크 중 <b>가장 높은 조합</b>만큼</div>
+            <div class="rule-k">소모</div><div class="rule-v">이동 <b>1헥스당 1</b> · 던전 카드도 각자 요구량만큼 소모</div>
+          </div>
+          <div class="rule-h">이동 또는 휴식 (택1)</div>
+          <div class="rule-grid">
+            <div class="rule-k">Move 이동</div><div class="rule-v">원하는 만큼 움직이며 헥스 수만큼 시간을 쓴다.
+              <b>룬 스톤 · 보스 위치</b>에 닿거나 <b>시간이 떨어지면</b> 멈춰야 한다. 출입구에서 멈추면 지하묘지로 나갈 수 있다</div>
+            <div class="rule-k">Rest 휴식</div><div class="rule-v">남은 시간을 <b>전부</b> 쓴다. <b>5 이상</b> 남아 있었다면 각 영웅이 <b>생존 랭크의 절반</b>만큼 체력·에너지를 <kw>heal</kw>한다</div>
+          </div>
+          <div class="rule-v" style="margin-top:8px">시간을 다 쓰면 <b>빌런 단계</b>로 넘어간다. 1 이상 남아 있으면 이동 단계로 돌아간다.</div>
+          <div class="rule-h">벽 · 비밀 통로</div>
+          <div class="rule-grid">
+            <div class="rule-k">Dungeon Walls</div><div class="rule-v">벽은 <b>통과할 수 없다</b>. 드러난 길과 복도만 따라간다</div>
+            <div class="rule-k">Secret Passage</div><div class="rule-v">벽에 <b>스탯 아이콘</b>으로 표시된다. <b>시간 1</b>을 써서 모든 영웅이 그 스탯으로 스탯 테스트를 하고,
+              <b>절반 이상</b> 성공하면 벽 너머 헥스로 이동한다</div>
+          </div>`},
+
+        {name:{en:"Dungeon Cards",ko:"던전 카드"}, desc:`
+          <div class="rule-v">룬 스톤이 있는 헥스로 이동하면(출구라도) 해당 색의 던전 카드를 뽑아 처리한다.</div>
+          <div class="rule-grid">
+            <div class="rule-k">Time Requirement</div><div class="rule-v">카드를 처리한 뒤 그만큼 시간을 줄인다. <b>0 이하</b>가 되면 빌런 단계로 넘어간다(낼 시간이 없어도 된다)</div>
+            <div class="rule-k">Treasure</div><div class="rule-v">아이템으로, <b>Wielder Bonus</b>는 지닌 영웅이 얻는다. 룬 보상으로 쓰려면 이 아이템을 <b>잃어야</b> 한다</div>
+            <div class="rule-k">Trap</div><div class="rule-v">처리 뒤 한 영웅이 스탯을 골라 테스트 — 실패 시 <kw>energy drain</kw> <b>2</b>,
+              성공 시 그 스탯의 <b>Gear Upgrade</b>. <b>치명적 성공</b>이면 다른 영웅이 이어서 굴린다. 한 덫에서 <b>영웅 한 명은 최대 1개</b>까지만 얻는다</div>
+            <div class="rule-k">Ambush</div><div class="rule-v">카드를 처리하기 전에 <b>시간 4</b>를 더 써서 적을 <b>기습</b>할 수 있다(시간 4가 온전히 있어야 한다)</div>
+          </div>
+          <div class="rule-h">보스 위치</div>
+          <div class="rule-v">던전에 보스 위치가 몇 곳 있다. 그 칸에 들어가면 <b>반드시 멈춰</b> 보스 사건을 처리한다.
+            룬 스톤이 함께 있어도 <b>던전 카드는 뽑지 않는다</b>. 보스를 쓰러뜨리면 대신 <b>그 유형의 룬 1개</b>를 얻는다.
+            보스를 상대한 뒤 시간이 남아 있으면 계속 이동할 수 있다.</div>`},
+
+        {name:{en:"Dungeon Game Turn",ko:"던전에서의 차례"}, desc:`
+          <div class="rule-steps">
+            <div class="rule-step"><span class="n">1</span><span class="t"><b>이동 또는 휴식</b> — 먼저 <b>시간을 회복</b>한 뒤 움직이거나 쉰다</span></div>
+            <div class="rule-step"><span class="n">2</span><span class="t"><b>룬 스톤 처리</b>(이벤트 단계) — 해당 던전 덱에서 카드를 뽑아 처리하고, 처리한 카드는 <b>뒷면으로 보관</b>한다.
+              시간이 <b>1 이상</b> 남아 있으면 이동 단계로 돌아가고, 아니면 빌런 단계로 넘어간다</span></div>
+            <div class="rule-step"><span class="n">3</span><span class="t"><b>빌런</b> — 지상과 같은 빌런 단계를 진행한다</span></div>
+          </div>`},
       ]},
       {id:"rune", label:{en:"Runes", ko:"룬"}, entries:[
-        {name:{en:"Rune Reference",ko:"룬 참조"}, desc:"(내용 추후 입력)"},
+        {name:{en:"Placing Rune Stones",ko:"룬 스톤 배치"}, desc:`
+          <div class="rule-v">던전 타일을 놓을 때마다(첫 타일 포함) <b>그룹 말을 올리기 전에</b> 그 타일의 룬 스톤을 굴려 배치한다.</div>
+          <div class="rule-grid">
+            <div class="rule-k">굴림</div><div class="rule-v"><b>코어 주사위 2개</b>(빨강·초록용)와 <b>달 주사위</b>(파랑용)를 굴려 <b>Dungeon Rune Compass</b>를 본다</div>
+            <div class="rule-k">배치</div><div class="rule-v"><b>7 이하</b>가 나온 주사위는 그 위치에 해당 룬 스톤을 놓는다. <b>8 이상</b>이면 놓지 않는다</div>
+            <div class="rule-k">겹칠 때</div><div class="rule-v">한 헥스에 <b>하나만</b> 놓을 수 있다. 같은 숫자가 또 나오면 <b>인접한 빈 칸</b>에 놓는다</div>
+          </div>
+          <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">룬 스톤이 동나면 어느 한 곳에서 하나를 치워 새 자리에 놓는다.
+            지상 지도에서 치웠다면 대응하는 조사 카드도 버린다.</div>`},
+
+        {name:{en:"Rune Types & Rewards",ko:"룬 종류 · 보상"}, desc:`
+          <div class="rule-grid">
+            <div class="rule-k">빨강 룬</div><div class="rule-v"><b>위험한</b> 상황이 나온다</div>
+            <div class="rule-k">초록 룬</div><div class="rule-v"><b>이로운 것과 위험한 것이 섞여</b> 나온다</div>
+            <div class="rule-k">파랑 룬</div><div class="rule-v">대개 <b>이로운</b> 상황이 나온다</div>
+            <div class="rule-k">보라 룬</div><div class="rule-v">확장에서 추가. 룬 스톤을 놓을 때 <b>같은 숫자가 2개 이상</b> 나오면 합쳐져 보라 룬이 된다.
+              <b>보라 던전 카드 1장</b>이 곧 <b>보라 룬 1개</b>다</div>
+          </div>
+          <div class="rule-h">룬 보상</div>
+          <div class="rule-v">던전 카드를 처리할 때마다 그 카드를 <b>룬 보상</b>으로 가질 수 있다(룬 면이 보이게 따로 둔다).</div>
+          <div class="rule-grid">
+            <div class="rule-k">빨강 · 초록 · 파랑</div><div class="rule-v"><b>같은 종류 2장</b> &rarr; 두 장을 버리고 <b>룬 1개</b></div>
+            <div class="rule-k">보라</div><div class="rule-v"><b>1장이 곧 룬 1개</b> (2장 필요 없음)</div>
+            <div class="rule-k">사용처</div><div class="rule-v"><b>지하묘지 · 수도원 · 마을</b></div>
+          </div>`},
+
+        {name:{en:"Clues",ko:"단서"}, desc:`
+          <div class="rule-v">단서는 낮·밤 바의 <b>빈 슬롯 어디에나</b> 놓을 수 있고, 보통 상황 단계에 <b>조사</b> 위에 놓인다.</div>
+          <div class="rule-grid">
+            <div class="rule-k">최대</div><div class="rule-v">한 슬롯에 <b>3개</b>까지</div>
+            <div class="rule-k">효과</div><div class="rule-v">항상 <b>자기가 놓인 슬롯</b>에 작용한다. 조사를 플레이할 때 <b>Clue Bonus</b>를 읽어 적용한다</div>
+            <div class="rule-k">제거</div><div class="rule-v">그 슬롯의 <b>마지막 카드</b>를 플레이하면 단서가 모두 버려진다</div>
+          </div>`},
       ]},
       {id:"modes", label:{en:"Play Styles", ko:"게임 모드"}, entries:[
         {name:{en:"Bounty Hunter",ko:"현상금 사냥꾼"}, desc:`<b>현상금과 보스 사냥</b>에 집중하는 방식. 위험도 보상도 큰, 숙련자용 구성이다.<br>
@@ -1489,109 +1743,7 @@ const SERIES = {
           &#9316; <b>Dangerous</b>인 동안에는 녹티스의 <b>Collector</b>를 파괴한다. 콜렉터가 있는 곳에서 <b>1헥스 이내</b>로 이동할 때마다 그 자리에서 콜렉터를 <b>1개</b> 제거한다.<br>
           &#9317; 녹티스와의 <b>최종 전투</b>에는 젤랴도 등장한다(지도에 없더라도). <b>2라운드 Declaration</b>에 도착하며, 녹티스와 젤랴는 서로를 영웅처럼 목표로 삼을 수 있다. 둘의 목표 주사위는 <b>보정 없이</b> 굴린다.<br>
           &#9318; 젤랴는 녹티스의 <b>보스 2 능력과 패시브</b>의 영향을 받지 않는다.<br>
-          &#9319; 젤랴를 반드시 쓰러뜨릴 필요는 없다. <b>녹티스를 쓰러뜨리면</b> 평소 규칙대로 승리한다.`},
-      ]},
-      {id:"breach", label:{en:"The Breach", ko:"균열"}, entries:[
-        {name:{en:"Overview & Changes",ko:"개요 · 바뀌는 것"}, desc:`녹티스가 <b>승천에 성공한 뒤</b>의 미래를 다루는 대체 게임 모드. 균열에서 넘어온 <b>네 공포</b>를 막아야 하며, 이번엔 <b>녹티스가 유일한 아군</b>이다.<br>
-          <b>피의 웅덩이가 100에서 거꾸로 줄어든다.</b> 수도원에 룬을 바치거나 지하묘지에서 룬을 활성화해도 웅덩이가 줄지 않는다(그 효과는 무시).<br>
-          <b>미르자 녹티스와는 싸울 수 없다.</b> 코어의 녹티스 판 대신 <b>Mirza Noctis Ascended</b> 판을 쓰고, 녹티스는 매 게임 턴 <b>맨 처음</b>에 행동한다.<br>
-          지도는 <b>처음부터 전부 공개</b>된 상태로 시작한다(던전은 그대로).<br>
-          새로 <b>보라 룬</b>을 얻을 수 있고, 영웅은 <b>Madness광기</b>를 얻는다.<br>
-          네 공포는 <b>레벨이 변하는 보스</b>로, 각자 <b>전용 덱</b>이 상황 슬롯 하나를 차지한다. 행동은 매 턴 <b>빌런 단계</b>에 정해진다.<br>
-          <b>승리</b> — 네 공포를 모두 쓰러뜨리거나 <b>균열을 닫으면</b> 이긴다.<br>
-          <b>패배</b> — 피의 웅덩이가 <b>0</b>이 되었는데 공포가 하나라도 살아 있거나, <b>영웅이 전멸</b>하면 진다.`},
-
-        {name:{en:"Setup",ko:"준비"}, desc:`<b>지도</b> — A~N 전체를 원하는 방향으로 모두 깐다.<br>
-          <b>첫 공포</b> — 달 주사위를 굴려 균열을 뚫고 나온 첫 공포를 정한다(<b>~3 Calamity · 4~6 Tragedy · 7~9 Cataclysm · 10~12 Disaster</b>).
-          그 공포의 덱을 <b>밤 바 1번 슬롯</b>에 <b>뒷면으로</b> 놓고, 판을 꺼내 <b>레벨 5</b>로 기록한 뒤 토큰을 지정된 자리에 놓는다.<br>
-          <b>상황 카드</b> — 낮·밤 덱을 섞고 각 <b>2~4번 슬롯</b>에 3장씩 공개한다. <b>낮 1번은 비워 둔다</b>. Interrupt가 나오면 덱에 다시 섞고 다시 뽑는다.<br>
-          <b>룬 스톤</b> — 공개된 조사 위치에 평소 규칙대로 놓는다. 조사의 룬 보상과 맞는 룬 스톤을 각 조사에 놓는다.<br>
-          <b>기타</b> — 던전 덱 4종을 섞어 던전 타일 옆에 둔다. 각 플레이어에게 코어 주사위 3색과 <b>치명상·광기 트래커</b>를 준다.
-          콜렉터 주사위는 녹티스 단계에 굴리고, 단서 큐브는 조사 결과가 나올 때 놓는다.<br>
-          <b>시작 위치</b> — 낮·밤을 고른 뒤 <b>마을 · 수도원 · 지하묘지</b> 중에서 고른다(콜렉터 주사위로 무작위 결정도 가능 — 1 마을 · 2 수도원 · 3 지하묘지).
-          마을은 코어 규칙대로. 수도원·지하묘지는 달 주사위로 번호를 정하고 아래를 얻는다 —
-          <b>수도원</b>: 각자 골드 5 · 음식 소모량×4 · 그룹 기어 업그레이드 3개 · 그 수도원의 <b>Grace</b> ·
-          <b>지하묘지</b>: 각자 골드 15 · 음식 소모량×2 · 그룹 기어 업그레이드 3개 · 그 지하묘지 <b>해금 + 피의 마법 1티어</b>.`},
-
-        {name:{en:"Turn Sequence",ko:"차례 진행"}, desc:`<b>1. 녹티스 행동</b> — 녹티스의 <b>콜렉터 주사위를 모두 굴려 합</b>을 내고, Ascended 판의 표에서 해당 행동을 처리한다.<br>
-          <b>2. 이동</b> — 평소대로. 단 <b>빌런 행동 보정 주사위는 쓰지 않는다</b>(누적된 보정도 무시).<br>
-          <b>3. 기술 굴림</b> — 평소대로. <b>탐험에서 치명적 성공</b> 시, 평소 보너스 대신 <b>아무 영웅의 광기 1개를 제거</b>할 수 있다.<br>
-          <b>4. 상황 굴림</b> — 평소대로. 결과가 <b>공포 덱 슬롯</b>이면 그 공포 덱에서 다음 카드를 뽑아 처리한다. <b>공포 덱은 회피 불가로 취급</b>한다.<br>
-          <b>5. 이벤트</b> — 평소대로.<br>
-          <b>6. 빌런: 공포</b> — 먼저 <b>공포 수만큼(최소 1)</b> 피의 웅덩이를 줄인다. Ascended 판의 발동 조건을 확인한다.
-          <b>달 주사위를 한 번</b> 굴려 그 결과에 해당하는 공포들의 효과를 처리하고, 각 공포는 판에 적힌 대로 목표를 향해 이동한다.`},
-
-        {name:{en:"Noctis Acts",ko:"녹티스의 행동"}, desc:`녹티스는 매 턴 <b>균열을 닫으려</b> 애쓴다. 그 행동이 영웅들에게 영향을 주기도 한다.<br>
-          시작 시 <b>콜렉터 주사위 7개</b>를 갖고, 피의 웅덩이가 <b>90부터 20 줄어들 때마다 1개씩</b> 잃는다(90에 6개, 70에 5개, 50에 4개 …).<br>
-          이 단계에 주사위를 모두 굴려 <b>합계</b>로 Ascended 판의 행동을 처리한다.<br>
-          <b>Dark Grace</b> — 주사위 중 <b>4개 이상이 같은 값</b>이면(남은 주사위가 4개 미만이면 전부 일치) 그룹이 다크 그레이스를 얻는다.
-          어떤 것을 얻는지는 <b>일치한 눈(1·2·3)</b>으로 정해지고, <b>랭크는 일치한 개수</b>와 같다. <b>한 번에 하나만</b> 가질 수 있으나 새로 얻으면 교체할 수 있다.<br>
-          <b>콜렉터 주사위</b>는 이 모드에서 <b>지도에 놓지 않는다</b>. 콜렉터를 놓으라는 효과는 무시한다.<br>
-          <b>마을의 콜렉터</b> — 마을에는 여전히 콜렉터가 있는 것으로 친다. 밤에 마주치면 콜렉터 주사위로 수를 정하고 종류를 굴린다.
-          마을에서 콜렉터를 쓰러뜨릴 때마다 <b>싸운 콜렉터 수만큼 피의 웅덩이를 줄인다</b>. (콜렉터 <b>3마리</b>마다 게임 난이도 +1은 그대로.)`},
-
-        {name:{en:"The Horrors",ko:"공포"}, desc:`첫 공포는 게임 시작 전에 나오고, 나머지 셋은 피의 웅덩이가 <b>80 · 60 · 40</b>이 될 때 나온다. 나올 때마다 달 주사위로 어느 공포인지 정한다(이미 나왔거나 쓰러진 공포가 나오면 다시 굴린다).<br>
-          <b>레벨은 등장 순서로</b> 정해진다 — 첫 <b>5</b> · 둘째 <b>7</b> · 셋째 <b>9</b> · 넷째 <b>11</b>.
-          공포를 쓰러뜨렸는데 지도에 다른 공포가 없으면, 피의 웅덩이를 <b>다음 단계로 낮추고</b> 다음 공포가 등장한다.<br>
-          피의 웅덩이가 <b>0</b>이 되는 순간 다섯째 공포 <b>World Render</b>가 넘어오고, 그 시점에 <b>패배</b>한다.<br>
-          <b>레벨</b> — 진행 중에 오르내린다. 전투 시 생명력과 행동이 레벨의 영향을 받으며, 판에 레벨 기호가 있으면 그 값이 <b>현재 레벨</b>이다.
-          <b>7·9·11</b>처럼 숫자가 적힌 것은 그 레벨 <b>이상</b>일 때 얻는 추가 효과이며, 여러 개가 동시에 적용될 수 있다.
-          전투 전에 <b>보라 룬</b>을 버려 <b>1개당 레벨 1</b>을 낮출 수 있다(최소 1).<br>
-          <b>목표와 이동</b> — 공포는 통행 불가 지형을 <b>무시</b>하고, 서로 같은 칸에 겹칠 수 있으며, 지도의 틈을 <b>이동 1헥스 비용</b>으로 순간이동해 건넌다.
-          파괴된 목표는 더 이상 이벤트 장소가 아니다.
-          <b>Calamity</b>: 지하묘지 · 5레벨 3헥스 / 9레벨 5헥스 · 파괴하면 Encounter 버린 더미 맨 위 카드를 얻는다 ·
-          <b>Tragedy</b>: 마을 · 2헥스 / 9레벨 4헥스 · 파괴하면 Encounter 덱에서 1장을 형태로 얻는다 ·
-          <b>Disaster</b>: 수도원 · 2헥스 / 9레벨 4헥스 · 파괴하면 <b>레벨 +1</b> ·
-          <b>Cataclysm</b>: 보스 위치 · 5레벨 3헥스 / 9레벨 2헥스 / 11레벨 1헥스 · <b>2곳 파괴마다 레벨 +1</b>.<br>
-          <b>빌런 행동</b> — 웅덩이를 줄인 뒤 달 주사위를 굴려 공포 판의 표를 본다. <b>2·7 Tragedy · 3·8 Cataclysm · 4·9 Calamity · 5·10 Disaster</b>는 그 공포가 있을 때만,
-          <b>6</b>은 공포가 있으면 <b>한 번만</b> 공통으로, <b>11~12</b>는 <b>등장 순서대로 모든 공포</b>가 행동한다.`},
-
-        {name:{en:"Facing Horrors",ko:"공포와의 전투"}, desc:`공포와 맞설 때는 그 공포 판의 <b>반대면(보스 면)</b>을 쓴다. 같은 칸에 여럿이 있으면 <b>동시에</b> 상대할 수도 있다.<br>
-          전투 전에 <b>보라 룬</b>을 바쳐 레벨을 낮추거나 <b>보스 강화</b>를 버릴 수 있다. 그 뒤 생명력과 패시브를 적고 전투를 시작한다.<br>
-          <b>Titanic 거대</b> — 거대 적은 <b>체력과 에너지 생명력을 여러 개</b> 갖는다(그래도 적 하나로 친다). 쓰러뜨리려면 <b>모든 체력</b>을 0으로 만들어야 한다.
-          체력 생명력이 하나뿐인 적이 이 유형을 얻으면 원래 체력과 같은 값의 체력이 <b>하나 더</b> 생긴다.
-          각 영웅은 Resolution 단계에 <b>어느 생명력을 때릴지</b> 고른다. 체력을 참조하는 효과는 <b>가장 높은 현재 체력</b>을 쓴다.
-          숙적 피해는 라운드마다 <b>하나의 생명력에만</b> 들어간다.<br>
-          <b>격파 시</b> — 보스 판의 보상을 얻고(마지막 공포는 제외), <b>Horrific Choice</b> 중 하나를 고른다 —
-          ① 각 영웅이 <b>광기를 최대 3개</b> 제거 · ② 그 공포 덱에서 <b>레벨의 절반(내림)</b>만큼 카드를 뽑아 원하는 것을 즉시 사용(이걸 고르면 ①은 못 고른다).
-          그 뒤 토큰과 판을 치우고, 공포 덱도 빼서 <b>상황 슬롯을 원래대로</b> 되돌린다.`},
-
-        {name:{en:"Madness",ko:"광기"}, desc:`여러 효과가 영웅에게 <b>Madness광기</b>를 준다. 각 영웅은 <b>광기 트래커</b>를 0에서 시작한다.<br>
-          광기는 <b>최대 6</b>까지만 쌓인다. 6을 넘게 되면 큐브를 더 얻는 대신 <b>무작위 스탯 랭크 1을 잃는다</b> —
-          코어 주사위를 굴려 <b>1 본인 선택 · 2 체력 · 3 에너지 · 4 공격 · 5 방어 · 6 마스터리1 · 7 마스터리2 · 8 길찾기 · 9 탐험 · 10 생존</b>.<br>
-          랭크는 <b>0까지</b> 내려갈 수 있고, 0이 되면 그 스탯을 <b>쓸 수 없다</b>.<br>
-          영웅이 <b>죽으면 광기를 모두 잃는다</b>.`},
-
-        {name:{en:"Purple Runes & Breach Dungeon",ko:"보라 룬 · 균열 던전"}, desc:`<b>보라 룬 스톤</b> — 룬 스톤을 놓을 때 <b>같은 숫자가 2개 이상</b> 나오면, 따로 놓는 대신 합쳐서 <b>보라 룬 스톤 1개</b>가 된다.
-          보라 룬이 있는 헥스로 이동하면 <b>보라 던전 카드</b>를 뽑아 처리한다 — 위험하고 희귀하며 여러 유형이 섞여 있다.
-          일반 던전 카드는 룬 하나를 만들려면 <b>같은 것 2장</b>이 필요하지만, <b>보라 던전 카드는 1장이 곧 보라 룬 1개</b>다. 이 규칙은 일반 게임에서도 쓸 수 있다.<br>
-          <b>파괴된 지하묘지</b> — 던전에서 <b>나오는 출구</b>로는 쓸 수 있지만 <b>들어갈 수는</b> 없다. 수도원 아이템 해금에서는 <b>해금된 지하묘지</b>로 친다.<br>
-          <b>균열 타일</b> — 던전 안에만 놓을 수 있는 특수 타일. 놓는 방법은 둘 —
-          ① 보라 던전 카드 <b>“The Breach”</b>를 사용 · ② 피의 웅덩이가 <b>70 이하</b>가 되면, 녹티스 성(또는 던전의 그의 보스 위치)에서 이동 단계에 <b>균열 입구로 순간이동</b>.<br>
-          <b>균열 안에서의 이동</b> — 룬 스톤은 <b>놓지 않는다</b>. 이동 <b>1헥스마다 시간 5</b>가 든다(평소 1).
-          <b>뒤로 · 제자리 휴식 · 앞으로</b>만 가능하며 벽은 통과할 수 없다. 순간이동은 <b>Hearth Stone</b>으로만 가능하다.
-          균열 안에서는 <b>이동 단계와 빌런 단계만</b> 진행한다.<br>
-          <b>뒤로 이동</b>: 출구 쪽으로 1헥스 갈 때마다 각 영웅이 <b>자기 광기만큼</b> 체력·에너지를 회복한다. 시간을 다 쓰면 빌런 단계를 진행한다.<br>
-          <b>제자리 휴식</b>: 각 영웅이 <b>광기의 절반</b>만큼 회복한 뒤 빌런 단계를 진행한다.`},
-
-        {name:{en:"Rifts & Event Horizon",ko:"균열의 틈 · 사건의 지평선"}, desc:`<b>Rift 틈</b> — 균열 안에 <b>4개</b> 있다. 멈추지 않고 지나가도 된다.
-          틈에서 이동을 끝내면(Encounter를 뽑아 균열 더미에 넣은 뒤) 각 영웅이 <b>코어 주사위</b>를 굴려 <b>자기 광기 이하</b>면 성공, 초과하면 실패하고 <b>광기 3</b>을 얻는다.
-          <b>절반 이상</b> 성공하면 원하는 공포 하나의 <b>레벨을 3</b> 낮추고 그 틈 토큰을 치운다. 실패하면 다음 게임 턴에 다시 시도할 수 있다.<br>
-          <b>Spawn 지점</b> — 초월자 유형이 나오는 곳으로, 여기서는 <b>Encounter</b>를 상대한다.<br>
-          <b>균열 안에 있을 때 새 공포 등장</b> — 모든 영웅이 <b>현재 공포 수만큼</b> 광기를 얻고, 그 뒤 공포가 평소대로 등장한다.<br>
-          <b>균열 안에서의 죽음</b> — 위대한 양상을 얻을 수 없다. 대신 <b>킵세이크가 자동으로 발동</b>한다(있다면).<br>
-          <b>Event Horizon 사건의 지평선</b> — 균열의 마지막 헥스. 여기서 이동을 끝내면 <b>공포들과의 전투</b>가 시작된다 —
-          <b>레벨이 가장 낮은</b> 공포부터 <b>하나씩</b> 상대하며, 시작하면 <b>도주할 수 없다</b>.
-          매 Declaration 단계마다(첫 라운드 포함) 모든 영웅이 <b>광기 1</b>을 얻고, 상대 중인 공포는 <b>레벨 3</b>을 잃는다.
-          Resolution 단계에 공포의 레벨이 <b>3 이하</b>가 되거나 죽으면 격파되고 다음 공포가 들어온다. 전투 사이에는 <b>보상을 얻지 않는다</b>.
-          아직 등장하지 않은 공포가 있으면, 마지막 공포가 쓰러진 순간 <b>다음 공포가 등장</b>하며 피의 웅덩이를 해당 단계로 낮춘다.<br>
-          <b>계열 보너스</b> — 사건의 지평선에서는 <b>어시스트·스트라이커</b>가 광기만큼 <kw>block</kw>을,
-          <b>힐러·새퍼</b>가 광기만큼 체력 또는 에너지 <kw>regen</kw>을(택1) 얻는다.
-          <b>유틸리티</b>는 둘 중 하나를 고른다. 계열이 둘 이상이면 <b>중첩</b>된다.`},
-
-        {name:{en:"Valor (Expansion)",ko:"용맹 (확장)"}, desc:`확장에서 추가로 얻을 수 있는 용맹 —
-          <b>사건의 지평선에서 균열을 닫아 승리</b> · <b>한 게임에서 네 공포를 모두 격파</b> ·
-          <b>한 게임에서 전설 카드 6장 이상 획득</b> · <b>영웅 하나의 킵세이크가 발동한 채로 승리</b>.`},
+          &#9319; 젤랴를 반드시 쓰러뜨릴 필요는 없다. <b>녹티스를 쓰러뜨리면</b> 승리한다.`},
       ]},
       {id:"valor", label:{en:"Valor", ko:"용맹"}, entries:[
         {name:{en:"Gaining Valor",ko:"용맹 얻기"}, desc:`특정 업적을 달성하면 <b>용맹 1점</b>을 얻는다. 용맹은 <b>미르자 녹티스 전용이 아니라</b> 시리즈 전체에서 통한다.<br>
@@ -1611,8 +1763,18 @@ const SERIES = {
     ],
   },
 
+  "4b": {
+    id:"4b", name:{en:"Edition 4 · The Breach", ko:"4편 · 균열"}, short:"4B", ord:2,
+    note:{ko:"녹티스가 승천한 뒤의 미래. 네 공포를 막아야 한다"},
+    keywords: KW_COMMON,
+    conditions: CONDITIONS,
+    rules: [],      /* 아래에서 채운다 — 기본판 공통 룰 + 균열 전용 */
+    items: [],
+    extras: [],     /* 아래에서 채운다 */
+  },
+
   "5": {
-    id:"5", name:{en:"Hexplore It — Edition 5", ko:"헥스플로어 잇 — 5편"}, short:"5",
+    id:"5", name:{en:"Hexplore It — Edition 5", ko:"헥스플로어 잇 — 5편"}, short:"5", ord:3,
     keywords: KW_COMMON,
     exKeywords: KW_SIEGE,
     conditions: CONDITIONS,
@@ -1621,6 +1783,21 @@ const SERIES = {
     extras: [],
   },
 };
+
+/* 균열 모드는 4편의 공통 룰을 그대로 쓰고, 달라지는 것만 앞에 얹는다 */
+(function(){
+  const base = SERIES["4"].rules;
+  const pick = en => base.find(r => r.title.en === en);
+  SERIES["4b"].rules = [
+    B_DIFF, B_SETUP, B_TURN, B_CIRC,
+    pick("Movement"), pick("Skill Phase & Stat Tests"),
+    pick("Navigate · Explore · Survival"), pick("Wander & Roam"), pick("Starving"),
+    pick("Circumstance Types"), RULES_COMBAT,
+  ].filter(Boolean);
+  const ex = SERIES["4"].extras, byId = id => ex.find(x => x.id === id);
+  SERIES["4b"].extras = [byId("dungeon"), byId("rune"), BREACH_TAB, byId("valor")].filter(Boolean);
+  SERIES["4b"].items = SERIES["4"].items;
+})();
 
 /* 엔진에서 접근할 수 있게 전역으로 노출 */
 window.HEX = { CAT, STAT_ORDER, STAT_META, SHARED, SERIES, FOE_TYPES, GREATER_ASPECTS, COND_NOTE, DIFFICULTY };
