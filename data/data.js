@@ -1438,6 +1438,340 @@ const B_CIRC = {title:{en:"Circumstance (Breach)", ko:"상황 카드"}, body:`
     <div class="rule-k">주의</div><div class="rule-v">낮·밤 덱의 조사는 <b>웅덩이를 올린다</b> — 녹티스의 잔재가 남아 있기 때문</div>
   </div>`};
 
+/* ── 5편(고다이 산맥) 룰 — 수확·공성 두 단계로 굴러간다 ── */
+const R5_STAGES = {title:{en:"Game Stages", ko:"게임의 두 단계"}, body:`
+  <div class="rule-v">한 게임은 <b>Siege Wave 공성 물결</b> <b>3~4번</b>으로 이루어지고, 각 물결은 <b>수확 단계</b>와 <b>공성 단계</b>로 나뉜다.
+    <b>4편과 달리 상황(Circumstance) 단계가 없다.</b></div>
+  <div class="rule-h">Harvest Stage 수확 단계</div>
+  <div class="rule-grid">
+    <div class="rule-k">성격</div><div class="rule-v">게임 턴 하나가 <b>한 달</b>. 판단과 <b>자원 관리</b>가 중심이다</div>
+    <div class="rule-k">하는 일</div><div class="rule-v"><b>자원</b>을 모아 <b>디펜더를 강화</b>한다. 조우·보스와 싸우고 보물이나 발견을 얻기도 한다</div>
+    <div class="rule-k">끝나는 조건</div><div class="rule-v">수확 게임 턴이 끝날 때마다 <b>Jaethi 카드</b>를 한 장 뽑는다.
+      <b>siege! 카드</b>가 나오면 다음 <b>공성 단계</b>가 시작된다</div>
+  </div>
+  <div class="rule-h">Siege Stage 공성 단계</div>
+  <div class="rule-grid">
+    <div class="rule-k">성격</div><div class="rule-v">Wellspring이 옅어져 <b>원소 관문</b>이 열리고 <b>공성 적</b>이 쏟아진다. 게임당 <b>최대 4번</b></div>
+    <div class="rule-k">구도</div><div class="rule-v"><b>4개의 공성 깃발</b>로 표현되는 적들이 <b>Magnetic 디펜더</b>를 향해 진군한다.
+      <b>Jaethi, the Plumed Serpent</b> 본인도 이때 모습을 드러낸다</div>
+    <div class="rule-k">끝</div><div class="rule-v">공성은 영원하지 않다 — Wellspring이 깨진 <b>패턴</b>을 계속 되돌리려 하기 때문</div>
+  </div>
+  <div class="rule-v" style="margin-top:9px">두 단계 모두 진행 순서는 <b>이동 → 기술 → 이벤트 → 빌런</b>으로 같다.</div>`};
+
+const R5_TURN = {title:{en:"Turn Sequence", ko:"차례 진행"}, body:`
+  <div class="rule-h">단계 시작 <span class="rule-tag">수확</span></div>
+  <div class="rule-v">게임을 시작하거나 새 수확 단계가 열리면, <b>Acquire Amount 획득량</b>만큼 <b>수확 카드</b>를 뽑아 처리한다.
+    <b>즉시 효과</b>는 바로 적용하고, <b>단계 종료까지 지속 효과</b>는 기록해 둔다.</div>
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t"><b>이동</b> — 시작 이동력 <b>턴당 4헥스</b>. <b>보통 · 신중 · 무모 · 야영</b> 중에서 고른다</span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t"><b>기술</b> — 어떻게 움직였는지에 따라 굴리는 기술과 보정이 달라진다</span></div>
+    <div class="rule-step"><span class="n">3</span><span class="t"><b>이벤트</b> — <span class="rule-tag">수확</span> 위치에 따라 <b>자원을 수확</b>한다.
+      게임 장소나 토큰이 있는 칸에 있으면 사건이 일어난다</span></div>
+    <div class="rule-step"><span class="n">4</span><span class="t"><b>빌런</b> — <span class="rule-tag">수확</span> Jaethi 카드를 뽑아 처리 ·
+      <span class="rule-tag">공성</span> 공성 빌런 단계를 진행</span></div>
+  </div>`};
+
+const R5_HARVEST = {title:{en:"Harvest Stage", ko:"수확 단계"}, body:`
+  <div class="rule-h">단계를 열 때</div>
+  <div class="rule-grid">
+    <div class="rule-k">카드 뽑기</div><div class="rule-v"><b>획득량</b>만큼 수확 덱에서 뽑는다(시작 <b>3</b>)</div>
+    <div class="rule-k">즉시 효과</div><div class="rule-v">원하는 순서로 처리한다</div>
+    <div class="rule-k">지속 효과</div><div class="rule-v">뽑는 즉시 발동해 <b>수확 단계가 끝날 때까지</b> 유지된다. 전략이 이 효과에 좌우된다</div>
+    <div class="rule-k">보관</div><div class="rule-v">이번 단계에 뽑은 수확 카드는 <b>따로 모아 두고</b> 필요할 때 참조한다</div>
+  </div>
+  <div class="rule-h">Acquire Amount 획득량</div>
+  <div class="rule-v"><b>3</b>에서 시작하며 여러 효과로 늘어난다. 이 수치는 두 가지를 동시에 정한다 —
+    단계 시작에 뽑는 <b>수확 카드 장수</b>, 그리고 매 게임 턴 <b>Range 범위</b> 안에서 자원을 거둘 <b>헥스 수</b>.
+    그래서 수확 단계에는 <b>어디에 서 있느냐</b>가 곧 전략이 된다.</div>
+  <div class="rule-h">Treasure 보물</div>
+  <div class="rule-grid">
+    <div class="rule-k">획득 조건</div><div class="rule-v">뽑았다고 바로 얻는 게 아니다. <b>Antiquity Site 유적</b>에서 이벤트를 치러야 얻는다</div>
+    <div class="rule-k">얻으면</div><div class="rule-v">영웅 하나가 카드를 갖고 <b>Wielder Bonus</b>와 <b>보물 효과</b>를 쓴다. 그 자리에는 <b>헥스 토큰을 놓지 않는다</b></div>
+    <div class="rule-k">못 얻으면</div><div class="rule-v">수확 단계가 끝날 때 <b>버려진다</b> — Jaethi가 그 패턴을 삼켜 버린다</div>
+  </div>
+  <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">공성이 시작되면 이 단계에 뽑은 수확 카드는 모두 버린다.</div>`};
+
+const R5_VILLAIN_H = {title:{en:"Villain Phase (Harvest)", ko:"빌런 단계 · 수확"}, body:`
+  <div class="rule-v">Jaethi 덱에서 <b>한 장</b>을 뽑아 처리한다.</div>
+  <div class="rule-grid">
+    <div class="rule-k">공성 카드 배치</div><div class="rule-v">카드에 표시된 <b>원소 주사위</b>를 굴려, 그 유형의 공성 카드를 <b>다가오는 공성 슬롯</b>에 놓는다.
+      결과가 <b>Surge</b>면 그 <b>오른쪽 슬롯</b>에도 한 장 더 놓는다(다음이 4번째 공성이면 왼쪽)</div>
+    <div class="rule-k">조우 아이콘</div><div class="rule-v">뽑은 카드에 조우 아이콘이 있으면 <b>Encounter</b>를 뽑아 처리한다</div>
+  </div>
+  <div class="rule-h">뽑은 카드가 <b>siege!</b> 라면</div>
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t">캘린더 아래의 <b>다음 공성 물결</b> 칸(1~4)을 표시한다</span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t"><b>공성 지속</b>을 정한다 — <b>헥스 주사위</b>를 굴려 캘린더를 <b>2 + 공성 물결 번호 + 굴림의 절반(내림)</b>만큼 올린다(최대 7칸)</span></div>
+    <div class="rule-step"><span class="n">3</span><span class="t">Jaethi 공성 판에서 해당 <b>Imbalance 불균형</b>을 <b>1</b> 올린다</span></div>
+    <div class="rule-step"><span class="n">4</span><span class="t">활성화된 공성마다 <b>맨 위 카드를 공개</b>하고, 굴려서 <b>Jaethi와 각 공성 깃발</b>을 배치한다.
+      각 적의 <b>Resilience</b>를 전투 매트에 적는다</span></div>
+    <div class="rule-step"><span class="n">5</span><span class="t"><b>Tier II 자원 비축</b>의 지속 효과를 얻는다</span></div>
+    <div class="rule-step"><span class="n">6</span><span class="t">사용 중인 <b>수확 카드</b>를 모두 버리고, <b>확보하지 못한</b> 발견 토큰과 보물을 치운다</span></div>
+    <div class="rule-step"><span class="n">7</span><span class="t">수확 단계가 끝나고 <b>같은 빌런 단계 안에서</b> 공성 단계가 곧바로 시작된다(새 게임 턴이 아니다)</span></div>
+  </div>
+  <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">siege! 가 아니면 빌런 단계가 끝나고 새 수확 게임 턴이 시작된다.</div>`};
+
+const R5_SIEGE = {title:{en:"Siege Stage", ko:"공성 단계"}, body:`
+  <div class="rule-v">한 번에 <b>최대 5</b>의 공성 세력과 맞선다 — <b>공성 깃발 4개</b>(슬롯 1~4)와 <b>Jaethi</b>.</div>
+  <div class="rule-h">공성 슬롯</div>
+  <div class="rule-grid">
+    <div class="rule-k">슬롯이 정하는 것</div><div class="rule-v"><b>이동 속도</b>와 <b>Power 보너스</b></div>
+    <div class="rule-k">카드가 정하는 것</div><div class="rule-v"><b>Resilience</b>, 기본 <b>Power</b>, <b>Range</b></div>
+    <div class="rule-k">슬롯별 수치</div><div class="rule-v"><b>1</b> 이동 2 · 보너스 없음 &nbsp;|&nbsp; <b>2</b> 이동 2 · <b>+1</b> &nbsp;|&nbsp;
+      <b>3</b> 이동 3 · <b>+2</b> &nbsp;|&nbsp; <b>4</b> 이동 4 · <b>+3</b></div>
+    <div class="rule-k">카드 더미</div><div class="rule-v">한 슬롯에 여러 장이 쌓일 수 있다. <b>맨 위 카드만</b> 실제로 상대한다</div>
+    <div class="rule-k">Jaethi</div><div class="rule-v">그 자체가 <b>공성 적</b>이며 디펜더와 영웅이 <b>목표로 삼을 수 있다</b>. 공성 단계가 끝날 때까지 판에 남는다</div>
+  </div>
+  <div class="rule-h">공성 적 카드</div>
+  <div class="rule-grid">
+    <div class="rule-k">원소</div><div class="rule-v">다섯 원소 중 하나에 묶이며, <b>항상 그 원소의 공성 피해</b>를 준다</div>
+    <div class="rule-k">보상</div><div class="rule-v">쓰러뜨릴 때마다 카드에 적힌 <b>공성 보상</b>을 얻는다</div>
+  </div>`};
+
+const R5_VILLAIN_S = {title:{en:"Villain Phase (Siege)", ko:"빌런 단계 · 공성"}, body:`
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t"><b>Jaethi</b> — 먼저 움직인 뒤 <b>Imbalance 불균형</b>을 굴려 행동을 처리한다</span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t"><b>공성 깃발 이동</b> — 번호 순서대로, 이동 속도만큼 <b>가장 가까운 Magnetic 목표</b>를 향해</span></div>
+    <div class="rule-step"><span class="n">3</span><span class="t"><b>공성 피해</b> — 각 공성 적이 <b>Range 안</b>의 디펜더와 그룹에게 <b>Power</b>만큼 피해를 준다.
+      모든 대상에게 <b>동시에</b> 적용하며, 이때 파괴된 디펜더는 <b>아직 치우지 않는다</b></span></div>
+    <div class="rule-step"><span class="n">4</span><span class="t"><b>디펜더 반격</b> — 디펜더가 공성 적을 파괴하려 시도한다</span></div>
+    <div class="rule-step"><span class="n">5</span><span class="t"><b>캘린더 −1</b> — 남아 있으면 다음 턴으로, <b>0</b>이 되면 공성이 끝나고 수확 단계가 시작된다</span></div>
+  </div>
+  <div class="rule-h">① Jaethi</div>
+  <div class="rule-grid">
+    <div class="rule-k">이동</div><div class="rule-v">현재 <b>불균형 종류</b>에 따라 정해진 칸(<b>1~3</b>, Swift 패시브로 <b>+2</b>)만큼 <b>가장 가까운 도시국가</b>를 향해</div>
+    <div class="rule-k">행동</div><div class="rule-v">현재 불균형과 <b>같은 원소 주사위</b>를 굴려 그 결과의 효과를 처리한다</div>
+    <div class="rule-k">공격</div><div class="rule-v">Range 안의 디펜더에게 <b>Power</b>만큼. 원소 유형은 <b>현재 불균형</b>과 같다.
+      Jaethi의 공격은 <b>깃발들이 움직이기 전에</b> 끝난다</div>
+    <div class="rule-k">SkyTile</div><div class="rule-v"><b>Floating Mountain</b> 면이 위인 SkyTile로 이동하면 Riser를 치운다 —
+      산이 추락하며 <b>모든 디펜더가 −1</b></div>
+  </div>
+  <div class="rule-h">Imbalance 불균형</div>
+  <div class="rule-v">다섯 원소마다 <b>0~9</b> 사이로 기록된다. <b>siege! 카드</b>, Jaethi의 행동, 영웅의 감소 시도(사원)로 오르내린다.
+    Jaethi는 <b>1 이상인 원소의 패시브를 모두</b> 얻는다.</div>
+  <div class="rule-h">② 깃발 이동</div>
+  <div class="rule-grid">
+    <div class="rule-k">목표</div><div class="rule-v">가장 가까운 <b>Magnetic</b> 대상(도시국가 · 요새 · Wellspring 증폭기 등). 같은 거리면 <b>그룹이 고른다</b></div>
+    <div class="rule-k">멈춤</div><div class="rule-v">목표의 <b>Range 안</b>에 들면 멈춘다. <b>디펜더 위에서는</b> 이동을 끝낼 수 없다</div>
+    <div class="rule-k">지형</div><div class="rule-v">새 헥스 타일을 열 수 있고 <b>위험 지형의 영향을 받지 않으며</b>,
+      물·산봉우리·공성 관문을 <b>평지처럼</b> 지난다(관문 위에서 멈추지는 못한다)</div>
+    <div class="rule-k">SkyTile</div><div class="rule-v">Floating Mountain 면 위로는 <b>갈 수 없고 그 위의 디펜더도 노리지 못한다</b> — 그 적이 <kw>soar</kw>를 가진 경우만 예외</div>
+    <div class="rule-k">원소 토큰</div><div class="rule-v">공성 말(Jaethi 포함)이 <b>Range 안</b>에 들어오면 토큰을 치우고 그 원소의 <b>불균형 +1</b></div>
+    <div class="rule-k">정착지</div><div class="rule-v">공성 말이 <b>지나가거나 멈추면</b> 그 정착지는 파괴되고 <b>헥스 토큰</b>을 놓는다</div>
+  </div>
+  <div class="rule-h">③ 공성 피해</div>
+  <div class="rule-v">디펜더는 그대로 받지만, <b>그룹</b>은 다르게 받는다 — 공성 피해를 조금이라도 받으면
+    <kw>immune</kw>이 아닌 영웅은 대신 <b><kw>energy drain</kw> 20</b>을 받는다.</div>
+  <div class="rule-h">④ 디펜더 반격</div>
+  <div class="rule-grid">
+    <div class="rule-k">굴림</div><div class="rule-v">Range 안에 공성 말이 있는 디펜더마다 <b>Potential</b>만큼 <b>코어 주사위</b>를 굴린다(디펜더당 한 번)</div>
+    <div class="rule-k">목표 수치</div><div class="rule-v">그 디펜더의 <b>Power</b>. 스탯 테스트처럼 다루므로 Power가 높으면 <b>치명적 성공 범위도 넓어진다</b></div>
+    <div class="rule-k">결과</div><div class="rule-v"><b>성공 1개당 공성 피해 1</b> · <b>치명적 성공은 2</b>. Range 안 <b>모든</b> 공성 적에게 들어간다</div>
+    <div class="rule-k">격파</div><div class="rule-v">보상을 얻고 그 카드를 뒤집어 놓은 뒤 <b>다음 카드를 공개</b>한다. 남은 카드가 없으면 <b>깃발을 치운다</b>.
+      넘친 피해는 <b>아래 카드로 넘어가지 않는다</b></div>
+    <div class="rule-k">Bolster</div><div class="rule-v">그룹이 디펜더 안에 있으면 이때 <b>보강</b>을 시도할 수 있다</div>
+    <div class="rule-k">정리</div><div class="rule-v">모든 디펜더가 행동한 뒤, <b>Resilience 0</b>인 디펜더를 치운다</div>
+  </div>`};
+
+const R5_CALENDAR = {title:{en:"Calendar & Victory", ko:"캘린더 · 승패"}, body:`
+  <div class="rule-h">캘린더</div>
+  <div class="rule-grid">
+    <div class="rule-k">설정</div><div class="rule-v">공성이 시작될 때 <b>헥스 주사위</b>를 굴려
+      <b>2 + 공성 물결 번호 + 굴림의 절반(내림)</b>만큼 채운다(<b>최대 7</b>)</div>
+    <div class="rule-k">감소</div><div class="rule-v">공성 빌런 단계마다 <b>오른쪽 끝부터 1칸</b>씩 지운다</div>
+    <div class="rule-k">0이 되면</div><div class="rule-v">그 공성이 끝나고 <b>수확 단계</b>가 시작된다</div>
+  </div>
+  <div class="rule-h">Final Moments 최후의 순간</div>
+  <div class="rule-v">캘린더가 0이 되면 <b>현재 공성 물결까지의 수정치를 누적해</b> 적용한다.
+    (예: 2번째 물결이면 1·2번째가 함께 적용되어 <b>디펜더 합계 −4</b>. 3번째 물결에는 <b>무작위 도시국가 하나가 파괴</b>된다.)</div>
+  <div class="rule-h">공성이 끝날 때</div>
+  <div class="rule-grid">
+    <div class="rule-k">치우는 것</div><div class="rule-v">남은 <b>공성 깃발과 Jaethi 말</b>을 판에서 치운다</div>
+    <div class="rule-k">남기는 것</div><div class="rule-v">슬롯의 <b>공성 카드는 뒤집어 그대로</b> 둔다 — 다음 공성에서 <b>그 슬롯을 더 강하게</b> 만든다</div>
+    <div class="rule-k">기록</div><div class="rule-v">공성 적의 <b>Resilience는 지운다</b>. <b>Jaethi의 수치는 지우지 않는다</b>(공성마다 초기화되지 않음)</div>
+  </div>
+  <div class="rule-h">승패</div>
+  <div class="rule-grid">
+    <div class="rule-k" style="color:var(--g-navigate)">승리</div><div class="rule-v"><b>Jaethi의 Resilience가 0</b>이 된다 ·
+      또는 <b>마지막 공성 물결이 끝났을 때 도시국가가 하나라도 살아 있다</b></div>
+    <div class="rule-k" style="color:var(--g-attack)">패배</div><div class="rule-v"><b>도시국가 둘 다 파괴</b>된다</div>
+  </div>
+  <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">승패는 공성 단계의 <b>매 턴 끝</b>에 확인한다.</div>`};
+
+const R5_RES = {title:{en:"Resources & Elements", ko:"자원 · 원소"}, body:`
+  <div class="rule-v"><b>자원</b>은 그룹 공용 아이템으로, <b>디펜더를 키우는 데</b> 쓴다. 모으는 데 <b>수량 제한이 없다</b>.</div>
+  <div class="rule-grid">
+    <div class="rule-k">Platinum 백금</div><div class="rule-v">디펜더를 <b>처음 세울 때</b>(그리고 일부 개선에) 든다. 다른 자원을 <b>Emporium</b>에서 백금으로 바꿀 수 있다</div>
+    <div class="rule-k">Tier I</div><div class="rule-v">Ore 광석 · Lumber 목재 · Recruit 신병</div>
+    <div class="rule-k">Tier II</div><div class="rule-v">Essence 정수 · Sky Metal 하늘 금속</div>
+    <div class="rule-k">Tier III</div><div class="rule-v">Specialist 전문가 · Aetherial Ore 에테르 광석 · Living Crystal 살아있는 결정</div>
+    <div class="rule-k">원소</div><div class="rule-v">기본 4종 <b>Air 바람 · Earth 대지 · Fire 불 · Water 물</b> + <b>Void 공허</b></div>
+  </div>
+  <div class="rule-h">Augment 원소 부여</div>
+  <div class="rule-v">원소를 <b>소비</b>하면 영웅이나 디펜더에게 <b>원소 능력</b>을 붙일 수 있다.
+    <b>사원</b>에서, 또는 그룹이 <b>디펜더 안에 있을 때</b> 할 수 있으며, 디펜더 하나에 <b>각 원소를 하나씩</b>까지 붙인다.
+    원소 자원은 각 영웅이 아니라 <b>그룹이 한 번</b> 받는다.</div>`};
+
+const R5_DEFENDER = {title:{en:"Defenders", ko:"디펜더"}, body:`
+  <div class="rule-v">디펜더는 공성 적을 막아 주는 <b>거점</b>이다. 종류마다 <b>추적판</b>이 따로 있다.</div>
+  <div class="rule-grid">
+    <div class="rule-k">도시국가</div><div class="rule-v">이름과 번호가 있다. 네 곳 중 <b>둘만</b> 게임에 등장한다</div>
+    <div class="rule-k">사원</div><div class="rule-v">다섯 곳이 <b>하나의 추적판을 공유</b>한다. <b>Resilience만</b> 장소별로 따로 적으며 <b>8</b>에서 시작한다</div>
+    <div class="rule-k">탑 · 요새</div><div class="rule-v"><b>1~4번</b>. 탑을 올리면 <b>같은 번호의 요새</b>가 된다(다른 번호로는 불가)</div>
+    <div class="rule-k">기본 · 상승 수치</div><div class="rule-v"><b>+</b>가 없으면 기본 수치로, 새로 등장하거나 재건될 때 <b>그 값으로 초기화</b>한다.
+      <b>+</b>가 있으면 이전 단계에서 물려받은 값에 <b>더한다</b></div>
+  </div>
+  <div class="rule-h">디펜더 강화 <span class="rule-tag">이벤트 단계 끝</span></div>
+  <div class="rule-grid">
+    <div class="rule-k">Build 건설</div><div class="rule-v"><b>백금 6</b> — 그룹 <b>Range 안</b>의 지형 헥스에 다음 번호의 <b>탑</b>을 세운다.
+      게임 장소나 공성 관문에는 못 놓는다(SkyTile은 <kw>soar</kw>가 있으면 가능). 세울 때마다 <b>파워업</b>을 뽑아 그룹이 받는다</div>
+    <div class="rule-k">Upgrade 승급</div><div class="rule-v"><b>백금 10</b> — <b>탑 1~3</b>을 같은 번호 <b>요새</b>로. 같은 자리에 토큰을 교체한다.
+      그 탑은 <b>요새가 파괴되기 전까지</b> 다시 세울 수 없다</div>
+    <div class="rule-k">Rebuild 재건</div><div class="rule-v">비용은 상황에 따라 다르다. 파괴돼 <b>뒤집힌</b> 토큰은 같은 자리에 <b>더 싸게</b> 재건할 수 있다.
+      재건하면 <b>Resilience · 신병 · 전문가만</b> 기본값으로 돌아가고 나머지는 유지된다.
+      <b>사원 요새는 재건 불가</b> — 파괴되면 모든 사원 장소와 함께 사라진다</div>
+    <div class="rule-k">Relocate 이전</div><div class="rule-v"><b>백금 1</b> — 파괴되지 않은 탑·요새를 그룹 <b>Range</b>만큼 옮긴다.
+      디펜더당 <b>게임 턴에 1회</b>. 사원 요새는 불가</div>
+    <div class="rule-k">Improve 개선</div><div class="rule-v"><b>자원</b>을 써서 강화한다. <b>도시국가와 사원</b>은 자원을 얼마를 쓰든 <b>백금 1</b>을 추가로 낸다</div>
+    <div class="rule-k">Equip 장착</div><div class="rule-v"><b>비용 없음</b> — 보유한 Equip 카드를 디펜더에 붙이거나 뗀다. 디펜더당 <b>게임 턴에 1장</b></div>
+  </div>`};
+
+const R5_MAP = {title:{en:"Special Tiles", ko:"특수 타일"}, body:`
+  <div class="rule-v"><b>SkyTile</b>과 <b>Cataclysm 재앙 타일</b>은 지도를 넓히는 것이 아니라 <b>기존 지도 위에 덮는</b> 타일이다.
+    그 아래에 깔린 게임 장소는 <b>없는 것으로 취급</b>되며, 타일이 치워지면 되살아난다.</div>
+  <div class="rule-h">SkyTile (13장)</div>
+  <div class="rule-grid">
+    <div class="rule-k">두 면</div><div class="rule-v"><b>Floating Mountain 떠 있는 산</b> / <b>Nether 저편</b></div>
+    <div class="rule-k">떠 있는 산</div><div class="rule-v">새로 놓을 때는 이 면이 위로 오고 <b>Riser</b>를 받쳐 놓는다.
+      <kw>soar</kw>가 없으면 <b>들어갈 수 없다</b></div>
+    <div class="rule-k">Riser 제거</div><div class="rule-v">그대로 <b>지상에 내려앉으면</b> 모든 디펜더가 <b>Resilience −1</b>.
+      <b>Nether 면으로 뒤집히면</b> 디펜더는 피해를 받지 않는다. Riser가 없어진 산은 <kw>soar</kw> 없이도 들어갈 수 있다</div>
+    <div class="rule-k">Nether</div><div class="rule-v">그 위의 영웅은 <state>dissonant</state> 상태가 되며, <b>Void 원소 Augment</b>가 없으면
+      이 타일 위에서는 <b>무효화할 수 없다</b>. 들어가는 데 <kw>soar</kw>는 필요 없다</div>
+    <div class="rule-k">겹칠 때</div><div class="rule-v">떠 있는 산 위에 또 놓이면 <b>Riser를 빼고 Nether로</b> 뒤집는다. Nether 위라면 <b>배치를 다시 굴린다</b></div>
+  </div>
+  <div class="rule-h">Cataclysm 재앙 타일 (4장)</div>
+  <div class="rule-grid">
+    <div class="rule-k">등장</div><div class="rule-v">수확 덱이나 Jaethi 덱에서 <b>재앙 카드</b>가 나오면 해당 타일을 놓고 그 카드를 뽑는다</div>
+    <div class="rule-k">효과</div><div class="rule-v">그 타일 위에서는 <b>이동과 이벤트 단계가 달라진다</b>.
+      카드 뒷면에 <b>Living Crystal 소비법</b>과 그 위에서 디펜더·공성 적이 어떻게 달라지는지가 적혀 있다</div>
+  </div>
+  <div class="rule-h">Hazardous Terrain 위험 지형</div>
+  <div class="rule-v"><b>재앙 타일과 Nether 타일의 모든 헥스</b>가 해당한다.
+    여기서는 <b>야영·신중한 이동의 이점을 얻지 못하고</b>(맞는 Augment가 있어도),
+    이동 단계가 끝날 때 그 원소의 <st>health</st> 피해를 <b>1</b> 받는다. Nether는 항상 <b>Void</b> 원소로 친다.</div>
+  <div class="rule-h">Elemental Rift 원소 균열</div>
+  <div class="rule-v">재앙 타일과 SkyTile의 일부 헥스에 원소 아이콘이 있다. 타일을 놓을 때 그 칸에 <b>원소 토큰</b>을 숫자 면이 아래로 가게 놓는다.
+    이벤트 단계에 <b>주워서 비축에 넣을</b> 수 있고, <b>사원</b>에 있을 때 등 여러 시점에 다시 놓을 수 있다(개수 제한 없음).</div>`};
+
+const R5_PORTAL = {title:{en:"Siege Portals", ko:"공성 관문"}, body:`
+  <div class="rule-v"><b>10개</b>(1~10)의 통행 불가 지점으로, 그룹은 <b>절대 들어갈 수 없다</b>.
+    지도 테두리의 게임 바에 <b>4개</b>, 지도 중앙에 <b>6개</b>가 있다.
+    말·토큰도 <b>관문 위에 놓이지 않는다</b>.</div>
+  <div class="rule-h">위치를 정하는 법</div>
+  <div class="rule-steps">
+    <div class="rule-step"><span class="n">1</span><span class="t"><b>코어 주사위</b> — 나온 번호의 관문이 기준점이 된다(헥스 토큰이 올라간 관문이면 다시 굴린다)</span></div>
+    <div class="rule-step"><span class="n">2</span><span class="t"><b>헥스 주사위</b> — <kw>wander</kw> 방향을 정해, 그 방향의 위치에 대상을 놓는다</span></div>
+  </div>
+  <div class="rule-grid">
+    <div class="rule-k">쓰이는 곳</div><div class="rule-v">SkyTile · 재앙 타일 배치 · <b>공성 깃발</b>과 <b>Jaethi</b> 등장 등</div>
+    <div class="rule-k">여러 헥스짜리</div><div class="rule-v">SkyTile · 재앙 타일 · Jaethi 말처럼 큰 것은 <b>방향과 위치를 그룹이 정한다</b></div>
+    <div class="rule-k">다시 굴리는 경우</div><div class="rule-v"><kw>soar</kw> 없는 공성 깃발이 <b>Riser 있는 떠 있는 산</b>에 놓일 때 ·
+      재앙 타일 자리에 <b>이미 SkyTile</b>이 있을 때 · SkyTile 자리에 <b>이미 Nether</b>가 있을 때</div>
+  </div>`};
+
+const R5_MOVE = {title:{en:"Movement Phase", ko:"이동 단계"}, body:`
+  <div class="rule-grid">
+    <div class="rule-k">기본 이동력</div><div class="rule-v"><b>턴당 4헥스</b>(더 적게 가도 된다) · <b>신중한 이동</b>은 <b>1헥스</b></div>
+    <div class="rule-k">이동력 증가</div><div class="rule-v">늘어나면 <b>기본(4)과 신중(1)이 함께</b> 오른다</div>
+    <div class="rule-k">방식</div><div class="rule-v"><b>야영 · 신중 · 보통 · 무모</b> 네 가지</div>
+    <div class="rule-k">지도 확장</div><div class="rule-v">가장자리에 닿으면 새 헥스 타일을 놓는다. <b>타일을 놓아도 이동이 끝나지 않는다</b></div>
+  </div>
+  <div class="rule-h">Camping 야영</div>
+  <div class="rule-v">그 게임 턴의 <b>수확 판정과 스탯 테스트</b>에 <b>-1 보너스</b>. <b>중첩</b>되지만
+    <kw>wander</kw>나 <kw>teleport</kw> 등 다른 효과로 위치가 바뀌면 사라진다.</div>
+  <div class="rule-h">Moving Cautiously 신중한 이동</div>
+  <div class="rule-grid">
+    <div class="rule-k">조건</div><div class="rule-v">이동력 전부를 <b>강·도로만 따라</b> 쓰거나, 그 턴에 <b>1헥스만</b> 이동.
+      <b>도시국가의 네 헥스는 모두 도로로</b> 친다</div>
+    <div class="rule-k">보상</div><div class="rule-v"><kw>wander</kw> 위험이 <b>없다</b> · 그 턴에 나온 <b>Encounter 카드를 버릴 수</b> 있다</div>
+    <div class="rule-k">이동력과 연동</div><div class="rule-v">이동력을 올리는 아이템은 <b>신중한 이동 칸 수도</b> 함께 올린다(1 → 2 등)</div>
+  </div>
+  <div class="rule-h">Wander 헤매다 · Roam 배회</div>
+  <div class="rule-grid">
+    <div class="rule-k"><kw>wander</kw></div><div class="rule-v"><b>헥스 주사위 1회</b> — 나침반 방향으로 <b>1헥스</b></div>
+    <div class="rule-k"><kw>roam</kw></div><div class="rule-v"><b>헥스 주사위 2회</b> — 첫 번째가 <b>방향</b>, 두 번째가 <b>거리</b></div>
+    <div class="rule-k">막히면</div><div class="rule-v">지도의 단단한 경계나 <b>통행 불가</b> 지형(물 · 산봉우리 · SkyTile)이면 <b>제자리에 머문다</b></div>
+  </div>
+  <div class="rule-h">통행 불가</div>
+  <div class="rule-v"><b>산맥</b>과 <b>물</b> 헥스에는 들어갈 수 없다(나오는 것은 가능).
+    <b>Wayfarer's Supplies</b>를 얻으면 들어갈 수 있다.</div>`};
+
+const R5_EVENT = {title:{en:"Event Phase & Range", ko:"이벤트 단계 · Range"}, body:`
+  <div class="rule-v"><span class="rule-tag">공성</span> 공성 단계에는 <b>자원을 거두지 않는다</b>.
+    <span class="rule-tag">수확</span> 수확 단계에는 <b>Range 안</b>의 장소에서 자원을 거둔다.</div>
+  <div class="rule-h">Group Range 그룹 범위</div>
+  <div class="rule-grid">
+    <div class="rule-k">결정 방식</div><div class="rule-v"><b>살아 있는 영웅 중 가장 큰 Range</b>가 그룹 Range가 된다(진행 중에 바뀔 수 있다)</div>
+    <div class="rule-k">제외되는 칸</div><div class="rule-v">아직 <b>드러나지 않은</b> 헥스 · <b>들어갈 수 없는</b> 지형(산봉우리 · 물 · SkyTile)</div>
+  </div>
+  <div class="rule-h">계열별 Range</div>
+  <div class="rule-grid">
+    <div class="rule-k" style="color:#ff5f68">Striker</div><div class="rule-v"><b>1</b> — SkyTile 크기</div>
+    <div class="rule-k" style="color:#63d688">Assist</div><div class="rule-v"><b>2</b> — 헥스 타일 크기</div>
+    <div class="rule-k" style="color:#71a5ff">Healer</div><div class="rule-v"><b>3</b> — 제국 타일 크기</div>
+    <div class="rule-k" style="color:#bf94f5">Sapper</div><div class="rule-v"><b>3</b> — 제국 타일 크기</div>
+    <div class="rule-k" style="color:#d09a5f">Utility</div><div class="rule-v"><b>2</b> — 헥스 타일 크기</div>
+    <div class="rule-k">Dual</div><div class="rule-v">두 계열 중 <b>큰 쪽</b></div>
+  </div>
+  <div class="rule-h">자원 거두기 <span class="rule-tag">수확</span></div>
+  <div class="rule-v"><b>획득량</b>만큼 Range 안의 <b>서로 다른 헥스</b>를 골라 자원을 거둔다(시작 3).
+    고를 수 있는 칸이 모자라면 <b>같은 칸을 여러 번</b> 골라도 된다. 거둔 자원은 <b>비축</b>에 적는다.</div>`};
+
+const R5_ELEM = {title:{en:"Elemental Damage", ko:"원소 피해"}, body:`
+  <div class="rule-v">일부 행동은 다섯 원소 중 하나 이상의 <b>원소 피해</b>를 준다. 두 키워드가 이 피해를 크게 바꾼다.</div>
+  <div class="rule-grid">
+    <div class="rule-k"><kw>immune</kw> 면역</div><div class="rule-v">같은 원소의 공격에서 <b>피해를 전혀 받지 않는다</b>. 아래 약점보다 <b>우선</b>한다.
+      공격이 <b>여러 원소</b>를 가지면 <b>그 원소를 모두</b> 가져야 면역이 된다. 영웅은 <b>원소 Augment</b>로 얻는다</div>
+    <div class="rule-k"><kw>weakness</kw> 약점</div><div class="rule-v">해당 피해를 받을 때마다 <b>헥스 주사위</b>를 굴려 그만큼 <b>추가 피해</b>를 받는다(<b>줄일 수 없다</b>).
+      적에게 줄 때는 이 주사위가 <b>헥스플로드</b>한다. 영웅은 원소를 Augment하면 <b>반대 원소에 약점</b>이 생긴다</div>
+  </div>
+  <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">즉 원소 부여는 <b>양날</b>이다 — 하나에 면역을 얻는 대신 반대 원소에 약점을 안는다.</div>`};
+
+const R5_OUTLAST = {title:{en:"Outlast Opponents", ko:"지속력을 가진 적"}, body:`
+  <div class="rule-v">일부 적은 <st>outlast</st>를 가진다. 이것은 <b>전투 타이머</b>로,
+    <b>Swarm 떼</b>나 <b>Horde 무리</b>에서는 영웅들이 우위를 잡기까지 걸리는 시간을 뜻한다.</div>
+  <div class="rule-grid">
+    <div class="rule-k">스탯 테스트</div><div class="rule-v">지속력 아래에 <b>스탯 3종</b>이 표시된다. Declaration 단계에 <b>그 라운드의 행동으로</b>
+      그중 하나를 골라 굴려 지속력을 줄인다(때로는 늘린다)</div>
+    <div class="rule-k">결과</div><div class="rule-v"><b>성공 −1</b> · <b>치명적 성공 −2</b></div>
+    <div class="rule-k">면역 효과</div><div class="rule-v">굴린 스탯이 <b>적의 이번 행동과 맞고 성공</b>했다면, 그 영웅은 <b>그 행동에 면역</b>이 된다.
+      실패하면 <b>온전히</b> 받는다</div>
+    <div class="rule-k">다른 행동</div><div class="rule-v">스탯 테스트 대신 <b>방어나 마스터리</b>를 써도 된다.
+      적이 체력·에너지 피해를 못 받는 상태면 <b>피해 효과만 무시</b>되고, 방어·회복·증가·적 피해 감소 같은 <b>나머지 효과는 그대로</b> 적용된다</div>
+    <div class="rule-k">자동 감소</div><div class="rule-v">따로 명시가 없으면 매 라운드 <b>Resolution 단계</b>에 지속력이 <b>1</b> 자동으로 줄어든다</div>
+  </div>`};
+
+const R5_DEATH = {title:{en:"Death & Revival", ko:"죽음 · 부활"}, body:`
+  <div class="rule-h">음수 생명력</div>
+  <div class="rule-v">전투 단계가 끝나면 <b>음수인 생명력은 0으로</b> 돌아온다.</div>
+  <div class="rule-h">영웅이 죽으면</div>
+  <div class="rule-grid">
+    <div class="rule-k">소지품</div><div class="rule-v">살아 있는 영웅들이 <b>배낭 · 골드 · 음식</b>을 쓸 수 있다 —
+      전투 밖에서는 언제나, 전투 중에는 <b>방어 행동을 할 때</b></div>
+    <div class="rule-k">보상 분배</div><div class="rule-v">죽은 영웅이 받을 골드·음식·스탯 보너스·아이템은 <b>전투 밖에서 나눠 갖는다</b>.
+      <b>파워업</b>은 죽은 영웅이 그대로 받되 <b>부활할 때까지 뒤집어</b> 둔다</div>
+    <div class="rule-k">전멸해도</div><div class="rule-v"><b>게임은 끝나지 않는다</b>. 그룹이 부활할 때까지 매 턴 <b>빌런 단계만</b> 진행한다</div>
+  </div>
+  <div class="rule-h">Wave Revival 물결 부활</div>
+  <div class="rule-v"><b>마지막 공성이 아니라면</b>, 죽은 영웅은 <b>현재 물결 번호</b>만큼의 게임 턴이 지난 뒤
+    원하는 <b>도시국가</b>에서 자동으로 부활한다. 그 턴 <b>이동 단계</b>에 되살아나며,
+    살아 있는 영웅이 그 도시국가의 <b>Range 안</b>에 있으면 합류한다.
+    도시국가마다 부활 시 주는 <b>기어 업그레이드 보너스가 다르다</b>.</div>
+  <div class="rule-h">새 영웅 만들기</div>
+  <div class="rule-v">죽었다면 새 영웅을 만들 수 있다. <b>공성 물결마다 파워업 3장</b>, <b>골드 10</b>, <b>음식 소모량×3</b>을 갖고 시작하며,
+    그룹이 <b>도시국가 · 사원 · 정착지 · 유적 · 탑 · 요새</b> 중 한 곳에서 이동을 끝낸 다음 <b>기술 단계 뒤에</b> 합류한다.</div>`};
+
 /* 게임 난이도 — 캐릭터판 최상단에서 고른다.
    게임 중 상승 조건: 마을에서 Collector 3마리 격파 시 +1, 파워업 덱이 떨어지면 +1 */
 const DIFFICULTY = [
@@ -1936,7 +2270,7 @@ const SERIES = {
     keywords: KW_COMMON,
     exKeywords: KW_SIEGE,
     conditions: CONDITIONS,
-    rules: [RULES_COMBAT],
+    rules: [R5_STAGES, R5_TURN, R5_HARVEST, R5_VILLAIN_H, R5_SIEGE, R5_VILLAIN_S, R5_CALENDAR, R5_MOVE, R5_EVENT, R5_RES, R5_DEFENDER, R5_MAP, R5_PORTAL, RULES_COMBAT, R5_ELEM, R5_OUTLAST, R5_DEATH],
     items: [],
     extras: [],
   },
