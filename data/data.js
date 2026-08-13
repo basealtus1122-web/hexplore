@@ -1605,6 +1605,35 @@ const SERIES = {
           <div class="rule-k">결과</div><div class="rule-v">성공 &rarr; 효과를 얻고 카드를 <b>참고용으로 보관</b> · 실패 &rarr; <b>버린다</b></div>
         </div>`},
 
+      {title:{en:"Events", ko:"이벤트 장소"}, body:`
+        <div class="rule-v"><b>마을 · 수도원 · 지하묘지 · 보스 · 조사</b>에서 이동을 끝내면 그 장소의 카드나 판을 처리한다.
+          찾아낸 <b>발견</b>이 이벤트를 부르기도 한다. 이런 장소가 아니면 그 턴에는 이벤트가 없다.
+          따로 명시가 없으면 한 게임 턴에 처리하는 이벤트 <b>수에 제한이 없다</b>.</div>
+        <div class="rule-grid">
+          <div class="rule-k">Village 마을</div><div class="rule-v">소박한 물품을 판다. 여관에서 쉬어 <b>{defence} 랭크</b>만큼 생명력을 <kw>heal</kw>한다 ·
+            모은 <b>룬을 판매</b>한다 · <b>밤</b>에 왔다면 <b>콜렉터</b>와 맞설 수 있다</div>
+          <div class="rule-k">Monastery 수도원</div><div class="rule-v">아이템을 사고, <b>입장하는 순간 잃은 생명력을 전부</b> <kw>heal</kw>한다 ·
+            룬을 <b>헌납</b>해 <b>Grace은총</b>을 얻는다 · 지하묘지를 해금할수록 <b>기어 업그레이드와 값진 물건</b>을 판다</div>
+          <div class="rule-k">Crypt 지하묘지</div><div class="rule-v">시작 시 <b>잠겨</b> 있다. <b>Crypt Key</b>를 써서 연다 ·
+            룬을 <b>활성화</b>해 <b>피의 마법</b>을 배운다 · 열고 나면 <b>던전</b>에 들어갈 수 있다</div>
+          <div class="rule-k">Investigation 조사</div><div class="rule-v">이벤트 단계에 그 자리에 있으면 카드를 집어 처리한다</div>
+          <div class="rule-k">Boss Lair 보스 소굴</div><div class="rule-v">이동을 끝내면 <b>전투가 시작</b>된다. <b>지나가기만</b> 하는 것은 전투를 부르지 않는다.
+            쓰러뜨린 자리에는 <b>헥스 토큰</b>을 놓아 평범한 헥스로 만든다</div>
+        </div>`},
+
+      {title:{en:"Random Boss", ko:"무작위 보스"}, body:`
+        <div class="rule-v">지도의 보스 소굴은 두 종류다 — <b>번호가 붙은 것</b>과 <b>달 주사위 아이콘이 있는 무작위 소굴</b>.</div>
+        <div class="rule-h">무작위 소굴에서 상대를 정하는 법</div>
+        <div class="rule-steps">
+          <div class="rule-step"><span class="n">1</span><span class="t"><b>만나고 싶은 보스</b>를 고르고 그 판을 꺼낸다</span></div>
+          <div class="rule-step"><span class="n">2</span><span class="t">그 판에 <b>무작위 보스표</b>가 있으면 <b>달 주사위</b>를 굴린다</span></div>
+          <div class="rule-step"><span class="n">3</span><span class="t">결과에 <b>달 주사위 아이콘이 없으면</b> 그 보스와 싸운다.
+            <b>아이콘이 있으면</b> 표가 가리키는 <b>다른 보스의 판</b>으로 옮겨 가 거기서 다시 굴린다</span></div>
+        </div>
+        <div class="rule-v" style="color:var(--ink-faint);font-size:12px">즉 원하는 상대를 <b>노릴 수는 있어도 보장되지 않는다</b> — 굴림이 이어지며 전혀 다른 보스와 만날 수 있다.</div>
+        <div class="rule-h">번호가 붙은 소굴</div>
+        <div class="rule-v">그 자리에서만 싸울 수 있는 보스다. <b>같은 번호와 같은 지도 아이콘</b>을 가진 판을 찾아 상대한다.</div>`},
+
       {title:{en:"Villain Phase", ko:"빌런 단계 · 미르자 녹티스"}, body:`
         <div class="rule-steps">
           <div class="rule-step"><span class="n">1</span><span class="t"><b>피 수확</b> — 마을에 있는 <b>콜렉터 수만큼</b> 피의 웅덩이가 오른다(각 주사위 눈을 합산)</span></div>
@@ -1718,38 +1747,121 @@ const SERIES = {
           </div>`},
       ]},
       {id:"rune", label:{en:"Runes", ko:"룬"}, entries:[
-        {name:{en:"Placing Rune Stones",ko:"룬 스톤 배치"}, desc:`
-          <div class="rule-v">던전 타일을 놓을 때마다(첫 타일 포함) <b>그룹 말을 올리기 전에</b> 그 타일의 룬 스톤을 굴려 배치한다.</div>
+        {name:{en:"Two Kinds of Rune",ko:"먼저 — 룬은 두 가지다"}, desc:`
+          <div class="rule-v">같은 '룬'이라는 말이 <b>서로 다른 두 가지</b>를 가리킨다. 이것만 구분하면 나머지는 쉽다.</div>
           <div class="rule-grid">
-            <div class="rule-k">굴림</div><div class="rule-v"><b>코어 주사위 2개</b>(빨강·초록용)와 <b>달 주사위</b>(파랑용)를 굴려 <b>Dungeon Rune Compass</b>를 본다</div>
-            <div class="rule-k">배치</div><div class="rule-v"><b>7 이하</b>가 나온 주사위는 그 위치에 해당 룬 스톤을 놓는다. <b>8 이상</b>이면 놓지 않는다</div>
-            <div class="rule-k">겹칠 때</div><div class="rule-v">한 헥스에 <b>하나만</b> 놓을 수 있다. 같은 숫자가 또 나오면 <b>인접한 빈 칸</b>에 놓는다</div>
+            <div class="rule-k">Rune Stone 룬 스톤</div><div class="rule-v"><b>칸에 놓는 표식</b>. 던전 타일과 지상의 조사 위치에 놓이며,
+              <b>밟으면 던전 카드를 뽑게</b> 만든다</div>
+            <div class="rule-k">Rune 룬</div><div class="rule-v"><b>모아서 쓰는 재화</b>. 수도원·지하묘지·마을에서 <b>소비</b>해 보상을 받는다</div>
           </div>
-          <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">룬 스톤이 동나면 어느 한 곳에서 하나를 치워 새 자리에 놓는다.
-            지상 지도에서 치웠다면 대응하는 조사 카드도 버린다.</div>`},
-
-        {name:{en:"Rune Types & Rewards",ko:"룬 종류 · 보상"}, desc:`
-          <div class="rule-grid">
-            <div class="rule-k">빨강 룬</div><div class="rule-v"><b>위험한</b> 상황이 나온다</div>
-            <div class="rule-k">초록 룬</div><div class="rule-v"><b>이로운 것과 위험한 것이 섞여</b> 나온다</div>
-            <div class="rule-k">파랑 룬</div><div class="rule-v">대개 <b>이로운</b> 상황이 나온다</div>
-            <div class="rule-k">보라 룬</div><div class="rule-v">확장에서 추가. 룬 스톤을 놓을 때 <b>같은 숫자가 2개 이상</b> 나오면 합쳐져 보라 룬이 된다.
-              <b>보라 던전 카드 1장</b>이 곧 <b>보라 룬 1개</b>다</div>
-          </div>
-          <div class="rule-h">룬 보상</div>
-          <div class="rule-v">던전 카드를 처리할 때마다 그 카드를 <b>룬 보상</b>으로 가질 수 있다(룬 면이 보이게 따로 둔다).</div>
-          <div class="rule-grid">
-            <div class="rule-k">빨강 · 초록 · 파랑</div><div class="rule-v"><b>같은 종류 2장</b> &rarr; 두 장을 버리고 <b>룬 1개</b></div>
-            <div class="rule-k">보라</div><div class="rule-v"><b>1장이 곧 룬 1개</b> (2장 필요 없음)</div>
-            <div class="rule-k">사용처</div><div class="rule-v"><b>지하묘지 · 수도원 · 마을</b></div>
+          <div class="rule-h">전체 흐름</div>
+          <div class="rule-steps">
+            <div class="rule-step"><span class="n">1</span><span class="t"><b>룬 스톤이 놓인다</b> — 던전 타일을 깔 때 굴려서 배치 · 지상에서는 조사 위치마다</span></div>
+            <div class="rule-step"><span class="n">2</span><span class="t"><b>밟으면 던전 카드를 뽑는다</b> — 스톤 색에 맞는 덱에서</span></div>
+            <div class="rule-step"><span class="n">3</span><span class="t"><b>처리한 카드를 룬 보상으로 챙긴다</b> — 룬 면이 보이게 따로 둔다</span></div>
+            <div class="rule-step"><span class="n">4</span><span class="t"><b>같은 색 2장 → 두 장을 버리고 룬 1개</b> (보라는 <b>1장이 곧 1개</b>)</span></div>
+            <div class="rule-step"><span class="n">5</span><span class="t"><b>모은 룬을 세 곳 중 하나에서 쓴다</b> — 수도원 · 지하묘지 · 마을</span></div>
           </div>`},
 
+        {name:{en:"Rune Stones",ko:"① 룬 스톤 — 놓기와 밟기"}, desc:`
+          <div class="rule-h">던전에 놓기</div>
+          <div class="rule-v">던전 타일을 놓을 때마다(첫 타일 포함) <b>그룹 말을 올리기 전에</b> 굴려 배치한다.</div>
+          <div class="rule-grid">
+            <div class="rule-k">굴림</div><div class="rule-v"><b>코어 주사위 2개</b>(빨강·초록용) + <b>달 주사위</b>(파랑용)를 굴려 <b>Dungeon Rune Compass</b>에서 위치를 본다</div>
+            <div class="rule-k">놓는 조건</div><div class="rule-v"><b>7 이하</b>면 그 위치에 놓고, <b>8 이상</b>이면 그 색은 놓지 않는다</div>
+            <div class="rule-k">겹칠 때</div><div class="rule-v">한 칸에 <b>하나만</b>. 같은 숫자가 또 나오면 <b>인접한 빈 칸</b>에 놓는다</div>
+            <div class="rule-k">보라 룬 스톤</div><div class="rule-v">확장 규칙 — 같은 숫자가 <b>2개 이상</b> 나오면 따로 놓지 않고 <b>합쳐서 보라 1개</b>가 된다</div>
+          </div>
+          <div class="rule-h">지상에 놓기</div>
+          <div class="rule-v">조사가 공개될 때마다 그 조사의 <b>룬 보상과 같은 색</b> 스톤을 그 위치에 놓는다.</div>
+          <div class="rule-h">밟았을 때</div>
+          <div class="rule-grid">
+            <div class="rule-k">던전 카드</div><div class="rule-v">스톤이 있는 칸으로 이동하면(출구라도) <b>그 색 덱</b>에서 카드를 뽑아 처리한다</div>
+            <div class="rule-k">색의 성격</div><div class="rule-v"><b>빨강</b> 위험 · <b>초록</b> 이로움과 위험이 섞임 · <b>파랑</b> 대개 이로움 · <b>보라</b> 드물고 강력(여러 유형이 섞임)</div>
+            <div class="rule-k">보스 칸</div><div class="rule-v">보스 위치에 스톤이 함께 있으면 <b>카드는 뽑지 않고</b> 보스와 싸운다. 이기면 <b>그 색 룬 1개</b>를 바로 얻는다</div>
+          </div>
+          <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">스톤이 동나면 어느 한 곳에서 하나를 치워 새 자리에 놓는다.
+            지상에서 치웠다면 대응하는 조사 카드도 버린다.</div>`},
+
+        {name:{en:"Gaining Runes",ko:"② 룬 얻기"}, desc:`
+          <div class="rule-grid">
+            <div class="rule-k">던전 카드 2장</div><div class="rule-v">처리한 카드를 <b>룬 보상</b>으로 챙겨 두었다가, <b>같은 색 2장</b>이 모이면
+              <b>두 장을 버리고 룬 1개</b>를 얻는다</div>
+            <div class="rule-k">보라 카드</div><div class="rule-v"><b>1장이 곧 룬 1개</b> — 2장을 모을 필요가 없다</div>
+            <div class="rule-k">조사 완료</div><div class="rule-v">조사를 끝내면 그 카드에 적힌 <b>룬 보상</b>을 얻는다</div>
+            <div class="rule-k">던전 보스</div><div class="rule-v">격파하면 카드 대신 <b>그 색 룬 1개</b>를 바로 얻는다</div>
+            <div class="rule-k">무작위 룬</div><div class="rule-v">보상이 '무작위 룬'이면 <b>달 주사위</b>로 색을 정한다 — <b>~4 · 5~8 · 9~12</b></div>
+          </div>
+          <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">보물(Treasure) 카드를 룬 보상으로 쓰려면 그 아이템을 잃어야 한다.</div>`},
+
+        {name:{en:"Spending Runes",ko:"③ 룬 쓰기"}, desc:`
+          <div class="rule-v">모은 룬은 <b>수도원 · 지하묘지 · 마을</b>로 가져가 소비한다. <b>바친 룬은 사라진다.</b></div>
+          <div class="rule-grid">
+            <div class="rule-k">수도원 <span style="color:var(--ink-faint)">헌납</span></div>
+            <div class="rule-v">주 보상 <b>파워업</b> · 세트 보너스 <b>Grace은총</b><br>
+              <span style="color:var(--ink-faint)">수도원마다 따로 기록 · 같은 색을 모아 내도 보너스</span></div>
+            <div class="rule-k">지하묘지 <span style="color:var(--ink-faint)">활성화</span></div>
+            <div class="rule-v">주 보상 <b>파워업</b> · 세트 보너스 <b>피의 마법 티어</b><br>
+              <span style="color:var(--ink-faint)">지하묘지 전체를 합산해 기록 · 같은 색 보너스 있음</span></div>
+            <div class="rule-k">마을 <span style="color:var(--ink-faint)">판매</span></div>
+            <div class="rule-v">주 보상 <b>골드</b><br>
+              <span style="color:var(--ink-faint)">기록하지 않음 · 같은 색·세트 보너스 없음</span></div>
+          </div>
+          <div class="rule-v" style="margin-top:9px"><b>세트</b> = <b>빨강 · 초록 · 파랑</b>을 하나씩 갖춘 것.</div>`},
+
         {name:{en:"Clues",ko:"단서"}, desc:`
-          <div class="rule-v">단서는 낮·밤 바의 <b>빈 슬롯 어디에나</b> 놓을 수 있고, 보통 상황 단계에 <b>조사</b> 위에 놓인다.</div>
+          <div class="rule-v">단서는 룬과는 별개다. 낮·밤 바의 <b>빈 슬롯 어디에나</b> 놓을 수 있고, 보통 상황 단계에 <b>조사</b> 위에 놓인다.</div>
           <div class="rule-grid">
             <div class="rule-k">최대</div><div class="rule-v">한 슬롯에 <b>3개</b>까지</div>
             <div class="rule-k">효과</div><div class="rule-v">항상 <b>자기가 놓인 슬롯</b>에 작용한다. 조사를 플레이할 때 <b>Clue Bonus</b>를 읽어 적용한다</div>
             <div class="rule-k">제거</div><div class="rule-v">그 슬롯의 <b>마지막 카드</b>를 플레이하면 단서가 모두 버려진다</div>
+          </div>`},
+      ]},
+      {id:"rewards", label:{en:"Rewards", ko:"보상"}, entries:[
+        {name:{en:"Reward Types",ko:"보상 종류"}, desc:`
+          <div class="rule-h">그룹 보상 — 영웅 각자가 받는 것</div>
+          <div class="rule-grid">
+            <div class="rule-k">파워업</div><div class="rule-v">표시된 장수만큼 <b>각자</b> 뽑는다</div>
+            <div class="rule-k">골드 · 음식</div><div class="rule-v">표시된 양만큼 <b>각자</b> 얻는다</div>
+          </div>
+          <div class="rule-h">그룹 보상 — 그룹이 하나만 받는 것</div>
+          <div class="rule-grid">
+            <div class="rule-k">룬</div><div class="rule-v">표시된 종류의 룬 <b>1개</b>. 마을에서 판매 · 수도원에 헌납 · 지하묘지에서 활성화</div>
+            <div class="rule-k">맵 타일</div><div class="rule-v">원하는 크기의 타일 <b>1장</b>을 뽑아 놓는다</div>
+            <div class="rule-k">Crypt Key</div><div class="rule-v"><b>1개</b>를 얻는다</div>
+            <div class="rule-k">단서</div><div class="rule-v">아무 상황 슬롯에 <b>1개</b>를 놓는다</div>
+            <div class="rule-k">피의 마법</div><div class="rule-v"><b>티어 1</b>을 얻고 <b>주문 1장</b>을 뽑는다</div>
+          </div>
+          <div class="rule-h">단일 보상 — 목표 주사위로 받을 사람을 정한다</div>
+          <div class="rule-grid">
+            <div class="rule-k">스탯 보너스</div><div class="rule-v">9개 스탯 중 하나의 <b>랭크가 오른다</b></div>
+            <div class="rule-k">기어 업그레이드</div><div class="rule-v">영웅 하나가 <b>원하는 것</b>으로 얻는다</div>
+            <div class="rule-k">아이템 · 기타</div><div class="rule-v">아이템, 또는 전설 카드·패밀리어 같은 특정 카드</div>
+            <div class="rule-k">Wielder Bonus</div><div class="rule-v">보물·전설 카드에 붙는다. <b>아이템으로 취급</b>하며, 지닌 영웅이 표시된 <b>랭크 보너스</b>를 얻는다</div>
+          </div>`},
+
+        {name:{en:"Keepsakes",ko:"킵세이크"}, desc:`
+          <div class="rule-v">킵세이크는 영웅 <b>영혼의 파편</b>이다. 게임 시작 시 무작위로 <b>1장</b> 뽑아 역할판 아래에 두고, <b>발동할 때까지 보지 않는다</b>.</div>
+          <div class="rule-grid">
+            <div class="rule-k">발동</div><div class="rule-v">영웅이 죽는 순간, <b>위대한 양상을 얻지 못했다면</b> 달 주사위를 굴린다.
+              결과가 <b>{defence} 랭크 + 방어 기어 업그레이드 수</b> 이하면 발동한다</div>
+            <div class="rule-k">발동 후</div><div class="rule-v">카드를 뒤집어 마스터리 위에 놓는다. 그 영웅은 <b>킵세이크 능력만</b> 쓸 수 있고, <b>죽은 것으로 취급</b>된다</div>
+            <div class="rule-k">능력</div><div class="rule-v"><b>종족 능력</b>처럼 다루며, 쓸 때마다 요구된 스탯의 <b>랭크를 소모</b>한다</div>
+            <div class="rule-k">소멸</div><div class="rule-v">두 능력을 <b>모두 쓸 수 없게 되면</b> 영혼이 떠나 게임에서 제거된다 — 더는 <kw>revive</kw>할 수 없다</div>
+            <div class="rule-k">부활</div><div class="rule-v">킵세이크가 활성이고 능력을 <b>하나라도</b> 쓸 수 있는 동안에는 <kw>revive</kw>될 수 있다</div>
+          </div>`},
+
+        {name:{en:"Familiars",ko:"패밀리어"}, desc:`
+          <div class="rule-v">패밀리어는 영웅을 돕는 <b>동료</b>다. 저마다 고유하며 <b>게임당 한 번만</b> 얻을 수 있다. 여러 마리를 동시에 데릴 수 있다.</div>
+          <div class="rule-grid">
+            <div class="rule-k">랭크</div><div class="rule-v">처음 받을 때 <b>1 + 받는 영웅의 해당 스탯 랭크의 1/3</b>. 다른 영웅에게 넘어가도 <b>바뀌지 않는다</b></div>
+            <div class="rule-k">소유권</div><div class="rule-v">다른 영웅에게 <b>줄 수 없다</b>. 다만 주인이 죽으면 다른 영웅에게 <b>묶일 수</b> 있다</div>
+            <div class="rule-k">전투</div><div class="rule-v">따로 명시가 없으면 <b>목표가 되지 않는다</b></div>
+            <div class="rule-k">얻는 법</div><div class="rule-v">구매 · 보스 격파 · 카드로 얻는다. 이미 있는 패밀리어를 또 얻으면 <b>랭크 +3</b>.
+              파워업을 <b>4장 모아 버리면</b>(보너스는 포기) 무작위 패밀리어를 뽑을 수 있다</div>
+            <div class="rule-k">스탯</div><div class="rule-v">9개 스탯 중 하나를 갖는다. 선택형이면 정해 적어두며 <b>다시 고를 수 없다</b></div>
+            <div class="rule-k">랭크 올리기</div><div class="rule-v">패밀리어와 <b>같은 스탯</b>의 파워업을 얻을 때, 그 랭크를 자기 대신 <b>패밀리어에게</b> 줄 수 있다</div>
+            <div class="rule-k">기어 업그레이드</div><div class="rule-v">파는 곳에서 사 줄 수 있다(스탯이 맞으면 주운 것도 가능). 따로 명시가 없으면 <b>최대 3개</b></div>
           </div>`},
       ]},
       {id:"modes", label:{en:"Play Styles", ko:"게임 모드"}, entries:[
