@@ -640,9 +640,19 @@ function renderBoard(){
     <button class="tbtn warn" id="tbEnd">게임 종료·기록</button>
     <button class="tbtn" id="tbNew">새 캐릭터</button>
     <button class="tbtn" id="tbBg" title="배경 효과를 끄면 느린 기기에서 부드러워집니다">배경 효과</button>
+    <button class="tbtn" id="tbLayout" title="생명력·능력·기술을 한 줄로 놓을지, 위아래로 쌓을지 — 넓은 화면에서만 적용됩니다">배치</button>
   </div>`;
 
   let content = APP.tab==="board" ? boardBody(char) : referenceBody(char,series,APP.tab);
+
+  /* 옆 칸 — 세로 배치일 때 남는 좌우 자리에 참조 탭 하나를 띄워 두고, 판을 굴리는 동안 따라오게 한다.
+     좌우 배치는 판이 가로를 다 쓰므로 자리가 없어 CSS 가 감춘다. */
+  const railTabs=tabs.filter(t=>t.id!=="board");
+  if(!railTabs.some(t=>t.id===APP.rail))APP.rail=railPick()||railTabs[0].id;
+  const railBar=railTabs.map(t=>`<button class="rtab ${APP.rail===t.id?'on':''}" data-rail="${t.id}">${t.label}</button>`).join("");
+  const rail=`<aside class="side-rail">
+    <div class="rail-bar">${railBar}</div>
+    <div class="rail-body">${referenceBody(char,series,APP.rail)}</div></aside>`;
 
   root.innerHTML=`<div class="wrap board-wrap">
     <div class="topbar">
@@ -650,12 +660,13 @@ function renderBoard(){
       ${toolbar}
     </div>
     <div class="tabbar">${tabbar}</div>
-    <div class="tab-content">${content}</div>
+    <div class="tab-content board-cols"><div class="col-main">${content}</div>${rail}</div>
   </div>`;
 
   // tab switching
   applyTheme();
   root.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{APP.tab=b.dataset.tab;renderBoard();});
+  root.querySelectorAll("[data-rail]").forEach(b=>b.onclick=()=>{APP.rail=b.dataset.rail;railSave(APP.rail);renderBoard();});
   // toolbar
   $("#tbSave").onclick=saveCharacterModal;
   $("#tbLoad").onclick=loadCharacterModal;
@@ -664,6 +675,8 @@ function renderBoard(){
   $("#tbEnd").onclick=endGameModal;
   const bgb=$("#tbBg");if(bgb){bgb.textContent=bgOn()?"배경 효과 끄기":"배경 효과 켜기";
     bgb.onclick=()=>{setBg(!bgOn());renderBoard();};}
+  const lyb=$("#tbLayout");if(lyb){lyb.textContent=layoutMode()==="stack"?"배치 · 세로":"배치 · 좌우";
+    lyb.onclick=()=>{setLayout(layoutMode()==="stack"?"cols":"stack");renderBoard();};}
   $("#tbNew").onclick=()=>{if(confirm("현재 캐릭터를 두고 새 캐릭터를 만들까요? (저장하지 않은 변경은 사라집니다)")){APP.sel={raceId:null,classId:null,traitIds:[]};APP.char=null;APP.screen="builder";render();}};
 
   if(APP.tab==="board")bindBoard(char); else bindRefList();
@@ -1184,6 +1197,7 @@ function setHpState(hp){
 }
 function applyTheme(){
   document.documentElement.setAttribute("data-screen",APP.screen);
+  document.documentElement.setAttribute("data-layout",layoutMode());
   /* 남은 체력에 따라 배경 오로라가 빨라진다 — 50% 이하 low, 10% 이하 crit(붉은 심장 박동) */
   let hp="";
   if(APP.screen==="board"&&APP.char){
@@ -1198,6 +1212,16 @@ function applyTheme(){
   if(s&&s!=="4")document.documentElement.setAttribute("data-series",s);
   else document.documentElement.removeAttribute("data-series");
 }
+/* 옆 칸에 띄워 둔 참조 탭은 다음에도 그대로 열린다 */
+function railPick(){try{return localStorage.getItem("hex.rail");}catch(e){return null;}}
+function railSave(v){try{localStorage.setItem("hex.rail",v);}catch(e){}}
+
+/* 판 배치 — cols(생명력·능력·기술 한 줄) / stack(위아래로 쌓기). 넓은 화면에서만 갈린다.
+   좁은 화면은 CSS 가 어차피 세로로 쌓으므로 이 값과 무관하다. */
+function layoutMode(){try{return localStorage.getItem("hex.layout")==="stack"?"stack":"cols";}catch(e){return "cols";}}
+function setLayout(v){try{localStorage.setItem("hex.layout",v);}catch(e){}
+  document.documentElement.setAttribute("data-layout",v);}
+
 /* 배경 효과 on/off — 느린 기기를 위해 끌 수 있고 선택은 저장된다 */
 function bgOn(){try{return localStorage.getItem("hex.bg")!=="off";}catch(e){return true;}}
 function setBg(on){try{localStorage.setItem("hex.bg",on?"on":"off");}catch(e){}
