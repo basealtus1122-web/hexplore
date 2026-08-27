@@ -4,9 +4,11 @@
    데이터(data.js)만 바꾸면 내용이 바뀌고, 이 파일은 대체로 건드리지 않습니다.
    ===================================================================== */
 (function(){
-const {CAT,STAT_ORDER,STAT_META,SHARED,SERIES}=window.HEX;
+const {CAT,STAT_ORDER,STAT_META,SHARED,SERIES,HEX_START}=window.HEX;
 const FOE_TYPES=window.HEX.FOE_TYPES||[];
 const GREATER_ASPECTS=window.HEX.GREATER_ASPECTS||[];
+const FAMILIARS=window.HEX.FAMILIARS||[];
+const FAMILIAR_HEX=window.HEX.FAMILIAR_HEX||[5,7,9];
 /* 확장 표기 — 데이터에 exp:"H"(HExclusive, 빨강) 또는 exp:"R"(Rare, 금색)을 넣으면
    선택칸 배지에서 시리즈 번호 앞에 대문자로 붙는다. 예: H4, R4 */
 const EXP_META={H:{ko:"HExclusive",c:"#e0474c"},R:{ko:"Rare",c:"#d4a636"}};
@@ -206,7 +208,7 @@ function renderHex(char,key,showName=true){
   /* 육각형 칸(pip) — 탭하기 쉽게 크게. st.hexCost[i] 가 있으면 그 칸의 비용 숫자를 안에 표시 */
   const cx=72,cy=72,R=56,apo=R*Math.cos(Math.PI/6);let pips="";
   HEX_ANGLES.forEach((a,i)=>{const r=a*Math.PI/180,px=cx+apo*Math.cos(r),py=cy-apo*Math.sin(r),on=i<filled;
-    const hs=cls.hexStart&&cls.hexStart[meta.group];
+    const hs=(cls.hexStart||HEX_START)[meta.group];
     const cost=st&&st.hexCost?st.hexCost[i]:(hs!=null?hs+i:null);
     pips+=`<circle class="pip ${on?'full':'empty'}" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${on?13:12}" ${on?`style="fill:var(--g-${key})"`:`style="stroke:var(--edge-bright)"`} data-hex="${key}" data-idx="${i}"></circle>`;
     if(cost!=null)pips+=`<text class="pip-num" x="${px.toFixed(1)}" y="${py.toFixed(1)}" text-anchor="middle" dominant-baseline="central" style="fill:${on?'#12101a':'var(--ink-faint)'}">${cost}</text>`;
@@ -232,6 +234,50 @@ function renderHex(char,key,showName=true){
     </div></div>`;
 }
 
+/* 패밀리어 육각형 — 능력치 육각형과 달리 칸이 3개뿐이고 비용은 5·7·9 로 고정이다.
+   육각형은 곧 랭크판이다:  랭크 = 1 + 주인의 기준 능력치 랭크 + 채운 칸.
+   채운 칸 수는 그 능력 자체(a.hex)에 들어 있어 캐릭터 저장·불러오기에 그대로 따라간다. */
+function famSrc(a){return a.famId?FAMILIARS.find(f=>f.id===a.famId):null;}
+function familiarHex(char,a){
+  const src=famSrc(a), filled=a.hex||0, stat=src&&src.rankStat;
+  /* 기준 랭크는 얻는 순간 찍혀 저장된다 — 주인이 나중에 올라도 따라가지 않는다.
+     baseRank 가 없는 옛 저장본은 지금 능력치로 한 번 계산해 준다. */
+  const base=(a.baseRank!=null)?a.baseRank:(1+(stat?effOf(char,stat):0));
+  const rank=base+filled;
+  const cx=52,cy=52,R=40,apo=R*Math.cos(Math.PI/6);
+  let pips="";
+  [90,210,330].forEach((deg,i)=>{                       /* 위 · 좌하 · 우하 세 방향 */
+    const r=deg*Math.PI/180,px=cx+apo*Math.cos(r),py=cy-apo*Math.sin(r),on=i<filled;
+    pips+=`<circle class="fpip ${on?'full':'empty'}" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${on?12:11}"
+      style="${on?'fill:var(--accent)':'fill:rgba(0,0,0,.3);stroke:var(--edge-bright)'}"
+      data-fhex="${a.id}" data-idx="${i}"></circle>`;
+    pips+=`<text class="pip-num" x="${px.toFixed(1)}" y="${py.toFixed(1)}" text-anchor="middle" dominant-baseline="central"
+      style="fill:${on?'#12101a':'var(--ink-faint)'};pointer-events:none">${FAMILIAR_HEX[i]}</text>`;
+  });
+  const sl=stat?statLabel(stat):null;
+  /* 능력이 갈리는 랭크를 도달 여부와 함께 보여준다 */
+  const marks=(src&&src.marks||[]).map(m=>`<span class="fam-mark ${rank>=m?'on':''}">${m}랭크</span>`).join("");
+  const read=(src&&src.readout?src.readout(rank):[]).map(o=>
+    `<span class="fam-read"><span class="l">${o.lab}</span><b>${o.val}</b></span>`).join("");
+  return `<div class="fam-hex">
+    <svg viewBox="0 0 104 104" style="width:104px;height:104px;overflow:visible;flex:0 0 auto">
+      <path d="${hexPath(cx,cy,R)}" style="fill:color-mix(in srgb,var(--accent-dim) 22%,#12101a);stroke:var(--accent)"/>
+      <text x="52" y="49" text-anchor="middle" dominant-baseline="middle"
+        style="font-family:'Cinzel';font-size:26px;font-weight:700;fill:var(--accent);pointer-events:none">${rank}</text>
+      <text x="52" y="68" text-anchor="middle" style="font-size:9px;fill:var(--ink-faint);pointer-events:none">RANK</text>
+      ${pips}</svg>
+    <div class="fam-note">
+      ${src&&src.ability?`<div class="fam-abil">${src.ability.en}<span class="ko">${src.ability.ko}</span></div>`:""}
+      <div class="fam-base">
+        <span style="color:var(--ink-faint)">기준 랭크</span>
+        <button data-fbase="${a.id}" data-dir="-1">−</button><b>${base}</b><button data-fbase="${a.id}" data-dir="1">＋</button>
+        <span style="color:var(--ink-faint)">${filled?`+ ${filled}칸 = `:"= "}랭크 <b style="color:var(--accent)">${rank}</b></span>
+      </div>
+      <div style="color:var(--ink-faint);margin-top:3px">얻을 때 <b>1 + ${sl?sl.ko:"기준 능력치"}</b>로 정해지며 그 뒤로 주인을 따라가지 않는다 · 칸 비용 5 · 7 · 9 골드</div>
+      ${marks?`<div class="fam-marks">${marks}</div>`:""}
+      ${read?`<div class="fam-reads">${read}</div>`:""}
+    </div></div>`;
+}
 /* 전투마다 선언하는 생명력 — cls.declareVital 이면 특성 박스에서 고르고, 기본공격 피해 유형에 반영된다 */
 function vitalSwitcher(char,cls){
   if(!cls.declareVital)return"";
@@ -690,14 +736,14 @@ function boardBody(char){
   const combat=["attack","defence","firstMastery","secondMastery"].map(k=>renderHex(char,k)).join("");
   const skills=["navigate","explore","survival"].map(k=>renderHex(char,k)).join("");
   const masteries=`<div class="mastery-grid">${renderMastery(char,"firstMastery")}${renderMastery(char,"secondMastery")}</div>`;
-  const srcMeta={race:["Race","종족","src-race"],trait:["Trait","트레잇","src-trait"],aspect:["Aspect","애스펙트","src-aspect"],greater:["Greater Aspect","위대한 양상","src-aspect"],keepsake:["Keepsake","킵세이크","src-keepsake"],class:["Class","직업","src-class"],event:["Event","이벤트","src-event"]};
+  const srcMeta={race:["Race","종족","src-race"],trait:["Trait","트레잇","src-trait"],aspect:["Aspect","애스펙트","src-aspect"],greater:["Greater Aspect","위대한 양상","src-aspect"],familiar:["Familiar","패밀리어","src-familiar"],keepsake:["Keepsake","킵세이크","src-keepsake"],class:["Class","직업","src-class"],event:["Event","이벤트","src-event"]};
   /* 같은 종류끼리 모아서 표시 — 양상과 위대한 양상은 나란히 */
-  const SRC_ORDER={race:0,trait:1,aspect:2,greater:2,keepsake:3,class:4,event:5};
+  const SRC_ORDER={race:0,trait:1,aspect:2,greater:2,familiar:3,keepsake:4,class:5,event:6};
   const abilityHTML=char.abilities.slice().sort((a,b)=>(SRC_ORDER[a.src]??9)-(SRC_ORDER[b.src]??9)).map(a=>{
     const m=srcMeta[a.src]||["?","?","src-event"];let track="";
     if(a.track&&a.track.type==="check")track=`<div class="ab-track"><div class="track-check"><button class="${a.track.used?'done':''}" data-abcheck="${a.id}">${a.track.used?'\u2713':''}</button></div><span style="font-size:12px;color:var(--ink-faint)">${a.track.used?'사용함 · 탭하여 초기화':'사용 시 탭'}</span></div>`;
     else if(a.track&&a.track.type==="count")track=`<div class="ab-track"><div class="track-count"><button data-abcount="${a.id}" data-dir="-1">\u2212</button><span class="cval">${a.track.value}</span><button data-abcount="${a.id}" data-dir="1">\uFF0B</button><span style="font-size:11px;color:var(--ink-faint)">/ ${a.track.max}</span></div></div>`;
-    return `<div class="ability"><div class="ab-top"><span class="src-tag ${m[2]}">${m[0]} · ${m[1]}</span><span class="ab-name">${nm(a.name)}</span><button class="ab-remove" data-abremove="${a.id}">\u2715</button></div><div class="ab-desc">${expand(char,a.desc)}</div>${a.mods?`<div class="pv-mods" style="margin-top:6px">${STAT_ORDER.filter(k=>a.mods[k]).map(k=>{const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${a.mods[k]>0?'+':''}${a.mods[k]}</span>`;}).join("")}</div>`:""}${track}</div>`;
+    return `<div class="ability"><div class="ab-top"><span class="src-tag ${m[2]}">${m[0]} · ${m[1]}</span><span class="ab-name">${nm(a.name)}</span><button class="ab-remove" data-abremove="${a.id}">\u2715</button></div><div class="ab-desc">${expand(char,(famSrc(a)&&famSrc(a).desc)||a.desc)}</div>${a.src==="familiar"?familiarHex(char,a):""}${a.mods?`<div class="pv-mods" style="margin-top:6px">${STAT_ORDER.filter(k=>a.mods[k]).map(k=>{const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${a.mods[k]>0?'+':''}${a.mods[k]}</span>`;}).join("")}</div>`:""}${track}</div>`;
   }).join("");
   const itemHTML=char.items.length?char.items.map(it=>`<div class="item"><span class="txt">${it.text}</span><button data-itemremove="${it.id}">\u2715</button></div>`).join(""):`<div class="empty-note">아직 아이템 없음</div>`;
 
@@ -719,6 +765,7 @@ function boardBody(char){
     <div class="ability-actions">
       <button class="add-btn" data-addability="free">+ 능력 직접 추가</button>
       <button class="add-btn" id="addAspect">+ Aspect 양상</button>
+      <button class="add-btn" id="addFamiliar">+ Familiar 패밀리어</button>
       <button class="add-btn" data-addability="keepsake">+ Keepsake 공개</button>
       <button class="add-btn" data-addability="event">+ Event 능력</button>
     </div>`)}
@@ -1014,6 +1061,13 @@ function bindBoard(char){
   const af=$("#addFoe");if(af)af.onclick=addFoeModal;
   const ai=$("#addItem");if(ai)ai.onclick=addItemModal;
   const ag=$("#addAspect");if(ag)ag.onclick=addAspectModal;
+  const afm=$("#addFamiliar");if(afm)afm.onclick=addFamiliarModal;
+  root.querySelectorAll("[data-fbase]").forEach(b=>b.onclick=()=>{
+    const ab=char.abilities.find(x=>x.id===b.dataset.fbase);
+    ab.baseRank=Math.max(1,(ab.baseRank||1)+(+b.dataset.dir)); renderBoard();});
+  root.querySelectorAll(".fpip").forEach(p=>p.onclick=()=>{
+    const ab=char.abilities.find(x=>x.id===p.dataset.fhex),idx=+p.dataset.idx;
+    ab.hex=(ab.hex>=idx+1)?idx:idx+1; renderBoard();});
   root.querySelectorAll("[data-addability]").forEach(b=>b.onclick=()=>addAbilityModal(b.dataset.addability));
 }
 /* keyword/condition overlay — works on every tab */
@@ -1085,6 +1139,30 @@ function addAspectModal(){
     const en=$("#gEn").value.trim(),ko=$("#gKo").value.trim();if(!en&&!ko){closeModal();return;}
     APP.char.abilities.push({id:"as"+Date.now(),src:"aspect",name:{en:en||ko,ko:ko||en},desc:$("#gDesc").value.trim()||"—",track:null,mods:null});
     closeModal();renderBoard();
+  };
+}
+/* 패밀리어 추가 — 목록에서 고르거나 직접 입력한다. 양상과 같은 방식이되 육각형이 딸려 온다. */
+function addFamiliarModal(){
+  const have=APP.char.abilities.map(a=>a.name.en);
+  const list=FAMILIARS.filter(f=>!have.includes(f.name.en))
+    .map(f=>`<button class="btn slot" data-fampick="${f.id}" style="margin:0 6px 6px 0">${f.name.en}<span style="font-size:.88em">${f.name.ko}</span></button>`).join("");
+  openModal(`<h3>Familiar 패밀리어 추가</h3>
+    <div class="field"><label>Familiar 패밀리어</label>
+      ${list?`<div style="display:flex;flex-wrap:wrap">${list}</div>`:`<div class="empty-note" style="padding:6px 0">추가할 패밀리어가 없습니다.</div>`}
+      <div class="hint" style="margin-top:6px">육각형 칸 3개가 함께 붙습니다 — 비용은 5 · 7 · 9 골드.</div></div>
+    <div class="field"><label>또는 직접 입력 — 이름 (English)</label><input id="fmEn" placeholder="Familiar name"></div>
+    <div class="field"><label>이름 (한글)</label><input id="fmKo" placeholder="패밀리어 이름"></div>
+    <div class="field"><label>설명</label><textarea id="fmDesc" placeholder="효과 설명…"></textarea></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="fmSave">추가</button></div>`);
+  /* 기준 랭크는 얻는 이 순간의 값으로 고정된다 — 이후 주인이 올라도 따라가지 않는다 */
+  const add=o=>{const base=1+(o.rankStat?effOf(APP.char,o.rankStat):0);
+    APP.char.abilities.push({id:"fm_"+(o.id||"")+Date.now(),src:"familiar",famId:o.id||null,
+      name:clone(o.name),desc:o.desc||"(내용 추후 입력)",track:null,mods:null,hex:0,baseRank:base});
+    closeModal();renderBoard();};
+  document.querySelectorAll("[data-fampick]").forEach(b=>b.onclick=()=>add(FAMILIARS.find(x=>x.id===b.dataset.fampick)));
+  $("#fmSave").onclick=()=>{
+    const en=$("#fmEn").value.trim(),ko=$("#fmKo").value.trim();if(!en&&!ko){closeModal();return;}
+    add({name:{en:en||ko,ko:ko||en},desc:$("#fmDesc").value.trim()});
   };
 }
 function addItemModal(){

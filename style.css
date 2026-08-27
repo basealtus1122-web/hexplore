@@ -488,3 +488,23 @@ button:active{transform:scale(.97)}
 
 /* 배치 전환은 넓은 화면에서만 의미가 있다 */
 @media(max-width:1179px){#tbLayout{display:none}}
+
+/* 패밀리어 — 특수 능력에 붙되 육각형(칸 3개)이 딸려 온다 */
+.src-familiar{color:#8fb8f0;border-color:rgba(143,184,240,.4);background:rgba(143,184,240,.09)}
+.fam-hex{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+.fam-hex .fpip{cursor:pointer;transition:r .12s}
+.fam-note{font-size:12px;line-height:1.55;color:var(--ink-dim);min-width:0}
+.fam-abil{font-family:"Cinzel";font-size:14px;letter-spacing:.04em;color:var(--accent);margin-bottom:3px}
+.fam-abil .ko{font-family:"Noto Serif KR";font-size:12px;color:var(--ink-dim);letter-spacing:0;margin-left:5px}
+.fam-base{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.fam-base b{font-family:"Cinzel";font-size:15px;color:var(--ink);min-width:16px;text-align:center}
+.fam-base button{width:26px;height:26px;border-radius:7px;border:1px solid var(--edge-bright);
+  background:var(--panel-2);color:var(--ink);font-size:14px;line-height:1;cursor:pointer;padding:0}
+.fam-marks{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.fam-mark{font-size:10.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--edge-bright);color:var(--ink-faint)}
+.fam-mark.on{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 15%,transparent)}
+.fam-reads{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.fam-read{display:flex;align-items:baseline;gap:5px;padding:3px 9px;border-radius:8px;
+  border:1px solid var(--edge-bright);background:rgba(0,0,0,.2)}
+.fam-read .l{font-size:10.5px;color:var(--ink-faint)}
+.fam-read b{font-family:"Cinzel";font-size:16px;color:var(--accent)}
