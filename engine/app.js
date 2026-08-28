@@ -9,9 +9,12 @@ const FOE_TYPES=window.HEX.FOE_TYPES||[];
 const GREATER_ASPECTS=window.HEX.GREATER_ASPECTS||[];
 const FAMILIARS=window.HEX.FAMILIARS||[];
 const FAMILIAR_HEX=window.HEX.FAMILIAR_HEX||[5,7,9];
-/* 확장 표기 — 데이터에 exp:"H"(HExclusive, 빨강) 또는 exp:"R"(Rare, 금색)을 넣으면
-   선택칸 배지에서 시리즈 번호 앞에 대문자로 붙는다. 예: H4, R4 */
-const EXP_META={H:{ko:"HExclusive",c:"#e0474c"},R:{ko:"Rare",c:"#d4a636"}};
+/* 확장 표기 — 데이터의 exp 값이 선택칸 배지에서 시리즈 번호 앞에 대문자로 붙는다(예: P4, H4, R4).
+   P=특전 · H=HEXclusive · R=희귀 */
+const EXP_META={P:{ko:"특전",c:"#7fc9a0"},H:{ko:"HEXclusive",c:"#e0474c"},R:{ko:"Rare 희귀",c:"#d4a636"}};
+/* exp 는 글자를 겹쳐 쓸 수 있다 — 예: "PR" 이면 특전이면서 희귀. 배지에도 둘 다 붙고
+   필터는 그중 하나라도 켜져 있으면 보여 준다. */
+const expCodes=x=>String(x&&x.exp||"").split("").filter(c=>EXP_META[c]);
 /* 상태 속성 — A=무관(아군·적 누구에게나) · P=지속(전투 후에도) · S=중첩(중복 획득) */
 const COND_Q={A:{ko:"무관",t:"아군·적 누구에게나 적용",c:"#63d688"},P:{ko:"지속",t:"전투가 끝나도 유지",c:"#d4a636"},S:{ko:"중첩",t:"여러 번 얻을 수 있음",c:"#71a5ff"}};
 const COND_NOTE=window.HEX.COND_NOTE||"";
@@ -22,7 +25,7 @@ const APP={
   sel:{raceId:null,classId:null,traitIds:[],subRaceId:null,aspectId:null},
   builderTab:"class",            // class | race | trait
   sort:{race:"abc",class:"abc"},  // abc(이름순) | ed(편순) | cat(계열순, 직업만)
-  filter:{dual:false,H:false,R:false},  // 빌더 목록에서 보일 것(기본은 감춤)
+  filter:{dual:false,P:false,H:false,R:false},  // 빌더 목록에서 보일 것(기본은 감춤)
   open:{},                            // 판의 접이식 그룹 열림 상태(기본 열림)
   char:null,
   tab:"board",                   // board | keyword id...
@@ -225,7 +228,7 @@ function renderHex(char,key,showName=true){
       style="margin:7px 0 0;padding:6px 8px;border-radius:7px;font-size:11px;line-height:1.35;text-align:center;
       border:1px solid var(--g-attack);background:color-mix(in srgb,var(--c-attack) 22%,transparent);color:var(--ink)">
       <b style="color:var(--g-attack)">굴림 불가</b> · 자동 대실패</div>`:""}
-    ${st&&st.bribe?`<span class="bribe-dot" title="Bribe 뇌물 — 전투 전 방어 스탯 테스트에 성공하면 뇌물 비용을 방어 랭크만큼 줄인다(백금 비용은 대성공에만)"></span>`:""}
+    ${((st&&st.bribe)||(key==="defence"&&SHARED.races[char.raceId]&&SHARED.races[char.raceId].bribe))?`<span class="bribe-dot" title="Bribe 뇌물 — 전투 전 방어 스탯 테스트에 성공하면 뇌물 비용을 방어 랭크만큼 줄인다(백금 비용은 대성공에만)"></span>`:""}
     ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg, (key==="attack"&&cls.declareVital)?char.vitalPick:null, key==="attack"&&!!cls.declareVital)}`:""}
     <div class="hex-mod">
       <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>
@@ -277,6 +280,17 @@ function familiarHex(char,a){
       ${marks?`<div class="fam-marks">${marks}</div>`:""}
       ${read?`<div class="fam-reads">${read}</div>`:""}
     </div></div>`;
+}
+/* 어떤 종족은 정해진 보정 대신 "능력 4종에 4랭크" 처럼 직접 나눠 담는다.
+   자동으로 배분하지 않고 어디에 몇 랭크를 담을지만 알려 준다 — 배분은 각 육각형의 효과 +/- 로 한다. */
+const FREE_GROUP={combat:"Ability 능력 4종(공격 · 방어 · 마스터리 1 · 2)", skill:"Skill 기술 3종(길찾기 · 탐험 · 생존)",
+                  vital:"Vital 생명력 2종(체력 · 에너지)"};
+function freeRankNote(race){
+  const f=race.freeRanks; if(!f)return"";
+  return `<div style="margin-top:7px;padding:8px 11px;border-radius:9px;font-size:12px;line-height:1.5;
+    border:1px solid var(--accent-dim);background:color-mix(in srgb,var(--accent-dim) 12%,transparent)">
+    <b style="color:var(--accent)">자유 분배 ${f.n}랭크</b> — ${FREE_GROUP[f.group]||f.group}에 원하는 대로 나눠 담는다.
+    <span style="color:var(--ink-faint)">각 육각형의 <b>효과 +</b> 로 올리세요.</span></div>`;
 }
 /* 전투마다 선언하는 생명력 — cls.declareVital 이면 특성 박스에서 고르고, 기본공격 피해 유형에 반영된다 */
 function vitalSwitcher(char,cls){
@@ -502,7 +516,8 @@ function catRank(x){const ks=catKeysOf(x),i=CAT_ORDER.indexOf(ks[0]);
   return [(i<0?99:i),(x.category&&x.category.key==="dual")?1:0];}
 function sortList(list,mode){
   const a=[...list];
-  if(mode==="ed")a.sort((x,y)=>(x.ed||"").localeCompare(y.ed||"")||(x.exp||"").localeCompare(y.exp||"")||x.name.en.localeCompare(y.name.en));
+  /* 편순 — 편이 없는 특전 종족은 맨 뒤로 모은다 */
+  if(mode==="ed")a.sort((x,y)=>(x.ed?0:1)-(y.ed?0:1)||(x.ed||"").localeCompare(y.ed||"")||(x.exp||"").localeCompare(y.exp||"")||x.name.en.localeCompare(y.name.en));
   else if(mode==="cat")a.sort((x,y)=>{const q=catRank(x),r=catRank(y);
     return q[0]-r[0]||q[1]-r[1]||x.name.en.localeCompare(y.name.en);});
   else a.sort((x,y)=>x.name.en.localeCompare(y.name.en));
@@ -513,15 +528,15 @@ function filterList(list,kind){
   const f=APP.filter;
   return list.filter(x=>{
     if(kind==="class"&&!f.dual&&x.category&&x.category.key==="dual")return false;
-    if(kind==="race"&&x.exp==="H"&&!f.H)return false;
-    if(kind==="race"&&x.exp==="R"&&!f.R)return false;
+    /* P 특전 · H HEXclusive · R 희귀 — 겹쳐 가진 종족은 하나만 켜져 있어도 보인다 */
+    const ec=expCodes(x); if(kind==="race"&&ec.length&&!ec.some(c=>f[c]))return false;
     return true;});
 }
 function sortBar(kind){
   const cur=APP.sort[kind]||"abc", f=APP.filter;
   const btn=(sel,attrs,label)=>`<button ${attrs} style="font-size:13px;padding:10px 16px;min-height:42px;border-radius:9px;cursor:pointer;${sel?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 18%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-dim);background:transparent'}">${label}</button>`;
   const fbtn=(k,label)=>`<button data-filter="${k}" style="font-size:12.5px;padding:9px 14px;min-height:42px;border-radius:9px;cursor:pointer;${f[k]?'border:1px solid var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent-dim) 18%,transparent)':'border:1px solid var(--edge-bright);color:var(--ink-faint);background:transparent;text-decoration:line-through'}">${label}</button>`;
-  const filters=kind==="class"?fbtn("dual","Dual 듀얼"):fbtn("H","H 확장")+fbtn("R","R 희귀");
+  const filters=kind==="class"?fbtn("dual","Dual 듀얼"):fbtn("P","P 특전")+fbtn("H","H HEXclusive")+fbtn("R","R 희귀");
   return `<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
     <span class="pv-lbl" style="margin:0">Sort 정렬</span>
     ${(SORTS[kind]||SORTS.race).map(([id,ko])=>btn(cur===id,`data-sort="${id}" data-sortkind="${kind}"`,ko)).join("")}
@@ -574,7 +589,7 @@ function pickList(list,selId,kind,previewFn){
   if(!list.length)return`<div class="empty-note">데이터가 아직 없습니다. data.js에 추가하세요.</div>`;
   list=sortList(filterList(list,kind),APP.sort[kind]);
   const cards=list.map(x=>`<button class="pick-card ${selId===x.id?'on':''}" data-pick="${x.id}" data-kind="${kind}">
-    <div class="pc-name">${x.name.en}</div><div class="pc-ko">${x.name.ko}</div>${x.ed?`<span class="ed-badge" title="${catTitle(x)}${EXP_META[x.exp]?EXP_META[x.exp].ko+" · ":""}${x.ed}편 수록">${catLetters(x)}${x.exp&&EXP_META[x.exp]?`<b style="color:${EXP_META[x.exp].c}">${x.exp}</b>`:""}${x.ed}</span>`:""}</button>`).join("");
+    <div class="pc-name">${x.name.en}</div><div class="pc-ko">${x.name.ko}</div>${(x.ed||expCodes(x).length)?`<span class="ed-badge" title="${catTitle(x)}${expCodes(x).map(c=>EXP_META[c].ko).join(" · ")}${expCodes(x).length?" · ":""}${x.ed?x.ed+"편 수록":"어느 편 수록도 아님"}">${catLetters(x)}${expCodes(x).map(c=>`<b style="color:${EXP_META[c].c}">${c}</b>`).join("")}${x.ed||""}</span>`:""}</button>`).join("");
   const sel=list.find(x=>x.id===selId);
   /* 미리보기를 그리드 안에 넣어두면, placeInlinePreview()가 선택한 카드의 행 바로 아래로 옮긴다 */
   return `${sortBar(kind)}<div class="pick-grid">${cards}${sel?`<div class="preview inline">${previewFn(sel)}</div>`:""}</div>${sel?"":`<div class="empty-note">위에서 하나 선택하면 상세가 표시됩니다.</div>`}`;
@@ -757,6 +772,7 @@ function boardBody(char){
       <div class="cat-row">${catTags(cls)}</div>
       <div class="name">${cls.name.en}<span class="ko">${cls.name.ko}</span>${cls.flavor?`<span class="cls-quote" style="margin-left:10px;font-family:'Noto Serif KR';font-style:italic;font-weight:400;font-size:clamp(10px,1.5vw,13px);letter-spacing:0;color:var(--ink-faint);white-space:nowrap;border-left:2px solid ${catColor(cls)};padding-left:9px">${cls.flavor}</span>`:""}</div>
       <div class="race-line">Race · 종족 · <b>${race.name.en} (${race.name.ko})</b>${char.subRaceId&&SHARED.races[char.subRaceId]?` · 기반 <b>${SHARED.races[char.subRaceId].name.en} (${SHARED.races[char.subRaceId].name.ko})</b>`:""}${(()=>{const as=char.abilities.filter(a=>a.src==="aspect"||a.src==="greater");return as.length?` · 양상 ${as.map(a=>`<b>${a.name.en} (${a.name.ko})</b>`).join(", ")}`:"";})()}</div>
+      ${freeRankNote(race)}
       <div class="flavor">${race.flavor||""}</div>
       ${cls.special?`<div class="special" style="border-left-color:${catColor(cls)}"><b class="h" style="color:${catColor(cls)}">Class Trait · 직업 특성</b>${expand(char,cls.special.ko)}${specialReadout(char,cls)}${vitalSwitcher(char,cls)}${stanceSwitcher(char,cls)}${foeSwitcher(char,cls)}${renderCounters(char,cls)}${renderRoster(char,cls)}</div>`:""}
       <div class="foe"><div class="foe-label">Favored Enemy · 숙적</div><div class="foe-list">${foeHTML}</div></div>
