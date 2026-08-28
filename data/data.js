@@ -518,7 +518,7 @@ const SHARED = {
       favoredEnemy:{en:"Spirit",ko:"영혼"}, foodUse:2,
       mods:{health:0,energy:2,attack:0,defence:0,firstMastery:3,secondMastery:3,navigate:1,explore:0,survival:1},
       ability:{name:{en:"Racial Ability",ko:"종족 능력"},
-        desc:`게임 턴당 <b>1회</b>, <b>골드 1</b>을 써서 <st>health</st>과 <st>energy</st>를 {defence} 랭크의 <b>1/3</b>만큼 <kw>heal</kw>한다. 이 능력을 쓸 때마다(<b>최대 6회</b>) 회복량을 <kw>strengthen</kw>로 <b>1씩</b> 올린다.`,
+        desc:`게임 턴당 <b>1회</b>, <b>골드 1</b>을 써서 <st>health</st>과 <st>energy</st>를 <st>defence</st> 랭크의 <b>1/3</b>만큼 <kw>heal</kw>한다. 이 능력을 쓸 때마다(<b>최대 6회</b>) 회복량을 <kw>strengthen</kw>로 <b>1씩</b> 올린다.`,
         track:{type:"count",max:6}},
       flavor:"키츠네는 영리하고 현명하며, 세월이 흐를수록 강해진다." },
     oni:{ id:"oni", ed:"5", exp:"H", name:{en:"Oni",ko:"오니"},
@@ -532,7 +532,7 @@ const SHARED = {
       favoredEnemy:{en:"Humanoid",ko:"인간형"}, foodUse:2,
       mods:{health:1,energy:4,attack:2,defence:0,firstMastery:0,secondMastery:1,navigate:1,explore:2,survival:2},
       ability:{name:{en:"Racial Ability",ko:"종족 능력"},
-        desc:`게임 턴당 <b>1회</b>, <st>energy</st> 2를 소모해 <b>고른 영웅을 노린 공격</b>을 <kw>negate</kw>하고, 이어서 둘 중 하나를 한다 — 공격자에게 {survival} 랭크의 <b>2배</b>만큼 피해를 주거나, <st>outlast</st>을 <b>2까지</b> 조정한다.`,
+        desc:`게임 턴당 <b>1회</b>, <st>energy</st> 2를 소모해 <b>고른 영웅을 노린 공격</b>을 <kw>negate</kw>하고, 이어서 둘 중 하나를 한다 — 공격자에게 <st>survival</st> 랭크의 <b>2배</b>만큼 피해를 주거나, <st>outlast</st>을 <b>2까지</b> 조정한다.`,
         track:{type:"check"}},
       flavor:"사루가미는 원숭이 같은 생김새와 성질을 지닌 초자연적 인간형 생명체다." },
     prismaticDragon:{ id:"prismaticDragon", ed:"5", exp:"R", name:{en:"Prismatic Dragon",ko:"프리즈매틱 드래곤"},
@@ -561,7 +561,7 @@ const SHARED = {
       favoredEnemy:{en:"",ko:"능력 참조"}, foodUse:4,
       mods:{health:3,energy:1,attack:0,defence:3,firstMastery:0,secondMastery:3,navigate:1,explore:1,survival:1},
       ability:{name:{en:"Racial Ability",ko:"종족 능력"},
-        desc:`<st>health</st>이 <b>10 이상</b>인 동안, {defence} 랭크의 <b>절반</b>만큼 <kw>reflect</kw>를 얻고 <b>모든 적을 숙적으로 취급</b>한다.<br>게임 턴당 <b>1회</b>, <st>energy</st> 2를 써서 <b>전투가 끝날 때까지</b> 당신의 피해를 <kw>boost</kw> <b>3</b> 하거나, 방금 굴린 <b>스탯 테스트를 다시 굴린다</b>.`,
+        desc:`<st>health</st>이 <b>10 이상</b>인 동안, <st>defence</st> 랭크의 <b>절반</b>만큼 <kw>reflect</kw>를 얻고 <b>모든 적을 숙적으로 취급</b>한다.<br>게임 턴당 <b>1회</b>, <st>energy</st> 2를 써서 <b>전투가 끝날 때까지</b> 당신의 피해를 <kw>boost</kw> <b>3</b> 하거나, 방금 굴린 <b>스탯 테스트를 다시 굴린다</b>.`,
         track:{type:"check"}},
       flavor:"린세로는 영역 의식이 매우 강하고 저돌적인 종족이다." },
     pandari:{ id:"pandari", exp:"P", name:{en:"Pandari",ko:"판다리"},
@@ -1371,6 +1371,18 @@ const SHARED = {
   /* 특성: traits / aspects / keepsakes.  게임 중 추가·제거 가능. keepsake 은 공개형.
      지금은 예시만.  실제 데이터 주시면 채웁니다. */
   traits: {
+    /* Aspect 양상 — 게임을 시작할 때 고를 수도 있고 게임 중에 얻을 수도 있다.
+       종족과 같은 틀이라 mods 가 능력치에 그대로 더해지고, freeRanks 는 직접 분배/차감할 몫이다. */
+    humanKind: {id:"humanKind", type:"aspect", name:{en:"Human Kind",ko:"인간 혈통"},
+      mods:{health:0,energy:1,attack:1,defence:0,firstMastery:0,secondMastery:0,navigate:1,explore:0,survival:0},
+      freeRanks:{n:-1, group:"mastery"},
+      desc:`<b>Bribe Specialization 뇌물 전문화</b> — 뇌물을 줄 수 있는 적을 만나면, <b>전투를 시작하기 전에</b> d10을 굴린다.
+        결과가 <st>defence</st> 랭크 <b>이하</b>라면 뇌물에 드는 <b>골드를 <st>defence</st> 랭크만큼</b> 줄인다.<br>
+        <b>Extra Trait 추가 특성</b> — <b>Trait 특성 2개</b>를 가지고 시작할 수 있다.<br>
+        <b>Faded Bloodline 희미해진 혈통</b> — 종족 능력을 쓸 때마다 <st>health</st>이나 <st>energy</st>를 <b>1 더</b> 소모한다.`,
+      flavor:"인간의 다재다능함이 당신의 혈관에 흐른다. 다만 다른 혈통의 특징은 많이 희미해졌다.",
+      track:null},
+
     // 예시 (실데이터로 교체 예정)
     bloodPact:   {id:"bloodPact", type:"trait",  name:{en:"Blood Pact",ko:"피의 서약"},
       desc:"전투당 1회, 체력 2를 지불해 마스터리 하나를 즉시 재사용. (예시)", track:{type:"check"}},
@@ -2391,7 +2403,7 @@ const SERIES = {
           찾아낸 <b>발견</b>이 이벤트를 부르기도 한다. 이런 장소가 아니면 그 턴에는 이벤트가 없다.
           따로 명시가 없으면 한 게임 턴에 처리하는 이벤트 <b>수에 제한이 없다</b>.</div>
         <div class="rule-grid">
-          <div class="rule-k">Village 마을</div><div class="rule-v">소박한 물품을 판다. 여관에서 쉬어 <b>{defence} 랭크</b>만큼 생명력을 <kw>heal</kw>한다 ·
+          <div class="rule-k">Village 마을</div><div class="rule-v">소박한 물품을 판다. 여관에서 쉬어 <b><st>defence</st> 랭크</b>만큼 생명력을 <kw>heal</kw>한다 ·
             모은 <b>룬을 판매</b>한다 · <b>밤</b>에 왔다면 <b>콜렉터</b>와 맞설 수 있다</div>
           <div class="rule-k">Monastery 수도원</div><div class="rule-v">아이템을 사고, <b>입장하는 순간 잃은 생명력을 전부</b> <kw>heal</kw>한다 ·
             룬을 <b>헌납</b>해 <b>Grace은총</b>을 얻는다 · 지하묘지를 해금할수록 <b>기어 업그레이드와 값진 물건</b>을 판다</div>
@@ -2625,7 +2637,7 @@ const SERIES = {
           <div class="rule-v">킵세이크는 영웅 <b>영혼의 파편</b>이다. 게임 시작 시 무작위로 <b>1장</b> 뽑아 역할판 아래에 두고, <b>발동할 때까지 보지 않는다</b>.</div>
           <div class="rule-grid">
             <div class="rule-k">발동</div><div class="rule-v">영웅이 죽는 순간, <b>위대한 양상을 얻지 못했다면</b> 달 주사위를 굴린다.
-              결과가 <b>{defence} 랭크 + 방어 기어 업그레이드 수</b> 이하면 발동한다</div>
+              결과가 <b><st>defence</st> 랭크 + 방어 기어 업그레이드 수</b> 이하면 발동한다</div>
             <div class="rule-k">발동 후</div><div class="rule-v">카드를 뒤집어 마스터리 위에 놓는다. 그 영웅은 <b>킵세이크 능력만</b> 쓸 수 있고, <b>죽은 것으로 취급</b>된다</div>
             <div class="rule-k">능력</div><div class="rule-v"><b>종족 능력</b>처럼 다루며, 쓸 때마다 요구된 스탯의 <b>랭크를 소모</b>한다</div>
             <div class="rule-k">소멸</div><div class="rule-v">두 능력을 <b>모두 쓸 수 없게 되면</b> 영혼이 떠나 게임에서 제거된다 — 더는 <kw>revive</kw>할 수 없다</div>

@@ -68,7 +68,7 @@ function buildCharacter(sel,seriesId){
   /* 빌더에서 고른 양상은 항상 공개 — 판에 바로 붙는다 */
   if(sel.aspectId){const a=GREATER_ASPECTS.find(x=>x.id===sel.aspectId);
     if(a)char.abilities.push({id:"ga_"+a.id,src:"greater",name:clone(a.name),desc:a.desc||"(내용 추후 입력)",track:initTrack(a.track),mods:a.mods?clone(a.mods):null});}
-  sel.traitIds.forEach(tid=>{const t=SHARED.traits[tid];if(t)char.abilities.push({id:"t_"+tid,src:t.type,name:clone(t.name),desc:t.desc,track:initTrack(t.track),mods:t.mods?clone(t.mods):null});});
+  sel.traitIds.forEach(tid=>{const t=SHARED.traits[tid];if(t)char.abilities.push({id:"t_"+tid,src:t.type,name:clone(t.name),desc:t.desc,flavor:t.flavor||null,track:initTrack(t.track),freeRanks:t.freeRanks||null,mods:t.mods?clone(t.mods):null});});
   char.curHealth=effOf(char,"health");char.curEnergy=effOf(char,"energy");
   return char;
 }
@@ -284,13 +284,14 @@ function familiarHex(char,a){
 /* 어떤 종족은 정해진 보정 대신 "능력 4종에 4랭크" 처럼 직접 나눠 담는다.
    자동으로 배분하지 않고 어디에 몇 랭크를 담을지만 알려 준다 — 배분은 각 육각형의 효과 +/- 로 한다. */
 const FREE_GROUP={combat:"Ability 능력 4종(공격 · 방어 · 마스터리 1 · 2)", skill:"Skill 기술 3종(길찾기 · 탐험 · 생존)",
-                  vital:"Vital 생명력 2종(체력 · 에너지)"};
-function freeRankNote(race){
-  const f=race.freeRanks; if(!f)return"";
+                  vital:"Vital 생명력 2종(체력 · 에너지)", mastery:"Mastery 마스터리 2종(마스터리 1 · 2)"};
+function freeRankNote(o){
+  const f=o.freeRanks; if(!f)return"";
+  const neg=f.n<0, n=Math.abs(f.n), c=neg?"var(--g-attack)":"var(--accent)";
   return `<div style="margin-top:7px;padding:8px 11px;border-radius:9px;font-size:12px;line-height:1.5;
-    border:1px solid var(--accent-dim);background:color-mix(in srgb,var(--accent-dim) 12%,transparent)">
-    <b style="color:var(--accent)">자유 분배 ${f.n}랭크</b> — ${FREE_GROUP[f.group]||f.group}에 원하는 대로 나눠 담는다.
-    <span style="color:var(--ink-faint)">각 육각형의 <b>효과 +</b> 로 올리세요.</span></div>`;
+    border:1px solid ${neg?"var(--g-attack)":"var(--accent-dim)"};background:color-mix(in srgb,${neg?"var(--c-attack)":"var(--accent-dim)"} 12%,transparent)">
+    <b style="color:${c}">직접 ${neg?"차감":"분배"} ${n}랭크</b> — ${FREE_GROUP[f.group]||f.group}${neg?" 중에서 뺀다":"에 원하는 대로 나눠 담는다"}.
+    <span style="color:var(--ink-faint)">해당 육각형의 <b>효과 ${neg?"−":"+"}</b> 로 맞추세요.</span></div>`;
 }
 /* 전투마다 선언하는 생명력 — cls.declareVital 이면 특성 박스에서 고르고, 기본공격 피해 유형에 반영된다 */
 function vitalSwitcher(char,cls){
@@ -758,7 +759,7 @@ function boardBody(char){
     const m=srcMeta[a.src]||["?","?","src-event"];let track="";
     if(a.track&&a.track.type==="check")track=`<div class="ab-track"><div class="track-check"><button class="${a.track.used?'done':''}" data-abcheck="${a.id}">${a.track.used?'\u2713':''}</button></div><span style="font-size:12px;color:var(--ink-faint)">${a.track.used?'사용함 · 탭하여 초기화':'사용 시 탭'}</span></div>`;
     else if(a.track&&a.track.type==="count")track=`<div class="ab-track"><div class="track-count"><button data-abcount="${a.id}" data-dir="-1">\u2212</button><span class="cval">${a.track.value}</span><button data-abcount="${a.id}" data-dir="1">\uFF0B</button><span style="font-size:11px;color:var(--ink-faint)">/ ${a.track.max}</span></div></div>`;
-    return `<div class="ability"><div class="ab-top"><span class="src-tag ${m[2]}">${m[0]} · ${m[1]}</span><span class="ab-name">${nm(a.name)}</span><button class="ab-remove" data-abremove="${a.id}">\u2715</button></div><div class="ab-desc">${expand(char,(famSrc(a)&&famSrc(a).desc)||a.desc)}</div>${a.src==="familiar"?familiarHex(char,a):""}${a.mods?`<div class="pv-mods" style="margin-top:6px">${STAT_ORDER.filter(k=>a.mods[k]).map(k=>{const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${a.mods[k]>0?'+':''}${a.mods[k]}</span>`;}).join("")}</div>`:""}${track}</div>`;
+    return `<div class="ability"><div class="ab-top"><span class="src-tag ${m[2]}">${m[0]} · ${m[1]}</span><span class="ab-name">${nm(a.name)}</span><button class="ab-remove" data-abremove="${a.id}">\u2715</button></div>${a.flavor?`<div class="ab-flavor">${a.flavor}</div>`:""}<div class="ab-desc">${expand(char,(famSrc(a)&&famSrc(a).desc)||a.desc)}</div>${a.src==="familiar"?familiarHex(char,a):""}${a.freeRanks?freeRankNote(a):""}${a.mods?`<div class="pv-mods" style="margin-top:6px">${STAT_ORDER.filter(k=>a.mods[k]).map(k=>{const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${a.mods[k]>0?'+':''}${a.mods[k]}</span>`;}).join("")}</div>`:""}${track}</div>`;
   }).join("");
   const itemHTML=char.items.length?char.items.map(it=>`<div class="item"><span class="txt">${it.text}</span><button data-itemremove="${it.id}">\u2715</button></div>`).join(""):`<div class="empty-note">아직 아이템 없음</div>`;
 
@@ -1147,7 +1148,7 @@ function addAspectModal(){
     <div class="field"><label>이름 (한글)</label><input id="gKo" placeholder="양상 이름"></div>
     <div class="field"><label>설명</label><textarea id="gDesc" placeholder="효과 설명…"></textarea></div>
     <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="gSave">추가</button></div>`);
-  const add=(src,o,pre)=>{APP.char.abilities.push({id:pre+(o.id||"")+Date.now(),src,name:clone(o.name),desc:o.desc||"(내용 추후 입력)",track:initTrack(o.track),mods:o.mods?clone(o.mods):null});closeModal();renderBoard();};
+  const add=(src,o,pre)=>{APP.char.abilities.push({id:pre+(o.id||"")+Date.now(),src,name:clone(o.name),desc:o.desc||"(내용 추후 입력)",flavor:o.flavor||null,track:initTrack(o.track),freeRanks:o.freeRanks||null,mods:o.mods?clone(o.mods):null});closeModal();renderBoard();};
   const rv=$("#gaReveal");if(rv)rv.onclick=()=>{const l=$("#gaList"),on=l.style.display==="none";l.style.display=on?"block":"none";rv.textContent=`Greater Aspect 위대한 양상 공개 ${on?"▴":"▾"}`;};
   document.querySelectorAll("[data-gapick]").forEach(b=>b.onclick=()=>add("greater",GREATER_ASPECTS.find(x=>x.id===b.dataset.gapick),"ga_"));
   document.querySelectorAll("[data-aspick]").forEach(b=>b.onclick=()=>add("aspect",SHARED.traits[b.dataset.aspick],"as_"));
