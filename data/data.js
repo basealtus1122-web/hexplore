@@ -1373,16 +1373,117 @@ const SHARED = {
   traits: {
     /* Aspect 양상 — 게임을 시작할 때 고를 수도 있고 게임 중에 얻을 수도 있다.
        종족과 같은 틀이라 mods 가 능력치에 그대로 더해지고, freeRanks 는 직접 분배/차감할 몫이다. */
-    humanKind: {id:"humanKind", type:"aspect", name:{en:"Human Kind",ko:"인간 혈통"},
-      mods:{health:0,energy:1,attack:1,defence:0,firstMastery:0,secondMastery:0,navigate:1,explore:0,survival:0},
+    humanKind: {id:"humanKind", type:"aspect", exp:"P", name:{en:"Human Kind",ko:"인간 혈통"},
+      mods:{health:1,energy:1,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:1,explore:0,survival:0},
       freeRanks:{n:-1, group:"mastery"},
-      desc:`<b>Bribe Specialization 뇌물 전문화</b> — 뇌물을 줄 수 있는 적을 만나면, <b>전투를 시작하기 전에</b> d10을 굴린다.
-        결과가 <st>defence</st> 랭크 <b>이하</b>라면 뇌물에 드는 <b>골드를 <st>defence</st> 랭크만큼</b> 줄인다.<br>
-        <b>Extra Trait 추가 특성</b> — <b>Trait 특성 2개</b>를 가지고 시작할 수 있다.<br>
-        <b>Faded Bloodline 희미해진 혈통</b> — 종족 능력을 쓸 때마다 <st>health</st>이나 <st>energy</st>를 <b>1 더</b> 소모한다.`,
+      desc:`<b>뇌물 전문화(방어)</b> — 뇌물을 줄 수 있는 적을 만나면, <b>전투를 시작하기 전에</b> d10을 굴린다.
+    결과가 <st>defence</st> 랭크 <b>이하</b>라면 뇌물에 드는 <b>골드를 <st>defence</st> 랭크만큼</b> 줄인다.<br>
+    <b>추가 특성</b> — <b>Trait 특성 2개</b>를 가지고 시작할 수 있다.<br>
+    <b>희미해진 혈통</b> — 종족 능력을 쓸 때마다 <st>health</st>이나 <st>energy</st>를 <b>1 더</b> 소모한다.`,
       flavor:"인간의 다재다능함이 당신의 혈관에 흐른다. 다만 다른 혈통의 특징은 많이 희미해졌다.",
       track:null},
-
+    sylvan: {id:"sylvan", type:"aspect", exp:"P", name:{en:"Sylvan",ko:"숲의 혈통"},
+      mods:{health:1,energy:2,attack:-1,defence:0,firstMastery:0,secondMastery:0,navigate:1,explore:-1,survival:-1},
+      freeRanks:{n:1, group:"mastery"},
+      desc:`<b>영향력 전문화(공격)</b> — <st>influence</st>을 가진 적을 마주하면,
+    당신의 <b>공격 행동을 <st>influence</st>에 적용</b>할 수 있다.<br>
+    <b>향상된 감각</b> — Skill 기술 페이즈의 <st>explore</st> 굴림에서 <b>대성공</b>할 때마다,
+    일반 보너스 대신 <b>아무 덱 2개의 맨 위 카드</b>를 확인한다.<br>
+    <b>강력한 새퍼</b> — 당신이 주는 모든 <st>energy</st> 피해를 <kw>strengthen</kw>로 <b>2</b> 올린다.
+    다만 당신이 <kw>piercing</kw> 피해를 받을 때 그 피해가 <b>2 늘어난다</b>.`,
+      flavor:"엘프의 혈통이 눈과 귀에 드러나 당신의 인지력을 끌어올린다.",
+      track:null},
+    feyKind: {id:"feyKind", type:"aspect", exp:"P", name:{en:"Fey Kind",ko:"요정 혈통"},
+      mods:{health:-1,energy:2,attack:-2,defence:0,firstMastery:1,secondMastery:1,navigate:-1,explore:1,survival:-1},
+      foodMod:-1,
+      desc:`<b>회복의 손길(마스터리 1)</b> — <st>firstMastery</st>를 다른 방식으로 쓴다.
+    <st>energy</st>를 소모해 원래 능력을 쓰는 대신, <st>firstMastery</st> 랭크의 <b>절반</b>만큼 대상의 <st>health</st>을 <kw>heal</kw>한다.
+    <b>전투 밖에서도</b> 쓸 수 있다.<br>
+    <b>요정의 집</b> — 그룹이 <b>모든 Fey Realm 요정계 포탈</b>로 이동할 수 있다.
+    또한 <b>요정계에 있는 동안 피해를 받지 않는다</b>.<br>
+    <b>자연의 인도</b> — 게임 턴당 <b>1회</b>, Movement 이동 페이즈에 기술 하나의 랭크를
+    원하는 만큼 낮추고(최소 0) <b>다른 기술 랭크를 그만큼</b> <kw>boost</kw>한다. 턴이 끝날 때까지 이어진다.`,
+      flavor:"당신의 피부는 각도에 따라 다른 빛으로 빛난다. 아름다운 생명체의 후손임이 분명하다.",
+      track:null},
+    elemental: {id:"elemental", type:"aspect", exp:"P", name:{en:"Elemental",ko:"원소 혈통"},
+      mods:{health:-1,energy:3,attack:0,defence:-1,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:0},
+      foodMod:-1,
+      desc:`<b>회복의 손길(마스터리 2)</b> — <st>secondMastery</st>를 다른 방식으로 쓴다.
+    <st>energy</st>를 소모해 원래 능력을 쓰는 대신, <st>secondMastery</st> 랭크의 <b>절반</b>만큼 대상의 <st>energy</st>를 <kw>heal</kw>한다.
+    <b>게임 턴당 1회</b>만 쓸 수 있고, <b>전투 밖에서도</b> 쓸 수 있다.<br>
+    <b>연속적인 패턴</b> — 당신이 주는 모든 <st>energy</st> 피해를 <b>현재 <st>energy</st>의 절반</b>만큼
+    <kw>boost</kw>하고, 당신이 받는 모든 <st>energy</st> <kw>heal</kw>을 <b>1</b> <kw>boost</kw>한다.<br>
+    <b>유약한 패턴</b> — 당신이 <st>energy</st> 피해를 받을 때 그 피해가 <b>2 늘어난다</b>.`,
+      flavor:"원소의 힘이 당신 안에 희미하게 남아 있다. 때로 그 힘이 넘쳐흐른다.",
+      track:null},
+    underFoot: {id:"underFoot", type:"aspect", exp:"P", name:{en:"Under Foot",ko:"지하 혈통"},
+      mods:{health:2,energy:-1,attack:0,defence:1,firstMastery:0,secondMastery:0,navigate:0,explore:-1,survival:1},
+      freeRanks:{n:-1, group:"mastery"},
+      desc:`<b>조롱(길찾기)</b> — Resolution 페이즈에 <b>타겟 주사위를 굴리기 전</b> <st>energy</st> 1을 소모해
+    당신의 타겟 주사위를 <st>navigate</st> 랭크만큼 <b>올린다</b>.<br>
+    <b>단단한 체질</b> — 게임 턴당 <b>1회</b>, 기술 굴림에 실패해 상태를 얻게 될 때
+    즉시 <b>−2 보너스</b>를 받고 <b>다시 굴릴</b> 수 있다.<br>
+    <b>둔함</b> — 그룹을 노린 공격에 피해를 <b>1 더</b> 받는다.`,
+      flavor:"당신은 빛에 익숙하지 않고 춥고 습한 곳을 좋아한다. 어둠 속을 보는 눈을 얻었지만 지상은 불편하다.",
+      track:null},
+    goblinoid: {id:"goblinoid", type:"aspect", exp:"P", name:{en:"Goblinoid",ko:"고블린 혈통"},
+      mods:{health:1,energy:-2,attack:0,defence:1,firstMastery:0,secondMastery:0,navigate:0,explore:2,survival:0},
+      foodMod:1,
+      freeRanks:{n:-1, group:"mastery"},
+      desc:`<b>은밀함(탐험)</b> — Resolution 페이즈에 <b>타겟 주사위를 굴리기 전</b> <st>energy</st> 1을 소모해
+    당신의 타겟 주사위를 <st>explore</st> 랭크의 <b>절반</b>만큼 <b>낮춘다</b>.<br>
+    <b>더러운 성질</b> — <st>energy</st>가 <b>0</b>일 때, 공격 능력으로 주는 피해가
+    <st>attack</st> 랭크의 <b>절반</b>만큼 늘어난다.<br>
+    <b>까다롭지 않음</b> — 당신은 아무거나 잘 먹는다. Skill 기술 페이즈에 <st>explore</st>에 성공하고
+    <st>survival</st>에 실패했다면 무언가 '음식'을 찾는 데 성공한다.
+    또한 <kw>nonlethal</kw> <st>energy</st> 피해를 받아 <st>survival</st> 굴림을 <b>성공으로 취급</b>할 수 있다.`,
+      flavor:"당신은 일족보다 조금 더 크고 입이 살짝 튀어나와 있다. 성격이 가장 마음에 안 드는 구석이라는 말도 듣는다. 대부분은 당신을 보면 혐오감에 움찔한다.",
+      track:null},
+    bestial: {id:"bestial", type:"aspect", exp:"P", name:{en:"Bestial",ko:"야수 혈통"},
+      mods:{health:1,energy:0,attack:1,defence:1,firstMastery:-1,secondMastery:-1,navigate:0,explore:0,survival:1},
+      foodMod:1,
+      desc:`<b>엄청난 후각(생존)</b> — Skill 기술 페이즈에 <st>survival</st> 굴림에 성공하면,
+    공개된 <b>환경 카드 하나를 버리고 새로 뽑을</b> 수 있다.<br>
+    <b>야성</b> — <b>굶주린 동안</b> 당신의 공격이 <b>2배</b>의 피해를 준다.<br>
+    <b>생존 본능</b> — 굶주림 <b>2단계까지</b> 페널티를 무시한다.
+    다만 굶주린 동안 <b>게임 턴이 끝날 때마다</b> <st>energy</st> 피해 <b>1</b>을 받는다.`,
+      flavor:"당신에게는 어딘가 야성적이고 달라진 구석이 있다. 몸은 어떤 짐승의 특징을 띠고, 본능은 놀랄 만큼 벼려져 있다.",
+      track:null},
+    ogreKin: {id:"ogreKin", type:"aspect", exp:"P", name:{en:"Ogre Kin",ko:"오우거 혈통"},
+      mods:{health:3,energy:-2,attack:2,defence:0,firstMastery:-1,secondMastery:-1,navigate:0,explore:0,survival:1},
+      foodMod:1,
+      desc:`<b>치명적인 공격(공격)</b> — 적이 당신의 공격을 <kw>defend</kw>하거나 <kw>block</kw>한다면,
+    <st>health</st> 피해 1을 받고 d10을 굴릴 수 있다. 결과가 <st>attack</st> 랭크 <b>이하</b>라면
+    당신의 공격이 <kw>piercing</kw>을 얻는다.<br>
+    <b>두꺼운 가죽</b> — <b>음식 소모량</b>만큼 당신이 받는 <kw>piercing</kw> 피해를 줄이고,
+    타겟 주사위를 <b>올린다</b>.<br>
+    <b>거대한 타겟</b> — 개인을 노린 공격이 <b>2명 이상</b>을 대상으로 한다면,
+    당신의 타겟 주사위가 <b>10 이상</b>일 때 <b>첫 두 공격</b>을 당신이 대신 받는다.`,
+      flavor:"당신은 일족보다 훨씬 크다(그리고 못생겼다). 대부분 당신을 보면 혐오감에 놀란다. 다행히 당신은 낯이 두껍다.",
+      track:null},
+    draconic: {id:"draconic", type:"aspect", exp:"P", name:{en:"Draconic",ko:"용의 혈통"},
+      mods:{health:3,energy:2,attack:1,defence:-1,firstMastery:0,secondMastery:0,navigate:-1,explore:0,survival:0},
+      foodMod:1,
+      desc:`<b>믿을 수 없는 회복력(체력)</b> — 상태를 받는 순간 <st>health</st> 피해 1을 받고
+    d10을 굴릴 수 있다. 결과가 <b>현재 <st>health</st> 이하</b>라면 그 기술을 <kw>negate</kw>한다.<br>
+    <b>증오하는 적</b> — 숙적에게 주는 피해가 <b>2</b> 늘어난다.<br>
+    <b>앞뒤 없는 돌진</b> — 숙적을 마주했을 때 방어를 쓰면
+    <st>defence</st> 랭크의 <b>절반만큼만</b> 막는다.`,
+      flavor:"피부는 비늘로 덮여 있고 얼굴은 어딘가 파충류를 닮았다.",
+      track:null},
+    entomorph: {id:"entomorph", type:"aspect", exp:"P", name:{en:"Entomorph",ko:"곤충 혈통"},
+      mods:{health:0,energy:2,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:1,explore:1,survival:0},
+      foodMod:1,
+      freeRanks:{n:-1, group:"mastery"},
+      desc:`<b>무리 속의 평온(에너지)</b> — <st>outlast</st>을 가진 적을 마주했을 때,
+    이번 라운드의 행동 대신 d10을 굴릴 수 있다. 결과가 <b>현재 <st>energy</st> 이하</b>라면
+    대상의 <st>outlast</st>을 <b>1</b> 줄이고, 그 대상의 행동으로 받는 피해를 <b>절반</b>만 받는다.<br>
+    <b>군체 심리</b> — 공격이나 방어 행동을 할 때, <b>같은 행동을 한 다른 영웅 하나마다</b>
+    당신의 랭크를 <b>1</b>씩 <kw>boost</kw>한다.<br>
+    <b>기이한 신진대사</b> — 몸이 대부분의 약에 강하다.
+    당신을 <kw>heal</kw>하는 <b>1회용 아이템</b>의 <st>health</st> 회복량이 <b>2</b> 줄어든다.`,
+      flavor:"피부는 키틴질로 분절되어 있다. 곤충의 턱과 더듬이, 겹눈을 가지기도 한다. 대부분의 언어는 말하지 못한다.",
+      track:null},
   },
 };
 

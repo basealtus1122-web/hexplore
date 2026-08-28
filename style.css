@@ -512,3 +512,8 @@ button:active{transform:scale(.97)}
 /* 양상·특성의 설명 — 종족 flavor 와 같은 결로 */
 .ab-flavor{font-family:"Noto Serif KR";font-style:italic;font-size:12.5px;line-height:1.6;
   color:var(--ink-faint);margin:2px 0 7px;padding-left:9px;border-left:2px solid var(--edge-bright)}
+
+/* 양상 미리보기의 설명 줄 — 종족 flavor 와 같은 결 */
+.pv-flavor{font-family:"Noto Serif KR";font-style:italic;font-size:12.5px;line-height:1.6;
+  color:var(--ink-faint);margin:8px 0 0;padding-left:9px;border-left:2px solid var(--edge-bright)}
+.pick-card.focus{border-color:var(--accent)}

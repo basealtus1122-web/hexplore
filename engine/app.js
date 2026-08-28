@@ -22,7 +22,7 @@ const COND_NOTE=window.HEX.COND_NOTE||"";
 /* ---------- app state ---------- */
 const APP={
   screen:"builder",              // builder | series | board
-  sel:{raceId:null,classId:null,traitIds:[],subRaceId:null,aspectId:null},
+  sel:{raceId:null,classId:null,traitIds:[],traitFocus:null,subRaceId:null,aspectId:null},
   builderTab:"class",            // class | race | trait
   sort:{race:"abc",class:"abc"},  // abc(이름순) | ed(편순) | cat(계열순, 직업만)
   filter:{dual:false,P:false,H:false,R:false},  // 빌더 목록에서 보일 것(기본은 감춤)
@@ -52,7 +52,9 @@ function buildCharacter(sel,seriesId){
     subRaceId:sel.subRaceId||null,aspectId:sel.aspectId||null,raceForm:(race&&race.forms)?race.forms[0].id:null,
     filled:zero(),mod:zero(),
     curHealth:0,curEnergy:0,regenHealth:0,regenEnergy:0,
-    gold:10,food:(race&&race.foodUse?race.foodUse:1)*3,foodUse:race?race.foodUse:0,
+    /* 음식 소모량 — 종족값에 양상 보정을 더한다(최소 0) */
+    gold:10,food:(race&&race.foodUse?race.foodUse:1)*3,
+    foodUse:Math.max(0,(race?race.foodUse:0)+sel.traitIds.reduce((s,id)=>s+((SHARED.traits[id]||{}).foodMod||0),0)),
     goldMax:(race&&race.foodUse?race.foodUse:1)*100,   /* 초기 소모량 기준 고정 */
     favoredEnemies:race?[clone(foeOf(sel.raceId,sel.subRaceId))]:[],
     items:[],boosts:{},mchecks:{},uses:{},abilities:[],
@@ -159,7 +161,8 @@ function previewText(t,cls){
   return t.replace(/<act>(\w+)<\/act>/g,(m,k)=>ACTS[k]?ACTS[k].en+ACTS[k].ko:k)
     .replace(/<st>(\w+)<\/st>/g,(m,k)=>{const l=statLabel(k);return l.en+l.ko;})
     .replace(/<(?:kw|state)>(.*?)<\/(?:kw|state)>/g,(m,x)=>{const v=findKw(x.toLowerCase());return v?v.name.en+v.name.ko:x;})
-    .replace(/<[^>]+>/g,"");
+    /* 굵게와 줄바꿈은 남긴다 — 능력 이름이 굵게 보여야 목록에서 눈에 들어온다 */
+    .replace(/<(?!\/?(?:b|br)[\s>\/])[^>]+>/g,"");
 }
 function expand(char,t){
   const cls=SHARED.classes[char.classId], S=SERIES[char.series]||{};
@@ -474,14 +477,14 @@ function renderBuilder(){
     ${needExtra?`<span class="bs ${sub?'set':''}">기반 종족 <b>${sub?sub.name.en:'—'}</b></span>
     <span class="bs ${asp?'set':''}">위대한 양상 <b>${asp?asp.name.en:'—'}</b></span>`:""}
     <span class="bs ${cls?'set':''}">직업 <b>${cls?cls.name.en:'—'}</b></span>
-    <span class="bs ${APP.sel.traitIds.length?'set':''}">특성 <b>${APP.sel.traitIds.length||'—'}</b></span>
+    <span class="bs ${APP.sel.traitIds.length?'set':''}">양상 <b>${APP.sel.traitIds.length||'—'}</b></span>
   </div>`;
 
   root.innerHTML=`<div class="wrap">
     ${brandHead("Character Builder · 캐릭터 생성",
       `<button class="btn primary" id="toSeries" ${ready?"":"disabled"}>확정 → 시리즈 선택</button>`)}
     ${cls?previewTotals(APP.sel):""}
-    <div class="segbar">${seg("class","Class 직업")}${seg("race","Race 종족")}${seg("trait","Traits 특성")}</div>
+    <div class="segbar">${seg("class","Class 직업")}${seg("race","Race 종족")}${seg("trait","Aspect 양상")}</div>
     <div class="build-body">${body}</div>
     ${summary}
     ${ready?"":`<div class="hint">${needExtra&&APP.sel.raceId?"기반 종족과 위대한 양상까지 선택하세요":"직업과 종족을 선택하세요"} (특성은 선택 사항 · 게임 중 추가 가능)</div>`}
@@ -499,8 +502,11 @@ function renderBuilder(){
   root.querySelectorAll("[data-subrace]").forEach(b=>b.onclick=()=>{APP.sel.subRaceId=(APP.sel.subRaceId===b.dataset.subrace?null:b.dataset.subrace);renderBuilder();});
   root.querySelectorAll("[data-aspect]").forEach(b=>b.onclick=()=>{APP.sel.aspectId=(APP.sel.aspectId===b.dataset.aspect?null:b.dataset.aspect);renderBuilder();});
   root.querySelectorAll("[data-trait]").forEach(b=>b.onclick=()=>{
-    const id=b.dataset.trait,i=APP.sel.traitIds.indexOf(id);
-    if(i>=0)APP.sel.traitIds.splice(i,1);else APP.sel.traitIds.push(id);
+    /* 양상은 기본적으로 하나만 고른다. 여러 개가 필요하면 판에서 '+ Aspect 양상' 으로 더한다
+       (예: 인간 혈통의 '추가 특성'). 데이터 구조는 배열 그대로 두어 그런 경우에도 담긴다. */
+    const id=b.dataset.trait, had=APP.sel.traitIds.includes(id);
+    APP.sel.traitIds = had ? [] : [id];
+    APP.sel.traitFocus = had ? null : id;
     renderBuilder();
   });
   const ts=$("#toSeries");if(ts)ts.onclick=()=>{if(ready){APP.screen="series";render();}};
@@ -599,7 +605,8 @@ function pickList(list,selId,kind,previewFn){
    미리보기는 width:100% 라 항상 새 줄을 차지하므로, 그리드 끝에 둔 상태로 각 카드의 줄 위치를 잰다. */
 function placeInlinePreview(){
   const grid=root.querySelector(".pick-grid");if(!grid)return;
-  const pv=grid.querySelector(":scope > .preview.inline"),sel=grid.querySelector(":scope > .pick-card.on");
+  const pv=grid.querySelector(":scope > .preview.inline"),
+        sel=grid.querySelector(":scope > .pick-card.focus")||grid.querySelector(":scope > .pick-card.on");
   if(!pv||!sel)return;
   grid.appendChild(pv);
   const rowTop=sel.offsetTop;
@@ -652,20 +659,32 @@ function classPreview(c){
 function traitModRow(t){
   const pills=STAT_ORDER.filter(k=>t.mods&&t.mods[k]).map(k=>{const l=statLabel(k),v=t.mods[k];
     return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${v>0?"+":""}${v}</span>`;}).join("");
+  const fd=t.foodMod?`<span class="modpill" style="color:var(--gold)">Food Use 음식소모 ${t.foodMod>0?"+":""}${t.foodMod}</span>`:"";
   const f=t.freeRanks, neg=f&&f.n<0;
   const free=f?`<span class="modpill" style="border-style:dashed;color:${neg?"var(--g-attack)":"var(--accent)"}">${
     {combat:"능력 4종",skill:"기술 3종",vital:"생명력 2종",mastery:"마스터리 2종"}[f.group]||f.group} ${neg?"−":"+"}${Math.abs(f.n)} <span style="font-size:.88em;color:var(--ink-faint)">직접</span></span>`:"";
-  return (pills||free)?`<div class="pv-mods" style="margin:5px 0 0">${pills}${free}</div>`:"";
+  return (pills||free||fd)?`<div class="pv-mods" style="margin:5px 0 0">${fd}${pills}${free}</div>`:"";
+}
+const TRAIT_SRC={trait:"Trait 트레잇",aspect:"Aspect 양상",keepsake:"Keepsake 킵세이크"};
+/* 양상 상세 — 종족·직업 미리보기와 같은 틀 */
+function traitPreview(t){
+  return `<div class="pv-title">${t.name.en} <span class="ko">(${t.name.ko})</span></div>
+    <div class="pv-row"><span class="pv-lbl">Type 종류</span> ${TRAIT_SRC[t.type]||t.type}</div>
+    ${traitModRow(t)}
+    ${t.flavor?`<div class="pv-flavor">${t.flavor}</div>`:""}
+    <div class="pv-ability">${previewText(t.desc)}</div>`;
 }
 function traitPicker(list){
-  if(!list.length)return`<div class="empty-note">특성 데이터가 아직 없습니다. (traits / aspects / keepsakes)<br>data.js의 SHARED.traits 에 추가하세요. 게임 중에도 판에서 직접 추가할 수 있습니다.</div>`;
-  const srcName={trait:"Trait 트레잇",aspect:"Aspect 애스펙트",keepsake:"Keepsake 킵세이크"};
-  const cards=list.map(t=>`<button class="pick-card wide ${APP.sel.traitIds.includes(t.id)?'on':''}" data-trait="${t.id}">
-    <div class="pc-src">${srcName[t.type]||t.type}</div>
-    <div class="pc-name">${t.name.en} <span class="pc-ko">(${t.name.ko})</span></div>
-    ${traitModRow(t)}
-    <div class="pc-desc">${previewText(t.desc)}</div></button>`).join("");
-  return `<div class="pick-list">${cards}</div><div class="hint" style="margin-top:8px">여러 개 선택 가능 · 게임 중 판에서도 추가/제거할 수 있습니다.</div>`;
+  if(!list.length)return`<div class="empty-note">양상 데이터가 아직 없습니다.<br>data.js의 SHARED.traits 에 추가하세요. 게임 중에도 판에서 직접 추가할 수 있습니다.</div>`;
+  /* 양상은 여러 개를 고를 수 있어 '선택'과 '펼침'이 따로다 —
+     on 은 고른 것, focus 는 지금 상세를 보고 있는 것. */
+  const foc=list.find(x=>x.id===(APP.sel.traitFocus||APP.sel.traitIds[0]))||null;
+  const cards=list.map(t=>`<button class="pick-card ${APP.sel.traitIds.includes(t.id)?'on':''} ${foc&&foc.id===t.id?'focus':''}" data-trait="${t.id}">
+    <div class="pc-name">${t.name.en}</div><div class="pc-ko">${t.name.ko}</div>
+    <span class="ed-badge" title="${TRAIT_SRC[t.type]||t.type}${expCodes(t).length?" · "+expCodes(t).map(c=>EXP_META[c].ko).join(" · "):""}">${(TRAIT_SRC[t.type]||"?").slice(0,1)}${expCodes(t).map(c=>`<b style="color:${EXP_META[c].c}">${c}</b>`).join("")}</span>
+  </button>`).join("");
+  return `<div class="pick-grid">${cards}${foc?`<div class="preview inline">${traitPreview(foc)}</div>`:""}</div>
+    <div class="hint" style="margin-top:8px">하나만 고릅니다 · 다시 누르면 해제 · 둘 이상 필요하면 게임 중 판의 <b>+ Aspect 양상</b>으로 더하세요.</div>`;
 }
 
 /* =====================================================================
@@ -1159,7 +1178,9 @@ function addAspectModal(){
     <div class="field"><label>이름 (한글)</label><input id="gKo" placeholder="양상 이름"></div>
     <div class="field"><label>설명</label><textarea id="gDesc" placeholder="효과 설명…"></textarea></div>
     <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="gSave">추가</button></div>`);
-  const add=(src,o,pre)=>{APP.char.abilities.push({id:pre+(o.id||"")+Date.now(),src,name:clone(o.name),desc:o.desc||"(내용 추후 입력)",flavor:o.flavor||null,track:initTrack(o.track),freeRanks:o.freeRanks||null,mods:o.mods?clone(o.mods):null});closeModal();renderBoard();};
+  const add=(src,o,pre)=>{APP.char.abilities.push({id:pre+(o.id||"")+Date.now(),src,name:clone(o.name),desc:o.desc||"(내용 추후 입력)",flavor:o.flavor||null,track:initTrack(o.track),freeRanks:o.freeRanks||null,mods:o.mods?clone(o.mods):null});
+    if(o.foodMod)APP.char.foodUse=Math.max(0,APP.char.foodUse+o.foodMod);   /* 음식 소모량 보정도 함께 */
+    closeModal();renderBoard();};
   const rv=$("#gaReveal");if(rv)rv.onclick=()=>{const l=$("#gaList"),on=l.style.display==="none";l.style.display=on?"block":"none";rv.textContent=`Greater Aspect 위대한 양상 공개 ${on?"▴":"▾"}`;};
   document.querySelectorAll("[data-gapick]").forEach(b=>b.onclick=()=>add("greater",GREATER_ASPECTS.find(x=>x.id===b.dataset.gapick),"ga_"));
   document.querySelectorAll("[data-aspick]").forEach(b=>b.onclick=()=>add("aspect",SHARED.traits[b.dataset.aspick],"as_"));
