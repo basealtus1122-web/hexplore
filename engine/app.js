@@ -833,11 +833,43 @@ function boardBody(char){
       </div>`)}`)}
     </div>
     ${grp("res","Resources","자원 · 아이템",
-      `<div class="res-grid">${resCard(char,"gold","Gold","골드","gold")}${resCard(char,"food","Food","음식","food")}${resCard(char,"foodUse","Food Use","소모량","foodUse")}</div>
-       ${renderStarving(char)}
+      `<div class="res-grid">${resCard(char,"gold","Gold","골드","gold")}</div>
+       ${foodTrack(char)}
        <div class="items"><div class="sec-head" style="font-size:11px;margin:16px 0 10px">Items · 아이템</div><div class="item-list">${itemHTML}</div>
         <div class="ability-actions"><button class="add-btn" id="addItem">+ 아이템 추가</button></div>
       </div>`)}`;
+}
+/* 음식 게이지 — 실물 판의 FOOD RATING 트랙을 그대로 옮겼다.
+   왼쪽에 굶주림 3칸, 가운데에 소모량(FOOD RATING), 오른쪽에 0~20 보유량 눈금.
+   최대 보유량은 초기 소모량의 5배이고, 그 위 칸은 잠긴다.
+   눈금은 눌러도 되고 손가락·마우스로 끌어도 된다. */
+const FOOD_MAX = 20;
+function foodBand(r){ return r<=1?0 : r===2?1 : r===3?2 : 3; }   /* 아래 띠 4구간 */
+function foodTrack(char){
+  const use=char.foodUse||0, cur=Math.min(char.food||0,FOOD_MAX);
+  /* 판에 적힌 대로 최대치는 "초기" 소모량의 5배다 — 게임 중 소모량이 바뀌어도 늘지 않는다.
+     초기값은 캐릭터를 만들 때 골드 상한(초기 소모량×100)에 남겨 둔 것을 되읽는다. */
+  const init=char.goldMax?Math.round(char.goldMax/100):(use||1);
+  const cap=Math.min(FOOD_MAX,init*5);
+  const cells=Array.from({length:FOOD_MAX+1},(_,i)=>{
+    const on=i>0&&i<=cur, lock=i>cap, big=i%5===0;
+    return `<button class="ft-cell${on?" on":""}${lock?" lock":""}${big?" big":""}" data-food="${i}"
+      title="${i}${lock?" · 최대 보유량을 넘습니다":""}">${big?i:""}</button>`;}).join("");
+  const bands=["RATING 0 or 1","RATING 2","RATING 3","RATING 4"]
+    .map((b,i)=>`<div class="ft-band${foodBand(init)===i?" on":""}">${b}</div>`).join("");
+  return `<div class="food-wrap">
+    <div class="ft-row">
+      ${renderStarving(char)}
+      <div class="ft-rating" title="Food Rating 음식 소모량 — 최대 보유량은 이 값의 5배">
+        <div class="ft-rating-lab">FOOD<br>RATING</div>
+        <div class="ft-rating-ctl"><button data-res="foodUse" data-dir="-1">−</button><b>${use}</b><button data-res="foodUse" data-dir="1">＋</button></div>
+      </div>
+      <div class="ft-track-wrap">
+        <div class="ft-note">보유량 <b>${cur}</b> / 최대 <b>${cap}</b></div>
+        <div class="ft-track" id="foodTrack">${cells}</div>
+        <div class="ft-bands">${bands}</div>
+      </div>
+    </div></div>`;
 }
 /* 굶주림 미터 — 음식이 모자란 턴마다 한 칸씩. 칸을 눌러 올리고, 같은 칸을 다시 누르면 내린다. */
 const STARVE=[{n:1,ko:"에너지를 쓸 수 없다",c:"var(--g-energy)"},
@@ -852,6 +884,29 @@ function renderStarving(char){
   return `<div style="margin-top:12px">
     <div class="foe-label" style="margin-bottom:6px">Starving · 굶주림${lv?` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:${STARVE[lv-1].c}">· ${lv}단계</span>`:` <span style="text-transform:none;letter-spacing:0;font-family:'Noto Serif KR';color:var(--ink-faint)">· 음식이 모자란 턴마다 한 칸</span>`}</div>
     <div style="display:flex;gap:7px;flex-wrap:wrap">${cells}</div></div>`;
+}
+/* 음식 눈금 끌기 — 누른 채 좌우로 움직이면 그 자리까지 채워진다.
+   포인터를 잡아 두어 칸 밖으로 나가도 계속 따라온다(모바일 포함). */
+function bindFoodTrack(char){
+  const tr=$("#foodTrack"); if(!tr)return;
+  const cells=[...tr.querySelectorAll(".ft-cell")];
+  const cap=cells.filter(c=>!c.classList.contains("lock")).length-1;
+  const paint=v=>{cells.forEach((c,i)=>c.classList.toggle("on",i>0&&i<=v));};
+  const valueAt=x=>{const r=tr.getBoundingClientRect();
+    const v=Math.round((x-r.left)/r.width*FOOD_MAX);
+    return Math.max(0,Math.min(cap,v));};
+  let live=null;
+  const move=e=>{if(live===null)return; const v=valueAt(e.clientX);
+    if(v!==live){live=v;paint(v);} e.preventDefault();};
+  const end=()=>{if(live===null)return; char.food=live; live=null;
+    window.removeEventListener("pointermove",move);
+    window.removeEventListener("pointerup",end);
+    renderBoard();};
+  tr.addEventListener("pointerdown",e=>{
+    live=valueAt(e.clientX); paint(live);
+    window.addEventListener("pointermove",move,{passive:false});
+    window.addEventListener("pointerup",end);
+    e.preventDefault();});
 }
 /* 난이도 — 판 최상단. 한 줄이 한 난이도이며 눌러서 고른다. 고른 줄만 진하게 보인다. */
 function renderDifficulty(char){
@@ -1051,6 +1106,7 @@ function bindBoard(char){
   root.querySelectorAll("[data-form]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const f=b.dataset.form;if(char.raceForm===f)return;const r=SHARED.races[char.raceId];if(r&&r.formCostEnergy){if(char.curEnergy<r.formCostEnergy)return;char.curEnergy-=r.formCostEnergy;}char.raceForm=f;if(r&&r.formHealOnSwitch)char.curHealth=Math.min(effOf(char,"health"),char.curHealth+r.formHealOnSwitch);renderBoard();});
   root.querySelectorAll("[data-vital]").forEach(b=>b.onclick=()=>{const k=b.dataset.vital;char[k]=Math.max(0,char[k]+ +b.dataset.dir);renderBoard();});
   const nm=$("#charName");if(nm)nm.onchange=()=>{char.name=nm.value.trim();renderBoard();};
+  bindFoodTrack(char);
   root.querySelectorAll("[data-starve]").forEach(b=>b.onclick=()=>{const n=+b.dataset.starve;
     char.starving=(char.starving===n?n-1:n);renderBoard();});
   root.querySelectorAll("[data-diff]").forEach(r=>r.onclick=()=>{char.difficulty=r.dataset.diff;renderBoard();});

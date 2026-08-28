@@ -1031,6 +1031,7 @@ const SHARED = {
         defence:{base:2, name:{en:"Planar Binding",ko:"차원 결속"}},
         firstMastery:{base:2, name:{en:"Harrowed Summoning",ko:"고통의 소환"}, cost:1,
           readout:(E)=>{const lv=FR(E.lv("firstMastery"),3)+E.cnt("dretchUp");return[
+            {lab:"Cost 비용", color:"energy", val:1},
             {lab:"Dretch 레벨", color:"neutral", val:lv},
             {lab:"① 피해 Boost", color:"attack", val:E.lv("attack")},
             {lab:"② 동료 행동 Boost", color:"neutral", val:FR(lv)},
@@ -1042,8 +1043,9 @@ const SHARED = {
             <b>②</b> 드레치 <b>레벨의 절반</b>만큼 <b>모든 동료</b>의 행동 랭크를 <kw>boost</kw>한다.<br>
             <b>③</b> {defence} 랭크만큼 <kw>defend</kw>를 얻고, 영웅을 노린 공격을 드레치가 <b>대신 맞는다</b> — 이미 목표가 정해졌거나 그룹 전체를 노린 공격이어도 적용된다.`,
         },
-        secondMastery:{base:2, name:{en:"Mind Anchor",ko:"정신의 닻"}, cost:1, uses:{max:1,scope:"round"},
+        secondMastery:{base:2, name:{en:"Mind Anchor",ko:"정신의 닻"}, cost:2, uses:{max:1,scope:"round"},
           readout:(E)=>{const lv=FR(E.lv("firstMastery"),3)+E.cnt("dretchUp"),r=E.lv("secondMastery");return[
+            {lab:"Cost 비용", color:"energy", val:2},
             {lab:"광기 보유 상한", color:"secondMastery", val:r},
             {lab:"지금 광기", color:"neutral", val:E.cnt("madness")},
             ...(r>=10?[{lab:"10랭크 레벨 상승", color:"health", val:(lv<=FR(r))?"가능":"조건 미달"}]:[]),

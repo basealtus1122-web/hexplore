@@ -517,3 +517,32 @@ button:active{transform:scale(.97)}
 .pv-flavor{font-family:"Noto Serif KR";font-style:italic;font-size:12.5px;line-height:1.6;
   color:var(--ink-faint);margin:8px 0 0;padding-left:9px;border-left:2px solid var(--edge-bright)}
 .pick-card.focus{border-color:var(--accent)}
+
+/* ===== 음식 게이지 — 실물 판의 FOOD RATING 트랙 ===== */
+.food-wrap{margin-top:14px}
+.ft-row{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.ft-rating{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  flex:0 0 auto;padding:8px 14px;border-radius:12px;border:1px solid var(--edge-bright);background:var(--panel-2)}
+.ft-rating-lab{font-family:"Cinzel";font-size:10px;letter-spacing:.12em;line-height:1.25;text-align:center;color:var(--ink-dim)}
+.ft-rating-ctl{display:flex;align-items:center;gap:6px}
+.ft-rating-ctl b{font-family:"Cinzel";font-size:21px;min-width:20px;text-align:center;color:var(--gold)}
+.ft-rating-ctl button{width:30px;height:30px;border-radius:8px;border:1px solid var(--edge-bright);
+  background:var(--panel);color:var(--ink);font-size:15px;line-height:1;cursor:pointer;padding:0}
+.ft-track-wrap{flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:5px;justify-content:center}
+.ft-note{font-size:11.5px;color:var(--ink-dim)}
+.ft-note b{color:var(--gold);font-family:"Cinzel";font-size:14px}
+.ft-note span{color:var(--ink-faint)}
+/* 눈금 — 손가락으로 끌 수 있게 세로로 넉넉히 */
+.ft-track{display:flex;gap:2px;touch-action:none;user-select:none;
+  padding:5px;border-radius:10px;border:1px solid var(--edge-bright);background:rgba(0,0,0,.25)}
+.ft-cell{flex:1 1 0;min-width:0;height:38px;border-radius:5px;cursor:pointer;padding:0;
+  border:1px solid transparent;background:var(--panel-2);color:var(--ink-faint);
+  font-family:"Cinzel";font-size:11px;transition:background .1s}
+.ft-cell.big{border-color:var(--edge-bright);color:var(--ink-dim)}
+.ft-cell.on{background:var(--gold);color:#12101a;border-color:var(--gold)}
+.ft-cell.lock{opacity:.28;cursor:not-allowed}
+.ft-bands{display:flex;gap:2px}
+.ft-band{flex:1 1 0;text-align:center;font-family:"Cinzel";font-size:9.5px;letter-spacing:.06em;
+  padding:3px 0;border-radius:5px;color:var(--ink-faint);border:1px solid transparent}
+.ft-band.on{color:var(--ink);border-color:var(--gold);background:color-mix(in srgb,var(--gold) 14%,transparent)}
+@media(max-width:620px){.ft-cell{height:44px}.ft-cell.big{font-size:10px}}
