@@ -647,12 +647,23 @@ function classPreview(c){
     ${masteries}
     <div class="pv-ability">${c.special?previewText(c.special.ko,c):""}</div>`;
 }
+/* 특성·양상이 능력치를 얼마나 올리고 내리는지 — 고르기 전에 카드에서 바로 보이게 한다.
+   직접 분배/차감 몫도 같은 줄에 붙인다(자동 반영이 아니라 손으로 맞추는 값이라 점선으로 구분). */
+function traitModRow(t){
+  const pills=STAT_ORDER.filter(k=>t.mods&&t.mods[k]).map(k=>{const l=statLabel(k),v=t.mods[k];
+    return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${v>0?"+":""}${v}</span>`;}).join("");
+  const f=t.freeRanks, neg=f&&f.n<0;
+  const free=f?`<span class="modpill" style="border-style:dashed;color:${neg?"var(--g-attack)":"var(--accent)"}">${
+    {combat:"능력 4종",skill:"기술 3종",vital:"생명력 2종",mastery:"마스터리 2종"}[f.group]||f.group} ${neg?"−":"+"}${Math.abs(f.n)} <span style="font-size:.88em;color:var(--ink-faint)">직접</span></span>`:"";
+  return (pills||free)?`<div class="pv-mods" style="margin:5px 0 0">${pills}${free}</div>`:"";
+}
 function traitPicker(list){
   if(!list.length)return`<div class="empty-note">특성 데이터가 아직 없습니다. (traits / aspects / keepsakes)<br>data.js의 SHARED.traits 에 추가하세요. 게임 중에도 판에서 직접 추가할 수 있습니다.</div>`;
   const srcName={trait:"Trait 트레잇",aspect:"Aspect 애스펙트",keepsake:"Keepsake 킵세이크"};
   const cards=list.map(t=>`<button class="pick-card wide ${APP.sel.traitIds.includes(t.id)?'on':''}" data-trait="${t.id}">
     <div class="pc-src">${srcName[t.type]||t.type}</div>
     <div class="pc-name">${t.name.en} <span class="pc-ko">(${t.name.ko})</span></div>
+    ${traitModRow(t)}
     <div class="pc-desc">${previewText(t.desc)}</div></button>`).join("");
   return `<div class="pick-list">${cards}</div><div class="hint" style="margin-top:8px">여러 개 선택 가능 · 게임 중 판에서도 추가/제거할 수 있습니다.</div>`;
 }

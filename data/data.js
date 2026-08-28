@@ -1383,11 +1383,6 @@ const SHARED = {
       flavor:"인간의 다재다능함이 당신의 혈관에 흐른다. 다만 다른 혈통의 특징은 많이 희미해졌다.",
       track:null},
 
-    // 예시 (실데이터로 교체 예정)
-    bloodPact:   {id:"bloodPact", type:"trait",  name:{en:"Blood Pact",ko:"피의 서약"},
-      desc:"전투당 1회, 체력 2를 지불해 마스터리 하나를 즉시 재사용. (예시)", track:{type:"check"}},
-    voidHunger:  {id:"voidHunger", type:"aspect", name:{en:"Hunger of the Void",ko:"공허의 굶주림"},
-      desc:"<kw>heal</kw>할 때마다 공허 충전 +1 (최대 3). (예시)", track:{type:"count",max:3}},
   },
 };
 
