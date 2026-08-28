@@ -231,7 +231,7 @@ function renderHex(char,key,showName=true){
       style="margin:7px 0 0;padding:6px 8px;border-radius:7px;font-size:11px;line-height:1.35;text-align:center;
       border:1px solid var(--g-attack);background:color-mix(in srgb,var(--c-attack) 22%,transparent);color:var(--ink)">
       <b style="color:var(--g-attack)">굴림 불가</b> · 자동 대실패</div>`:""}
-    ${((st&&st.bribe)||(key==="defence"&&SHARED.races[char.raceId]&&SHARED.races[char.raceId].bribe))?`<span class="bribe-dot" title="Bribe 뇌물 — 전투 전 방어 스탯 테스트에 성공하면 뇌물 비용을 방어 랭크만큼 줄인다(백금 비용은 대성공에만)"></span>`:""}
+    ${((st&&st.bribe)||(key==="defence"&&SHARED.races[char.raceId]&&SHARED.races[char.raceId].bribe))?`<span class="bribe-dot" title="Bribe 뇌물 — 전투 전 방어 스탯 굴림에 성공하면 뇌물 비용을 방어 랭크만큼 줄인다(백금 비용은 대성공에만)"></span>`:""}
     ${showName?`<div class="hex-role">${meta.role} · ${meta.roleKo}</div><div class="hex-title" style="color:var(--g-${key})">${nmEn}</div><div class="hex-ko">${nmKo}</div>${dmgTags(st&&st.dmg, (key==="attack"&&cls.declareVital)?char.vitalPick:null, key==="attack"&&!!cls.declareVital)}`:""}
     <div class="hex-mod">
       <button data-mod="${key}" data-dir="-1" title="효과로 인한 감소">\u2212</button>
