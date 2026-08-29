@@ -287,14 +287,18 @@ function familiarHex(char,a){
 /* 어떤 종족은 정해진 보정 대신 "능력 4종에 4랭크" 처럼 직접 나눠 담는다.
    자동으로 배분하지 않고 어디에 몇 랭크를 담을지만 알려 준다 — 배분은 각 육각형의 효과 +/- 로 한다. */
 const FREE_GROUP={combat:"Ability 능력 4종(공격 · 방어 · 마스터리 1 · 2)", skill:"Skill 기술 3종(길찾기 · 탐험 · 생존)",
-                  vital:"Vital 생명력 2종(체력 · 에너지)", mastery:"Mastery 마스터리 2종(마스터리 1 · 2)"};
+                  vital:"Vital 생명력 2종(체력 · 에너지)", mastery:"Mastery 마스터리 2종(마스터리 1 · 2)",
+                  atkDef:"Attack 공격 · Defence 방어 중 하나"};
+/* freeRanks 는 하나여도 되고 여러 개여도 된다 — 카드에 "Choose One" 이 둘 붙는 양상이 있다 */
+const freeList=o=>{const f=o&&o.freeRanks; return !f?[]:(Array.isArray(f)?f:[f]);};
 function freeRankNote(o){
-  const f=o.freeRanks; if(!f)return"";
-  const neg=f.n<0, n=Math.abs(f.n), c=neg?"var(--g-attack)":"var(--accent)";
-  return `<div style="margin-top:7px;padding:8px 11px;border-radius:9px;font-size:12px;line-height:1.5;
-    border:1px solid ${neg?"var(--g-attack)":"var(--accent-dim)"};background:color-mix(in srgb,${neg?"var(--c-attack)":"var(--accent-dim)"} 12%,transparent)">
-    <b style="color:${c}">직접 ${neg?"차감":"분배"} ${n}랭크</b> — ${FREE_GROUP[f.group]||f.group}${neg?" 중에서 뺀다":"에 원하는 대로 나눠 담는다"}.
-    <span style="color:var(--ink-faint)">해당 육각형의 <b>효과 ${neg?"−":"+"}</b> 로 맞추세요.</span></div>`;
+  const list=freeList(o); if(!list.length)return"";
+  return list.map(f=>{
+    const neg=f.n<0, n=Math.abs(f.n), c=neg?"var(--g-attack)":"var(--accent)";
+    return `<div style="margin-top:7px;padding:8px 11px;border-radius:9px;font-size:12px;line-height:1.5;
+      border:1px solid ${neg?"var(--g-attack)":"var(--accent-dim)"};background:color-mix(in srgb,${neg?"var(--c-attack)":"var(--accent-dim)"} 12%,transparent)">
+      <b style="color:${c}">직접 ${neg?"차감":"분배"} ${n}랭크</b> — ${FREE_GROUP[f.group]||f.group}${neg?" 중에서 뺀다":"에 담는다"}.
+      <span style="color:var(--ink-faint)">해당 육각형의 <b>효과 ${neg?"−":"+"}</b> 로 맞추세요.</span></div>`;}).join("");
 }
 /* 전투마다 선언하는 생명력 — cls.declareVital 이면 특성 박스에서 고르고, 기본공격 피해 유형에 반영된다 */
 function vitalSwitcher(char,cls){
@@ -660,9 +664,10 @@ function traitModRow(t){
   const pills=STAT_ORDER.filter(k=>t.mods&&t.mods[k]).map(k=>{const l=statLabel(k),v=t.mods[k];
     return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${v>0?"+":""}${v}</span>`;}).join("");
   const fd=t.foodMod?`<span class="modpill" style="color:var(--gold)">Food Use 음식소모 ${t.foodMod>0?"+":""}${t.foodMod}</span>`:"";
-  const f=t.freeRanks, neg=f&&f.n<0;
-  const free=f?`<span class="modpill" style="border-style:dashed;color:${neg?"var(--g-attack)":"var(--accent)"}">${
-    {combat:"능력 4종",skill:"기술 3종",vital:"생명력 2종",mastery:"마스터리 2종"}[f.group]||f.group} ${neg?"−":"+"}${Math.abs(f.n)} <span style="font-size:.88em;color:var(--ink-faint)">직접</span></span>`:"";
+  const SHORT={combat:"능력 4종",skill:"기술 3종",vital:"생명력 2종",mastery:"마스터리 2종",atkDef:"공격·방어"};
+  const free=freeList(t).map(f=>{const neg=f.n<0;
+    return `<span class="modpill" style="border-style:dashed;color:${neg?"var(--g-attack)":"var(--accent)"}">${
+      SHORT[f.group]||f.group} ${neg?"−":"+"}${Math.abs(f.n)} <span style="font-size:.88em;color:var(--ink-faint)">직접</span></span>`;}).join("");
   return (pills||free||fd)?`<div class="pv-mods" style="margin:5px 0 0">${fd}${pills}${free}</div>`:"";
 }
 const TRAIT_SRC={trait:"Trait 트레잇",aspect:"Aspect 양상",keepsake:"Keepsake 킵세이크"};

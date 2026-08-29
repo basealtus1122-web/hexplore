@@ -107,12 +107,103 @@ const FOE_TYPES = [
 
 /* Greater Aspects(위대한 양상) — '다시 깨어난 자'가 하나를 선택한다.
    게임 중에도 판에서 추가할 수 있다. 설명은 추후에 채움. */
+/* Greater Aspect 위대한 양상 — 4편 수록. 양상과 같은 틀이되 판을 크게 바꾼다.
+   foodMod 는 음식 소모량 보정, foodSet 은 소모량을 그 값으로 아예 바꾸는 것(New Food Rating).
+   축복은 결이 다른 갈래라 kind 로 갈라 둔다.
+   ※ 능력치 보정(mods)은 카드 사진의 숫자 칸이 작아 아직 넣지 않았다 — 확인 후 채운다. */
 const GREATER_ASPECTS = [
-  {id:"ghost",      name:{en:"Ghost",      ko:"유령"},        desc:""},
-  {id:"lycan",      name:{en:"Lycan",      ko:"늑대인간"},    desc:""},
-  {id:"reanimated", name:{en:"Reanimated", ko:"되살아난 자"}, desc:""},
-  {id:"vampire",    name:{en:"Vampire",    ko:"뱀파이어"},    desc:""},
-  {id:"zombie",     name:{en:"Zombie",     ko:"좀비"},        desc:""},
+  {id:"damned", name:{en:"Damned",ko:"저주받은 자"}, ed:"4",
+   mods:{health:3,energy:1,attack:2,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:1},
+   freeRanks:{n:1, group:"mastery"},
+   flavor:"피부가 달라지고 눈은 붉어졌으며 두개골에서 뿔이 돋았다. 이제 악마의 피가 혈관을 흐른다.",
+   desc:`<b>내면에 흐르는 지옥의 힘(공격)</b> — 적의 <kw>aegis</kw>를 넘어설 때
+     당신이 가진 <b>공격 기어 업그레이드 수를 2 높은 것으로</b> 친다.
+     피해나 다른 효과가 늘어나지는 않는다.<br>
+     <b>악의에 찬 일격</b> — 적에게 피해를 줄 때마다 <st>health</st> <b>1</b>을 써서
+     <st>attack</st> 랭크의 <b>2배</b>만큼 <st>energy</st> 피해를 더 줄 수 있다.
+     적이 이 피해를 받으면 <b>다음 라운드에</b> 당신이 주는 모든 피해를
+     <st>attack</st> 랭크만큼 <kw>boost</kw>한다.<br>
+     <b>고통받는 영혼</b> — 당신의 생명력이 <b>랭크보다 높이</b> <kw>raise</kw>되어 있는 동안,
+     당신의 <b>모든 능력 랭크가 절반</b>이 된다.`},
+
+  {id:"lycan", name:{en:"Lycan",ko:"늑대인간"}, ed:"4", foodMod:1,
+   mods:{health:0,energy:1,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:1,survival:1},
+   flavor:"안에서 짐승이 뛰쳐나오려 몸부림친다.",
+   desc:`<b>포식자의 본능(길찾기 · 생존 · 탐험)</b> — Skill 기술 페이즈에 <b>기술 굴림 3개를 모두 성공</b>한 게임 턴에는
+     <b>상황 주사위 결과를 최대 2까지</b> 조정할 수 있다.<br>
+     <b>변신</b> — <st>energy</st> <b>3</b>을 써서 <b>게임 턴이 끝날 때까지</b> 변신한다.
+     변신하면 <st>health</st>을 <b>5</b> <kw>raise</kw>하고, <b>공격 · 방어 · 기술 랭크를 3</b> <kw>boost</kw>하며,
+     <b>마스터리는 2랭크 낮은 것으로</b> 친다.<br>
+     <b>내면의 야수</b> — <b>밤</b>에 전투에 들어갈 때마다 헥스 주사위를 굴린다. <b>헥스</b>가 나오면
+     아직 변신 중이 아닐 때 <b>변신이 발동</b>한다(<st>energy</st>를 쓰지 않는다).
+     변신 중에 <b>밤</b>에 능력을 선언할 때마다 <b>달 주사위</b>를 굴려 <b>3을 더한다</b>.
+     그 결과가 <st>attack</st> 랭크보다 높으면, 대신 <b>무작위 대상</b>에게 공격 능력을 쓴다.`},
+
+  {id:"vampire", name:{en:"Vampire",ko:"뱀파이어"}, ed:"4", foodNote:"아래 참조",
+   mods:{health:3,energy:0,attack:1,defence:1,firstMastery:1,secondMastery:1,navigate:1,explore:1,survival:0},
+   flavor:"어두운 힘의 샘이 영혼에 스며든다. 그것은 채워지지 않는 피의 갈증과 햇빛을 꺼리는 성질을 함께 가져온다.",
+   desc:`<b>움직임이 흐릿하다(길찾기)</b> — <kw>evasion</kw> <b>10</b>을 얻는다.
+     <st>navigate</st> 랭크만큼 <st>energy</st>를 써서 <b>1라운드</b> 동안 쓴 만큼 회피 수치를 낮출 수 있다.
+     <b>목표가 된 뒤, 회피 굴림 전에</b> 쓸 수 있다.<br>
+     <b>피의 갈증</b> — 당신의 <b>음식 미터가 갈증 미터</b>가 되며 <b>0</b>에서 시작한다.
+     <b>매 턴이 시작될 때 갈증이 3 오른다</b>. 갈증이 <b>20</b>에 이르면 <b>죽는다</b>.
+     치료를 제공하는 장소에서 <b>야영</b>할 때마다 갈증을 <b>5</b> 줄인다.
+     <b>인간형 · 인간형 괴수 · 생물</b>을 쓰러뜨릴 때마다 그 <b>레벨의 2배</b>만큼 갈증을 줄인다.
+     동료가 <kw>critical</kw> <st>health</st> 피해 <b>2</b>를 받아 당신의 갈증을 <b>5</b> 줄여 줄 수도 있다.<br>
+     <b>약점</b> — <b>낮</b>에 이동하면 게임 턴이 끝날 때까지 <state>wounded</state> 가 된다
+     (이 상태는 <b>제거할 수 없다</b>).`},
+
+  {id:"blessed", name:{en:"Blessed",ko:"축복받은 자"}, ed:"4", kind:"blessed",
+   mods:{health:1,energy:3,attack:0,defence:2,firstMastery:0,secondMastery:0,navigate:1,explore:0,survival:1},
+   freeRanks:{n:1, group:"mastery"},
+   flavor:"피부에서 천사 같은 빛이 나고 고요한 기운이 감돈다. 어둠의 존재들은 당신 앞에서 움츠러든다.",
+   desc:`<b>내면에 흐르는 성스러운 힘(공격)</b> — 적의 <kw>aegis</kw>를 넘어설 때
+     당신이 가진 <b>공격 기어 업그레이드 수를 2 높은 것으로</b> 친다.
+     피해나 다른 효과가 늘어나지는 않는다.<br>
+     <b>빛을 품다</b> — 전투 중 <st>energy</st> <b>4</b>를 써서 <b>2라운드</b> 동안
+     <st>defence</st> 랭크의 <b>1/3</b>만큼 <st>health</st> <kw>regen</kw>을 그룹에게 주고,
+     그 재생을 가진 동안 <b>행동 랭크를 1</b> <kw>boost</kw>한다.
+     이것을 <b>전투에서의 유일한 행동</b>으로 선언하면 <st>energy</st> 비용이 <b>0</b>이 된다.<br>
+     <b>어둠에 둘러싸이다</b> — 전투를 시작할 때 <b>적 하나마다 주사위 1개</b>를 굴린다.
+     결과가 <b>홀수</b>면 그 적이 당신에게 <kw>hatred</kw>를 얻는다(<b>직업 종류가 아니라 당신</b>에게).`},
+
+  {id:"zombie", name:{en:"Zombie",ko:"좀비"}, ed:"4", foodSet:0,
+   mods:{health:3,energy:-1,attack:1,defence:2,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:2},
+   flavor:"강령술이 너를 되돌려 놓았다. 몸은 뻣뻣하고 썩어 가지만, 정신의 조각은 아직 남아 있다 — 지금은.",
+   desc:`<b>산 자를 먹고 산다(체력)</b> — 적에게 피해를 줄 때마다 <st>health</st> <b>1</b>을 <kw>heal</kw>한다.
+     가진 <st>health</st> 랭크 <b>10마다</b> 그 회복량을 <b>1</b> <kw>boost</kw>한다.
+     다만 <b>그 밖의 모든 회복 효과는 절반</b>으로 받는다.<br>
+     <b>뛰지 않는 심장</b> — <kw>critical</kw> 피해를 받을 때, 그 피해가 <st>defence</st> 랭크보다 <b>낮으면</b>
+     <b>일반 피해로 바꾼다</b>.<br>
+     <b>끊어진 패턴</b> — 매 게임 턴 Villain 페이즈에 마스터리 하나를 골라 <b>랭크를 1 줄인다</b>.
+     <b>6랭크 이하</b>인 마스터리가 줄어들 때마다 <st>attack</st> 랭크를 <b>1</b> 얻는다.
+     마스터리는 <b>0까지</b> 줄어들 수 있다.`},
+
+  {id:"ghost", name:{en:"Ghost",ko:"유령"}, ed:"4", foodSet:0,
+   mods:{health:0,energy:5,attack:-1,defence:-1,firstMastery:2,secondMastery:2,navigate:1,explore:1,survival:0},
+   flavor:"몸은 죽었지만 영혼은 떠나지 못했다.",
+   desc:`<b>영체(에너지)</b> — 더 이상 <b>화폐 · 음식 · 아이템</b>을 지니거나 쓸 수 없고
+     <b>새 기어 업그레이드</b>도 얻지 못한다. 다만 <b>파워업</b>은 그대로 얻는다.
+     당신의 <st>health</st> 랭크는 <b>현재 것도 앞으로 얻을 것도</b> <st>energy</st> 랭크로 바뀐다.
+     더 이상 <st>health</st>을 얻을 수 없고 <b>영구히</b> <state>tethered</state> 상태다.
+     <state>drained</state> 를 뺀 <b>모든 상태에 면역</b>이다.<br>
+     <b>킵세이크</b> — 당신의 킵세이크를 <b>뒤집어 그 힘을 얻는다</b>.
+     아직 나오지 않은 킵세이크를 <b>하나 더</b> 뽑아 발동시킨다.<br>
+     <b>현현</b> — <st>health</st> 피해를 받게 될 때, 대신 <b>그 절반</b>을 <st>energy</st> 피해로 받는다.
+     또한 당신이 주는 <b>모든 피해가</b> <kw>energy drain</kw>으로 바뀐다.`},
+
+  {id:"reanimated", name:{en:"Reanimated",ko:"되살아난 자"}, ed:"4", foodMod:1,
+   mods:{health:2,energy:0,attack:3,defence:2,firstMastery:0,secondMastery:0,navigate:-1,explore:-1,survival:1},
+   flavor:"온몸이 꿰맨 자국투성이고, 많은 부분이 당신의 것이 아니다.",
+   desc:`<b>보강된 몸(방어)</b> — <st>defence</st> 랭크의 <b>1/3</b>만큼 <kw>block</kw>을 얻고,
+     전투 중 <st>survival</st> 기술 굴림에 <b>−1</b> 보너스를 받는다.<br>
+     <b>꿰매 붙인 능력</b> — 게임 턴당 <b>1회</b>, <st>health</st> <b>1</b>을 쓰고
+     <b>사용하지 않는 종족 하나</b>를 무작위로 뽑는다. 턴이 끝날 때까지 그 <b>종족 능력을 쓸 수 있고</b>
+     (비용은 그대로 지불한다), 그 종족이 <b>같은 스탯에 주는 보정의 2배</b>만큼
+     당신의 스탯 하나를 <kw>boost</kw>하며, 그 종족의 <b>숙적</b>도 얻는다.
+     턴이 끝나면 그 종족 카드를 <b>덱 맨 아래로</b> 되돌린다.<br>
+     <b>약해진 패턴</b> — <st>health</st>이 <b>절반 이하</b>인 동안 <st>health</st> 피해를 받을 때마다,
+     <kw>piercing</kw> <st>energy</st> 피해 <b>2</b>도 함께 받는다.`},
 ];
 
 /* =====================================================================
@@ -1652,6 +1743,170 @@ const SHARED = {
   traits: {
     /* Aspect 양상 — 게임을 시작할 때 고를 수도 있고 게임 중에 얻을 수도 있다.
        종족과 같은 틀이라 mods 가 능력치에 그대로 더해지고, freeRanks 는 직접 분배/차감할 몫이다. */
+    kukudriluTribe: {id:"kukudriluTribe", type:"aspect", ed:"5", name:{en:"Kukudrilu Tribe",ko:"쿠쿠드릴루 부족"},
+      mods:{health:2,energy:0,attack:0,defence:1,firstMastery:-1,secondMastery:-1,navigate:1,explore:0,survival:1},
+      foodMod:1,
+      desc:`<b>시간이 너에게는 다르게 흐른다(마스터리)</b> — 전투에서 마스터리를 쓸 때마다
+    그 효과를 <b>미룰</b> 수 있다. 그렇게 하면 이번 라운드에는 <st>defence</st> 랭크의 <b>절반</b>만큼만
+    <kw>defend</kw>를 얻는다(<b>아이템은 쓸 수 없다</b>).
+    다음 라운드에 고른 행동에 <b>더해</b> 미뤄 둔 마스터리가 발동하며, <b>수치 효과가 2배</b>가 된다.<br>
+    <b>참을성 있는 사냥꾼</b> — 당신이나 동료가 적에게 <st>health</st>이나 <st>energy</st> 피해를 줄 때마다,
+    그 적에게 <b>그 절반</b>만큼 <kw>energy drain</kw>도 줄 수 있다.<br>
+    <b>느린 걸음</b> — <b>2헥스 이상 움직인</b> 게임 턴에는 기술 굴림에 <b>+2 페널티</b>를 받는다.
+    <kw>teleport</kw>는 이 효과를 발동시키지 않는다.`,
+      flavor:"늪지의 사람들이라고도 불리는 악어 부족은 저희끼리 지낸다.",
+      track:null},
+    pumaTribe: {id:"pumaTribe", type:"aspect", ed:"5", name:{en:"Puma Tribe",ko:"퓨마 부족"},
+      mods:{health:2,energy:1,attack:1,defence:-1,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:0},
+      foodMod:1,
+      desc:`<b>남들이 못 견디는 것을 견딘다(공격)</b> — 매 턴 <b>처음 죽게 될 때</b>
+    <st>attack</st> 스탯 굴림을 한다. 성공하면 <st>health</st>을 <b>2</b> <kw>raise</kw>하고,
+    <b>굴림 결과와 <st>attack</st> 랭크의 차이 1점마다 2씩 더</b> <kw>raise</kw>한다.<br>
+    <b>살수의 본능</b> — 적을 쓰러뜨릴 때마다 당신이 주는 피해를 <b>1</b> <kw>strengthen</kw>한다
+    (<b>최대 +10</b>).<br>
+    <b>섣부른 확신</b> — 당신의 피해가 적에게 줄어들거나 <kw>negate</kw>될 때마다,
+    <b>다음 전투 행동 랭크가 2 줄어든다</b>.`,
+      flavor:"빼어난 사냥꾼인 퓨마 부족은 호전적이라 여겨진다. 하지만 가까이서 보면, 그들이 떠받드는 큰 고양이들처럼 균형을 소중히 여긴다는 것을 알게 된다.",
+      track:null},
+    karneruTribe: {id:"karneruTribe", type:"aspect", ed:"5", name:{en:"Karneru Tribe",ko:"카르네루 부족"},
+      mods:{health:0,energy:1,attack:0,defence:0,firstMastery:-1,secondMastery:-1,navigate:2,explore:0,survival:2},
+      foodMod:1,
+      desc:`<b>제 사람은 제가 챙긴다(방어)</b> — Resolution 페이즈에 <st>energy</st> <b>1</b>을 써서
+    원하는 동료 하나에게 <st>defence</st> 랭크의 <b>절반</b>만큼 <kw>defend</kw>를 준다.<br>
+    <b>육로의 달인</b> — 그룹이 <b>보통 이동이나 무모한 이동</b>을 할 때 <b>1헥스 더</b> 움직일 수 있고,
+    <b>Riser 승강기</b>가 있는 <b>떠 있는 산</b>에 오를 때 <kw>soar</kw>가 필요 없다.<br>
+    <b>거슬리는 훼방</b> — 전투당 <b>1회</b>까지, <st>health</st>이나 <st>energy</st> <b>2</b>를 써서
+    <b>당신의 행동 랭크를 3 줄이고</b>(<b>최소 1</b>) <b>적의 행동 주사위 결과를 1</b> 바꿀 수 있다.`,
+      flavor:"숫양 부족은 같은 종족과도 멀리 떨어진 높은 산꼭대기에 산다. 고집스럽고 의리 있기로 알려져 있다.",
+      track:null},
+    kuriquingaTribe: {id:"kuriquingaTribe", type:"aspect", ed:"5", name:{en:"Kuriquinga Tribe",ko:"쿠리킹가 부족"},
+      mods:{health:-1,energy:-2,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:3,survival:0},
+      foodMod:1,
+      desc:`<b>공간 감각이 뛰어나다(탐험)</b> — <kw>evasion</kw> <b>10</b>을 얻는다.
+    <st>explore</st> 랭크만큼 <st>energy</st>를 써서 <b>1라운드</b> 동안 쓴 만큼 회피 수치를 낮출 수 있다.
+    <b>목표가 된 뒤</b>에도 쓸 수 있지만, <b>회피 굴림 전</b>이어야 한다.<br>
+    <b>매의 눈</b> — <kw>soar</kw>을 얻고, 당신이 살아 있는 동안 그룹의
+    <b>획득량</b>과 <b>Range 사정거리</b>가 <b>+1</b> 된다.<br>
+    <b>방랑자</b> — 당신이 속한 그룹이 <kw>wander</kw>할 때마다, 대신 <kw>roam</kw>한다.`,
+      flavor:"독수리 부족 사람들은 바깥에 좀처럼 모습을 보이지 않는다. 뛰어난 수집가인 이들은 구름살이라고도 불린다.",
+      track:null},
+    munuTribe: {id:"munuTribe", type:"aspect", ed:"5", name:{en:"Munu Tribe",ko:"무누 부족"},
+      mods:{health:0,energy:2,attack:-1,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:1,survival:0},
+      desc:`<b>패턴을 잘 읽는다(기술)</b> — 적이 <b>같은 행동을 연달아 두 번</b> 쓸 때마다,
+    원하는 기술을 굴릴 수 있다. 성공하면 이번 라운드 그 행동의 효과에 <kw>immune</kw>이 된다.<br>
+    <b>능숙한 손버릇</b> — 전투가 끝날 때마다 <b>골드 2 이하</b>짜리 아이템을 하나 얻는다.
+    또한 <b>1회용 아이템</b>을 살 때마다 코어 주사위를 굴려 <b>헥스</b>가 나오면
+    <b>같은 아이템을 하나 더</b> 공짜로 얻는다.<br>
+    <b>사회 질서</b> — 동료가 <b>죽어 있거나 <st>health</st>이 2 이하</b>일 때마다
+    기술 굴림에 <b>+2 페널티</b>를 받는다.`,
+      flavor:"몇 주씩 이어지는 잔치로 이름난 원숭이 부족은 카피키아왈 밀림의 거대한 나무들에 산다.",
+      track:null},
+    clanKazan: {id:"clanKazan", type:"aspect", ed:"5", name:{en:"Clan Kazan",ko:"카잔 가문"},
+      mods:{health:1,energy:0,attack:2,defence:0,firstMastery:0,secondMastery:0,navigate:-1,explore:-1,survival:0},
+      foodMod:1,
+      desc:`<b>화산의 불길이 네 안에서 날뛴다(공격)</b> — <st>attack</st> 랭크를 올려 주는 <b>파워업</b>을 얻었을 때,
+    그 카드를 버리고 대신 <b>Fire 불 원소 티어</b>만큼 <kw>energy drain</kw>를 받아
+    <b>불 티어를 1 올릴</b> 수 있다.<br>
+    <b>능숙한 학습자</b> — 파워업 보상으로 <b>기술 랭크</b>가 오를 때마다,
+    다른 <b>능력이나 생명력 랭크를 1</b> 올릴 수 있다.<br>
+    <b>손대지 마</b> — 동료가 당신을 <kw>heal</kw>할 때마다, 그 동료가 <kw>nonlethal</kw> <st>health</st> 피해 <b>1</b>을 받는다.`,
+      flavor:"카잔 가문의 분노는 화산이 터지는 것 같다고들 한다.",
+      track:null},
+    clanJishin: {id:"clanJishin", type:"aspect", ed:"5", name:{en:"Clan Jishin",ko:"지신 가문"},
+      mods:{health:3,energy:3,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:0},
+      foodMod:1,
+      freeRanks:{n:-1, group:"atkDef"},
+      desc:`<b>자기장이 보인다(생존)</b> — <st>survival</st> 랭크를 올려 주는 <b>파워업</b>을 얻었을 때,
+    그 카드를 버리고 대신 <b>Earth 대지 원소 티어</b>만큼 <kw>energy drain</kw>를 받아
+    <b>대지 티어를 1 올릴</b> 수 있다.<br>
+    <b>공용 배낭</b> — <b>모든 영웅이 모든 배낭</b>에 접근할 수 있다.
+    방어할 때 아이템을 <b>1개가 아니라 2개</b> 쓸 수 있다.<br>
+    <b>위협적인 존재감</b> — 공격이 <b>둘 이상</b>을 목표로 삼는다면, 당신은 <b>언제나 그중 하나</b>가 된다.`,
+      flavor:"지신 가문은 이 땅의 건축가이자 기술자다. 그들이 없었다면 이 세계를 떠받치는 토대가 무너졌을 것이라고들 한다.",
+      track:null},
+    clanHayase: {id:"clanHayase", type:"aspect", ed:"5", name:{en:"Clan Hayase",ko:"하야세 가문"},
+      mods:{health:0,energy:0,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:0},
+      freeRanks:[{n:2, group:"vital"}, {n:-1, group:"atkDef"}],
+      desc:`<b>물을 정화할 수 있다(길찾기)</b> — <st>navigate</st> 랭크를 올려 주는 <b>파워업</b>을 얻었을 때,
+    그 카드를 버리고 대신 <b>Water 물 원소 티어</b>만큼 <kw>energy drain</kw>를 받아
+    <b>물 티어를 1 올릴</b> 수 있다.<br>
+    <b>정화</b> — <kw>corrosive</kw> 피해를 받을 때마다 <b>1 적게</b> 받고(<b>최소 0</b>),
+    그 피해는 <b>부식 성질을 잃는다</b>.<br>
+    <b>다정한 영혼</b> — 이 양상을 얻을 때 원하는 <b>Familiar 패밀리어 1</b>을 얻는다.
+    당신이 얻는 <b>모든 패밀리어의 시작 랭크가 2</b>가 된다(원래의 <b>1 + 기준 능력치의 1/3</b> 대신).`,
+      flavor:"하야세 가문 사람들은 이 땅의 백성을 위해 부지런히 일한다. 제국은 그들의 노동에 기대고 있다.",
+      track:null},
+    clanShiden: {id:"clanShiden", type:"aspect", ed:"5", name:{en:"Clan Shiden",ko:"시덴 가문"},
+      mods:{health:1,energy:0,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:0},
+      freeRanks:[{n:-1, group:"atkDef"}, {n:1, group:"mastery"}],
+      desc:`<b>번개를 다룰 수 있다(탐험)</b> — <st>explore</st> 랭크를 올려 주는 <b>파워업</b>을 얻었을 때,
+    그 카드를 버리고 대신 <b>Air 바람 원소 티어</b>만큼 <kw>energy drain</kw>를 받아
+    <b>바람 티어를 1 올릴</b> 수 있다.<br>
+    <b>되살리는 번개</b> — <st>energy</st> <b>2</b>를 써서 이번 라운드에 주는
+    <kw>piercing</kw> 피해나 <b>숙적 피해</b>를 <kw>boost</kw> <b>5</b> 한다.
+    <kw>piercing</kw> 피해를 줄 때마다 <b>전투가 끝날 때까지</b> <st>energy</st> <kw>regen</kw> <b>1</b>을 얻는다.
+    이 효과는 <b>중첩</b>된다.<br>
+    <b>피뢰침</b> — <b>물이나 늪 헥스</b>로 이동할 때마다 <kw>nonlethal</kw> <st>health</st> 피해 <b>1</b>을 받는다.`,
+      flavor:"시덴 가문의 분노는 번개가 내리치듯 갑작스럽다.",
+      track:null},
+    cultist: {id:"cultist", type:"aspect", ed:"4", name:{en:"Cultist",ko:"광신도"},
+      mods:{health:-1,energy:2,attack:1,defence:-1,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:0},
+      desc:`<b>적의 <st>energy</st>를 고갈시킬 수 있다(공격)</b> — 당신의 <b>공격 행동이 적의 <st>energy</st>에 적용</b>될 수 있다.<br>
+    <b>열렬한 믿음</b> — 게임 턴당 <b>1회</b>까지, 당신의 <st>energy</st>가 <b>0이 될 때</b>
+    <b>2라운드</b> 동안 <st>energy</st> <kw>regen</kw> <b>3</b>을 얻는다.
+    <b>전투 밖에서</b> 바닥났다면 대신 <st>energy</st> <b>3</b>을 <kw>heal</kw>한다.<br>
+    <b>숨은 동지</b> — 게임당 <b>2회</b>까지, 아이템을 파는 장소에 있는 동안 동지들을 불러
+    <b>새 장소로 달아날</b> 수 있다 — <kw>teleport</kw> <b>10</b>.
+    이때 당신은 <kw>critical</kw> <st>health</st> 피해 <b>1</b>을 받고,
+    <b>모든 영웅</b>이 각자 <st>energy</st> 랭크의 <b>절반</b>만큼 <st>energy</st> 피해를 받는다.`,
+      flavor:"너는 남들이 한사코 부정하는, 위험한 무언가를 믿는다. 그 믿음이 너에게 힘을 준다.",
+      track:null},
+    craftsman: {id:"craftsman", type:"aspect", ed:"4", name:{en:"Craftsman",ko:"장인"},
+      mods:{health:-1,energy:2,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:0},
+      freeRanks:[{n:-1, group:"atkDef"}, {n:1, group:"mastery"}],
+      desc:`<b>지속력 전문화(공격)</b> — <st>outlast</st>을 가진 적을 마주하면,
+    당신의 <b>공격 행동이 그 적의 <st>outlast</st>에 적용</b>될 수 있다.<br>
+    <b>기어 특기</b> — 게임을 시작하기 전에 <b>스탯 종류</b>를 하나 고른다(<b>생명력 · 기술 · 능력</b>).
+    한 번 고르면 <b>바꿀 수 없다</b>.
+    게임 턴당 <b>1회</b>, Movement 이동 페이즈 전에 <b>골드 2</b>와 <b>그 기어 업그레이드의 골드 비용만큼</b>
+    <st>energy</st>를 써서, 고른 스탯 종류에 맞는 <b>기어 업그레이드 1개</b>를 자신이나 동료에게 만들어 준다.<br>
+    <b>손보는 데는 시간이 든다</b> — 기어 특기를 쓰면 그 게임 턴 <b>그룹의 이동력이 2 줄어든다</b>.`,
+      flavor:"너는 늘 손재주가 좋았고, 무엇이든 고쳐 내는 재주가 있다.",
+      track:null},
+    noble: {id:"noble", type:"aspect", ed:"4", name:{en:"Noble",ko:"귀족"},
+      mods:{health:0,energy:0,attack:1,defence:0,firstMastery:0,secondMastery:1,navigate:0,explore:0,survival:-1},
+      foodMod:1,
+      desc:`<b>뇌물 전문화(방어)</b> — 뇌물을 줄 수 있는 적을 마주하면, <b>전투를 시작하기 전에</b> 코어 주사위를 굴린다.
+    결과가 <st>defence</st> 랭크 <b>이하</b>라면 뇌물에 드는 <b>골드를 <st>defence</st> 랭크만큼</b> 줄인다.<br>
+    <b>부유함</b> — <b>음식을 가득 채운 채</b>, <b>골드 10</b>을 더 갖고,
+    아이템을 파는 아무 장소에서든 <b>골드 10 이하</b>짜리 아이템 <b>1개</b>를 골라 가지고 시작한다.<br>
+    <b>거점</b> — 당신은 <b>자기 성</b>을 가진다. 이벤트 장소가 아닌 헥스 하나를 <b>거점</b>으로 골라
+    <b>헥스 토큰 2개</b>를 올린다. 한 번 고르면 <b>다시 고를 수 없다</b>.
+    게임이 끝날 때까지 그룹은 이곳으로 돌아와 <b>생명력을 가득</b> <kw>heal</kw>할 수 있다.<br>
+    성을 건사하는 데는 돈이 든다 — <b>골드를 얻을 때마다 2 적게</b> 얻는다(<b>최소 1</b>).`,
+      flavor:"너의 지체는 여느 사람들보다 높다.",
+      track:null},
+    peasant: {id:"peasant", type:"aspect", ed:"4", name:{en:"Peasant",ko:"농민"},
+      mods:{health:-1,energy:0,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:-1,explore:0,survival:1},
+      foodMod:-1,
+      desc:`<b>영향력 전문화(공격)</b> — <st>influence</st>을 줄 수 있는 적을 마주하면,
+    당신의 <b>공격 행동이 그 적의 <st>influence</st>에 적용</b>될 수 있다.<br>
+    <b>수의 힘</b> — <b>치료를 파는 장소를 떠날 때마다</b> <b>공짜로</b> <kw>heal</kw>한다.<br>
+    <b>근면</b> — 게임 턴당 <b>1회</b>, 기술 굴림에 <b>실패한 뒤</b> <st>energy</st> <b>2</b>를 써서
+    주사위를 <b>다시 굴릴</b> 수 있다. <b>두 번째도 실패</b>하면 <st>energy</st> <b>1</b>을 더 잃는다.`,
+      flavor:"삶은 대개 고되다는 것을 너는 안다. 이 세상에 확실한 것이 하나 있다면, 값진 것은 결코 쉽게 오지 않는다는 것이다. 땀과 수고는 열 배로 돌아온다.",
+      track:null},
+    adventurer: {id:"adventurer", type:"aspect", ed:"4", name:{en:"Adventurer",ko:"모험가"},
+      mods:{health:2,energy:-1,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:0,explore:0,survival:0},
+      freeRanks:[{n:1, group:"atkDef"}, {n:-1, group:"mastery"}],
+      desc:`<b>지속력 전문화(공격)</b> — <st>outlast</st>을 가진 적을 마주하면,
+        당신의 <b>공격 행동이 그 적의 <st>outlast</st>에 적용</b>될 수 있다.<br>
+        <b>견문</b> — 게임을 시작하기 전에 원하는 종류의 <b>무작위 지도 타일을 4장까지</b> 뽑아 놓는다.
+        <b>서로 다른 종류</b>로 골라도 된다.<br>
+        <b>위험쯤이야</b> — 전투에서 <b>도주</b>를 시도할 때 <b>두 번 굴려 높은 쪽</b>을 쓴다.
+        또한 전투 중 <st>health</st>이 <b>4 이하로 떨어질 때마다</b> 다음 라운드에 행동 랭크를 <kw>boost</kw> <b>3</b> 한다.`,
+      flavor:"새로운 곳을 누빌 때 가장 살아 있음을 느낀다. 그 길에는 늘 손볼 문제가 있기 마련이다.",
+      track:null},
     humanKind: {id:"humanKind", type:"aspect", exp:"P", name:{en:"Human Kind",ko:"인간 혈통"},
       mods:{health:1,energy:1,attack:0,defence:0,firstMastery:0,secondMastery:0,navigate:1,explore:0,survival:0},
       freeRanks:{n:-1, group:"mastery"},
