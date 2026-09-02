@@ -243,12 +243,39 @@ function renderHex(char,key,showName=true){
 /* 패밀리어 육각형 — 능력치 육각형과 달리 칸이 3개뿐이고 비용은 5·7·9 로 고정이다.
    육각형은 곧 랭크판이다:  랭크 = 1 + 주인의 기준 능력치 랭크 + 채운 칸.
    채운 칸 수는 그 능력 자체(a.hex)에 들어 있어 캐릭터 저장·불러오기에 그대로 따라간다. */
+/* 육각형에 능력치 대신 "고르라"고 적힌 패밀리어들 — 4편 카드에 다섯 종류가 있다.
+   pool 은 고를 수 있는 범위, auto 는 고르지 않고 얻는 순간 자동으로 정해지는 것. */
+const STAT_POOL={all:STAT_ORDER,
+  abilitySkill:["attack","defence","firstMastery","secondMastery","navigate","explore","survival"],
+  mastery:["firstMastery","secondMastery"]};
+const FAM_RANK={
+  lowest :{ko:"가장 낮은 능력치", pool:"all", auto:"min"},
+  highest:{ko:"가장 높은 능력치", pool:"all", auto:"max"},
+  chooseStat        :{ko:"능력치 1종 선택",                    pool:"all"},
+  chooseAbilitySkill:{ko:"Ability 능력 · Skill 기술 중 1종 선택", pool:"abilitySkill"},
+  chooseMastery     :{ko:"Mastery 마스터리 1종 선택",           pool:"mastery"}};
+/* 자동으로 정해지는 것(최저·최고)만 여기서 답이 나온다. 직접 고르는 것은 null 을 돌려주고
+   추가할 때 고른 값을 rankPick 으로 받는다. */
+function famBaseStat(char,src){
+  const k=src&&src.rankStat, spec=FAM_RANK[k];
+  if(!k)return null;
+  if(!spec)return k;
+  if(!spec.auto)return null;
+  return STAT_POOL[spec.pool].slice()
+    .sort((x,y)=>spec.auto==="min"?effOf(char,x)-effOf(char,y):effOf(char,y)-effOf(char,x))[0];
+}
+/* 기준 랭크 — 4편 카드는 "1 + 기준 능력치의 1/3"(baseDiv:3), 5편은 "1 + 기준 능력치".
+   더해지는 값이라 0도 정상이므로 최소 1을 걸지 않는다(FR 을 쓰지 않는 이유). */
+function famBase(char,src,pick){
+  const k=pick||famBaseStat(char,src), div=(src&&src.baseDiv)||1;
+  return 1+(k?Math.floor(effOf(char,k)/div):0);
+}
 function famSrc(a){return a.famId?FAMILIARS.find(f=>f.id===a.famId):null;}
 function familiarHex(char,a){
-  const src=famSrc(a), filled=a.hex||0, stat=src&&src.rankStat;
+  const src=famSrc(a), filled=a.hex||0, stat=src&&src.rankStat, spec=FAM_RANK[stat];
   /* 기준 랭크는 얻는 순간 찍혀 저장된다 — 주인이 나중에 올라도 따라가지 않는다.
      baseRank 가 없는 옛 저장본은 지금 능력치로 한 번 계산해 준다. */
-  const base=(a.baseRank!=null)?a.baseRank:(1+(stat?effOf(char,stat):0));
+  const base=(a.baseRank!=null)?a.baseRank:famBase(char,src,a.rankPick);
   const rank=base+filled;
   const cx=52,cy=52,R=40,apo=R*Math.cos(Math.PI/6);
   let pips="";
@@ -260,7 +287,10 @@ function familiarHex(char,a){
     pips+=`<text class="pip-num" x="${px.toFixed(1)}" y="${py.toFixed(1)}" text-anchor="middle" dominant-baseline="central"
       style="fill:${on?'#12101a':'var(--ink-faint)'};pointer-events:none">${FAMILIAR_HEX[i]}</text>`;
   });
-  const sl=stat?statLabel(stat):null;
+  /* 기준으로 삼은 능력치 — 고르는 형이면 고른 것을, 아니면 카드에 박힌 것을 보여준다 */
+  const pick=a.rankPick||(spec?null:stat), sl=pick?statLabel(pick):null;
+  const div=(src&&src.baseDiv)||1;
+  const rs=sl?sl.ko:(spec?spec.ko:"기준 능력치");
   /* 능력이 갈리는 랭크를 도달 여부와 함께 보여준다 */
   const marks=(src&&src.marks||[]).map(m=>`<span class="fam-mark ${rank>=m?'on':''}">${m}랭크</span>`).join("");
   const read=(src&&src.readout?src.readout(rank):[]).map(o=>
@@ -279,7 +309,8 @@ function familiarHex(char,a){
         <button data-fbase="${a.id}" data-dir="-1">−</button><b>${base}</b><button data-fbase="${a.id}" data-dir="1">＋</button>
         <span style="color:var(--ink-faint)">${filled?`+ ${filled}칸 = `:"= "}랭크 <b style="color:var(--accent)">${rank}</b></span>
       </div>
-      <div style="color:var(--ink-faint);margin-top:3px">얻을 때 <b>1 + ${sl?sl.ko:"기준 능력치"}</b>로 정해지며 그 뒤로 주인을 따라가지 않는다 · 칸 비용 5 · 7 · 9 골드</div>
+      <div style="color:var(--ink-faint);margin-top:3px">얻을 때 <b>1 + ${rs}${div>1?` ÷ ${div}`:""}</b>로 정해지며 그 뒤로 주인을 따라가지 않는다 · 칸 비용 5 · 7 · 9 골드</div>
+      ${src&&src.gain?`<div style="color:var(--ink-faint);margin-top:2px">획득 — ${src.gain}</div>`:""}
       ${marks?`<div class="fam-marks">${marks}</div>`:""}
       ${read?`<div class="fam-reads">${read}</div>`:""}
     </div></div>`;
@@ -1251,11 +1282,30 @@ function addAspectModal(){
     closeModal();renderBoard();
   };
 }
+/* 기준 랭크는 얻는 이 순간의 값으로 고정된다 — 이후 주인이 올라도 따라가지 않는다.
+   pick 은 "능력치를 고르는" 패밀리어에서 고른 능력치 키다. */
+function famAdd(o,pick){
+  APP.char.abilities.push({id:"fm_"+(o.id||"")+Date.now(),src:"familiar",famId:o.id||null,
+    name:clone(o.name),desc:o.desc||"(내용 추후 입력)",track:null,mods:null,hex:0,
+    rankPick:pick||famBaseStat(APP.char,o)||null, baseRank:famBase(APP.char,o,pick)});
+  closeModal();renderBoard();
+}
+/* "Choose 1 Stat" 류 — 어느 능력치를 기준으로 삼을지 먼저 고른다. 한 번 고르면 그 값이 찍힌다. */
+function famStatPick(o){
+  const spec=FAM_RANK[o.rankStat], pool=STAT_POOL[spec.pool], div=o.baseDiv||1;
+  openModal(`<h3>${o.name.en}<span class="ko">${o.name.ko}</span> — 기준 능력치</h3>
+    <div class="hint" style="margin-bottom:8px">${spec.ko} · 기준 랭크는 <b>1 + 고른 능력치${div>1?` ÷ ${div}`:""}</b>로 찍힙니다.</div>
+    <div style="display:flex;flex-wrap:wrap">${pool.map(k=>{const l=statLabel(k);
+      return `<button class="btn slot" data-fstat="${k}" style="margin:0 6px 6px 0;color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> <b>${effOf(APP.char,k)}</b></button>`;}).join("")}</div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button></div>`);
+  document.querySelectorAll("[data-fstat]").forEach(b=>b.onclick=()=>famAdd(o,b.dataset.fstat));
+}
 /* 패밀리어 추가 — 목록에서 고르거나 직접 입력한다. 양상과 같은 방식이되 육각형이 딸려 온다. */
 function addFamiliarModal(){
   const have=APP.char.abilities.map(a=>a.name.en);
   const list=FAMILIARS.filter(f=>!have.includes(f.name.en))
-    .map(f=>`<button class="btn slot" data-fampick="${f.id}" style="margin:0 6px 6px 0">${f.name.en}<span style="font-size:.88em">${f.name.ko}</span></button>`).join("");
+    .sort((x,y)=>(x.ed||"").localeCompare(y.ed||"")||x.name.en.localeCompare(y.name.en))
+    .map(f=>`<button class="btn slot" data-fampick="${f.id}" style="margin:0 6px 6px 0">${f.name.en}<span style="font-size:.88em">${f.name.ko}</span>${f.ed?`<span class="ed-badge">${f.ed}</span>`:""}</button>`).join("");
   openModal(`<h3>Familiar 패밀리어 추가</h3>
     <div class="field"><label>Familiar 패밀리어</label>
       ${list?`<div style="display:flex;flex-wrap:wrap">${list}</div>`:`<div class="empty-note" style="padding:6px 0">추가할 패밀리어가 없습니다.</div>`}
@@ -1264,15 +1314,13 @@ function addFamiliarModal(){
     <div class="field"><label>이름 (한글)</label><input id="fmKo" placeholder="패밀리어 이름"></div>
     <div class="field"><label>설명</label><textarea id="fmDesc" placeholder="효과 설명…"></textarea></div>
     <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="fmSave">추가</button></div>`);
-  /* 기준 랭크는 얻는 이 순간의 값으로 고정된다 — 이후 주인이 올라도 따라가지 않는다 */
-  const add=o=>{const base=1+(o.rankStat?effOf(APP.char,o.rankStat):0);
-    APP.char.abilities.push({id:"fm_"+(o.id||"")+Date.now(),src:"familiar",famId:o.id||null,
-      name:clone(o.name),desc:o.desc||"(내용 추후 입력)",track:null,mods:null,hex:0,baseRank:base});
-    closeModal();renderBoard();};
-  document.querySelectorAll("[data-fampick]").forEach(b=>b.onclick=()=>add(FAMILIARS.find(x=>x.id===b.dataset.fampick)));
+  document.querySelectorAll("[data-fampick]").forEach(b=>b.onclick=()=>{
+    const o=FAMILIARS.find(x=>x.id===b.dataset.fampick), spec=FAM_RANK[o.rankStat];
+    if(spec&&!spec.auto)famStatPick(o);else famAdd(o);   /* 고르는 형은 한 단계 더 */
+  });
   $("#fmSave").onclick=()=>{
     const en=$("#fmEn").value.trim(),ko=$("#fmKo").value.trim();if(!en&&!ko){closeModal();return;}
-    add({name:{en:en||ko,ko:ko||en},desc:$("#fmDesc").value.trim()});
+    famAdd({name:{en:en||ko,ko:ko||en},desc:$("#fmDesc").value.trim()});
   };
 }
 function addItemModal(){

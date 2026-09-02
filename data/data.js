@@ -46,36 +46,463 @@ const STAT_META = {
    readout 은 랭크에 연동되는 수치를 판에 바로 띄우기 위한 것이다.
    아직 채우지 못한 패밀리어는 이름만 세워 두었다 — 카드를 봐야 알 수 있다. */
 const FAMILIAR_HEX = [5, 7, 9];
+
+/* rankStat 이 능력치 키가 아니라 "고를 것"인 패밀리어가 있다 — 카드 육각형에
+
+   Choose 1 Stat / Lowest Stat when Gained 처럼 적혀 있는 것들이다.
+
+   그런 것은 아래 네 값 중 하나를 쓰고, 기준 랭크는 얻을 때 직접 고르거나 ±로 맞춘다. */
+
 const FAMILIARS = [
-  {id:"chochinbi", name:{en:"Chochinbi", ko:"초친비"},
+
+  /* ── 4편 ───────────────────────────────────────────────────────────
+
+     카드 하단 공통 문구: "A Familiar's rank begins equal to 1 + 1/3 the receiving
+
+     hero's matching stat rank." → 기준 랭크 = 1 + (기준 능력치 ÷ 3) 이라 baseDiv:3 이다. */
+
+  {id:"rat", name:{en:"The Rat", ko:"쥐"}, ed:"4", baseDiv:3,
+
+   rankStat:"survival", ability:{en:"Filth Guard", ko:"오물 수호"}, marks:[5,8],
+
+   gain:"무작위 패밀리어 뽑기 · <b>Village 마을 / Monastery 수도원</b>에서 구매",
+
+   readout:(r)=>[{lab:"Stat Test 목표 · 랭크", val:r}],
+
+   desc:`<b>Movement 이동 페이즈</b>마다 <b>1회</b>, 그리고 <b>전투 라운드</b>마다 <b>1회</b>,
+
+     컨디션을 가지고 있다면 <b>Filth Guard</b> 랭크로 <b>스탯 굴림</b>을 한다.
+
+     성공하면 자신의 컨디션 <b>1개</b>를 <kw>negate</kw>한다.<br>
+
+     <b>5랭크</b> — 그룹이 <b>Affliction고통</b>을 받고 있다면 <b>Filth Guard</b> 랭크로 스탯 굴림을 할 수 있다.
+
+     성공하면 그 고통을 <b>끝낼</b> 수 있다.<br>
+
+     <b>8랭크</b> — 자신의 컨디션이나 고통이 <kw>negate</kw>될 때마다
+
+     <st>health</st> <b>2</b>와 <st>energy</st> <b>2</b>를 <kw>heal</kw>한다.`},
+
+
+
+  {id:"viper", name:{en:"The Viper", ko:"독사"}, ed:"4", baseDiv:3,
+
+   rankStat:"health", ability:{en:"Poisoned Strike", ko:"독 일격"}, marks:[6,10],
+
+   gain:"무작위 패밀리어 뽑기 · <b>☾ Night 밤 덱</b>에서 발견",
+
+   readout:(r)=>[{lab:"Energy 추가 피해", val:r}],
+
+   desc:`상대에게 <st>energy</st> 피해를 줄 때마다, 그 상대는 <b>Poisoned Strike</b> 랭크만큼
+
+     <kw>piercing</kw> <st>energy</st> 피해를 받고 <state>drained</state> 상태가 된다.<br>
+
+     <b>6랭크</b> — 라운드가 끝날 때 상대가 <kw>energetic</kw> 상태가 아니면,
+
+     <b>다음 라운드에</b> <state>vulnerable</state> 상태가 된다.<br>
+
+     <b>10랭크</b> — 상대에게 <st>energy</st> 피해를 줄 때마다 <b>Poisoned Strike</b> 랭크로 스탯 굴림을 한다.
+
+     <b>대성공</b>하면 그 상대는 <state>tethered</state> 상태가 된다.`},
+
+
+
+  {id:"sword", name:{en:"The Sword", ko:"검"}, ed:"4", baseDiv:3,
+
+   rankStat:"attack", ability:{en:"Living Blade", ko:"살아있는 검"}, marks:[5,8],
+
+   gain:"무작위 패밀리어 뽑기 · <b>Dungeon 던전</b>에서 발견",
+
+   readout:(r)=>[{lab:"Attack Boost · 들었을 때", val:"+"+r},
+
+                 {lab:"피해 · 들지 않았을 때", val:(r>=8?Math.floor(r*1.5):r)}],
+
+   desc:`전투 라운드마다 이 패밀리어를 <b>들지</b> 선택할 수 있다.
+
+     들면 <st>attack</st> 랭크가 <b>Living Blade</b> 랭크만큼 <kw>boost</kw>된다.<br>
+
+     <b>들지 않은 동안</b>에는, 능력으로 상대를 대상으로 삼을 때마다 이 패밀리어가 그 상대를 공격해
+
+     <b>Living Blade</b> 랭크만큼 <kw>piercing</kw> <st>health</st> 피해를 준다.
+
+     이 효과는 <kw>aegis</kw>를 <b>무시한다</b>.<br>
+
+     <b>5랭크</b> — 들고 있을 때 당신의 공격이 <kw>piercing</kw>이 된다.<br>
+
+     <b>8랭크</b> — 들지 않았을 때 주는 피해가 <b>Living Blade</b> 랭크의 <b>1.5배</b>가 된다.`},
+
+
+
+  {id:"feyDragon", name:{en:"The Fey Dragon", ko:"요정 용"}, ed:"4", baseDiv:3,
+
+   rankStat:"lowest", ability:{en:"Fey Touched", ko:"요정의 손길"}, marks:[3,7,10],
+
+   gain:"무작위 패밀리어 뽑기 · <b>The Dark Fey</b> 처치",
+
+   readout:(r)=>[{lab:"Regen 재생 · 2라운드", val:1+Math.floor(r/3)},
+
+                 {lab:"게임 턴당 사용", val:(r>=10?3:1)}],
+
+   desc:`<b>게임 턴당 1회</b>, 당신이나 동료가 대상의 <st>health</st>을 <kw>heal</kw>할 때,
+
+     그 대상은 <b>Critical Wound 치명상</b> <b>1</b>을 없애거나
+
+     <b>다음 2라운드 동안</b> <kw>regen</kw> <st>health</st> <b>1</b>을 얻는다.
+
+     <b>3랭크</b>부터 <b>3랭크마다</b> 이 <kw>regen</kw> 양이 <b>1</b>씩 오른다.<br>
+
+     <b>7랭크</b> — 대상의 <b>최대 <st>health</st>을 넘긴</b> 회복량은 <b>절반</b>이 되어
+
+     <st>energy</st>로 바뀐다.<br>
+
+     <b>10랭크</b> — 이 능력을 게임 턴당 <b>3회</b>까지 쓸 수 있다.`},
+
+
+
+  {id:"flyingSnake", name:{en:"The Flying Snake", ko:"날뱀"}, ed:"4", baseDiv:3,
+
+   rankStat:"chooseStat", ability:{en:"Pattern Coherence", ko:"문양의 일관성"}, marks:[5,8],
+
+   gain:"무작위 패밀리어 뽑기",
+
+   readout:(r)=>[{lab:"Stat Test 목표 · 랭크 ÷ 2", val:FR(r)}],
+
+   desc:`능력치 보너스가 붙은 <b>파워업</b>을 얻을 때마다,
+
+     <b>Pattern Coherence 랭크의 절반</b>으로 <b>스탯 굴림</b>을 할 수 있다.
+
+     성공하면 카드에 적힌 보너스 중 <b>하나</b>를 <b>다른 능력치</b>로 바꿀 수 있다.<br>
+
+     <b>5랭크</b> — <b>게임 턴당 1회</b>, 이 능력을 써서 <b>동료가 얻는</b> 능력치 보너스를 바꿀 수 있다.<br>
+
+     <b>8랭크</b> — 파워업을 얻을 때마다 <b>1장을 더 뽑아</b> 그중 하나를 골라 얻는다.
+
+     남은 카드는 덱에 다시 섞는다.`},
+
+
+
+  {id:"fox", name:{en:"The Fox", ko:"여우"}, ed:"4", baseDiv:3,
+
+   rankStat:"chooseAbilitySkill", ability:{en:"Cunning Mind", ko:"교활한 지혜"}, marks:[6,10],
+
+   gain:"무작위 패밀리어 뽑기",
+
+   readout:(r)=>[...(r>=6?[{lab:"주사위 조정 · 랭크 ÷ 2", val:"±"+FR(r)}]:[]),
+
+                 {lab:"라운드당 Favored Opponent", val:(r>=10?2:1)}],
+
+   desc:`<b>Cunning Mind</b> 랭크가 상대의 <b>레벨보다 높으면</b>,
+
+     그 상대에게 <b>Favored Opponent</b>를 얻는다.<br>
+
+     <b>6랭크</b> — 이미 그 상대에게 <b>Favored Opponent</b>를 가지고 있었다면,
+
+     라운드마다 <b>첫 Favored Opponent 주사위</b> 결과를 <b>Cunning Mind 랭크의 절반</b>까지 조정할 수 있다.
+
+     조정한 결과로 <b>HEXplode 헥스플로드</b>가 터질 수 있다.
+
+     <out>Outlast 지속력</out>을 가진 상대에게는 <out>Outlast</out>를 <b>1 대신 2</b> 줄인다.<br>
+
+     <b>10랭크</b> — 라운드마다 <b>서로 다른 Favored Opponent 효과 2개</b>까지 쓸 수 있다
+
+     (각각 따로 굴린다).`},
+
+
+
+  {id:"hellhoundPup", name:{en:"The Hellhound Pup", ko:"새끼 지옥사냥개"}, ed:"4", baseDiv:3,
+
+   rankStat:"chooseMastery", ability:{en:"Fiery Temper", ko:"불같은 성미"}, marks:[8],
+
+   gain:"무작위 패밀리어 뽑기 · <b>The Hellhound</b> 처치",
+
+   readout:(r)=>[{lab:"Burn 피해 · 중첩", val:r}],
+
+   desc:`전투 중 컨디션을 얻을 때마다 상대가 <state>burned</state> 상태가 된다.<br>
+
+     이때 받는 피해는 일반 <b>Burn</b> 피해 대신 <b>Fiery Temper</b> 랭크만큼이다.
+
+     이 효과는 <b>자기 자신과 중첩된다</b>.<br>
+
+     <b>8랭크</b> — <b>게임 턴당 1회</b>, <st>energy</st> <b>2</b>를 써서
+
+     <b>컨디션을 얻지 않고도</b> <b>Fiery Temper</b>를 발동할 수 있다.`},
+
+
+
+  {id:"homunculus", name:{en:"The Homunculus", ko:"호문쿨루스"}, ed:"4", baseDiv:3,
+
+   rankStat:"highest", ability:{en:"Transmutation", ko:"변성"}, marks:[8],
+
+   gain:"무작위 패밀리어 뽑기 · <b>The Mad Alchemist</b> 처치",
+
+   readout:(r)=>[{lab:"최고 랭크 감소 · ÷ 2", val:"−"+FR(r)},{lab:"최저 랭크 증가", val:"+"+r}],
+
+   desc:`<b>Transmutation</b>과 <b>같은 종류</b>의 보너스가 붙은 <b>파워업</b>을 얻을 때,
+
+     <b>최소 1랭크</b>는 반드시 Homunculus에게 줘야 한다.<br>
+
+     <b>전투를 시작할 때</b> 능력치 종류를 <b>하나</b> 고른다
+
+     (<b>Vital 생명력</b> · <b>Skill 기술</b> · <b>Ability 능력</b>).
+
+     <b>전투가 끝날 때까지</b>, 고른 종류 중 <b>가장 높은 랭크</b>는
+
+     <b>Transmutation 랭크의 절반</b>만큼 낮아지고, <b>가장 낮은 랭크</b>는
+
+     <b>Transmutation 랭크</b>만큼 높아진다. 랭크가 같아 겹치면 어느 쪽인지 직접 고른다.<br>
+
+     <b>8랭크</b> — <b>게임 턴당 1회</b>, 파워업을 얻을 때 <st>energy</st> <b>2</b>를 써서
+
+     능력치 보너스 <b>1개</b>를 <b>다른 능력치</b>로 바꿀 수 있다.`},
+
+
+
+  {id:"stormWolf", name:{en:"The Storm Wolf", ko:"폭풍 늑대"}, ed:"4", baseDiv:3,
+
+   rankStat:"attack", ability:{en:"Flanking", ko:"측면 공격"}, marks:[3,5],
+
+   gain:"무작위 패밀리어 뽑기",
+
+   readout:(r)=>[{lab:"피해 Boost · 중첩", val:"+"+r},
+
+                 ...(r>=3?[{lab:"달 주사위 목표", val:"≤ "+r}]:[])],
+
+   desc:`상대가 당신이 주는 피해를 <b>줄이거나</b> <kw>negate</kw>할 때마다,
+
+     <b>전투가 끝날 때까지</b> 그 상대에게 주는 피해를 <b>Flanking</b> 랭크만큼 <kw>boost</kw>한다.
+
+     이 효과는 <b>자기 자신과 중첩된다</b>.<br>
+
+     <b>3랭크</b> — <b>Event 이벤트 페이즈</b>에 <b>Moon 달 주사위</b>를 굴릴 수 있다.
+
+     결과가 <b>Flanking 랭크 이하</b>면 <b>음식 2</b>를 얻는다.<br>
+
+     <b>5랭크</b> — 당신의 공격을 <kw>evasion</kw>으로 피하려는 상대는
+
+     <b>두 번 굴려 낮은 쪽</b>을 써야 한다.`},
+
+
+
+  {id:"bat", name:{en:"The Bat", ko:"박쥐"}, ed:"4", baseDiv:3,
+
+   rankStat:"explore", ability:{en:"Sonar", ko:"음파 탐지"}, marks:[5,9],
+
+   gain:"무작위 패밀리어 뽑기 · <b>Kesh'kezuul</b> 처치",
+
+   readout:(r)=>[{lab:"상대 Evasion 증가 · 랭크 ÷ 5", val:"+"+Math.floor(r/5)}],
+
+   desc:`<kw>ambush</kw>당할 때마다 <b>Sonar</b> 랭크로 <b>스탯 굴림</b>을 한다.
+
+     성공하면 그 <kw>ambush</kw>를 <kw>negate</kw>한다.
+
+     <b>대성공</b>하면 대신 당신이 상대를 <kw>ambush</kw>할 수 있다.<br>
+
+     <b>5랭크</b>부터 <b>5랭크마다</b> 상대의 <kw>evasion</kw> 수치가 <b>1</b>씩 오른다.<br>
+
+     <b>9랭크</b> — 전투가 시작되기 전에 <st>energy</st> <b>2</b>를 써서
+
+     상대를 <kw>ambush</kw>할 수 있다.`},
+
+
+
+  {id:"owl", name:{en:"The Owl", ko:"올빼미"}, ed:"4", baseDiv:3,
+
+   rankStat:"energy", ability:{en:"Clarity", ko:"명료함"}, marks:[4],
+
+   gain:"무작위 패밀리어 뽑기 · <b>Monastery 수도원</b>에서 구매",
+
+   readout:(r)=>[{lab:"Stat Test 목표 · 랭크", val:r},
+
+                 ...(r>=4?[{lab:"행동 랭크 Boost · ÷ 2", val:"+"+FR(r)}]:[])],
+
+   desc:`<st>energy</st>를 써서 <b>마스터리</b>를 발동할 때마다,
+
+     <b>Clarity</b> 랭크로 <b>스탯 굴림</b>을 할 수 있다.
+
+     성공하면 이번 라운드 그 비용을 <b>1</b> 줄인다(<b>최소 0</b>).
+
+     결과가 <b>헥스</b>면 <st>energy</st> <b>1</b>도 <kw>raise</kw>한다.<br>
+
+     <b>4랭크</b> — <b>Clarity</b>가 마스터리의 <st>energy</st> 비용을 줄일 때마다,
+
+     이번 라운드 당신의 <b>행동 랭크</b>를 <b>Clarity 랭크의 절반</b>만큼 <kw>boost</kw>한다.`},
+
+
+
+  {id:"feline", name:{en:"The Feline", ko:"고양이"}, ed:"4", baseDiv:3,
+
+   rankStat:"firstMastery", ability:{en:"Nimble Movement", ko:"날렵한 몸놀림"}, marks:[3,7],
+
+   gain:"무작위 패밀리어 뽑기 · <b>☾ Night 밤 덱</b>에서 발견",
+
+   readout:(r)=>[{lab:"Evasion 수치", val:Math.max(0,10-Math.floor(r/3))}],
+
+   desc:`상대가 당신에게 피해를 줄 때마다, <b>다음 라운드에</b> <kw>evasion</kw> <b>10</b>을 얻는다.<br>
+
+     <b>3랭크</b>부터 <b>3랭크마다</b> 이 <kw>evasion</kw> 수치가 <b>1</b>씩 낮아진다.<br>
+
+     <b>7랭크</b> — <b>그룹 공격</b>의 대상이 되었을 때 <kw>evasion</kw>을
+
+     <b>두 번 굴려 높은 쪽</b>을 쓸 수 있다.`},
+
+
+
+  {id:"crow", name:{en:"The Crow", ko:"까마귀"}, ed:"4", baseDiv:3,
+
+   rankStat:"secondMastery", ability:{en:"Death Ties", ko:"죽음의 인연"}, marks:[7],
+
+   gain:"무작위 패밀리어 뽑기 · <b>☾ Night 밤 덱</b>에서 발견",
+
+   readout:(r)=>[{lab:"Raise 체력 · 에너지", val:r},{lab:"대성공 시", val:r*2}],
+
+   desc:`<b>게임 턴마다 처음 죽었을 때</b>, <b>Death Ties</b> 랭크로 <b>스탯 굴림</b>을 한다.
+
+     <b>성공</b>이면 <b>Death Ties</b> 랭크만큼 <st>health</st>과 <st>energy</st>를 <kw>raise</kw>한다.
+
+     <b>대성공</b>이면 <kw>raise</kw>되는 생명력 양이 <b>2배</b>가 된다.<br>
+
+     <b>7랭크</b> — <b>게임당 1회</b>, 이 <kw>raise</kw> 효과가 발동할 때
+
+     원하는 <b>Greater Aspect 위대한 양상</b>도 하나 얻을 수 있다.
+
+     이미 하나 가지고 있다면 <b>새것으로 바꿀</b> 수 있다.`},
+
+
+
+  {id:"turtle", name:{en:"The Turtle", ko:"거북"}, ed:"4", baseDiv:3,
+
+   rankStat:"defence", ability:{en:"Runic Shell", ko:"룬 등껍질"}, marks:[6,8],
+
+   gain:"무작위 패밀리어 뽑기 · <b>Monastery 수도원</b>에서 구매",
+
+   readout:(r)=>[{lab:"피해 감소 · 상대마다 1회", val:"−"+r},
+
+                 ...(r>=6?[{lab:"대상 주사위 페널티", val:"−"+r}]:[])],
+
+   desc:`전투에서 <b>각 상대가 처음 당신에게 피해를 줄 때</b>,
+
+     받는 피해를 <b>Runic Shell</b> 랭크만큼 줄인다.
+
+     이 효과는 <kw>piercing</kw> 피해도 줄일 수 있다.<br>
+
+     <b>6랭크</b> — <b>전투 첫 라운드</b> 동안 자신의 <b>대상 주사위</b>에
+
+     <b>Runic Shell</b> 랭크만큼 페널티를 받기로 선택할 수 있다.<br>
+
+     <b>8랭크</b> — <b>게임 턴당 1회</b>까지, <b>Runic Shell</b>이 당신이 받을
+
+     <kw>critical</kw> 피해를 전부 <kw>negate</kw>한다.`},
+
+
+
+  {id:"falcon", name:{en:"The Falcon", ko:"매"}, ed:"4", baseDiv:3,
+
+   rankStat:"survival", ability:{en:"Bird's Eye View", ko:"조감"}, marks:[3,8],
+
+   gain:"무작위 패밀리어 뽑기 · <b>☾ Night 밤 덱</b>에서 발견",
+
+   readout:(r)=>[{lab:"공개 카드 수 · 랭크 ÷ 2", val:FR(r)},
+
+                 {lab:"덱 아래로 되돌리기", val:Math.floor(r/3)}],
+
+   desc:`<b>Skill 기술 페이즈</b>에 <b>대성공</b>할 때마다,
+
+     원하는 덱 <b>하나</b>의 맨 위에서 <b>Bird's Eye View 랭크의 절반</b>만큼
+
+     카드를 공개할 수 있다(<b>최소 1</b>).<br>
+
+     <b>3랭크</b>부터 <b>3랭크마다</b> 공개한 카드 중 <b>1장</b>을 덱 <b>맨 아래</b>에 놓을 수 있다.<br>
+
+     <b>8랭크</b> — 이렇게 공개한 <b>Encounter조우</b>를 이번 턴 자신의
+
+     <b>Circumstance상황</b>으로 삼아 맞서고 <kw>ambush</kw>할 수 있다.`},
+
+
+
+  {id:"canine", name:{en:"The Canine", ko:"개"}, ed:"4", baseDiv:3,
+
+   rankStat:"navigate", ability:{en:"Scout", ko:"정찰"}, marks:[5,7],
+
+   gain:"무작위 패밀리어 뽑기 · <b>Village 마을 / Monastery 수도원</b>에서 구매",
+
+   readout:(r)=>[{lab:"Stat Test 목표 · 랭크", val:r},{lab:"Time 시간 · 랭크 ÷ 2", val:FR(r)}],
+
+   desc:`<b>Movement 이동 페이즈</b>에 <b>Scout</b> 랭크로 <b>스탯 굴림</b>을 한다.
+
+     성공하면 <b>하나</b>를 고른다 — <b>Time시간</b>을 <b>Scout 랭크의 절반</b>만큼 얻기 ·
+
+     이번 턴 모든 이동 유형의 속도를 <b>1</b> 올리기(<b>Camping야영</b> 포함) ·
+
+     이번 턴 <b>얼마나 멀리 움직이든</b> <b>Moving Cautiously 조심스러운 이동</b>의 효과 얻기.<br>
+
+     <b>5랭크</b> — 그룹의 <kw>wander</kw> · <kw>roam</kw>이 일어날 때마다 <b>방향을 직접 고를</b> 수 있다.<br>
+
+     <b>7랭크</b> — <b>게임 턴당 1회</b>까지, <b>음식 2</b>를 써서
+
+     <b>Circumstance상황</b> 주사위 결과를 <b>1</b> 바꿀 수 있다.`},
+
+
+
+  /* ── 5편 ─────────────────────────────────────────────────────────── */
+
+  {id:"chochinbi", name:{en:"Chochinbi", ko:"초친비"}, ed:"5",
+
    rankStat:"secondMastery", ability:{en:"Night Vision", ko:"야간 시야"}, marks:[6,8],
+
    readout:(r)=>[{lab:"Negate 횟수 · 게임 턴당", val:Math.floor(r/3)},
+
                   ...(r>=6?[{lab:"Tier I 추가", val:"+1"}]:[]), ...(r>=8?[{lab:"Tier II 추가", val:"+1"}]:[])],
+
    desc:`게임 턴당 <b>랭크 ÷ 3</b>(내림)회까지, <kw>consume</kw>로 자원을 잃는 효과를 <kw>negate</kw>한다 —
+
      <b>그룹이 스스로 발동한 것이라도</b> 막는다.
+
      다만 그룹이 <b>Defender 방어자에게 자원을 쓴 경우</b>에는 발동하지 않는다.<br>
+
      <b>6랭크</b> — <b>Tier I</b> 자원을 받을 때마다 <b>1 더</b> 얻는다.<br>
+
      <b>8랭크</b> — 여기에 더해 <b>Tier II</b> 자원을 받을 때마다 <b>1 더</b> 얻는다(두 효과가 함께 남는다).<br>
+
      이 추가 획득은 그룹이 <kw>harvest</kw>할 때는 작동하지 않는다.`},
-  {id:"guardian", name:{en:"Guardian", ko:"수호자"},
+
+  {id:"guardian", name:{en:"Guardian", ko:"수호자"}, ed:"5",
+
    rankStat:"firstMastery", ability:{en:"Katana Swipe", ko:"카타나 베기"}, marks:[4,8],
+
    readout:(r)=>[{lab:"Power 위력", val:"+"+FR(r)}],
+
    desc:`Guardian을 아무 <b>Defender 방어자</b>에게 <kw>equip</kw>처럼 배치할 수 있다.
+
      배치된 동안에도 이 랭크는 <b>그룹에 있는 패밀리어와 똑같이</b> 올릴 수 있다.<br>
+
      장비된 동안 그 Defender 방어자의 <b>Power 위력</b>이 <b>랭크 ÷ 2</b>만큼 오른다.<br>
+
      장비된 Defender 방어자가 <b>파괴되면</b> 그룹으로 돌아온다.<br>
+
      <b>4랭크 · 8랭크</b> — 이 랭크를 써서 Defender 방어자를 <b>추가로</b> <kw>bolster</kw>하거나
+
      <b>Pilot 조종</b>할 수 있다.`},
-  {id:"hainu",          name:{en:"Hainu",             ko:"하이누"},       desc:""},
-  {id:"littleDragon",   name:{en:"Little Dragon",     ko:"작은 용"},      desc:""},
-  {id:"legendaryYoakai",name:{en:"Legendary Yoakai",  ko:"전설의 요괴"},  desc:""},
-  {id:"panda",          name:{en:"Panda",             ko:"판다"},         desc:""},
-  {id:"nineTailedFox",  name:{en:"Nine-Tailed Fox",   ko:"구미호"},       desc:""},
-  {id:"kodama",         name:{en:"Kodama",            ko:"코다마"},       desc:""},
-  {id:"ginkoKinko",     name:{en:"Ginko & Kinko",     ko:"긴코 & 킨코"},  desc:""},
-  {id:"itachi",         name:{en:"Itachi",            ko:"이타치"},       desc:""},
-  {id:"monkey",         name:{en:"Monkey",            ko:"원숭이"},       desc:""},
-  {id:"crane",          name:{en:"Crane",             ko:"학"},           desc:""},
+
+  {id:"hainu",          name:{en:"Hainu",             ko:"하이누"},       ed:"5", desc:""},
+
+  {id:"littleDragon",   name:{en:"Little Dragon",     ko:"작은 용"},      ed:"5", desc:""},
+
+  {id:"legendaryYoakai",name:{en:"Legendary Yoakai",  ko:"전설의 요괴"},  ed:"5", desc:""},
+
+  {id:"panda",          name:{en:"Panda",             ko:"판다"},         ed:"5", desc:""},
+
+  {id:"nineTailedFox",  name:{en:"Nine-Tailed Fox",   ko:"구미호"},       ed:"5", desc:""},
+
+  {id:"kodama",         name:{en:"Kodama",            ko:"코다마"},       ed:"5", desc:""},
+
+  {id:"ginkoKinko",     name:{en:"Ginko & Kinko",     ko:"긴코 & 킨코"},  ed:"5", desc:""},
+
+  {id:"itachi",         name:{en:"Itachi",            ko:"이타치"},       ed:"5", desc:""},
+
+  {id:"monkey",         name:{en:"Monkey",            ko:"원숭이"},       ed:"5", desc:""},
+
+  {id:"crane",          name:{en:"Crane",             ko:"학"},           ed:"5", desc:""},
+
 ];
 
 /* 규칙서 공통 — 값이 절반이 되거나 분수로 나뉘면 **내림하되 최소 1** 이다.
