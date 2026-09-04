@@ -180,7 +180,11 @@ function expand(char,t){
     .replace(/<state>(.*?)<\/state>/g,(m,x)=>{
       const k=x.toLowerCase(), v=S.conditions&&S.conditions[k];
       return `<span class="state" data-kind="state" data-term="${k}">${v?v.name.en+_ko(v.name.ko):x}</span>`;
-    });
+    })
+    /* <ref t="rune" e="은총">룬 탭</ref> — 다른 참조 구획(과 그 안의 항목)으로 건너뛰는 링크.
+       t 는 구획 id("rules" · "items" · "extra:rune" 처럼, extra: 는 생략해도 된다), e 는 열어 둘 항목 이름. */
+    .replace(/<ref\s+t="([^"]+)"(?:\s+e="([^"]*)")?>(.*?)<\/ref>/g,(m,t,e,txt)=>
+      `<span class="reflink" data-reft="${t}" data-refe="${e||""}">${txt}</span>`);
 }
 
 /* ---------- hexagon ---------- */
@@ -279,7 +283,7 @@ function familiarHex(char,a){
   const rank=base+filled;
   const cx=52,cy=52,R=40,apo=R*Math.cos(Math.PI/6);
   let pips="";
-  [90,210,330].forEach((deg,i)=>{                       /* 위 · 좌하 · 우하 세 방향 */
+  [90,330,210].forEach((deg,i)=>{      /* 능력치 육각형과 같게 — 위에서 시계방향(5 · 7 · 9) */
     const r=deg*Math.PI/180,px=cx+apo*Math.cos(r),py=cy-apo*Math.sin(r),on=i<filled;
     pips+=`<circle class="fpip ${on?'full':'empty'}" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${on?12:11}"
       style="${on?'fill:var(--accent)':'fill:rgba(0,0,0,.3);stroke:var(--edge-bright)'}"
@@ -754,10 +758,13 @@ function renderBoard(){
   const char=APP.char,cls=SHARED.classes[char.classId],series=SERIES[char.series];
   normBoosts(char); if(!char.mchecks||typeof char.mchecks!=="object")char.mchecks={}; if(!char.uses||typeof char.uses!=="object")char.uses={};
   // top tabs
-  const tabs=[{id:"board",label:"Board 캐릭터판"},{id:"keywords",label:"Keywords 키워드"}];
-  if(series.exKeywords&&Object.keys(series.exKeywords).length)tabs.push({id:"exkeywords",label:"Siege 전용 키워드"});
-  tabs.push({id:"conditions",label:"Conditions 상태"},{id:"rules",label:"Rules 룰"},{id:"items",label:"Items 아이템"});
-  (series.extras||[]).forEach(x=>tabs.push({id:"extra:"+x.id,label:`${x.label.en} ${x.label.ko}`}));
+  /* 옛 상태(참조 구획이 곧 상단 탭이던 시절)로 들어와도 그대로 이어지게 옮겨 준다 */
+  const secs=refSections(series);
+  if(APP.tab!=="board"&&APP.tab!=="ref"){
+    if(secs.some(x=>x.id===APP.tab))APP.ref=APP.tab;
+    APP.tab="ref";
+  }
+  const tabs=[{id:"board",label:"Board 캐릭터판"},{id:"ref",label:"Reference 참조"}];
   const tabbar=tabs.map(t=>`<button class="tab ${APP.tab===t.id?'on':''}" data-tab="${t.id}">${t.label}</button>`).join("");
 
   const toolbar=`<div class="toolbar">
@@ -771,13 +778,13 @@ function renderBoard(){
     <button class="tbtn" id="tbLayout" title="생명력·능력·기술을 한 줄로 놓을지, 위아래로 쌓을지 — 넓은 화면에서만 적용됩니다">배치</button>
   </div>`;
 
-  let content = APP.tab==="board" ? boardBody(char) : referenceBody(char,series,APP.tab);
+  let content = APP.tab==="board" ? boardBody(char) : referenceScreen(char,series);
 
   /* 옆 칸 — 세로 배치일 때 남는 좌우 자리에 참조 탭 하나를 띄워 두고, 판을 굴리는 동안 따라오게 한다.
      좌우 배치는 판이 가로를 다 쓰므로 자리가 없어 CSS 가 감춘다. */
-  const railTabs=tabs.filter(t=>t.id!=="board");
+  const railTabs=secs;
   if(!railTabs.some(t=>t.id===APP.rail))APP.rail=railPick()||railTabs[0].id;
-  const railBar=railTabs.map(t=>`<button class="rtab ${APP.rail===t.id?'on':''}" data-rail="${t.id}">${t.label}</button>`).join("");
+  const railBar=railTabs.map(t=>`<button class="rtab ${APP.rail===t.id?'on':''}" data-rail="${t.id}">${t.label.en} ${t.label.ko}</button>`).join("");
   const rail=`<aside class="side-rail">
     <div class="rail-bar">${railBar}</div>
     <div class="rail-body">${referenceBody(char,series,APP.rail)}</div></aside>`;
@@ -807,9 +814,11 @@ function renderBoard(){
     lyb.onclick=()=>{setLayout(layoutMode()==="stack"?"cols":"stack");renderBoard();};}
   $("#tbNew").onclick=()=>{if(confirm("현재 캐릭터를 두고 새 캐릭터를 만들까요? (저장하지 않은 변경은 사라집니다)")){APP.sel={raceId:null,classId:null,traitIds:[]};APP.char=null;APP.screen="builder";render();}};
 
-  if(APP.tab==="board")bindBoard(char); else bindRefList();
+  if(APP.tab==="board")bindBoard(char); else bindRef(char,series);
+  bindRefList();     // 검색·접기 — 옆 칸에도 목록이 뜨므로 탭과 무관하게 건다
   bindAcc();         // 룰·참조표 접기 — 옆 칸에도 있으므로 탭과 무관하게 건다
   bindTerms(char);   // keyword/condition overlay from any tab
+  bindRefLinks(char);// 본문 안의 <ref> 링크
 }
 
 function boardBody(char){
@@ -1016,6 +1025,79 @@ function resCard(char,cls,en,ko,key){
     <div class="rowbtn"><button data-res="${key}" data-dir="-1">\u2212</button><button data-res="${key}" data-dir="1">\uFF0B</button></div></div>`;
 }
 
+/* 참조 구획 — 예전엔 이것들이 전부 상단 탭이었다. 4편 기준 9개라
+   모바일(351px)에서 폭 1198px 어치가 되어 대부분이 가로 스크롤 뒤로 숨었다.
+   지금은 '참조' 탭 하나 안의 세그먼트로 들어가고, 그 위에 전역 검색이 붙는다. */
+function refSections(series){
+  const out=[{id:"keywords",label:{en:"Keywords",ko:"키워드"}}];
+  if(series.exKeywords&&Object.keys(series.exKeywords).length)
+    out.push({id:"exkeywords",label:{en:"Siege",ko:"전용 키워드"}});
+  out.push({id:"conditions",label:{en:"Conditions",ko:"상태"}},
+           {id:"rules",label:{en:"Rules",ko:"룰"}},
+           {id:"items",label:{en:"Items",ko:"아이템"}});
+  (series.extras||[]).forEach(x=>out.push({id:"extra:"+x.id,label:x.label}));
+  return out;
+}
+/* 태그를 걷어낸 알맹이 — 검색과 미리보기가 함께 쓴다 */
+const refPlain=h=>String(h||"").replace(/<[^>]+>/g," ").replace(/&[a-z]+;/gi," ").replace(/\s+/g," ").trim();
+/* 접힌 채로도 무슨 항목인지 보이게 — 본문 첫머리를 한 줄로 줄인다 */
+function refPeek(body,max){
+  const t=refPlain(body); if(!t)return"";
+  if(t.length<=(max||96))return t;
+  return t.slice(0,max||96).replace(/\s+\S*$/,"")+"…";
+}
+/* 전역 검색 색인 — 모든 구획의 항목을 한 줄로 편다.
+   찾는 사람은 그게 키워드인지 룰인지 모르는 채로 찾는다. */
+function refIndex(series){
+  const out=[], add=(sec,id,name,desc,tag)=>out.push({sec,secId:id,name,desc,tag:tag||""});
+  refSections(series).forEach(s=>{
+    const L=s.label.ko;
+    if(s.id==="keywords")        Object.values(series.keywords||{}).forEach(v=>add(L,s.id,v.name,v.desc));
+    else if(s.id==="exkeywords") Object.values(series.exKeywords||{}).forEach(v=>add(L,s.id,v.name,v.desc));
+    else if(s.id==="conditions") Object.values(series.conditions||{}).forEach(v=>add(L,s.id,v.name,v.desc));
+    else if(s.id==="rules")      (series.rules||[]).forEach(r=>add(L,s.id,r.title,r.body));
+    else if(s.id==="items")      (series.items||[]).forEach(i=>add(L,s.id,i.name,i.desc,(i.tags||[]).join(" · ")));
+    else{const x=(series.extras||[]).find(e=>"extra:"+e.id===s.id);
+         if(x)(x.entries||[]).forEach(e=>add(L,s.id,e.name,e.desc));}
+  });
+  return out;
+}
+const escA=t=>String(t==null?"":t).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+/* 검색 결과 — 어느 구획에서 나온 것인지 칩으로 붙이고, 칩을 누르면 그 구획으로 간다 */
+function refResults(char,series,q){
+  const k=q.trim().toLowerCase();
+  const hits=refIndex(series).filter(e=>
+    (e.name.en+" "+e.name.ko+" "+e.tag+" "+refPlain(e.desc)).toLowerCase().includes(k));
+  if(!hits.length)return `<div class="section"><div class="empty-note">“${escA(q)}” — 찾은 것이 없습니다.</div></div>`;
+  const rows=hits.map(e=>`<div class="acc">
+    <button class="acc-head" type="button">
+      <span class="chev">▶</span>
+      <span class="ref-name">${e.name.en} <span class="ko">(${e.name.ko})</span></span>
+      <span class="ref-sec" data-refjump="${e.secId}" title="${escA(e.sec)} 구획으로 가기">${e.sec}</span>
+    </button>
+    <div class="acc-body" style="display:none">${expand(char,e.desc||"")}</div></div>`).join("");
+  return `<div class="section accscope">
+    <div class="sec-head" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <span>검색 결과 <b style="color:var(--accent)">${hits.length}</b></span>
+      <button class="tbtn accAll" type="button" style="white-space:nowrap">모두 펼치기</button></div>
+    ${rows}</div>`;
+}
+/* 참조 탭 본체 — 검색창 · 구획 세그먼트 · 본문 */
+function referenceScreen(char,series){
+  const secs=refSections(series);
+  if(!secs.some(x=>x.id===APP.ref))APP.ref=refPick()||secs[0].id;
+  const q=APP.q||"";
+  const segs=secs.map(x=>`<button class="rseg ${!q&&APP.ref===x.id?'on':''}" data-refseg="${x.id}">${x.label.en}<span class="ko">${x.label.ko}</span></button>`).join("");
+  return `<div class="refscreen">
+    <div class="refbar">
+      <input id="refGlobal" value="${escA(q)}" autocomplete="off"
+        placeholder="전 참조 검색 — 키워드 · 상태 · 룰 · 아이템 · 참조표">
+      <button class="tbtn" id="refClear" ${q?"":'style="display:none"'}>지우기</button>
+    </div>
+    <div class="rsegbar">${segs}</div>
+    <div id="refMain">${q?refResults(char,series,q):referenceBody(char,series,APP.ref)}</div>
+  </div>`;
+}
 /* ---------- reference tabs (keywords / conditions / rules / items / extras) ---------- */
 function referenceBody(char,series,tab){
   const empty=msg=>`<div class="section"><div class="empty-note">${msg}</div></div>`;
@@ -1049,16 +1131,23 @@ function referenceBody(char,series,tab){
 /* 룰·참조표 — 소주제마다 접었다 편다. 기본은 전부 접힘.
    목록이 길어 한 화면에 안 들어오던 것을 제목만 훑고 필요한 것만 여는 방식으로 바꿨다. */
 function accList(char,title,entries){
-  const rows=entries.map(e=>`<div class="acc">
+  const rows=entries.map(e=>{
+    const peek=refPeek(e.body,110);
+    const plain=(e.name.en+" "+e.name.ko+" "+(e.tag||"")+" "+refPlain(e.body)).toLowerCase();
+    return `<div class="acc" data-s="${escA(plain)}">
     <button class="acc-head" type="button">
       <span class="chev">▶</span>
-      <span class="ref-name">${e.name.en} <span class="ko">(${e.name.ko})</span></span>
-      ${e.tag?`<span class="ref-tag">${e.tag}</span>`:""}
+      <span class="acc-title">
+        <span class="ref-name">${e.name.en} <span class="ko">(${e.name.ko})</span>${e.tag?`<span class="ref-tag">${e.tag}</span>`:""}</span>
+        ${peek?`<span class="acc-peek">${peek}</span>`:""}
+      </span>
     </button>
-    <div class="acc-body" style="display:none">${expand(char,e.body||"")}</div></div>`).join("");
+    <div class="acc-body" style="display:none">${expand(char,e.body||"")}</div></div>`;}).join("");
   return `<div class="section accscope">
     <div class="sec-head" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
       <span>${title}</span><button class="tbtn accAll" type="button" style="white-space:nowrap">모두 펼치기</button></div>
+    ${entries.length>=5?`<input class="acc-search" placeholder="이 목록에서 찾기" autocomplete="off">
+    <div class="acc-count"></div>`:""}
     ${rows}</div>`;
 }
 /* 참조표 항목 — 설명의 키워드·스탯 토큰도 본문과 똑같이 전개한다 */
@@ -1078,14 +1167,14 @@ function refList(char,title,list,note){
       <div class="ref-desc refbody" style="display:none;padding:0 12px 11px 29px;margin-top:0">${expand(char,v.desc||"")}</div>
     </div>`;
   }).join("");
-  return `<div class="section"><div class="sec-head">${title}</div>
+  return `<div class="section refscope"><div class="sec-head">${title}</div>
     ${note?`<div class="special" style="margin:0 0 12px;border-left-color:var(--edge-bright)">${note}</div>`:""}
     <div class="reftools" style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-      <input id="refSearch" placeholder="검색 — 영문·한글·설명" autocomplete="off" style="flex:1;min-width:0;padding:12px 13px;min-height:44px;border-radius:9px;border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);font-family:'Noto Serif KR';font-size:13px">
-      <button id="refAll" class="tbtn" style="white-space:nowrap">모두 펼치기</button>
+      <input class="refSearch" placeholder="검색 — 영문·한글·설명" autocomplete="off" style="flex:1;min-width:0;padding:12px 13px;min-height:44px;border-radius:9px;border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);font-family:'Noto Serif KR';font-size:13px">
+      <button class="tbtn refAll" style="white-space:nowrap">모두 펼치기</button>
     </div>
-    <div id="refCount" style="font-size:11px;color:var(--ink-faint);margin:-4px 0 8px"></div>
-    <div id="refWrap" style="display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start">${rows}</div></div>`;
+    <div class="refCount" style="font-size:11px;color:var(--ink-faint);margin:-4px 0 8px"></div>
+    <div class="refWrap" style="display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start">${rows}</div></div>`;
 }
 /* 룰·참조표 접기 — 구획(.accscope)마다 따로 묶는다(본문과 옆 칸이 서로 간섭하지 않게) */
 function bindAcc(){
@@ -1100,17 +1189,80 @@ function bindAcc(){
       open(r,r.querySelector(".acc-body").style.display==="none"));
     const all=scope.querySelector(".accAll");
     if(all)all.onclick=()=>{
-      const anyClosed=rows.some(r=>r.querySelector(".acc-body").style.display==="none");
-      rows.forEach(r=>open(r,anyClosed));
+      const vis=rows.filter(r=>r.style.display!=="none");
+      const anyClosed=vis.some(r=>r.querySelector(".acc-body").style.display==="none");
+      vis.forEach(r=>open(r,anyClosed));
       all.textContent=anyClosed?"모두 접기":"모두 펼치기";
     };
+    /* 목록 안 검색 — 제목·미리보기만으로는 안 잡히는 것이 많아 본문까지 훑는다 */
+    const box=scope.querySelector(".acc-search"), cnt=scope.querySelector(".acc-count");
+    if(box)box.oninput=()=>{
+      const k=box.value.trim().toLowerCase();
+      let hit=0;
+      rows.forEach(r=>{const on=!k||(r.dataset.s||"").includes(k);
+        r.style.display=on?"":"none"; if(on)hit++;});
+      if(cnt)cnt.textContent=k?`${hit} / ${rows.length}`:"";
+    };
+  });
+}
+/* 참조 탭 — 구획 세그먼트와 전역 검색.
+   검색은 입력 중 포커스를 잃지 않도록 본문(#refMain)만 갈아 끼운다. */
+function bindRef(char,series){
+  const main=$("#refMain"), box=$("#refGlobal"), clr=$("#refClear");
+  const paint=()=>{
+    const q=(APP.q||"").trim();
+    main.innerHTML=q?refResults(char,series,q):referenceBody(char,series,APP.ref);
+    root.querySelectorAll(".rseg").forEach(b=>b.classList.toggle("on",!q&&b.dataset.refseg===APP.ref));
+    if(clr)clr.style.display=q?"":"none";
+    bindRefList(); bindAcc(); bindTerms(char); bindRefLinks(char); bindJump(char,series);
+  };
+  root.querySelectorAll("[data-refseg]").forEach(b=>b.onclick=()=>{
+    APP.ref=b.dataset.refseg; refSave(APP.ref);
+    if(APP.q){APP.q=""; if(box)box.value="";}
+    paint();
+  });
+  if(box){
+    box.oninput=()=>{APP.q=box.value; paint();};
+    box.onkeydown=e=>{if(e.key==="Escape"){APP.q="";box.value="";paint();}};
+  }
+  if(clr)clr.onclick=()=>{APP.q="";if(box)box.value="";paint();if(box)box.focus();};
+  bindRefList(); bindJump(char,series);
+}
+/* 검색 결과의 구획 칩 — 누르면 그 구획으로 간다(아코디언은 열리지 않게 막는다) */
+function bindJump(char,series){
+  root.querySelectorAll("[data-refjump]").forEach(el=>el.onclick=ev=>{
+    ev.stopPropagation();
+    APP.ref=el.dataset.refjump; refSave(APP.ref); APP.q=""; renderBoard();
+  });
+}
+/* 본문 안 <ref> — 다른 구획으로 옮기고, e 가 있으면 그 항목을 펼쳐 화면에 올린다 */
+function bindRefLinks(char){
+  root.querySelectorAll(".reflink").forEach(el=>el.onclick=ev=>{
+    ev.stopPropagation();
+    let t=el.dataset.reft||""; if(!t)return;
+    const known=["keywords","exkeywords","conditions","rules","items"];
+    if(!known.includes(t)&&!t.startsWith("extra:"))t="extra:"+t;
+    APP.ref=t; refSave(t); APP.q=""; APP.tab="ref"; renderBoard();
+    const want=(el.dataset.refe||"").trim();
+    if(!want)return;
+    root.querySelectorAll("#refMain .acc, #refMain .refrow").forEach(r=>{
+      const head=r.querySelector(".acc-head")||r.querySelector(".refhead");
+      if(!head||!head.textContent.includes(want))return;
+      head.click();
+      r.scrollIntoView({block:"center",behavior:"smooth"});
+      r.classList.add("ref-flash"); setTimeout(()=>r.classList.remove("ref-flash"),1400);
+    });
   });
 }
 /* 검색·접기 동작 (탭 렌더 후 호출) */
 function bindRefList(){
-  const box=$("#refSearch");if(!box)return;
-  const rows=Array.from(root.querySelectorAll(".refrow"));
-  const cnt=$("#refCount"), all=$("#refAll");
+  root.querySelectorAll(".refscope").forEach(bindRefScope);
+}
+/* 구획 하나 — 본문과 옆 칸에 같은 목록이 떠 있어도 서로 간섭하지 않게 각자 묶는다 */
+function bindRefScope(scope){
+  const box=scope.querySelector(".refSearch");if(!box)return;
+  const rows=Array.from(scope.querySelectorAll(".refrow"));
+  const cnt=scope.querySelector(".refCount"), all=scope.querySelector(".refAll");
   /* 접힘 = 이름 크기만큼만(칩), 펼침 = 가로 전체 폭 + 설명 표시 */
   const open=(r,on)=>{
     r.querySelector(".refbody").style.display=on?"block":"none";
@@ -1228,7 +1380,7 @@ function openTerm(char,kind,term){
    ===================================================================== */
 const bg=document.createElement("div");bg.className="modal-bg";bg.id="modalBg";bg.innerHTML='<div class="modal" id="modalInner"></div>';document.body.appendChild(bg);
 bg.addEventListener("click",e=>{if(e.target===bg)closeModal();});
-function openModal(h){$("#modalInner").innerHTML=h;bg.classList.add("on");}
+function openModal(h,cls){const m=$("#modalInner");m.className="modal"+(cls?" "+cls:"");m.innerHTML=h;bg.classList.add("on");}
 function closeModal(){bg.classList.remove("on");}
 window.closeModal=closeModal;
 
@@ -1295,9 +1447,9 @@ function famStatPick(o){
   const spec=FAM_RANK[o.rankStat], pool=STAT_POOL[spec.pool], div=o.baseDiv||1;
   openModal(`<h3>${o.name.en}<span class="ko">${o.name.ko}</span> — 기준 능력치</h3>
     <div class="hint" style="margin-bottom:8px">${spec.ko} · 기준 랭크는 <b>1 + 고른 능력치${div>1?` ÷ ${div}`:""}</b>로 찍힙니다.</div>
-    <div style="display:flex;flex-wrap:wrap">${pool.map(k=>{const l=statLabel(k);
-      return `<button class="btn slot" data-fstat="${k}" style="margin:0 6px 6px 0;color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> <b>${effOf(APP.char,k)}</b></button>`;}).join("")}</div>
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button></div>`);
+    <div class="pick-grid">${pool.map(k=>{const l=statLabel(k);
+      return `<button class="btn pick-slot" data-fstat="${k}" style="color:var(--g-${k})"><span class="en">${l.en}</span><span class="ko">${l.ko}</span><span class="tail">${effOf(APP.char,k)}</span></button>`;}).join("")}</div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button></div>`,"wide");
   document.querySelectorAll("[data-fstat]").forEach(b=>b.onclick=()=>famAdd(o,b.dataset.fstat));
 }
 /* 패밀리어 추가 — 목록에서 고르거나 직접 입력한다. 양상과 같은 방식이되 육각형이 딸려 온다. */
@@ -1305,15 +1457,15 @@ function addFamiliarModal(){
   const have=APP.char.abilities.map(a=>a.name.en);
   const list=FAMILIARS.filter(f=>!have.includes(f.name.en))
     .sort((x,y)=>(x.ed||"").localeCompare(y.ed||"")||x.name.en.localeCompare(y.name.en))
-    .map(f=>`<button class="btn slot" data-fampick="${f.id}" style="margin:0 6px 6px 0">${f.name.en}<span style="font-size:.88em">${f.name.ko}</span>${f.ed?`<span class="ed-badge">${f.ed}</span>`:""}</button>`).join("");
+    .map(f=>`<button class="btn pick-slot" data-fampick="${f.id}"><span class="en">${f.name.en}</span><span class="ko">${f.name.ko}</span>${f.ed?`<span class="tail">${f.ed}</span>`:""}</button>`).join("");
   openModal(`<h3>Familiar 패밀리어 추가</h3>
     <div class="field"><label>Familiar 패밀리어</label>
-      ${list?`<div style="display:flex;flex-wrap:wrap">${list}</div>`:`<div class="empty-note" style="padding:6px 0">추가할 패밀리어가 없습니다.</div>`}
+      ${list?`<div class="pick-grid">${list}</div>`:`<div class="empty-note" style="padding:6px 0">추가할 패밀리어가 없습니다.</div>`}
       <div class="hint" style="margin-top:6px">육각형 칸 3개가 함께 붙습니다 — 비용은 5 · 7 · 9 골드.</div></div>
     <div class="field"><label>또는 직접 입력 — 이름 (English)</label><input id="fmEn" placeholder="Familiar name"></div>
     <div class="field"><label>이름 (한글)</label><input id="fmKo" placeholder="패밀리어 이름"></div>
     <div class="field"><label>설명</label><textarea id="fmDesc" placeholder="효과 설명…"></textarea></div>
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="fmSave">추가</button></div>`);
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button><button class="btn primary" id="fmSave">추가</button></div>`,"wide");
   document.querySelectorAll("[data-fampick]").forEach(b=>b.onclick=()=>{
     const o=FAMILIARS.find(x=>x.id===b.dataset.fampick), spec=FAM_RANK[o.rankStat];
     if(spec&&!spec.auto)famStatPick(o);else famAdd(o);   /* 고르는 형은 한 단계 더 */
@@ -1449,6 +1601,8 @@ function applyTheme(){
   else document.documentElement.removeAttribute("data-series");
 }
 /* 옆 칸에 띄워 둔 참조 탭은 다음에도 그대로 열린다 */
+function refPick(){try{return localStorage.getItem("hex.ref");}catch(e){return null;}}
+function refSave(v){try{localStorage.setItem("hex.ref",v);}catch(e){}}
 function railPick(){try{return localStorage.getItem("hex.rail");}catch(e){return null;}}
 function railSave(v){try{localStorage.setItem("hex.rail",v);}catch(e){}}
 

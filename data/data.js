@@ -3320,6 +3320,19 @@ const SERIES = {
           <div class="rule-step"><span class="n">2</span><span class="t"><b>상황 카드 공개</b> — 낮·밤 각 <b>4장</b>. <b>Interrupt</b>가 나오면 덱에 다시 섞고 새로 뽑는다.
             공개된 <b>Investigation</b> 장소에 <b>룬 스톤</b>을 놓는다.</span></div>
           <div class="rule-step"><span class="n">3</span><span class="t"><b>시작 마을</b> — 낮·밤을 정하고 마을을 굴린다(<b>밤이면 +1</b>). 그 마을의 <b>시작 장비</b>를 받는다.</span></div>
+          <div class="rule-step"><span class="n">3b</span><span class="t"><b>Initial Equipment 시작 장비</b> — 시작 마을에 따라 그룹이 받는 것이 다르다.
+            <b>"각 영웅"</b>은 인원수만큼, <b>"그룹"</b>은 하나만 받는다.</span></div>
+        </div>
+        <div class="rule-grid">
+          <div class="rule-k">1 · Sithrindell</div><div class="rule-v"><b>Gear Upgrade 기어 업그레이드</b> — 각 영웅</div>
+          <div class="rule-k">2 · Alizien</div><div class="rule-v"><b>Hunter's Gear 사냥꾼 장비</b> — 각 영웅</div>
+          <div class="rule-k">3 · Dobrovizta</div><div class="rule-v"><b>Power Up 파워업</b> — 각 영웅</div>
+          <div class="rule-k">4 · Ryzeria</div><div class="rule-v"><b>Magic Torch 마법 횃불</b> — 각 영웅</div>
+          <div class="rule-k">5 · Kastvarjna</div><div class="rule-v"><b>Monster Bait 괴물 미끼</b> — 각 영웅</div>
+          <div class="rule-k">6 · Rothlin</div><div class="rule-v"><b>Canoe 카누</b> — 그룹</div>
+          <div class="rule-k">7 · Vigorna</div><div class="rule-v"><b>Gear Upgrade 기어 업그레이드</b> — 각 영웅</div>
+        </div>
+        <div class="rule-steps">
           <div class="rule-step"><span class="n">4</span><span class="t"><b>장비 배분</b> — 그룹이 <b>기어 업그레이드 6개</b>를 나눈다. 마을에서 골드를 쓴 뒤 시작.</span></div>
         </div>
         <div class="rule-en">Place tiles A–D (hex &amp; dungeon tiles face-down), shuffle decks, reveal 4 Day and 4 Night cards
@@ -3330,7 +3343,7 @@ const SERIES = {
         <div class="rule-steps">
           <div class="rule-step"><span class="n">1</span><span class="t"><b>이동</b> — 낮·밤을 정하고 그룹이 함께 움직인다. 지도 경계에 닿으면 <b>맵 타일을 놓고</b> 이동을 이어간다.</span></div>
           <div class="rule-step"><span class="n">2</span><span class="t"><b>기술 굴림</b> — 영웅마다 각자 굴린다.</span></div>
-          <div class="rule-step"><span class="n">3</span><span class="t"><b>상황 굴림</b> — <b>6면체</b>를 굴려 낮·밤에 맞는 카드를 적용한다. <b>5 또는 헥스</b>면 조우 덱을 공개한다.<br>
+          <div class="rule-step"><span class="n">3</span><span class="t"><b>상황 굴림</b> — <b>영웅 한 명</b>이 <b>Hex 헥스 주사위</b>를 굴려 낮·밤에 맞는 바의 카드를 적용한다. <b>5 또는 헥스</b>면 조우 덱을 공개한다.<br>
             <span class="rule-tag">건너뜀</span> 보스 · 지하묘지 · 수도원 · 마을에서 이동을 끝냈다면 이 단계를 건너뛴다.</span></div>
           <div class="rule-step"><span class="n">4</span><span class="t"><b>이벤트</b> — 마을 · 수도원 · 지하묘지 · 조사 · 보스에서 해당 사건을 처리한다.</span></div>
           <div class="rule-step"><span class="n">5</span><span class="t"><b>빌런</b> — 미르자 녹티스.</span></div>
@@ -3347,12 +3360,23 @@ const SERIES = {
         </div>
         <div class="rule-h">네 가지 방식</div>
         <div class="rule-grid">
-          <div class="rule-k">Camp 야영</div><div class="rule-v">그 자리에 머문다. 스탯 굴림 <b>-1 보너스</b>(중첩) · 녹티스가 가장 감시하기 쉬워 빌런 행동에 <b>가장 불리</b></div>
-          <div class="rule-k">Cautious 신중</div><div class="rule-v">아래 조건 중 하나. 안전하지만 느리다 — <kw>wander</kw> 없음 + 상황 카드 <b>버리기</b> 가능</div>
-          <div class="rule-k">Normal 보통</div><div class="rule-v">이동력(<b>4헥스</b>) 범위에서 자유롭게 이동한다. 기본 방식</div>
-          <div class="rule-k">Reckless 무모</div><div class="rule-v">가장 빠르게 내달린다. 첩자가 쫓기 어려워 빌런 행동에 <b>가장 유리</b>하지만, 그만큼 위험을 안고 간다</div>
+          <div class="rule-k">Camp 야영</div><div class="rule-v"><b>움직이지 않기로</b> 고른다.
+            대신 각 영웅이 <st>health</st> <b>3</b>과 <st>energy</st> <b>3</b>을 <kw>heal</kw>하고 <kw>critical wound</kw> <b>1</b>도 없앤다.
+            기술 페이즈에 <b>길찾기가 자동으로 성공</b>한다.
+            이번 턴 굴리는 <b>모든 기술에 -1 보너스</b>(이 효과는 <b>자기 자신과 중첩</b>된다).
+            이번 턴 나온 <b>Circumstance상황</b>을 버릴 수 있다(허용될 때).</div>
+          <div class="rule-k">Cautious 신중</div><div class="rule-v"><b>천천히 조심스럽게</b> 움직인다.
+            <b>1헥스만</b> 움직이거나, <b>강 · 도로를 따라</b> 평소 속도까지 움직인다.
+            기술 페이즈에 <b>길찾기가 자동으로 성공</b>한다.
+            이번 턴 나온 <b>Circumstance상황</b>을 버릴 수 있다(허용될 때).</div>
+          <div class="rule-k">Normal 보통</div><div class="rule-v"><b>평소대로</b> 움직인다 — 그룹의 이동력까지.
+            그룹의 <b>절반</b>(올림)이 길찾기에 성공해야 <kw>wander</kw>를 피한다 — <ref t="rules" e="Wander &amp; Roam">헤매다 · 배회</ref>.</div>
+          <div class="rule-k">Reckless 무모</div><div class="rule-v"><b>강행군</b>이라 길고 고되다.
+            각 영웅이 <kw>energy drain</kw> <b>2</b>를 받고 그룹은 <b>2헥스 더</b> 간다.
+            <b>길찾기를 굴리고</b>, <b>탐험과 생존 중 하나</b>를 골라 굴린다 — <b>나머지 기술은 자동으로 실패</b>한다.
+            그룹의 <b>절반</b>(올림)이 길찾기에 성공해야 <kw>wander</kw>를 피한다.
+            무모한 이동은 <b>다른 모든 이동 방식보다 우선</b>한다.</div>
         </div>
-        <div class="rule-v" style="color:var(--ink-faint);font-size:12px">방식별 이동 거리·빌런 보정 수치는 Game Turn 참조판에 있다 — 추후 입력</div>
         <div class="rule-h">Camping 야영</div>
         <div class="rule-v">그 게임 턴의 스탯 굴림에 <b>-1 보너스</b>. <b>중첩</b>되지만(오래 야영할수록), 다른 효과로 위치가 옮겨지면 사라진다.</div>
         <div class="rule-h">Moving Cautiously 신중한 이동</div>
@@ -3363,9 +3387,14 @@ const SERIES = {
         </div>
         <div class="rule-h">Uncrossable 통행 불가</div>
         <div class="rule-v"><b>산맥</b>과 <b>물</b> 헥스는 들어갈 수 없다(나오는 것은 가능). <b>Scaling Kit</b> · <b>Canoe</b>를 얻으면 가능해진다.</div>
-        <div class="rule-h">Villain Action 보정</div>
-        <div class="rule-v">빠르게 움직일수록 녹티스의 첩자가 보고하기 어려워져 빌런 행동 굴림에 보정이 붙는다.
-          <span style="color:var(--ink-faint)">(방식별 수치는 Game Turn 참조판 — 추후 입력)</span></div>`},
+        <div class="rule-h">굴리는 기술 · Villain Action 보정</div>
+        <div class="rule-v">빠르게 움직일수록 녹티스의 첩자가 보고하기 어려워져, 턴이 끝날 때 하는 <b>빌런 행동 굴림</b>에 보정이 붙는다.</div>
+        <div class="rule-grid">
+          <div class="rule-k">Camp 야영</div><div class="rule-v"><b style="color:var(--g-explore)">탐험</b> · <b style="color:var(--g-survival)">생존</b> &nbsp;—&nbsp; 빌런 행동 <b>+2</b></div>
+          <div class="rule-k">Cautious 신중</div><div class="rule-v"><b style="color:var(--g-explore)">탐험</b> · <b style="color:var(--g-survival)">생존</b> &nbsp;—&nbsp; 빌런 행동 <b>+1</b></div>
+          <div class="rule-k">Normal 보통</div><div class="rule-v"><b style="color:var(--g-navigate)">길찾기</b> · <b style="color:var(--g-explore)">탐험</b> · <b style="color:var(--g-survival)">생존</b> &nbsp;—&nbsp; 빌런 행동 <b>보정 없음</b></div>
+          <div class="rule-k">Reckless 무모</div><div class="rule-v"><b style="color:var(--g-navigate)">길찾기</b> + <b style="color:var(--g-explore)">탐험</b> <b>또는</b> <b style="color:var(--g-survival)">생존</b> <b>중 하나</b> &nbsp;—&nbsp; 빌런 행동 <b>-2</b></div>
+        </div>`},
 
       {title:{en:"Skill Phase & Stat Tests", ko:"기술 페이즈 · 스탯 굴림"}, body:`
         <div class="rule-v">기술 페이즈에는 모든 영웅이 <b>동시에</b> 코어 주사위를 굴린다. 결과가 해당 <b>기술 랭크 이하</b>면 성공.</div>
@@ -3378,21 +3407,37 @@ const SERIES = {
           <div class="rule-k">범위 변경</div><div class="rule-v"><state>disoriented</state> 같은 효과는 이 범위 자체를 바꾼다</div>
         </div>
         <div class="rule-h">기술 페이즈의 치명적 성공</div>
-        <div class="rule-v">평소 보상에 더해 <b>추가 보상</b>(골드 · 단서 · 파워업 등)을 얻는다.
-          <span style="color:var(--ink-faint)">(기술별 보상은 Game Play 참조판 — 추후 입력)</span></div>`},
+        <div class="rule-v">평소 보상에 더해 <b>추가 보상</b>을 얻는다 — 기술별 내용은 <b>길찾기 · 탐험 · 생존</b> 항목에 있다.</div>
+        <div class="rule-h">Multiple Critical Successes 대성공을 여럿 냈을 때</div>
+        <div class="rule-grid">
+          <div class="rule-k">3개 중 2개</div><div class="rule-v">평소 보상에 더해 <b>Moon 달 주사위</b>를 굴려 그룹이 <b>무작위 룬</b>을 얻는다.
+            이 보상은 <b>게임 턴당 1회</b>까지만 얻는다</div>
+          <div class="rule-k">3개 중 3개</div><div class="rule-v">이 보상과 <b>위의 것 중 하나만</b> 고른다(<b>둘 다는 안 된다</b>).
+            평소 보상에 더해 <b>파워업 1장</b>을 뽑는다. <b>각 영웅</b>이 그 보상을 얻는다</div>
+          <div class="rule-k">Random Rune 무작위 룬</div><div class="rule-v"><b>헥스 ~ 4</b> 빨강 · <b>5 ~ 8</b> 초록 · <b>9 ~ 12</b> 파랑</div>
+        </div>`},
 
       {title:{en:"Navigate · Explore · Survival", ko:"길찾기 · 탐험 · 생존"}, body:`
         <div class="rule-grid">
           <div class="rule-k"><span style="color:var(--g-navigate)">Navigate 길찾기</span></div>
           <div class="rule-v">영웅의 <b>절반</b>(올림)이 성공해야 <kw>wander</kw>를 피한다.
-            한 명이라도 <b>치명적 성공</b>하면 그 턴 그룹 전체가 면한다. <b>신중한 이동</b>을 했다면 애초에 위험이 없다.</div>
+            한 명이라도 <b>치명적 성공</b>하면 그 턴 그룹 전체가 면한다. <b>신중한 이동</b>을 했다면 애초에 위험이 없다.<br>
+            <b>대성공</b> — 그룹을 <kw>wander</kw>에서 구하고 <b>하나</b>를 고른다:
+            그룹이 <b>1헥스 더</b> 이동 · 원하는 <b>열린 Investigation조사</b>에 <b>Clue단서 1</b> 놓기.</div>
           <div class="rule-k"><span style="color:var(--g-explore)">Explore 탐험</span></div>
-          <div class="rule-v">성공하면 <b>골드 2</b>어치 보물. 실패하면 아무것도 없다.</div>
+          <div class="rule-v">성공하면 <b>골드 2</b>어치 보물. 실패하면 아무것도 없다.<br>
+            <b>대성공</b> — <b>골드 2</b>를 얻고 <b>하나</b>를 고른다:
+            <b>각 영웅</b>이 잃은 <st>health</st> <b>1</b>을 <kw>heal</kw> · 원하는 <b>열린 Investigation조사</b>에 <b>Clue단서 1</b> 놓기.</div>
           <div class="rule-k"><span style="color:var(--g-survival)">Survival 생존</span></div>
           <div class="rule-v">성공하면 그 턴에 <b>음식을 먹지 않아도</b> 된다.
-            실패하면 <b>음식 소모량</b>만큼 먹거나 <b>Food 하위 유형</b> 아이템 하나를 소비한다.
-            소모량이 <b>0</b>이면 굴리지 않아도 된다.</div>
-        </div>`},
+            실패했거나 <b>굴리지 못했다면</b> <b>음식 소모량</b>만큼 먹거나 <b>Food 하위 유형</b> 아이템 하나를 소비한다.
+            소모량이 <b>0</b>이면 굴리지 않아도 된다.<br>
+            <b>대성공</b> — 음식을 먹지 않아도 되고, 그 위에 <b>하나</b>를 고른다:
+            <b>음식 1</b> 얻기 · <b>각 영웅</b>이 잃은 <st>energy</st> <b>1</b>을 <kw>heal</kw> ·
+            영웅 하나가 <kw>critical wound</kw> <b>1</b> 없애기.</div>
+        </div>
+        <div class="rule-v" style="color:var(--ink-faint)">여러 명이 같은 기술에서 대성공하면
+          <b>각자 보상 대안 중 하나씩</b>을 적용할 수 있다.</div>`},
 
       {title:{en:"Wander & Roam", ko:"헤매다 · 배회"}, body:`
         <div class="rule-h">Wander 헤매다</div>
@@ -3427,6 +3472,19 @@ const SERIES = {
         <div class="rule-v" style="margin-top:8px">전투 밖에서는 <b>음식 · 골드 · 아이템</b>을 그룹원끼리 자유롭게 나눌 수 있다.</div>`},
 
       {title:{en:"Circumstance Cards", ko:"상황 카드"}, body:`
+        <div class="rule-v">기술 페이즈가 끝나면 <b>있는 위치에 따라</b> 그룹이 상황을 맞이한다.
+          <b>영웅 한 명</b>이 <b>Hex 헥스 주사위</b>를 굴리고, 그 결과가 맞이할 상황이 된다.</div>
+        <div class="rule-grid">
+          <div class="rule-k">어느 바에서</div><div class="rule-v"><b>☀ 낮</b>에 이동했으면 <b>낮 바</b>,
+            <b>☾ 밤</b>에 이동했으면 <b>밤 바</b>에서 굴린다</div>
+          <div class="rule-k">5 또는 헥스</div><div class="rule-v">이 페이즈에 <b>5</b>나 <b>헥스</b>가 나오면,
+            바의 카드 대신 <b>Encounter조우</b>를 뽑아 맞선다</div>
+          <div class="rule-k">조사가 나오면</div><div class="rule-v">그 슬롯에 <b>Clue단서 1</b>을 놓는다(<b>최대 3개</b>).
+            카드는 바에 <b>그대로 남는다</b></div>
+          <div class="rule-k">그 밖의 카드</div><div class="rule-v"><b>플레이한다</b>.
+            처리가 끝나면 <b>새 카드를 뽑아 빈 슬롯에 놓는다</b></div>
+        </div>
+        <div class="rule-h">카드의 성질</div>
         <div class="rule-grid">
           <div class="rule-k">Interrupt</div><div class="rule-v">뽑는 <b>즉시</b> 해결한다. 카드를 들여다보는 효과로는 발동하지 않으며, 한 턴에 <b>여러 장</b>이 나올 수 있다</div>
           <div class="rule-k">Unavoidable</div><div class="rule-v">상황 단계에 나오면 <b>신중한 이동을 했더라도 피할 수 없다</b>.
@@ -3460,12 +3518,26 @@ const SERIES = {
           찾아낸 <b>발견</b>이 이벤트를 부르기도 한다. 이런 장소가 아니면 그 턴에는 이벤트가 없다.
           따로 명시가 없으면 한 게임 턴에 처리하는 이벤트 <b>수에 제한이 없다</b>.</div>
         <div class="rule-grid">
-          <div class="rule-k">Village 마을</div><div class="rule-v">소박한 물품을 판다. 여관에서 쉬어 <b><st>defence</st> 랭크</b>만큼 생명력을 <kw>heal</kw>한다 ·
-            모은 <b>룬을 판매</b>한다 · <b>밤</b>에 왔다면 <b>콜렉터</b>와 맞설 수 있다</div>
-          <div class="rule-k">Monastery 수도원</div><div class="rule-v">아이템을 사고, <b>입장하는 순간 잃은 생명력을 전부</b> <kw>heal</kw>한다 ·
-            룬을 <b>헌납</b>해 <b>Grace은총</b>을 얻는다 · 지하묘지를 해금할수록 <b>기어 업그레이드와 값진 물건</b>을 판다</div>
-          <div class="rule-k">Crypt 지하묘지</div><div class="rule-v">시작 시 <b>잠겨</b> 있다. <b>Crypt Key</b>를 써서 연다 ·
-            룬을 <b>활성화</b>해 <b>피의 마법</b>을 배운다 · 열고 나면 <b>던전</b>에 들어갈 수 있다</div>
+          <div class="rule-k">Village 마을</div><div class="rule-v">소박한 물품을 판다 —
+            <ref t="items" e="Village">아이템 탭</ref>에 판매 목록이 있다.<br>
+            <b>여관</b> — 그룹이 <b>골드 1</b>(총액)을 내고 <b>게임 턴당 1회</b> 묵는다.
+            각 영웅이 <b><st>defence</st> 랭크까지</b> <st>health</st>과 <st>energy</st>를 <kw>heal</kw>한다.<br>
+            <b>룬 판매</b> — 각 영웅이 <b>판 룬 1개당 골드 10</b>을 얻는다.
+            그룹이 알아낸 정보에 값을 치르려는 수상한 자들이 있다.<br>
+            <b>밤</b>에 왔다면 <b>콜렉터</b>와 맞설 수 있다</div>
+          <div class="rule-k">Monastery 수도원</div><div class="rule-v"><b>들어서는 순간</b> 잃은 생명력을 <b>전부</b> <kw>heal</kw>하고,
+            진행 중인 <b>컨디션과 Affliction고통을 전부</b> <kw>negate</kw>한다.<br>
+            여기 있는 동안 <b>Circumstance상황 페이즈를 건너뛴다</b>.<br>
+            수도원 물품은 물론 <b>마을 물품도</b> 여기서 살 수 있다.
+            많은 물품이 지하묘지에 갇혀 있어 처음에는 살 수 없고,
+            <b>지하묘지가 하나 열릴 때마다</b> 다음 단계의 물품과 <ref t="items" e="Gear Upgrades 1">기어 업그레이드</ref>가 모든 수도원에 풀린다.<br>
+            룬을 <b>Impart 헌납</b>해 파워업과 <b>Grace은총</b>을 얻는다 — <ref t="rune" e="수도원 — 룬 헌납">룬 탭</ref> 참고</div>
+          <div class="rule-k">Crypt 지하묘지</div><div class="rule-v">여기 있는 동안 <b>Circumstance상황 페이즈를 건너뛴다</b>.<br>
+            지도에 드러날 때마다 <b>잠긴 지하묘지 토큰</b>을 놓는다 — 여는 방법 셋은 <ref t="dungeon" e="개요 · 출입구">던전 탭</ref>에 있다.
+            <b>처음 세 번</b> 지하묘지가 열릴 때마다 <b>모든 수도원이 새 물품</b>을 팔기 시작한다.<br>
+            룬을 <ref t="rune" e="지하묘지 — 룬 활성화">Activate 활성화</ref>해 파워업과 <ref t="rune" e="피의 마법">피의 마법</ref> 티어를 얻는다.
+            활성화 기록은 <b>모든 지하묘지가 함께</b> 쓴다(잠겨 있어도 활성화할 수 있다).<br>
+            열고 나면 <b>던전</b>에 들어갈 수 있다</div>
           <div class="rule-k">Investigation 조사</div><div class="rule-v">이벤트 단계에 그 자리에 있으면 카드를 집어 처리한다</div>
           <div class="rule-k">Boss Lair 보스 소굴</div><div class="rule-v">이동을 끝내면 <b>전투가 시작</b>된다. <b>지나가기만</b> 하는 것은 전투를 부르지 않는다.
             쓰러뜨린 자리에는 <b>헥스 토큰</b>을 놓아 평범한 헥스로 만든다</div>
@@ -3532,8 +3604,124 @@ const SERIES = {
 
       R4_COMBAT, RULES_KWORDER,
     ],
+    /* 상점 목록 — 마을 판과 수도원 판 뒷면의 판매표를 그대로 옮긴 것.
+       * 표시가 붙은 것은 전투 중 Defend 방어 행동을 쓰는 동안에도 쓸 수 있다.
+       비용의 "영웅당"은 인원수만큼 곱해 내는 것이고, 그 밖은 총액이다. */
     items: [
-      // {name:{en,ko}, desc:"...", tags:[]}
+      {name:{en:"Village", ko:"마을"}, tags:["12종","언제나 판매"], desc:`
+        <div class="rule-grid">
+          <div class="rule-k">Mysterious Meat Pie<br><span class="it-sub">수상한 고기 파이 · <b class="g">1</b></span></div>
+          <div class="rule-v"><b>고기 파이 2개</b>를 얻는다. 먹을 때마다 <st>energy</st> 피해 <b>2</b>를 받는다.
+            <span class="rule-tag">1회 · 음식</span></div>
+          <div class="rule-k">Suspicious Stew<br><span class="it-sub">수상쩍은 스튜 · <b class="g">1</b></span></div>
+          <div class="rule-v">먹을 때 아무 주사위나 굴린다. <b>홀수</b>가 나오면 <b>게임 턴이 끝날 때까지</b>
+            <state>disoriented</state> 상태가 된다. <span class="rule-tag">1회 · 음식</span></div>
+          <div class="rule-k">Moonshine<br><span class="it-sub">밀주 · <b class="g">2</b></span></div>
+          <div class="rule-v"><b>밀주 3개</b>를 얻는다. 먹으면 이번 기술 페이즈에 <st>explore</st> 굴림이 <b>실패</b>한다.
+            이 아이템은 <b>굶주림 단계를 낮추지 못한다</b>. <span class="rule-tag">1회 · 음식</span></div>
+          <div class="rule-k">Lesser Potion <span class="it-star">*</span><br><span class="it-sub">하급 물약 · <b class="g">1</b></span></div>
+          <div class="rule-v"><st>health</st> <b>2</b> 또는 <st>energy</st> <b>2</b>를 <kw>heal</kw>한다(직접 선택).
+            <span class="rule-tag">1회</span></div>
+          <div class="rule-k">Voodoo Doll <span class="it-star">*</span><br><span class="it-sub">부두 인형 · <b class="g">4</b></span></div>
+          <div class="rule-v">전투에서 <b>도주</b>할 때 <st>navigate</st> 굴림에 <b>-2 보너스</b>를 받는다.
+            <kw>tenacious</kw>를 가진 적에게서도 <b>도주할 수 있다</b>. 영웅당 <b>1개</b>. <span class="rule-tag">영구</span></div>
+          <div class="rule-k">Monster Bait<br><span class="it-sub">괴물 미끼 · <b class="g">4</b></span></div>
+          <div class="rule-v"><b>Circumstance상황 페이즈</b>에 써서 <b>Encounter조우</b>를 뽑아 맞서거나,
+            <b>조우가 아닌 결과</b>가 나올 때까지 상황을 다시 굴린다. <span class="rule-tag">1회</span></div>
+          <div class="rule-k">Magic Torch<br><span class="it-sub">마법 횃불 · <b class="g">5</b></span></div>
+          <div class="rule-v">그룹이 <b>던전</b>에 있는 동안 <b>Time시간</b>을 <b>1</b> 더 얻는다. 영웅당 <b>1개</b>.
+            <span class="rule-tag">영구</span></div>
+          <div class="rule-k">Hunter's Gear<br><span class="it-sub">사냥꾼 장비 · <b class="g">5</b></span></div>
+          <div class="rule-v">적을 쓰러뜨린 뒤 <st>health</st> <b>1</b>과 <st>energy</st> <b>1</b>을 <kw>heal</kw>한다.
+            영웅당 <b>3개</b>까지. <span class="rule-tag">영구</span></div>
+          <div class="rule-k">Investigate<br><span class="it-sub">조사 의뢰 · <b class="g">8</b></span></div>
+          <div class="rule-v">열린 <b>Investigation조사</b>에 <b>Clue단서 1</b>을 놓는다. <b>게임 턴당 3개</b>까지.
+            <b>여관에 묵었다면</b> 단서를 <b>1개 더</b> 얻는다. <span class="rule-tag">즉시</span></div>
+          <div class="rule-k">Familiar<br><span class="it-sub">패밀리어 · <b class="g">12</b></span></div>
+          <div class="rule-v"><b>The Rat 쥐</b>와 <b>The Canine 개</b> 중 하나를 골라 얻는다. <span class="rule-tag">즉시</span></div>
+          <div class="rule-k">Palm Reading<br><span class="it-sub">손금 보기 · <b class="g">2</b> <span class="it-per">영웅당</span></span></div>
+          <div class="rule-v"><b>☀ 낮</b> 또는 <b>☾ 밤</b> 바에 깔린 카드를 <b>4장</b>까지 버리고 새로 뽑아 채운다.
+            놓여 있던 <b>Clue단서는 그대로</b> 남는다. <span class="rule-tag">즉시</span></div>
+          <div class="rule-k">Scaling Kit<br><span class="it-sub">등반 장비 · <b class="g">6</b> <span class="it-per">영웅당</span></span></div>
+          <div class="rule-v">그룹이 <b>산맥</b>을 평소대로 지나갈 수 있게 된다. <span class="rule-tag">영구</span></div>
+        </div>
+        <div class="it-note"><span class="it-star">*</span> 전투 중 <b>Defend 방어</b> 행동을 쓰는 동안에도 사용할 수 있다.</div>`},
+
+      {name:{en:"Monastery", ko:"수도원 · 기본"}, tags:["6종","마을 물품도 구매 가능"], desc:`
+        <div class="rule-grid">
+          <div class="rule-k">Blessed Ration<br><span class="it-sub">축복받은 배급 · <b class="g">1</b></span></div>
+          <div class="rule-v">기술 페이즈에 <st>survival</st> 굴림에 <b>실패했을 때</b>, 음식을 먹는 대신 이것을 먹을 수 있다.
+            <span class="rule-tag">1회 · 음식</span></div>
+          <div class="rule-k">Healing Herbs <span class="it-star">*</span><br><span class="it-sub">치유 약초 · <b class="g">1</b></span></div>
+          <div class="rule-v">먹으면 <st>health</st> <b>1</b>과 <st>energy</st> <b>1</b>을 <kw>heal</kw>한다.
+            먹을 때 <b>Lesser Potion 하급 물약</b>을 함께 <b>바치면</b> 대신 <b>3과 3</b>을 <kw>heal</kw>한다. <span class="rule-tag">1회</span></div>
+          <div class="rule-k">Holy Water <span class="it-star">*</span><br><span class="it-sub">성수 · <b class="g">2</b></span></div>
+          <div class="rule-v">적에게 <st>health</st> <b>3</b>과 <st>energy</st> <b>3</b> 피해를 준다.
+            <b>Sovereign Elixir 최상급 영약</b>을 바치면 이 피해가 <b>3배</b>가 된다.
+            <kw>aegis</kw>를 가진 적에게는 <b>2배</b>로 들어간다. 이 피해는 <b>줄일 수 없다</b>. <span class="rule-tag">1회</span></div>
+          <div class="rule-k">Swiftfoot Elixir<br><span class="it-sub">신속의 영약 · <b class="g">3</b></span></div>
+          <div class="rule-v"><b>Time시간</b>을 <b>2</b> 늘리거나, <b>Event 이벤트 페이즈</b>에 써서 그룹을 <b>3헥스</b>까지 옮긴다.
+            쓴 영웅은 그 뒤 <kw>energy drain</kw> <b>3</b>을 받는다. 영웅마다 <b>게임 턴당 1개</b>만 쓸 수 있다. <span class="rule-tag">1회</span></div>
+          <div class="rule-k">Traveler's Kit<br><span class="it-sub">여행자 도구 · <b class="g">4</b></span></div>
+          <div class="rule-v"><b>Movement 이동 페이즈</b>가 시작될 때 <st>health</st> <b>1</b> 또는 <st>energy</st> <b>1</b>을 <kw>heal</kw>한다.
+            그룹이 <kw>wander</kw>하면 <b>Wander 주사위 결과를 1</b> 조정할 수 있다. 영웅당 <b>1개</b>. <span class="rule-tag">영구</span></div>
+          <div class="rule-k">Canoe<br><span class="it-sub">카누 · <b class="g">5</b> <span class="it-per">영웅당</span></span></div>
+          <div class="rule-v">그룹이 <b>물</b> 헥스를 평소대로 지나갈 수 있게 된다.
+            또한 <b>물 · 강</b> 헥스에 있는 동안 기술 굴림에 <b>-1 보너스</b>를 받는다. 그룹당 <b>1개</b>. <span class="rule-tag">영구</span></div>
+        </div>
+        <div class="it-note"><span class="it-star">*</span> 전투 중 <b>Defend 방어</b> 행동을 쓰는 동안에도 사용할 수 있다.</div>`},
+
+      {name:{en:"Gear Upgrades 1", ko:"기어 업그레이드 1"}, tags:["지하묘지 1곳 해금","2번째 칸까지 구매"], desc:`
+        <div class="rule-v">지하묘지가 <b>한 곳</b> 열리면 모든 수도원에서 이 물품과 <b>2번째 기어 업그레이드 칸</b>까지 살 수 있게 된다.</div>
+        <div class="rule-grid">
+          <div class="rule-k">Elder Berries <span class="it-star">*</span><br><span class="it-sub">엘더베리 · <b class="g">3</b></span></div>
+          <div class="rule-v"><st>health</st> <b>2</b> 또는 <st>energy</st> <b>2</b>를 <kw>heal</kw>한다. <span class="rule-tag">1회 · 음식</span></div>
+          <div class="rule-k">Training Regiment<br><span class="it-sub">훈련 과정 · <b class="g">6</b></span></div>
+          <div class="rule-v">자신의 능력치 랭크를 <b>패밀리어에게 옮길</b> 수 있다.
+            옮기는 능력치는 그 <b>패밀리어의 기준 능력치와 같은 종류</b>여야 한다. 영웅당 <b>1개</b>. <span class="rule-tag">즉시</span></div>
+          <div class="rule-k">Familiar<br><span class="it-sub">패밀리어 · <b class="g">12</b></span></div>
+          <div class="rule-v"><b>The Owl 올빼미</b>와 <b>The Turtle 거북</b> 중 하나를 골라 얻는다. <span class="rule-tag">즉시</span></div>
+          <div class="rule-k">Hiking Gear<br><span class="it-sub">등산 장비 · <b class="g">4</b> <span class="it-per">영웅당</span></span></div>
+          <div class="rule-v"><b>무모한 이동</b>으로 받는 <kw>energy drain</kw>을 <b>1</b> 줄이고,
+            <b>야영</b>으로 <kw>heal</kw>하는 생명력을 <b>1</b> 늘린다. 그룹당 <b>1개</b>. <span class="rule-tag">영구</span></div>
+        </div>
+        <div class="it-note"><span class="it-star">*</span> 전투 중 <b>Defend 방어</b> 행동을 쓰는 동안에도 사용할 수 있다.</div>`},
+
+      {name:{en:"Gear Upgrades 2", ko:"기어 업그레이드 2"}, tags:["지하묘지 2곳 해금","4번째 칸까지 구매"], desc:`
+        <div class="rule-v">지하묘지가 <b>두 곳</b> 열리면 이 물품과 <b>4번째 기어 업그레이드 칸</b>까지 살 수 있게 된다.</div>
+        <div class="rule-grid">
+          <div class="rule-k">Sovereign Elixir <span class="it-star">*</span><br><span class="it-sub">최상급 영약 · <b class="g">6</b></span></div>
+          <div class="rule-v"><kw>critical wound</kw> <b>1</b>을 없애거나 <st>health</st> <b>10</b>을 <kw>raise</kw>한다.
+            영웅마다 <b>게임 턴당 1개</b>만 먹을 수 있다. <span class="rule-tag">1회</span></div>
+          <div class="rule-k">Battle Horn<br><span class="it-sub">전투 나팔 · <b class="g">8</b></span></div>
+          <div class="rule-v"><b>전투 라운드당 1회</b>, 자신의 <b>대상 주사위</b> 결과를 <b>3</b>까지 올리거나 내린다.
+            영웅당 <b>1개</b>. <span class="rule-tag">영구</span></div>
+          <div class="rule-k">Consecration Charm<br><span class="it-sub">성별의 부적 · <b class="g">4</b> <span class="it-per">영웅당</span></span></div>
+          <div class="rule-v">콜렉터를 찾는 <st>explore</st> 스탯 굴림에 <b>-3 보너스</b>를 받는다.
+            콜렉터를 쓰러뜨릴 때마다 <b>피의 웅덩이를 2</b> 줄인다. 그룹당 <b>1개</b>. <span class="rule-tag">영구</span></div>
+          <div class="rule-k">Reins of Telgimere<br><span class="it-sub">텔지미어의 고삐 · <b class="g">4</b> <span class="it-per">영웅당</span></span></div>
+          <div class="rule-v">그룹의 이동 속도가 턴당 <b>1헥스</b> 오른다(<b>신중한 이동</b> 포함).
+            이 보너스는 비슷한 효과와 <b>중첩</b>된다. <b>무모하게 이동</b>할 때 기술 페이즈에 <b>기술 전부</b>를 굴릴 수 있다.
+            그룹당 <b>1개</b>. <span class="rule-tag">영구</span></div>
+        </div>
+        <div class="it-note"><span class="it-star">*</span> 전투 중 <b>Defend 방어</b> 행동을 쓰는 동안에도 사용할 수 있다.</div>`},
+
+      {name:{en:"Gear Upgrades 3", ko:"기어 업그레이드 3"}, tags:["지하묘지 3곳 해금","전부 구매"], desc:`
+        <div class="rule-v">지하묘지가 <b>세 곳</b> 열리면 이 물품과 <b>기어 업그레이드 전부</b>를 살 수 있게 된다.</div>
+        <div class="rule-grid">
+          <div class="rule-k">Choker of Thorns<br><span class="it-sub">가시 목걸이 · <b class="g">10</b></span></div>
+          <div class="rule-v"><b>Favored Opponent 주사위</b>를 굴릴 때마다, 원래 효과를 쓰는 대신
+            그 라운드가 끝날 때까지 <b>그 적의 공격</b>에 대해 <b>결과값만큼</b> <kw>reflect</kw>를 얻기로 고를 수 있다.
+            영웅당 <b>1개</b>. <span class="rule-tag">영구</span></div>
+          <div class="rule-k">Awakening Brew<br><span class="it-sub">각성의 물약 · <b class="g">10</b></span></div>
+          <div class="rule-v">그룹이 <b>야영</b> 중일 때만 쓸 수 있다. 죽은 영웅을 <kw>revive</kw>시키고
+            그 영웅의 <b>총 <st>health</st>을 2랭크</b> 낮춘다. 이 아이템은 <b>물약</b>의 일종이다. <span class="rule-tag">1회</span></div>
+          <div class="rule-k">Holy Relic<br><span class="it-sub">성유물 · <b class="g">12</b></span></div>
+          <div class="rule-v"><b>어느 HEXplore It 게임</b>에서든 원하는 <b>Treasure 보물</b>을 하나 찾아 얻는다.
+            영웅당 <b>1개</b>. <span class="rule-tag">영구</span></div>
+          <div class="rule-k">Crypt Key<br><span class="it-sub">지하묘지 열쇠 · 헌납</span></div>
+          <div class="rule-v">남는 <b>Crypt Key 지하묘지 열쇠</b>를 수도원에 바치면 <b>각 영웅이 파워업 1장</b>을 얻는다.</div>
+        </div>`},
     ],
     extras: [
       {id:"dungeon", label:{en:"Dungeon", ko:"던전"}, entries:[
@@ -3543,6 +3731,17 @@ const SERIES = {
             <div class="rule-k">들어가기</div><div class="rule-v"><b>이동 단계</b>에 <b>잠기지 않은 지하묘지</b>에서 들어간다</div>
             <div class="rule-k">나오기</div><div class="rule-v"><b>지하묘지 아이콘</b>이 있는 헥스에서 나온다. 나온 뒤에는 <b>이벤트 단계</b>부터 이어서 진행한다</div>
             <div class="rule-k">낮·밤</div><div class="rule-v">던전 안은 <b>항상 밤</b>이다</div>
+          </div>
+          <div class="rule-h">타일 놓기</div>
+          <div class="rule-grid">
+            <div class="rule-k">첫 타일</div><div class="rule-v">들어온 <b>지하묘지 번호와 맞는</b> 던전 타일을 찾아 놓는다.
+              이때 <b>Dungeon Rune Compass 던전 룬 나침반</b>도 함께 놓는다</div>
+            <div class="rule-k">타일 넓히기</div><div class="rule-v">그룹이 <b>타일 가장자리로 이동할 때마다</b> 던전 타일을 <b>무작위로</b> 뽑아 놓는다.
+              새 타일은 <b>그룹이 다음 헥스로 갈 수 있는 방향</b>으로 맞춰 놓아야 한다</div>
+            <div class="rule-k">다른 입구로</div><div class="rule-v">던전 타일이 이미 깔려 있는데 <b>다른 지하묘지</b>로 들어가면,
+              새 입구의 <b>벽 한 면</b>이 기존 던전 벽과 <b>맞닿게</b> 놓아야 한다</div>
+            <div class="rule-k">나올 때</div><div class="rule-v">지도의 그 지하묘지 자리로 그룹을 옮긴다 —
+              <b>헥스 토큰에 덮여 있어도</b> 그렇게 한다</div>
           </div>
           <div class="rule-h">지하묘지 잠금 해제</div>
           <div class="rule-v">지하묘지 <b>1~4번</b>이 각각 출입구다. 지도에 드러날 때마다 <b>잠긴 지하묘지 토큰</b>을 놓는다. 푸는 방법은 셋 —</div>
@@ -3659,7 +3858,96 @@ const SERIES = {
           </div>
           <div class="rule-v" style="margin-top:9px"><b>세트</b> = <b>빨강 · 초록 · 파랑</b>을 하나씩 갖춘 것.</div>`},
 
-        {name:{en:"Clues",ko:"단서"}, desc:`
+        {name:{en:"Imparting Runes",ko:"④ 수도원 — 룬 헌납"}, desc:`
+          <div class="rule-v" style="font-style:italic;color:var(--ink-faint);margin-bottom:6px">신앙의 수호자들은 어둠의 장막을 꿰뚫으려 쉼 없이 일한다.
+            그러자면 오랜 세월의 인내와 지식이 필요하다.</div>
+          <div class="rule-grid">
+            <div class="rule-k">첫 룬</div><div class="rule-v">각 영웅이 <b>파워업 1장</b>을 얻는다.
+              그 수도원 칸에 <b>룬 색을 표시</b>하고 룬은 버린다</div>
+            <div class="rule-k">둘째 룬</div><div class="rule-v"><b>첫 룬과 같은 색인지</b>로 이후 보상이 갈린다.
+              <b>같으면</b> 그 수도원은 앞으로 <b>같은 색만</b> 받는다. <b>다르면</b> <b>세트를 완성</b>해야 한다</div>
+          </div>
+          <div class="rule-h">Matching 같은 색으로 갈 때</div>
+          <div class="rule-v">각 영웅이 <b>그 수도원에 낸 같은 색 룬 개수만큼</b> 파워업을 얻는다 —
+            두 번째에 <b>2장</b>, 세 번째에 <b>3장</b>, 그다음 <b>4장</b>… 이 수도원에는 <b>다른 색을 낼 수 없다</b>.</div>
+          <div class="rule-h">Set 세트로 갈 때</div>
+          <div class="rule-v">한 종류씩 다 낼 때까지 <b>같은 색을 겹쳐 낼 수 없다</b>.
+            낸 룬 <b>1개마다</b> 각 영웅이 <b>파워업 1장</b>을 얻고,
+            <b>두 번째·세 번째</b> 헌납 때는 즉시 <b>피의 웅덩이를 5</b> 줄인다.
+            <b>세트를 완성하면</b> 그 수도원의 <b>Grace은총</b>을 얻고 그 수도원의 기록을 <b>초기화</b>한다 —
+            그 뒤로는 같은 색이든 세트든 다시 받을 수 있다.</div>
+          <div class="rule-h">수도원 넷</div>
+          <div class="rule-v"><b>Domiel</b> · <b>Last Dawn</b> · <b>Gesk</b> · <b>Lakenta</b> —
+            기록은 <b>수도원마다 따로</b> 남는다.</div>`},
+
+        {name:{en:"Graces",ko:"⑤ 은총"}, desc:`
+          <div class="rule-v" style="font-style:italic;color:var(--ink-faint);margin-bottom:6px">모든 힘이 밤의 군주에게 빼앗긴 것은 아니다.
+            옛 교단의 수도승들이 지켜 온 은총은 좀처럼 거저 주어지지 않는다.</div>
+          <div class="rule-v">은총은 <b>게임이 끝날 때까지</b> 그룹에 남는다.
+            수도원마다 <b>서로 다른 은총</b>을 주며 <b>게임당 한 번씩만</b> 얻을 수 있다.
+            그룹은 <b>여러 은총</b>을 동시에 지닐 수 있다.
+            아래의 추가 효과는 <b>드러난 수도원 수</b>만큼 커진다.</div>
+          <div class="rule-grid">
+            <div class="rule-k">☾ Grace of the Moon<br><span class="it-sub">달의 은총</span></div>
+            <div class="rule-v">그룹의 <b>이동 속도가 2</b> 오른다(<b>신중한 이동</b>에도 적용된다).
+              또한 <b>☾ 밤에 야영</b>할 때, <b>드러난 수도원마다</b> 빌런 행동 굴림에 <b>-1 보너스</b>를 받는다</div>
+            <div class="rule-k">☀ Grace of the Sun<br><span class="it-sub">태양의 은총</span></div>
+            <div class="rule-v"><b>게임 턴당 1회</b>, 이벤트 페이즈 전에 <b>Circumstance상황을 완료했다면</b>
+              <b>☀ 낮 바</b>에서 카드 <b>1장</b>을 골라 플레이할 수 있다.
+              또한 이벤트 페이즈의 <b>☀ 낮</b> 스탯 굴림 전부에 <b>드러난 수도원마다 -1 보너스</b>를 받는다</div>
+            <div class="rule-k">Grace of Light<br><span class="it-sub">빛의 은총</span></div>
+            <div class="rule-v"><b>게임 턴당 1회</b>, 영웅 하나가 자신의 <kw>critical wound</kw> <b>1</b>을 없앨 수 있다.
+              또한 적에게 받는 <kw>critical</kw> 피해를 <b>드러난 수도원마다 1</b>씩 줄인다(<b>최소 1</b>)</div>
+            <div class="rule-k">Grace of Darkness<br><span class="it-sub">어둠의 은총</span></div>
+            <div class="rule-v">그룹이 <kw>evasion</kw> <b>10</b>을 얻는다.
+              <b>다른</b> 드러난 수도원마다 이 수치를 <b>1</b>씩 낮춘다</div>
+          </div>`},
+
+        {name:{en:"Activate Runes",ko:"⑥ 지하묘지 — 룬 활성화"}, desc:`
+          <div class="rule-v" style="font-style:italic;color:var(--ink-faint);margin-bottom:6px">지하묘지는 찾는 이에게 옛 비밀을 품고 있다.
+            모험가들은 지하 회랑에서 곧잘 힘을 좇는다.</div>
+          <div class="rule-grid">
+            <div class="rule-k">활성화</div><div class="rule-v">표에 <b>룬 색을 표시</b>하고 <b>총 활성화 수</b>에 더한 뒤 그 룬을 버린다.
+              활성화한 <b>룬 1개마다</b> 각 영웅이 <b>파워업 1장</b>을 얻는다</div>
+            <div class="rule-k">활성화 2회마다</div><div class="rule-v"><b>2 · 4 · 6 · 8 · 10 · 12</b>번째 활성화 때,
+              그룹이 <b>파워업 1장</b>을 뽑아 그 <b>보너스를 2배</b>로 얻는다</div>
+            <div class="rule-k">세트 활성화</div><div class="rule-v"><b>완전한 세트</b>를 활성화하면 즉시 <b>피의 마법 티어 1</b>을 얻는다</div>
+            <div class="rule-k">기록</div><div class="rule-v">활성화 기록은 <b>모든 지하묘지가 함께</b> 쓴다(<b>잠겨 있어도</b> 활성화할 수 있다)</div>
+          </div>
+          <div class="rule-h">게임 종료 시 피의 웅덩이 감소</div>
+          <div class="rule-v">녹티스와 맞설 때 <b>딱 한 번</b> 적용한다. <b>색마다</b> 활성화한 개수를 보고 아래 값을 뺀다 —</div>
+          <div class="rule-grid">
+            <div class="rule-k">활성화 개수</div><div class="rule-v"><b>1</b> &rarr; -1 · <b>2</b> &rarr; -4 · <b>3</b> &rarr; -9 ·
+              <b>4</b> &rarr; -16 · <b>5</b> &rarr; -25 · <b>6 이상</b> &rarr; -36</div>
+            <div class="rule-k">세트 보너스</div><div class="rule-v">활성화한 <b>세트 1개마다 -5</b>를 더 뺀다</div>
+            <div class="rule-k">예</div><div class="rule-v">빨강 <b>2</b> · 초록 <b>1</b> · 파랑 <b>3</b>을 활성화했다면
+              <b>-4</b>, <b>-1</b>, <b>-9</b>, 세트 하나로 <b>-5</b> &rarr; 합쳐서 <b>-19</b></div>
+          </div>`},
+
+        {name:{en:"Blood Magic",ko:"⑦ 피의 마법"}, desc:`
+          <div class="rule-v" style="font-style:italic;color:var(--ink-faint);margin-bottom:6px">강대한 존재들은 Wellspring을 여는 대신 사악한 다른 길을 쓴다.
+            너희는 이제 겨우 그 겉을 긁었을 뿐이다.</div>
+          <div class="rule-grid">
+            <div class="rule-k">티어 얻기</div><div class="rule-v">지하묘지에서 <b>룬 세트를 활성화</b>할 때마다 <b>티어 1</b>을 얻는다.
+              티어를 얻을 때마다 그룹이 <b>피의 마법 주문 1장</b>을 뽑는다</div>
+            <div class="rule-k">첫 티어</div><div class="rule-v">첫 티어를 얻으면 아래 <b>세 주문</b>을 쓸 수 있게 된다</div>
+            <div class="rule-k">시전 비용</div><div class="rule-v">아무 영웅이나 주문의 비용만큼 <kw>critical</kw> <b>생명력 피해</b>를 받는다.
+              이 피해는 <b>줄일 수 없다</b></div>
+            <div class="rule-k">횟수</div><div class="rule-v">각 영웅이 <b>게임 턴당 1개</b>까지, <b>종족 능력처럼</b> 시전한다</div>
+          </div>
+          <div class="rule-h">기본 주문 셋</div>
+          <div class="rule-grid">
+            <div class="rule-k">Body Control<br><span class="it-sub">육체 통제 · 치명 <st>health</st> <b>2</b></span></div>
+            <div class="rule-v">방금 <b>실패한 스탯 굴림</b> 하나의 결과를 <b>티어만큼</b> 조정할 수 있다</div>
+            <div class="rule-k">Kiss of Darkness<br><span class="it-sub">어둠의 입맞춤 · 치명 <st>health</st> <b>1</b></span></div>
+            <div class="rule-v">대상 하나의 <st>health</st>을 <b>티어만큼</b> <kw>heal</kw>한다</div>
+            <div class="rule-k">Accursed Revival<br><span class="it-sub">저주받은 부활 · 치명 <st>health</st> <b>5</b></span></div>
+            <div class="rule-v">죽은 영웅을 <kw>revive</kw>시킨다. 그 영웅은 <b>Ghost 유령</b>이나 <b>Zombie 좀비</b>
+              위대한 양상을 얻는다(직접 선택)</div>
+          </div>`},
+
+
+        {name:{en:"Clues",ko:"단서 — 룬과는 별개"}, desc:`
           <div class="rule-v">단서는 룬과는 별개다. 낮·밤 바의 <b>빈 슬롯 어디에나</b> 놓을 수 있고, 보통 상황 단계에 <b>조사</b> 위에 놓인다.</div>
           <div class="rule-grid">
             <div class="rule-k">최대</div><div class="rule-v">한 슬롯에 <b>3개</b>까지</div>
@@ -3691,15 +3979,66 @@ const SERIES = {
           </div>`},
 
         {name:{en:"Keepsakes",ko:"킵세이크"}, desc:`
-          <div class="rule-v">킵세이크는 영웅 <b>영혼의 파편</b>이다. 게임 시작 시 무작위로 <b>1장</b> 뽑아 역할판 아래에 두고, <b>발동할 때까지 보지 않는다</b>.</div>
+          <div class="rule-v" style="font-style:italic;color:var(--ink-faint);margin-bottom:6px">킵세이크는 영웅 영혼의 파편이다. 영웅이 죽으면 그 조각이 깨어나,
+            아직 살아 있는 동료들을 돕도록 혼을 움직이기도 한다.</div>
+          <div class="rule-v">게임 시작 시 무작위로 <b>1장</b> 뽑아 <b>역할판 아래</b>에 두고,
+            <b>발동할 때까지 보지 않는다</b>. 킵세이크는 <b>어느 HEXplore It 게임에서든</b> 쓸 수 있다.</div>
+          <div class="rule-h">발동</div>
           <div class="rule-grid">
-            <div class="rule-k">발동</div><div class="rule-v">영웅이 죽는 순간, <b>위대한 양상을 얻지 못했다면</b> 달 주사위를 굴린다.
-              결과가 <b><st>defence</st> 랭크 + 방어 기어 업그레이드 수</b> 이하면 발동한다</div>
-            <div class="rule-k">발동 후</div><div class="rule-v">카드를 뒤집어 마스터리 위에 놓는다. 그 영웅은 <b>킵세이크 능력만</b> 쓸 수 있고, <b>죽은 것으로 취급</b>된다</div>
-            <div class="rule-k">능력</div><div class="rule-v"><b>종족 능력</b>처럼 다루며, 쓸 때마다 요구된 스탯의 <b>랭크를 소모</b>한다</div>
+            <div class="rule-k">굴림</div><div class="rule-v">영웅이 죽는 <b>순간</b>, <b>위대한 양상을 얻지 못했다면</b> <b>Moon 달 주사위</b>를 굴린다.
+              결과가 <b><st>defence</st> 랭크 + 지닌 방어 기어 업그레이드 수</b> <b>이하</b>면 발동한다</div>
+            <div class="rule-k">소지품</div><div class="rule-v">발동하면 <b>다른 영웅들이 소지품을 나눠 갖는다</b> —
+              골드 · 음식 · 아이템 등 전부. 다만 <b>기어 업그레이드는 제외</b>다</div>
+            <div class="rule-k">카드 놓기</div><div class="rule-v">킵세이크를 뒤집어 <b>마스터리 설명 위에</b> 덮어 놓는다.
+              그 능력이 <b>마스터리를 대신한다</b></div>
+            <div class="rule-k">사용 비용</div><div class="rule-v">카드에 적힌 대로 <b>자신의 스탯 랭크를 깎아</b> 능력을 쓴다.
+              <b>종족 능력</b>처럼 다룬다</div>
+            <div class="rule-k">Role 역할 일치</div><div class="rule-v">생전의 <b>역할(계통)</b>이 카드에 적힌 유형과 <b>같으면</b>
+              킵세이크 능력 <b>하나가 더 강해진다</b></div>
             <div class="rule-k">소멸</div><div class="rule-v">두 능력을 <b>모두 쓸 수 없게 되면</b> 영혼이 떠나 게임에서 제거된다 — 더는 <kw>revive</kw>할 수 없다</div>
             <div class="rule-k">부활</div><div class="rule-v">킵세이크가 활성이고 능력을 <b>하나라도</b> 쓸 수 있는 동안에는 <kw>revive</kw>될 수 있다</div>
+          </div>
+          <div class="rule-h">카드는 이렇게 생겼다 <span class="rule-tag">견본</span></div>
+          <div class="rule-v" style="color:var(--ink-faint)">역할 유형 <b>Striker</b> · <b>Assist</b>가 적힌 카드의 예 —
+            비용의 <b>VITAL</b>은 생명력 스탯, <b>ANY</b>는 아무 스탯이나 그만큼 랭크를 깎는다는 뜻이다.</div>
+          <div class="rule-grid">
+            <div class="rule-k">Life Drain<br><span class="it-sub">생명 흡수 · <b>생명력 2랭크</b></span></div>
+            <div class="rule-v">전투 중 <b>선언 페이즈</b>에 <b>전투 라운드당 1회</b>까지, 동료 하나에게
+              <b>전투가 끝날 때까지 Life Drain</b>을 준다. 그 동료가 Life Drain으로 적의 생명력에 피해를 줄 때마다
+              <b>전투가 끝날 때까지</b> <kw>regen</kw> <st>health</st> <b>1</b>을 얻는다. 이 효과는 <b>자기 자신과 중첩</b>된다.<br>
+              생전에 <b>Striker</b>였다면 이 <kw>regen</kw>이 <b>2</b>로 오르고 <b><st>health</st>과 <st>energy</st> 모두</b>에 적용된다</div>
+            <div class="rule-k">Protoplasm<br><span class="it-sub">원형질 · <b>아무 스탯 1랭크</b></span></div>
+            <div class="rule-v"><b>게임 턴당 2회</b>까지, 구매할 수 있는 <b>1회용 아이템</b>을 만들어 내어 원하는 대상에게 쓴다.
+              만들 수 있는 것은 <b>자신의 가장 높은 Ability 능력 랭크보다 비용이 낮은</b> 아이템뿐이다.<br>
+              생전에 <b>Assist</b>였다면 <b>랭크를 1 더 써서</b> 비용에 상관없이 1회용 아이템을 만들 수 있다</div>
           </div>`},
+
+        {name:{en:"Greater Aspects",ko:"위대한 양상 — 죽을 때"}, desc:`
+          <div class="rule-v">영웅이 <b>죽는 순간</b>의 처리 순서다. 킵세이크와 위대한 양상은 <b>둘 중 하나만</b> 일어난다.</div>
+          <div class="rule-steps">
+            <div class="rule-step"><span class="n">1</span><span class="t">다른 효과가 <b>위대한 양상을 준다면</b> 그것을 얻는다</span></div>
+            <div class="rule-step"><span class="n">2</span><span class="t">아니면 <b>킵세이크</b> 발동을 굴린다(<b>달 주사위</b>)</span></div>
+            <div class="rule-step"><span class="n">3</span><span class="t">킵세이크도 발동하지 않았다면 <b>코어 주사위</b>를 굴려 아래 표를 본다</span></div>
+          </div>
+          <div class="rule-h">코어 주사위 표</div>
+          <div class="rule-grid">
+            <div class="rule-k">헥스</div><div class="rule-v">아래 <b>셋 중 하나</b>를 직접 고른다</div>
+            <div class="rule-k">2</div><div class="rule-v"><b>Ghost 유령</b></div>
+            <div class="rule-k">3</div><div class="rule-v"><b>Reanimated 되살아난 자</b></div>
+            <div class="rule-k">4</div><div class="rule-v"><b>Zombie 좀비</b></div>
+            <div class="rule-k">5 ~ 10</div><div class="rule-v">아무것도 얻지 못한다</div>
+          </div>
+          <div class="rule-h">얻은 뒤</div>
+          <div class="rule-grid">
+            <div class="rule-k">부활</div><div class="rule-v"><b>빌런 단계가 끝날 때</b> 생명력이 <b>가득 찬 채로</b> <kw>revive</kw>되고
+              표에 나온 위대한 양상을 얻는다</div>
+            <div class="rule-k">겹침</div><div class="rule-v"><b>여러 영웅이 같은</b> 위대한 양상을 얻어도 된다</div>
+            <div class="rule-k">두 번째 죽음</div><div class="rule-v">위대한 양상을 가진 영웅이 죽으면 <b>영원히 죽는다</b> —
+              다시는 <kw>revive</kw>될 수 없다. 그 패턴이 <b>부서져 되돌릴 수 없다</b></div>
+          </div>
+          <div class="rule-v" style="margin-top:8px;color:var(--ink-faint)">표에 없는 나머지 위대한 양상
+            (저주받은 자 · 늑대인간 · 뱀파이어 · 축복받은 자)은 다른 경로로 얻는다.
+            능력치와 능력은 <b>빌더의 양상 목록</b>에 있다.</div>`},
 
         {name:{en:"Familiars",ko:"패밀리어"}, desc:`
           <div class="rule-v">패밀리어는 영웅을 돕는 <b>동료</b>다. 저마다 고유하며 <b>게임당 한 번만</b> 얻을 수 있다. 여러 마리를 동시에 데릴 수 있다.</div>

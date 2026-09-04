@@ -297,6 +297,12 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
   color:var(--ink);font-family:"Cinzel";font-size:11.5px;display:flex;align-items:center;justify-content:center}
 .rule-step .t{font-size:13px;color:var(--ink-dim);line-height:1.55}
 .rule-en{font-size:11.5px;color:var(--ink-faint);margin-top:11px;padding-top:8px;border-top:1px dashed var(--edge);line-height:1.5}
+/* 상점 표 — 이름 아래에 한글과 비용, 설명 끝에 사용 유형 태그 */
+.it-sub{display:block;font-weight:400;font-size:11.5px;color:var(--ink-faint);margin-top:2px}
+.it-sub .g{color:var(--g-explore)}
+.it-per{font-size:10px;letter-spacing:.03em;opacity:.75}
+.it-star{color:var(--accent);font-weight:700}
+.it-note{margin-top:10px;font-size:11.5px;color:var(--ink-faint)}
 .rule-tag{display:inline-block;font-family:"Cinzel";font-size:10px;letter-spacing:.05em;padding:1px 7px;border-radius:10px;
   border:1px solid var(--edge-bright);color:var(--ink-faint);margin-left:6px;vertical-align:1px}
 @media(max-width:560px){.rule-grid{grid-template-columns:1fr;gap:2px 0}
@@ -467,11 +473,66 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .rec-memo{font-size:12.5px;color:var(--ink-dim);margin-top:6px;padding:6px 8px;background:rgba(0,0,0,.2);border-radius:6px}
 .load-row{display:flex;gap:8px;align-items:center}
 .btn.slot{flex:1;text-align:left}
+/* 고르는 목록(패밀리어 등) — 칸을 고르게 깔고 이름을 영/한 두 줄로 나눠 읽기 쉽게 */
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(186px,1fr));gap:8px}
+.pick-slot{position:relative;text-align:left;padding:11px 36px 11px 14px;line-height:1.3}
+.pick-slot .en{display:block;font-size:14px}
+.pick-slot .ko{display:block;font-size:12px;color:var(--ink-dim);margin-top:2px}
+.pick-slot .tail{position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  font-family:"Cinzel";font-size:11px;font-weight:600;color:var(--ink-faint);opacity:.85}
+
+/* ---------- reference tab ---------- */
+/* 참조 구획이 상단 탭이던 시절엔 4편 기준 9개가 늘어서 모바일에서 대부분 숨었다.
+   지금은 검색창 하나 + 접히는 세그먼트 줄로 내려왔다. */
+.refbar{display:flex;gap:8px;align-items:center;margin:2px 0 10px}
+#refGlobal{flex:1;min-width:0;padding:13px 14px;min-height:46px;border-radius:10px;
+  border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);
+  font-family:"Noto Serif KR";font-size:13.5px}
+#refGlobal:focus{outline:none;border-color:var(--accent)}
+.rsegbar{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.rseg{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap;
+  font-family:"Cinzel";font-size:12px;letter-spacing:.04em;padding:9px 13px;min-height:38px;
+  border-radius:999px;border:1px solid var(--edge);background:var(--panel-2);
+  color:var(--ink-faint);cursor:pointer}
+.rseg .ko{font-family:"Noto Serif KR";font-size:11px;letter-spacing:0}
+.rseg.on{color:var(--ink);border-color:var(--accent);
+  background:color-mix(in srgb,var(--accent-dim) 18%,var(--panel-2))}
+
+/* 접힌 채로도 무슨 항목인지 — 제목 아래 첫머리 한 줄 */
+.acc-title{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;text-align:left}
+.acc-peek{font-size:11.5px;color:var(--ink-faint);line-height:1.4;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc.on .acc-peek{display:none}
+.acc-search{width:100%;padding:11px 13px;min-height:42px;margin:0 0 4px;border-radius:9px;
+  border:1px solid var(--edge-bright);background:rgba(0,0,0,.25);color:var(--ink);
+  font-family:"Noto Serif KR";font-size:13px}
+.acc-search:focus{outline:none;border-color:var(--accent)}
+.acc-count{font-size:11px;color:var(--ink-faint);margin:2px 0 6px;min-height:14px}
+.rail-body .acc-search,.rail-body .acc-count,.rail-body .acc-peek{display:none}
+
+/* 검색 결과에 붙는 구획 칩 — 누르면 그 구획으로 간다 */
+.ref-sec{flex:0 0 auto;margin-left:auto;font-family:"Noto Serif KR";font-size:10.5px;
+  padding:3px 9px;border-radius:999px;border:1px solid var(--edge-bright);
+  color:var(--ink-faint);background:rgba(0,0,0,.2);cursor:pointer}
+.ref-sec:hover{color:var(--ink);border-color:var(--accent)}
+
+@media(max-width:560px){
+  .rseg{font-size:11px;padding:7px 10px;min-height:34px;gap:4px}
+  .rseg .ko{font-size:10.5px}
+  #refGlobal{font-size:12.5px;padding:11px 12px;min-height:42px}
+}
+
+/* 본문 안에서 다른 참조로 건너뛰는 링크 */
+.reflink{color:var(--accent);border-bottom:1px dashed var(--accent-dim);cursor:pointer}
+.reflink:hover{border-bottom-style:solid}
+.ref-flash{animation:refflash 1.4s ease-out}
+@keyframes refflash{0%{background:color-mix(in srgb,var(--accent-dim) 30%,transparent)}100%{background:transparent}}
 
 /* ---------- modal ---------- */
 .modal-bg{position:fixed;inset:0;background:rgba(5,3,10,.78);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;backdrop-filter:blur(3px)}
 .modal-bg.on{display:flex}
 .modal{background:var(--panel);border:1px solid var(--edge-bright);border-radius:16px;padding:20px;max-width:440px;width:100%;box-shadow:var(--shadow);max-height:88vh;overflow:auto}
+.modal.wide{max-width:760px}
 .modal h3{font-family:"Cinzel";font-size:16px;letter-spacing:.08em;margin:0 0 14px}
 .field{margin-bottom:12px}
 .field label{display:block;font-size:11px;font-family:"Cinzel";letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:5px}
