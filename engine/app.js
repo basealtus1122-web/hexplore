@@ -1039,16 +1039,26 @@ function resCard(char,cls,en,ko,key){
    구성은 시리즈 데이터(series.party)가 정하고, 여기서는 kind 별로 그리기만 한다.
    기록은 char.party 에 들어가므로 캐릭터 저장·불러오기에 그대로 따라간다.
    ===================================================================== */
-function partyState(char){
+function partyState(char,series){
   if(!char.party||typeof char.party!=="object")char.party={};
   const P=char.party;
-  if(typeof P.blood!=="number")P.blood=0;
-  if(typeof P.tier!=="number")P.tier=0;
-  if(typeof P.crypts!=="number")P.crypts=0;
+  /* 카운터의 시작값은 시리즈가 정한다 — 기본판 웅덩이는 0 에서 오르고, 균열은 100 에서 내린다 */
+  ((series&&series.party)||[]).forEach(b=>{
+    if(b.kind==="counter"&&typeof P[b.id]!=="number")P[b.id]=b.init||0;
+  });
   if(!P.impart||typeof P.impart!=="object")P.impart={};
   if(!P.act||typeof P.act!=="object")P.act={r:0,g:0,b:0};
   ["r","g","b"].forEach(k=>{if(typeof P.act[k]!=="number")P.act[k]=0;});
+  if(!P.horrors||typeof P.horrors!=="object")P.horrors={};
+  if(!P.dgrace||typeof P.dgrace!=="object")P.dgrace={pick:0,rank:0};
   return P;
+}
+function partyHorror(P,id){
+  if(!P.horrors[id])P.horrors[id]={on:false,lv:0};
+  const h=P.horrors[id];
+  if(typeof h.on!=="boolean")h.on=false;
+  if(typeof h.lv!=="number")h.lv=0;
+  return h;
 }
 function partyMon(P,id){
   if(!P.impart[id])P.impart[id]={r:0,g:0,b:0,cut:0,got:false};
@@ -1083,7 +1093,7 @@ function pStep(attr,val,extra){
 function partyBody(char,series){
   const list=series.party||[];
   if(!list.length)return `<div class="section"><div class="empty-note">이 시리즈의 파티 기록표가 아직 비어 있습니다.</div></div>`;
-  const P=partyState(char);
+  const P=partyState(char,series);
   return `<div class="section party">
     <div class="sec-head"><span>Party · 파티 기록</span></div>
     <div class="p-intro">그룹이 함께 쓰는 값들입니다. 캐릭터를 저장하면 이 기록도 함께 남습니다.</div>
@@ -1166,10 +1176,38 @@ function partyBlock(char,P,b){
         <span class="p-read big"><span class="l">게임 종료 시 피의 웅덩이</span><b>-${cut}</b></span>
       </div>${note}</div>`;
   }
+  if(b.kind==="horrors"){
+    /* 등장 순서가 곧 레벨(5·7·9·11)이라, 몇째로 왔는지도 함께 보여 준다 */
+    const order=(b.list||[]).filter(x=>partyHorror(P,x.id).on).length;
+    const rows=(b.list||[]).map(x=>{
+      const h=partyHorror(P,x.id);
+      return `<div class="p-mon ${h.on?"on":""}">
+        <div class="p-mon-top">
+          <button class="p-on ${h.on?"on":""}" data-phon="${x.id}">${h.on?"등장":"미등장"}</button>
+          <b class="p-mon-name">${x.name}</b></div>
+        <div class="p-mon-body">
+          <span class="p-rune"><span class="p-rune-l">Level 레벨</span>
+            ${pStep(`data-phlv="${x.id}"`,h.lv)}</span></div>
+        <div class="p-mon-next">목표 <b>${x.target}</b> · 이동 ${x.move}</div></div>`;}).join("");
+    return `<div class="p-block">${head}
+      <div class="p-reads"><span class="p-read"><span class="l">지도 위의 공포</span><b>${order}</b></span>
+        <span class="p-read"><span class="l">빌런 단계 웅덩이 감소</span><b>-${Math.max(1,order)}</b></span></div>
+      <div class="p-mons">${rows}</div>${note}</div>`;
+  }
+  if(b.kind==="darkgrace"){
+    const g=P.dgrace, picks=[1,2,3].map(i=>
+      `<button class="p-mode ${g.pick===i?"on":""}" data-pdg="${i}">눈 ${i}</button>`).join("");
+    return `<div class="p-block">${head}
+      <div class="p-row"><span class="p-modes">${picks}</span>
+        <span class="p-rune"><span class="p-rune-l">Rank 랭크</span>${pStep('data-pdgr="1"',g.rank)}</span>
+        <button class="p-jump" data-pdg="0">없음</button></div>
+      <div class="p-reads"><span class="p-read"><span class="l">지금 가진 것</span>
+        <b>${g.pick?`${g.pick}번 · 랭크 ${g.rank}`:"없음"}</b></span></div>${note}</div>`;
+  }
   return `<div class="p-block">${head}<div class="empty-note">알 수 없는 기록 유형입니다.</div></div>`;
 }
 function bindParty(char,series){
-  const P=partyState(char);
+  const P=partyState(char,series);
   const lim=(v,max)=>Math.max(0,Math.min(max==null?999:max,v));
   const maxOf=id=>{const b=(series.party||[]).find(x=>x.id===id);return b&&b.max;};
   root.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{
@@ -1190,12 +1228,29 @@ function bindParty(char,series){
     m.got=true; m.r=m.g=m.b=0; m.cut=0; renderBoard();});
   root.querySelectorAll("[data-pa]").forEach(b=>b.onclick=()=>{
     const k=b.dataset.pa; P.act[k]=lim(P.act[k]+(+b.dataset.d)); renderBoard();});
+  root.querySelectorAll("[data-phon]").forEach(b=>b.onclick=()=>{
+    const h=partyHorror(P,b.dataset.phon); h.on=!h.on;
+    /* 처음 등장시키면 등장 순서에 맞는 레벨을 미리 넣어 준다 — 5 · 7 · 9 · 11 */
+    if(h.on&&!h.lv){
+      const list=((series.party||[]).find(x=>x.kind==="horrors")||{}).list||[];
+      const nth=list.filter(x=>partyHorror(P,x.id).on).length;
+      h.lv=[5,7,9,11][Math.min(3,Math.max(0,nth-1))];
+    }
+    renderBoard();});
+  root.querySelectorAll("[data-phlv]").forEach(b=>b.onclick=()=>{
+    const h=partyHorror(P,b.dataset.phlv); h.lv=lim(h.lv+(+b.dataset.d)); renderBoard();});
+  root.querySelectorAll("[data-pdg]").forEach(b=>b.onclick=()=>{
+    const v=+b.dataset.pdg; P.dgrace.pick=v; if(!v)P.dgrace.rank=0; renderBoard();});
+  root.querySelectorAll("[data-pdgr]").forEach(b=>b.onclick=()=>{
+    P.dgrace.rank=lim(P.dgrace.rank+(+b.dataset.d)); renderBoard();});
 }
 /* 참조 구획 — 예전엔 이것들이 전부 상단 탭이었다. 4편 기준 9개라
    모바일(351px)에서 폭 1198px 어치가 되어 대부분이 가로 스크롤 뒤로 숨었다.
    지금은 '참조' 탭 하나 안의 세그먼트로 들어가고, 그 위에 전역 검색이 붙는다. */
 function refSections(series){
-  const out=[{id:"keywords",label:{en:"Keywords",ko:"키워드"}}];
+  const out=[];
+  if(series.turn)out.push({id:"turn",label:{en:"Turn",ko:"턴 흐름"}});   /* 순서를 잊었을 때 흘끗 보는 한 장 */
+  out.push({id:"keywords",label:{en:"Keywords",ko:"키워드"}});
   if(series.exKeywords&&Object.keys(series.exKeywords).length)
     out.push({id:"exkeywords",label:{en:"Siege",ko:"전용 키워드"}});
   out.push({id:"conditions",label:{en:"Conditions",ko:"상태"}},
@@ -1218,7 +1273,8 @@ function refIndex(series){
   const out=[], add=(sec,id,name,desc,tag)=>out.push({sec,secId:id,name,desc,tag:tag||""});
   refSections(series).forEach(s=>{
     const L=s.label.ko;
-    if(s.id==="keywords")        Object.values(series.keywords||{}).forEach(v=>add(L,s.id,v.name,v.desc));
+    if(s.id==="turn")            add(L,s.id,{en:"Turn Flow",ko:"턴 흐름"},series.turn||"");
+    else if(s.id==="keywords")   Object.values(series.keywords||{}).forEach(v=>add(L,s.id,v.name,v.desc));
     else if(s.id==="exkeywords") Object.values(series.exKeywords||{}).forEach(v=>add(L,s.id,v.name,v.desc));
     else if(s.id==="conditions") Object.values(series.conditions||{}).forEach(v=>add(L,s.id,v.name,v.desc));
     else if(s.id==="rules")      (series.rules||[]).forEach(r=>add(L,s.id,r.title,r.body));
@@ -1267,6 +1323,10 @@ function referenceScreen(char,series){
 /* ---------- reference tabs (keywords / conditions / rules / items / extras) ---------- */
 function referenceBody(char,series,tab){
   const empty=msg=>`<div class="section"><div class="empty-note">${msg}</div></div>`;
+  if(tab==="turn"){
+    if(!series.turn)return empty("이 시리즈의 턴 흐름 시트가 아직 비어 있습니다.");
+    return `<div class="section"><div class="sec-head">Turn Flow · 턴 흐름</div>${expand(char,series.turn)}</div>`;
+  }
   if(tab==="keywords"){
     const ks=series.keywords||{};if(!Object.keys(ks).length)return empty("이 시리즈의 키워드가 아직 비어 있습니다. data.js에서 채우세요.");
     return refList(char,"Keywords · 키워드",Object.values(ks));

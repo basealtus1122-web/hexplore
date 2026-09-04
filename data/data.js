@@ -3307,6 +3307,117 @@ const DIFFICULTY = [
    passive:"보스가 <b>Difficult</b> 패시브를 얻는다", vitals:"영웅당 +50", outlast:"+6", damage:"+6", penalty:"+3", gear:"기어 업그레이드"},
 ];
 
+/* 4편 균열 — 턴 흐름과 파티 기록.
+   규칙 자체는 균열 탭에 있고, 여기 있는 것은 "순서 한 장"과 "그룹이 굴리는 값"이다.
+   기본판과 갈리는 지점이 많아 4편 것을 그대로 쓸 수 없다 —
+   차례가 6단계이고, 피의 웅덩이가 100에서 줄어들며, 헌납·활성화가 웅덩이를 건드리지 않는다. */
+const B_TURNSHEET = `
+  <div class="ts-note">게임 상태는 실물 판이 듭니다. 이 시트는 <b>순서를 잊었을 때</b> 흘끗 보는 용도입니다.
+    기본판과 <b>달라지는 곳</b>에 표시를 달아 두었습니다.</div>
+  <div class="turnsheet">
+
+    <div class="ts-phase"><div class="ts-n">1</div><div class="ts-body">
+      <div class="ts-title">Noctis Acts 녹티스의 행동 <span class="ts-new">균열 전용</span>
+        <ref t="breach" e="녹티스의 행동">자세히</ref></div>
+      <div class="ts-line">녹티스의 <b>콜렉터 주사위를 모두</b> 굴려 <b>합계</b>를 낸 뒤,
+        <b>Ascended 판</b>의 행동을 처리한다 <span class="ts-real">실물</span></div>
+      <div class="ts-line"><b>4개 이상 같은 눈</b>이면(남은 주사위가 4개 미만이면 전부 일치)
+        <b>Dark Grace</b>를 얻는다 — 어느 것인지는 <b>일치한 눈(1·2·3)</b>, 랭크는 <b>일치한 개수</b>.
+        <span class="ts-app">파티 탭</span></div>
+      <div class="ts-line">주사위는 <b>7개</b>로 시작해 웅덩이가 <b>90 · 70 · 50 · 30 · 10</b>이 될 때마다 하나씩 잃는다.
+        이 모드에서 콜렉터 주사위는 <b>지도에 놓지 않는다</b>.</div>
+    </div></div>
+
+    <div class="ts-phase"><div class="ts-n">2</div><div class="ts-body">
+      <div class="ts-title">Movement 이동 <ref t="rules" e="Movement">자세히</ref></div>
+      <div class="ts-line"><b>☀ 낮 / ☾ 밤</b>을 정하고 방식을 골라 움직인다 — <b>기본판과 같다</b>
+        <span class="ts-real">실물</span></div>
+      <div class="ts-line"><span class="ts-chg">달라짐</span> <b>빌런 행동 보정 주사위를 쓰지 않는다.</b>
+        쌓인 보정도 무시한다 — 방식은 <b>굴릴 기술만</b> 가른다.</div>
+      <div class="ts-grid">
+        <div class="ts-k">Camp · Cautious</div><div class="ts-v">굴림 <b>탐험 · 생존</b>(길찾기 자동 성공)</div>
+        <div class="ts-k">Normal</div><div class="ts-v">굴림 <b>길찾기 · 탐험 · 생존</b></div>
+        <div class="ts-k">Reckless</div><div class="ts-v">굴림 <b>길찾기</b> + <b>탐험 또는 생존</b> 중 하나</div>
+      </div>
+    </div></div>
+
+    <div class="ts-phase"><div class="ts-n">3</div><div class="ts-body">
+      <div class="ts-title">Skill 기술 <ref t="rules" e="Navigate">자세히</ref></div>
+      <div class="ts-line">영웅마다 <b>각자</b> 코어 주사위 — <b>기본판과 같다</b></div>
+      <div class="ts-line"><span class="ts-chg">달라짐</span> <b>탐험 대성공</b>에 선택지가 하나 늘었다 —
+        기존 보너스 대신 <b>아무 영웅의 광기 1개를 제거</b>할 수 있다.</div>
+    </div></div>
+
+    <div class="ts-phase"><div class="ts-n">4</div><div class="ts-body">
+      <div class="ts-title">Circumstance 상황 <ref t="rules" e="Circumstance Cards">자세히</ref></div>
+      <div class="ts-line">영웅 <b>한 명</b>이 헥스 주사위 · <b>5 또는 헥스</b>면 조우 ·
+        보스 · 지하묘지 · 수도원 · 마을에서 끝냈으면 <b>건너뛴다</b></div>
+      <div class="ts-line"><span class="ts-chg">달라짐</span> 결과가 <b>공포 덱 슬롯</b>이면
+        그 <b>공포 덱</b>에서 다음 카드를 뽑아 플레이한다.</div>
+      <div class="ts-line">공포 덱의 조사는 <b>보라 룬</b>을 주고, <b>Nightmare Level</b>이 기본판의 의심도 자리를 대신한다
+        <ref t="rules" e="Investigations">조사</ref></div>
+    </div></div>
+
+    <div class="ts-phase"><div class="ts-n">5</div><div class="ts-body">
+      <div class="ts-title">Event 이벤트 <ref t="rules" e="Events">자세히</ref></div>
+      <div class="ts-line">마을 · 수도원 · 지하묘지 · 보스 · 조사에서 끝냈을 때 — <b>기본판과 같다</b></div>
+      <div class="ts-line"><span class="ts-chg">달라짐</span> <b>녹티스 성은 이벤트 장소가 아니다.</b>
+        수도원 <b>룬 헌납</b>과 지하묘지 <b>룬 활성화</b>는 이 모드에서 <b>웅덩이를 줄이지 않는다</b>
+        (파워업 · 은총 · 피의 마법 티어는 그대로).</div>
+      <div class="ts-line">마을에는 여전히 콜렉터가 있는 것으로 친다. <b>☾ 밤</b>에 찾아내 쓰러뜨리면
+        <b>싸운 콜렉터 수만큼</b> 웅덩이가 줄어든다.</div>
+    </div></div>
+
+    <div class="ts-phase"><div class="ts-n">6</div><div class="ts-body">
+      <div class="ts-title">Villain 빌런 · The Horrors <span class="ts-new">균열 전용</span>
+        <ref t="breach" e="공포">자세히</ref></div>
+      <div class="ts-grid">
+        <div class="ts-k">① 웅덩이</div><div class="ts-v"><b>지도의 공포 수만큼</b>(최소 <b>1</b>) 줄인다.
+          공포가 하나도 없으면 <b>다음 등장선까지</b> 낮춘다 <span class="ts-app">파티 탭</span></div>
+        <div class="ts-k">② 트리거</div><div class="ts-v">Ascended 판에서 <b>공포 등장 · 주사위 상실 · 균열 개방</b>이 걸렸는지 본다
+          <span class="ts-real">실물</span></div>
+        <div class="ts-k">③ 공포 행동</div><div class="ts-v"><b>달 주사위 1회</b>로 공포 판의 표를 본다 —
+          <b>2·7</b> Tragedy · <b>3·8</b> Cataclysm · <b>4·9</b> Calamity · <b>5·10</b> Disaster(그 공포가 있을 때만) ·
+          <b>6</b> 공통 1회 · <b>11~12</b> 등장 순서대로 <b>전부</b></div>
+        <div class="ts-k">④ 이동</div><div class="ts-v">공포들이 각자 <b>목표를 향해</b> 움직인다.
+          통행 불가를 <b>무시</b>하고 서로 <b>겹칠 수 있다</b></div>
+      </div>
+    </div></div>
+
+  </div>`;
+
+/* 균열의 파티 기록 — 웅덩이가 100에서 0으로 내려가고, 그 값이 거의 모든 것을 정한다.
+   기본판의 수도원 -5 · 지하묘지 감소는 이 모드에 없으므로 넣지 않는다. */
+const B_PARTY = [
+  {kind:"counter", id:"blood", label:{en:"Blood Pool",ko:"피의 웅덩이"}, max:100, init:100, step:5,
+   note:`빌런 단계마다 <b>지도의 공포 수만큼</b>(최소 1) 줄어든다.
+     <b>0</b>이 되면 World Render가 넘어와 <b>패배</b>한다.
+     이 모드에서는 룬 헌납·활성화가 웅덩이를 <b>건드리지 않는다</b>.`,
+   readout:(v)=>{
+     const dice=Math.max(0,7-[90,70,50,30,10].filter(t=>v<=t).length);
+     const came=[100,80,60,40].filter(t=>v<=t).length;
+     return [
+       {lab:"녹티스 콜렉터 주사위", val:dice},
+       {lab:"넘어온 공포", val:came+" / 4"},
+       {lab:"다음 공포 등장선", val:(v>80?"80":v>60?"60":v>40?"40":"전부 등장")},
+       {lab:"균열 입장 · 70 이하", val:(v<=70?"가능":"—")},
+       {lab:"World Render", val:(v<=0?"패배":"—")}];}},
+
+  {kind:"horrors", id:"horrors", label:{en:"The Horrors",ko:"공포 4종"},
+   note:`등장 순서대로 레벨 <b>5 · 7 · 9 · 11</b>로 들어온다. 진행 중에 오르내리므로 여기서 맞춰 둔다.
+     전투 전에 <b>보라 룬</b>을 버려 1개당 레벨을 1 낮출 수 있다(최소 1).
+     각 공포의 <b>행동과 생명력은 공포 판</b>에 있다.`,
+   list:[{id:"calamity", name:"Calamity",  target:"Crypt 지하묘지",   move:"5레벨 3헥스 · 9레벨 5헥스"},
+         {id:"tragedy",  name:"Tragedy",   target:"Village 마을",     move:"2헥스 · 9레벨 4헥스 (배회는 2배)"},
+         {id:"disaster", name:"Disaster",  target:"Monastery 수도원", move:"2헥스 · 9레벨 4헥스"},
+         {id:"cataclysm",name:"Cataclysm", target:"Boss 보스 위치",   move:"5레벨 3헥스 · 9레벨 2헥스 · 11레벨 1헥스"}]},
+
+  {kind:"darkgrace", id:"dgrace", label:{en:"Dark Grace",ko:"다크 그레이스"},
+   note:`녹티스의 콜렉터 주사위가 <b>4개 이상 일치</b>하면 얻는다. <b>일치한 눈</b>이 어느 것인지를,
+     <b>일치한 개수</b>가 랭크를 정한다. <b>한 번에 하나만</b> 가질 수 있고 새로 얻으면 교체한다.
+     효과는 <b>Ascended 판</b>에 있다.`},
+];
+
 const SERIES = {
   "4": {
     id:"4", name:{en:"Hexplore It — Edition 4", ko:"헥스플로어 잇 — 4편"}, short:"4", ord:1,
@@ -3676,6 +3787,94 @@ const SERIES = {
 
       R4_COMBAT, RULES_KWORDER,
     ],
+    /* 턴 흐름 시트 — 참조 탭 맨 앞에 한 장으로 뜬다.
+       게임 상태(낮·밤, 이동 방식, 컨디션, 빌런 행동표)는 실물이 들고,
+       이 시트는 "다음에 뭘 하더라?" 할 때만 흘끗 보는 용도다.
+       그래서 단계마다 결정할 것과 굴릴 것만 남기고, 자세한 것은 <ref> 로 넘긴다. */
+    turn: `
+      <div class="ts-note">게임 상태는 실물 판이 듭니다. 이 시트는 <b>순서를 잊었을 때</b> 흘끗 보는 용도입니다.</div>
+      <div class="turnsheet">
+
+        <div class="ts-phase"><div class="ts-n">1</div><div class="ts-body">
+          <div class="ts-title">Movement 이동 <ref t="rules" e="Movement">자세히</ref></div>
+          <div class="ts-line"><b>☀ 낮 / ☾ 밤</b>을 정하고 그룹이 <b>함께</b> 움직인다 · 기본 <b>턴당 4헥스</b>
+            <span class="ts-real">실물</span></div>
+          <div class="ts-grid">
+            <div class="ts-k">Camp 야영</div><div class="ts-v"><b>안 움직인다.</b> 각자 <st>health</st>3 · <st>energy</st>3 · <kw>critical wound</kw>1 회복 ·
+              기술 <b>-1</b>(중첩) · 길찾기 자동 성공 · 상황 <b>버리기 가능</b><br>
+              <span class="ts-roll">굴림 <b>탐험 · 생존</b> · 빌런 <b>+2</b></span></div>
+            <div class="ts-k">Cautious 신중</div><div class="ts-v"><b>1헥스</b>만, 또는 <b>강 · 도로 따라</b> 평소 속도 ·
+              길찾기 자동 성공 · 상황 <b>버리기 가능</b><br>
+              <span class="ts-roll">굴림 <b>탐험 · 생존</b> · 빌런 <b>+1</b></span></div>
+            <div class="ts-k">Normal 보통</div><div class="ts-v">평소 이동력까지<br>
+              <span class="ts-roll">굴림 <b>길찾기 · 탐험 · 생존</b> · 빌런 <b>보정 없음</b></span></div>
+            <div class="ts-k">Reckless 무모</div><div class="ts-v">각자 <kw>energy drain</kw> <b>2</b> · <b>2헥스 더</b> ·
+              다른 방식보다 <b>우선</b><br>
+              <span class="ts-roll">굴림 <b>길찾기</b> + <b>탐험 또는 생존</b> 중 하나(나머지는 자동 실패) · 빌런 <b>-2</b></span></div>
+          </div>
+          <div class="ts-line">지도 가장자리에 닿으면 <b>맵 타일을 놓고</b> 이동을 이어간다.
+            산맥 · 물은 <b>Scaling Kit · Canoe</b> 없이는 못 들어간다.</div>
+        </div></div>
+
+        <div class="ts-phase"><div class="ts-n">2</div><div class="ts-body">
+          <div class="ts-title">Skill 기술 <ref t="rules" e="Navigate">자세히</ref></div>
+          <div class="ts-line">영웅마다 <b>각자</b> 코어 주사위를 굴린다 — <b>랭크 이하</b> 성공 ·
+            <b>헥스</b> 대성공 · <b>10</b> 대실패</div>
+          <div class="ts-grid">
+            <div class="ts-k"><span style="color:var(--g-navigate)">Navigate 길찾기</span></div>
+            <div class="ts-v">그룹의 <b>절반</b>(올림)이 성공해야 <kw>wander</kw>를 피한다</div>
+            <div class="ts-k"><span style="color:var(--g-explore)">Explore 탐험</span></div>
+            <div class="ts-v">성공 &rarr; <b>골드 2</b>어치 보물</div>
+            <div class="ts-k"><span style="color:var(--g-survival)">Survival 생존</span></div>
+            <div class="ts-v">성공 &rarr; 이번 턴 <b>음식을 먹지 않는다</b> · 실패 &rarr; 소모량만큼 먹거나 <b>Food</b> 아이템 1개</div>
+            <div class="ts-k">대성공 <b>2/3</b></div><div class="ts-v">달 주사위로 <b>무작위 룬</b> — 게임 턴당 1회</div>
+            <div class="ts-k">대성공 <b>3/3</b></div><div class="ts-v">위와 <b>택1</b> · <b>파워업 1장</b>을 각 영웅이</div>
+          </div>
+        </div></div>
+
+        <div class="ts-phase"><div class="ts-n">3</div><div class="ts-body">
+          <div class="ts-title">Circumstance 상황 <ref t="rules" e="Circumstance Cards">자세히</ref></div>
+          <div class="ts-line"><b>보스 · 지하묘지 · 수도원 · 마을</b>에서 이동을 끝냈다면 <b>이 단계를 건너뛴다.</b></div>
+          <div class="ts-grid">
+            <div class="ts-k">굴림</div><div class="ts-v">영웅 <b>한 명</b>이 <b>Hex 헥스 주사위</b> ·
+              <b>☀ 낮</b>에 움직였으면 낮 바, <b>☾ 밤</b>이면 밤 바</div>
+            <div class="ts-k">5 또는 헥스</div><div class="ts-v">바의 카드 대신 <b>Encounter조우</b>를 뽑아 맞선다</div>
+            <div class="ts-k">조사가 나오면</div><div class="ts-v"><b>Clue단서 1</b>을 놓는다(최대 3) · 카드는 <b>남는다</b></div>
+            <div class="ts-k">그 밖의 카드</div><div class="ts-v"><b>플레이</b>하고, 끝나면 <b>새 카드로 슬롯을 채운다</b></div>
+            <div class="ts-k">야영 · 신중이었다면</div><div class="ts-v">굴려 나온 카드를 <b>버릴 수 있다</b></div>
+          </div>
+        </div></div>
+
+        <div class="ts-phase"><div class="ts-n">4</div><div class="ts-body">
+          <div class="ts-title">Event 이벤트 <ref t="rules" e="Events">자세히</ref></div>
+          <div class="ts-line"><b>다섯 장소</b>에서 이동을 끝냈을 때만 일어난다. 한 턴에 처리하는 수에 <b>제한은 없다.</b></div>
+          <div class="ts-grid">
+            <div class="ts-k">Village 마을</div><div class="ts-v">물품 구매 · <b>여관</b>(골드 1 · 턴당 1회, <st>defence</st> 랭크까지 회복) ·
+              <b>룬 판매</b>(개당 골드 10) · <b>☾ 밤</b>이면 콜렉터</div>
+            <div class="ts-k">Monastery 수도원</div><div class="ts-v"><b>들어서면 전부 회복</b> + 컨디션 · 고통 <kw>negate</kw> ·
+              물품 구매 · <b>룬 헌납</b> &rarr; 파워업 · 은총</div>
+            <div class="ts-k">Crypt 지하묘지</div><div class="ts-v">해금(<b>열쇠</b> · <b>기술 3개 전부</b> 성공 · 던전에서 나오기) ·
+              <b>룬 활성화</b> &rarr; 파워업 · 피의 마법 · <b>던전</b> 입장</div>
+            <div class="ts-k">Boss 보스</div><div class="ts-v"><b>전투</b>가 시작된다(지나가기만 하는 것은 아니다)</div>
+            <div class="ts-k">Investigation 조사</div><div class="ts-v">완료하면 <b>룬 1개</b> ·
+              기술 대성공한 영웅은 <b>스탯 랭크 +1</b> <ref t="rules" e="Investigations">자세히</ref></div>
+          </div>
+        </div></div>
+
+        <div class="ts-phase"><div class="ts-n">5</div><div class="ts-body">
+          <div class="ts-title">Villain 빌런 · Mirza Noctis <ref t="rules" e="Villain Phase">자세히</ref></div>
+          <div class="ts-grid">
+            <div class="ts-k">① 피 수확</div><div class="ts-v">콜렉터가 있는 <b>마을마다</b> 그 수만큼 피의 웅덩이가 오른다
+              <span class="ts-app">파티 탭</span></div>
+            <div class="ts-k">② 빌런 행동</div><div class="ts-v">이번 턴 <b>보정</b>을 합산하고 <b>달 주사위</b>를 굴려
+              <b>녹티스 판의 빌런 행동표</b>를 본다 <span class="ts-real">실물</span></div>
+            <div class="ts-k">③ 배회</div><div class="ts-v">배회하는 <b>보스와 토큰</b>이 <kw>roam</kw>한다</div>
+          </div>
+          <div class="ts-line">보정은 <b>턴이 끝나면 0으로</b> 돌아간다(범위 <b>-5 ~ +6</b>).
+            피의 웅덩이가 <b>100</b>이거나 <b>녹티스 성</b>에서 이동을 끝내면 <b>최종 결전</b>.</div>
+        </div></div>
+
+      </div>`,
     /* 파티 기록 — 영웅 하나가 아니라 그룹 전체가 함께 쓰는 값들.
        룬을 어디에 얼마나 냈는지, 피의 웅덩이가 얼마인지처럼 판 밖에서 굴러다니던 것들을 한자리에 모았다.
        kind 마다 엔진에 전용 렌더러가 있다 — counter · monastery · activate.
@@ -4290,6 +4489,8 @@ const V5_VALOR = {id:"valor5", label:{en:"Valor", ko:"용맹"}, entries:[
   const ex = SERIES["4"].extras, byId = id => ex.find(x => x.id === id);
   SERIES["4b"].extras = [byId("dungeon"), byId("rune"), BREACH_TAB, byId("valor")].filter(Boolean);
   SERIES["4b"].items = SERIES["4"].items;
+  SERIES["4b"].turn  = B_TURNSHEET;
+  SERIES["4b"].party = B_PARTY;
 })();
 
 /* 5편 확장 모드는 코어 5편의 공통 룰을 그대로 쓰고, 달라지는 것만 앞에 얹는다 */
