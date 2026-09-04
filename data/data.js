@@ -3496,7 +3496,8 @@ const SERIES = {
       {title:{en:"Circumstance Types", ko:"상황 카드 종류"}, body:`
         <div class="rule-h">Investigations 조사</div>
         <div class="rule-v">결과가 나오면 해당 슬롯에 <b>단서</b>를 놓는다. 그룹은 <b>특정 장소로 이동</b>해 <b>이벤트 단계</b>에 해결해야 한다.
-          다른 종류와 달리 <b>버려지지 않고</b>, 조사를 완료하거나 게임 효과로 버려질 때까지 상황 바에 남는다.</div>
+          다른 종류와 달리 <b>버려지지 않고</b>, 조사를 완료하거나 게임 효과로 버려질 때까지 상황 바에 남는다.<br>
+          유형 여섯 가지 · 카드 읽는 법 · 의심도와 함정 · 호위는 <ref t="rules" e="Investigations">조사</ref> 항목에 따로 있다.</div>
         <div class="rule-h">Afflictions 고통</div>
         <div class="rule-v">그룹에 걸리는 <b>부정적</b> 상황으로 <b>여러 개</b>가 동시에 걸릴 수 있다.
           뽑은 턴부터 카드에 적힌 <b>턴 수</b>만큼 유지되며, <b>수도원</b> 방문으로도 제거된다. 일부는 카드를 <b>추가로 뽑게</b> 한다.</div>
@@ -3511,6 +3512,77 @@ const SERIES = {
           <div class="rule-k">사용</div><div class="rule-v">굴림으로 나오면 <b>단서를 놓거나</b>(최대 3개) 카드에 적힌 <b>마스터리</b>로 <b>스탯 굴림</b>를 한다</div>
           <div class="rule-k">단서 효과</div><div class="rule-v">붙은 단서는 마스터리 굴림 결과를 <b>1씩 낮춘다</b></div>
           <div class="rule-k">결과</div><div class="rule-v">성공 &rarr; 효과를 얻고 카드를 <b>참고용으로 보관</b> · 실패 &rarr; <b>버린다</b></div>
+        </div>`},
+
+      {title:{en:"Investigations", ko:"조사"}, body:`
+        <div class="rule-v">조사는 룬을 얻는 <b>주된 통로</b>다. 낮·밤 덱에서 나오고, 다른 상황 카드와 달리
+          <b>버려지지 않은 채</b> 바에 남아 그룹이 그 장소로 찾아가기를 기다린다.</div>
+        <div class="rule-h">뽑았을 때</div>
+        <div class="rule-grid">
+          <div class="rule-k">룬 스톤 놓기</div><div class="rule-v">카드의 <b>Rune Reward 룬 보상</b>과 <b>같은 색</b> 룬 스톤을
+            지도의 해당 위치에 놓는다 — 그 <b>맵 타일이 드러나 있을 때만</b></div>
+          <div class="rule-k">Interrupt</div><div class="rule-v">리본이 붙어 있으면 <b>윗부분을 즉시</b> 처리하고 카드를 슬롯에 놓는다.
+            나머지는 그 장소에 도착했을 때(또는 Interrupt 조건이 걸릴 때) 평소대로 처리한다</div>
+          <div class="rule-k">Clue 단서</div><div class="rule-v">상황 페이즈에 결과가 조사로 나오면 그 슬롯에 <b>단서</b>를 놓는다(<b>최대 3개</b>)</div>
+        </div>
+        <div class="rule-h">여섯 유형</div>
+        <div class="rule-grid">
+          <div class="rule-k">Aid 지원 <span style="color:var(--ink-faint)">흰 테두리</span></div>
+          <div class="rule-v">물건이나 동료를 그 장소로 <b>데려가거나 데려온다</b></div>
+          <div class="rule-k">Bounty 현상금 <span style="color:var(--g-attack)">빨강</span></div>
+          <div class="rule-v"><b>보스를 쓰러뜨린다</b></div>
+          <div class="rule-k">Invasion 침공 <span style="color:var(--g-firstMastery)">보라</span></div>
+          <div class="rule-v"><b>수도원</b>을 침입자에게서 구한다</div>
+          <div class="rule-k">Skill 기술 <span style="color:var(--ink-faint)">초록 · 노랑 · 하늘</span></div>
+          <div class="rule-v">해당 기술로 <b>코어 주사위</b>를 굴린다. 세 색이 각각 <st>navigate</st> · <st>explore</st> · <st>survival</st>에 대응한다</div>
+          <div class="rule-k">Dual · All Skills</div><div class="rule-v">기술 조사와 같되 <b>2개</b> 또는 <b>전부</b>를 굴려야 한다</div>
+        </div>
+        <div class="rule-h">카드 읽는 법</div>
+        <div class="rule-grid">
+          <div class="rule-k">이름 · 유형</div><div class="rule-v">조사의 이름과 위 여섯 유형 중 무엇인지</div>
+          <div class="rule-k">Clue Bonus</div><div class="rule-v">붙은 <b>단서</b>가 주는 보너스. 함정 효과를 줄여 주는 것이 많다</div>
+          <div class="rule-k">조사 위치</div><div class="rule-v">찾아가야 할 곳(아래 참고)</div>
+          <div class="rule-k">서술 · 추가 규칙</div><div class="rule-v">서술은 분위기용이고, 추가 규칙은 처리 중·후에 일어나는 일이다</div>
+          <div class="rule-k">Rune Reward</div><div class="rule-v">완료했을 때 그룹이 얻는 <b>룬 1개</b>의 색</div>
+          <div class="rule-k">Suspicion · Trap</div><div class="rule-v"><b>기술 유형에만</b> 붙는다 — 아래 참고</div>
+        </div>
+        <div class="rule-h">조사 위치</div>
+        <div class="rule-grid">
+          <div class="rule-k">표기</div><div class="rule-v">사분면 <b>A~D</b> 넷과 헥스타일 <b>E~N</b> 열. 위치 그림에서
+            <b>하얗게 칠해진 헥스</b>가 목적지다</div>
+          <div class="rule-k">여러 곳</div><div class="rule-v">여러 곳이 표시되면 <b>드러난 아무 곳</b>으로 가도 된다</div>
+          <div class="rule-k">망가진 장소</div><div class="rule-v">그 장소가 파괴·정리·변형됐어도(예: <b>황폐한 마을</b>) <b>평소대로</b> 진행한다</div>
+        </div>
+        <div class="rule-h">시도하기</div>
+        <div class="rule-v"><b>Event 이벤트 페이즈</b>에 조사 위치에서 <b>이동을 끝냈다면</b> 시도할 수 있다.
+          먼저 <b>Clue 단서 보너스</b>를 확인하고, 서술을 읽은 뒤 카드가 시키는 대로 처리한다.</div>
+        <div class="rule-h">Suspicion Level 의심도 · Trap 함정 <span class="rule-tag">기술 유형만</span></div>
+        <div class="rule-v">녹티스가 뒤에서 방해한다. 기술 굴림 결과가 <b>의심도 이상</b>이면 <b>함정이 발동</b>한다 —
+          다만 <b>대성공은 발동하지 않는다</b>. 의심도가 <b>낮을수록</b> 잘 걸린다.
+          따로 명시가 없으면 함정은 <b>영웅마다 게임 턴당 1번</b>만 발동한다.</div>
+        <div class="rule-grid">
+          <div class="rule-k">피의 웅덩이</div><div class="rule-v">걸린 <b>영웅마다</b> 표시된 만큼 오른다.
+            <b>Dual · All Skills</b>에서는 <b>걸린 기술 수가 아니라 영웅 수</b>로 한 번씩만 센다</div>
+          <div class="rule-k">Encounter 조우</div><div class="rule-v">한 명이라도 걸리면 그룹이 <b>조우 1장</b>을 뽑아 맞선다</div>
+          <div class="rule-k"><st>health</st> 피해</div><div class="rule-v">걸린 영웅이 표시된 만큼 받는다</div>
+          <div class="rule-k"><st>energy</st> 피해</div><div class="rule-v">걸린 영웅이 표시된 만큼 받는다</div>
+        </div>
+        <div class="rule-h">완료했을 때</div>
+        <div class="rule-grid">
+          <div class="rule-k">룬 스톤</div><div class="rule-v">그 위치의 룬 스톤을 <b>치운다</b></div>
+          <div class="rule-k">보상</div><div class="rule-v">카드의 <b>룬 보상 1개</b>를 그룹이 얻는다 — <ref t="rune" e="룬 쓰기">쓰는 곳은 세 군데</ref></div>
+          <div class="rule-k">카드</div><div class="rule-v">버리고 <b>새 카드를 뽑아</b> 그 슬롯을 채운다</div>
+          <div class="rule-k">기술 대성공</div><div class="rule-v">기술 조사에서 <b>대성공</b>한 영웅은 <b>원하는 스탯 랭크 1</b>을 얻는다.
+            <b>Dual · All Skills</b>에서 대성공이 여럿이면 <b>각각</b> 얻는다</div>
+        </div>
+        <div class="rule-h">Escort 호위</div>
+        <div class="rule-grid">
+          <div class="rule-k">얻는 법</div><div class="rule-v">조사나 다른 상황 카드로 얻는다. 대상을 <b>살려 두어야</b> 한다</div>
+          <div class="rule-k">성격</div><div class="rule-v">얻으면 <b>동료</b>가 된다 — <b>영웅은 아니다</b>.
+            그림에 <st>health</st>(<st>energy</st>는 <b>0</b>)과 <b>매 전투 라운드 수행할 행동</b>이 적혀 있다</div>
+          <div class="rule-k">할 수 있는 것</div><div class="rule-v"><kw>heal</kw>할 수 있고 <b>보상은 받지 않는다</b>.
+            게임 턴 중 언제든 표시된 스탯으로 <b>스탯 굴림</b>을 해 영웅들을 도울 수 있다</div>
+          <div class="rule-k">죽으면</div><div class="rule-v">그 <b>조사 카드를 버린다</b></div>
         </div>`},
 
       {title:{en:"Events", ko:"이벤트 장소"}, body:`
@@ -3621,10 +3693,11 @@ const SERIES = {
       {kind:"monastery", id:"impart", label:{en:"Imparting Runes",ko:"수도원 — 룬 헌납"},
        note:`첫 룬은 <b>파워업 1장</b>. 둘째 룬이 첫 룬과 <b>같은 색이면</b> 그 수도원은 앞으로 같은 색만 받고,
          <b>다르면</b> 세트를 완성해야 한다. 세트를 완성하면 <b>은총</b>을 얻고 기록이 초기화된다.`,
-       list:[{id:"domiel",name:"Domiel"},{id:"lastDawn",name:"Last Dawn"},
-             {id:"gesk",name:"Gesk"},{id:"lakenta",name:"Lakenta"}],
-       graces:[{id:"moon",ko:"달의 은총"},{id:"sun",ko:"태양의 은총"},
-               {id:"light",ko:"빛의 은총"},{id:"dark",ko:"어둠의 은총"}]},
+       /* 은총은 고르는 것이 아니라 수도원마다 정해져 있다 — 판의 토큰(N①·K②·H③·F④)이 1:1로 묶는다 */
+       list:[{id:"domiel",  name:"Domiel",    token:"N ①", grace:{en:"Grace of the Moon",     ko:"달의 은총"}},
+             {id:"lastDawn",name:"Last Dawn", token:"K ②", grace:{en:"Grace of the Sun",      ko:"태양의 은총"}},
+             {id:"gesk",    name:"Gesk",      token:"H ③", grace:{en:"Grace of Light",        ko:"빛의 은총"}},
+             {id:"lakenta", name:"Lakenta",   token:"F ④", grace:{en:"Grace of Darkness",     ko:"어둠의 은총"}}]},
 
       {kind:"activate", id:"activate", label:{en:"Activate Runes",ko:"지하묘지 — 룬 활성화"},
        note:`활성화한 <b>룬 1개마다</b> 각 영웅이 파워업 1장. <b>2회마다</b> 그룹이 파워업을 뽑아 보너스를 2배로 얻는다.
@@ -3876,7 +3949,8 @@ const SERIES = {
             <div class="rule-k">던전 카드 2장</div><div class="rule-v">처리한 카드를 <b>룬 보상</b>으로 챙겨 두었다가, <b>같은 색 2장</b>이 모이면
               <b>두 장을 버리고 룬 1개</b>를 얻는다</div>
             <div class="rule-k">보라 카드</div><div class="rule-v"><b>1장이 곧 룬 1개</b> — 2장을 모을 필요가 없다</div>
-            <div class="rule-k">조사 완료</div><div class="rule-v">조사를 끝내면 그 카드에 적힌 <b>룬 보상</b>을 얻는다</div>
+            <div class="rule-k">조사 완료</div><div class="rule-v">조사를 끝내면 그 위치의 <b>룬 스톤을 치우고</b> 카드에 적힌 <b>룬 보상 1개</b>를 얻는다 —
+              <ref t="rules" e="Investigations">조사 규칙</ref></div>
             <div class="rule-k">던전 보스</div><div class="rule-v">격파하면 카드 대신 <b>그 색 룬 1개</b>를 바로 얻는다</div>
             <div class="rule-k">무작위 룬</div><div class="rule-v">보상이 '무작위 룬'이면 <b>달 주사위</b>로 색을 정한다 — <b>~4 · 5~8 · 9~12</b></div>
           </div>
@@ -4211,7 +4285,7 @@ const V5_VALOR = {id:"valor5", label:{en:"Valor", ko:"용맹"}, entries:[
     B_DIFF, B_SETUP, B_TURN, B_CIRC,
     pick("Movement"), pick("Skill Phase & Stat Tests"),
     pick("Navigate · Explore · Survival"), pick("Wander & Roam"), pick("Starving"),
-    pick("Circumstance Types"), R4_COMBAT, RULES_KWORDER,
+    pick("Circumstance Types"), pick("Investigations"), R4_COMBAT, RULES_KWORDER,
   ].filter(Boolean);
   const ex = SERIES["4"].extras, byId = id => ex.find(x => x.id === id);
   SERIES["4b"].extras = [byId("dungeon"), byId("rune"), BREACH_TAB, byId("valor")].filter(Boolean);

@@ -1051,12 +1051,23 @@ function partyState(char){
   return P;
 }
 function partyMon(P,id){
-  if(!P.impart[id])P.impart[id]={mode:"",r:0,g:0,b:0,cut:0,grace:""};
+  if(!P.impart[id])P.impart[id]={r:0,g:0,b:0,cut:0,got:false};
   const m=P.impart[id];
   ["r","g","b","cut"].forEach(k=>{if(typeof m[k]!=="number")m[k]=0;});
-  if(typeof m.mode!=="string")m.mode="";
-  if(typeof m.grace!=="string")m.grace="";
+  if(typeof m.got!=="boolean")m.got=false;
   return m;
+}
+/* 헌납 모드는 고르는 것이 아니라 낸 룬에서 저절로 정해진다 —
+   둘째 룬이 첫 룬과 같은 색이면 Matching, 다르면 Set. 그 뒤로는 낼 수 있는 색이 갇힌다. */
+function monState(m){
+  const used=["r","g","b"].filter(k=>m[k]>0), total=m.r+m.g+m.b;
+  const mode = total<=1 ? "" : (used.length===1 ? "match" : "set");
+  let allow;
+  if(mode==="match")      allow=used;                              /* 그 색만 */
+  else if(mode==="set")   allow=["r","g","b"].filter(k=>m[k]===0); /* 아직 안 낸 색만 */
+  else                    allow=["r","g","b"];                     /* 0~1장 — 아무 색이나 */
+  const done = mode==="set" && m.r>0 && m.g>0 && m.b>0;            /* 세트 완성 */
+  return {used,total,mode,allow,done};
 }
 /* 게임이 끝날 때 피의 웅덩이가 얼마나 깎이는지 — 색마다 활성화 개수로 정해진다(4편 지하묘지 판) */
 const RUNE_CUT=[0,1,4,9,16,25];
@@ -1097,26 +1108,45 @@ function partyBlock(char,P,b){
   }
   if(b.kind==="monastery"){
     const rows=(b.list||[]).map(mo=>{
-      const m=partyMon(P,mo.id);
-      const total=m.r+m.g+m.b;
-      const colors=["r","g","b"].map(k=>`<span class="p-rune" style="--rc:var(${RUNE_C[k].v})">
+      const m=partyMon(P,mo.id), st=monState(m);
+      const colors=["r","g","b"].map(k=>{
+        const can=st.allow.includes(k);
+        return `<span class="p-rune ${can?"":"off"}" style="--rc:var(${RUNE_C[k].v})">
         <span class="p-rune-l">${RUNE_C[k].ko}</span>
-        ${pStep(`data-pm="${mo.id}" data-f="${k}"`,m[k])}</span>`).join("");
-      const modes=[["","미정"],["match","같은 색"],["set","세트"]].map(([v,t])=>
-        `<button class="p-mode ${m.mode===v?'on':''}" data-pmode="${mo.id}" data-v="${v}">${t}</button>`).join("");
-      /* 세트로 갈 때만 2·3번째 헌납에서 피의 웅덩이가 5씩 깎인다 */
-      const cuts=[0,1].map(i=>`<button class="p-cut ${m.cut>i?'on':''}" data-pcut="${mo.id}" data-i="${i}"
-        title="세트 2·3번째 헌납 — 피의 웅덩이 -5">-5</button>`).join("");
-      const gr=(b.graces||[]).map(g=>`<option value="${g.id}" ${m.grace===g.id?"selected":""}>${g.ko}</option>`).join("");
-      const next=m.mode==="match"?`다음 헌납 — 각 영웅 파워업 <b>${total+1}</b>장`
-                :m.mode==="set"?`세트 <b>${total}/3</b> · 낸 룬마다 각 영웅 파워업 1장`
-                :`첫 룬 — 각 영웅 파워업 <b>1</b>장`;
+        <span class="p-step">
+          <button data-pm="${mo.id}" data-f="${k}" data-d="-1" ${m[k]?"":"disabled"}>−</button>
+          <b>${m[k]}</b>
+          <button data-pm="${mo.id}" data-f="${k}" data-d="1" ${can?"":`disabled title="${
+            st.mode==="match"?"같은 색으로 정해진 수도원이라 다른 색은 낼 수 없다"
+                             :"세트를 완성할 때까지 같은 색을 겹쳐 낼 수 없다"}"`}>＋</button>
+        </span></span>`;}).join("");
+      const modeTag = st.mode==="match"?`<span class="p-mode on">같은 색</span>`
+                    : st.mode==="set" ?`<span class="p-mode on">세트</span>`
+                    : `<span class="p-mode">미정</span>`;
+      /* 세트로 갈 때 2·3번째 헌납에서 피의 웅덩이가 5씩 깎인다 — 켜면 위 웅덩이 값에 바로 반영된다 */
+      const cuts=[0,1].map(i=>{
+        const live = st.mode==="set" && st.total>=i+2;
+        return `<button class="p-cut ${m.cut>i?'on':''}" data-pcut="${mo.id}" data-i="${i}"
+          ${live||m.cut>i?"":"disabled"}
+          title="세트 ${i+2}번째 헌납 — 피의 웅덩이를 5 줄인다(켜면 위 값에 바로 반영)">-5</button>`;}).join("");
+      const graceCell = m.got
+        ? `<span class="p-grace on" title="이 수도원의 은총을 이미 얻었다 — 게임당 한 번뿐">${mo.grace.ko} 획득</span>`
+        : `<span class="p-grace">${mo.grace.en}<span class="ko">${mo.grace.ko}</span></span>`;
+      /* 은총은 게임당 한 번뿐이라, 두 번째 세트부터는 기록만 초기화된다 */
+      const next = st.done
+        ? `<button class="p-done" data-pdone="${mo.id}">${m.got
+            ? `세트 완성 — 기록 초기화 <span style="color:var(--ink-faint)">(은총은 이미 얻었다)</span>`
+            : `세트 완성 — <b>${mo.grace.ko}</b>을 얻고 기록 초기화`}</button>`
+        : st.mode==="match" ? `다음 헌납 — 각 영웅 파워업 <b>${st.total+1}</b>장`
+        : st.mode==="set"   ? `세트 <b>${st.total}/3</b> · 남은 색 <b>${st.allow.map(k=>RUNE_C[k].ko).join(" · ")}</b>`
+        : st.total===1      ? `둘째 룬이 갈래를 정한다 — <b>같은 색</b>이면 그 색만, <b>다른 색</b>이면 세트`
+        : `첫 룬 — 각 영웅 파워업 <b>1</b>장 · 아무 색이나`;
       return `<div class="p-mon">
-        <div class="p-mon-top"><b class="p-mon-name">${mo.name}</b><span class="p-modes">${modes}</span></div>
+        <div class="p-mon-top"><b class="p-mon-name">${mo.name}</b>
+          <span class="p-token">${mo.token||""}</span>${modeTag}</div>
         <div class="p-mon-body">${colors}
-          <span class="p-rune"><span class="p-rune-l">피 -5</span><span class="p-cuts">${cuts}</span></span>
-          <span class="p-rune"><span class="p-rune-l">Grace 은총</span>
-            <select data-pgrace="${mo.id}"><option value="">아직 없음</option>${gr}</select></span></div>
+          <span class="p-rune"><span class="p-rune-l">피 -5</span><span class="p-cuts">${cuts}</span></span></div>
+        <div class="p-mon-grace">${graceCell}</div>
         <div class="p-mon-next">${next}</div></div>`;
     }).join("");
     return `<div class="p-block">${head}<div class="p-mons">${rows}</div>${note}</div>`;
@@ -1146,15 +1176,18 @@ function bindParty(char,series){
     const id=b.dataset.pc; P[id]=lim((P[id]||0)+(+b.dataset.d),maxOf(id)); renderBoard();});
   root.querySelectorAll("[data-pzero]").forEach(b=>b.onclick=()=>{P[b.dataset.pzero]=0;renderBoard();});
   root.querySelectorAll("[data-pm]").forEach(b=>b.onclick=()=>{
-    const m=partyMon(P,b.dataset.pm),f=b.dataset.f; m[f]=lim(m[f]+(+b.dataset.d)); renderBoard();});
-  root.querySelectorAll("[data-pmode]").forEach(b=>b.onclick=()=>{
-    partyMon(P,b.dataset.pmode).mode=b.dataset.v; renderBoard();});
+    const m=partyMon(P,b.dataset.pm),f=b.dataset.f,d=+b.dataset.d;
+    if(d>0&&!monState(m).allow.includes(f))return;   /* 판에서 못 내는 색은 여기서도 못 낸다 */
+    m[f]=lim(m[f]+d); renderBoard();});
   root.querySelectorAll("[data-pcut]").forEach(b=>b.onclick=()=>{
-    const m=partyMon(P,b.dataset.pcut),i=+b.dataset.i;
+    const m=partyMon(P,b.dataset.pcut),i=+b.dataset.i,was=m.cut;
     m.cut = m.cut>i ? i : i+1;            /* 켜져 있으면 그 칸까지 끄고, 아니면 그 칸까지 켠다 */
+    P.blood=lim(P.blood-(m.cut-was)*5,100);  /* 켠 칸 수만큼 피의 웅덩이가 깎인다 */
     renderBoard();});
-  root.querySelectorAll("[data-pgrace]").forEach(sel=>sel.onchange=()=>{
-    partyMon(P,sel.dataset.pgrace).grace=sel.value; renderBoard();});
+  /* 세트 완성 — 은총을 얻고 그 수도원의 기록만 초기화한다(웅덩이에 적용해 둔 -5 는 그대로 둔다) */
+  root.querySelectorAll("[data-pdone]").forEach(b=>b.onclick=()=>{
+    const m=partyMon(P,b.dataset.pdone);
+    m.got=true; m.r=m.g=m.b=0; m.cut=0; renderBoard();});
   root.querySelectorAll("[data-pa]").forEach(b=>b.onclick=()=>{
     const k=b.dataset.pa; P.act[k]=lim(P.act[k]+(+b.dataset.d)); renderBoard();});
 }
@@ -1380,7 +1413,9 @@ function bindRefLinks(char){
     if(!want)return;
     root.querySelectorAll("#refMain .acc, #refMain .refrow").forEach(r=>{
       const head=r.querySelector(".acc-head")||r.querySelector(".refhead");
-      if(!head||!head.textContent.includes(want))return;
+      /* 제목만 본다 — 미리보기 줄까지 훑으면 남의 항목이 같이 열린다 */
+      const name=r.querySelector(".ref-name");
+      if(!head||!name||!name.textContent.includes(want))return;
       head.click();
       r.scrollIntoView({block:"center",behavior:"smooth"});
       r.classList.add("ref-flash"); setTimeout(()=>r.classList.remove("ref-flash"),1400);
