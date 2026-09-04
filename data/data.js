@@ -3604,6 +3604,45 @@ const SERIES = {
 
       R4_COMBAT, RULES_KWORDER,
     ],
+    /* 파티 기록 — 영웅 하나가 아니라 그룹 전체가 함께 쓰는 값들.
+       룬을 어디에 얼마나 냈는지, 피의 웅덩이가 얼마인지처럼 판 밖에서 굴러다니던 것들을 한자리에 모았다.
+       kind 마다 엔진에 전용 렌더러가 있다 — counter · monastery · activate.
+       기록은 char.party 에 들어가므로 캐릭터 저장·불러오기에 그대로 따라간다. */
+    party: [
+      {kind:"counter", id:"blood", label:{en:"Blood Pool",ko:"피의 웅덩이"}, max:100, step:5,
+       note:`콜렉터가 있는 마을마다 <b>매 게임 턴</b> 오른다(마을의 콜렉터 수만큼).
+         <b>100</b>에 이르거나 그룹이 <b>녹티스 성</b>에서 이동을 끝내면 최종 결전이 시작된다.`,
+       readout:(v)=>[
+         {lab:"Aegis 이지스 · 20마다 +2", val:Math.floor(v/20)*2},
+         {lab:"유형", val:v>=30?"Ascendant 초월자":"평소"},
+         {lab:"증강 수 · 10마다 1", val:Math.floor(v/10)},
+         {lab:"최종 결전", val:v>=100?"시작":"—"}]},
+
+      {kind:"monastery", id:"impart", label:{en:"Imparting Runes",ko:"수도원 — 룬 헌납"},
+       note:`첫 룬은 <b>파워업 1장</b>. 둘째 룬이 첫 룬과 <b>같은 색이면</b> 그 수도원은 앞으로 같은 색만 받고,
+         <b>다르면</b> 세트를 완성해야 한다. 세트를 완성하면 <b>은총</b>을 얻고 기록이 초기화된다.`,
+       list:[{id:"domiel",name:"Domiel"},{id:"lastDawn",name:"Last Dawn"},
+             {id:"gesk",name:"Gesk"},{id:"lakenta",name:"Lakenta"}],
+       graces:[{id:"moon",ko:"달의 은총"},{id:"sun",ko:"태양의 은총"},
+               {id:"light",ko:"빛의 은총"},{id:"dark",ko:"어둠의 은총"}]},
+
+      {kind:"activate", id:"activate", label:{en:"Activate Runes",ko:"지하묘지 — 룬 활성화"},
+       note:`활성화한 <b>룬 1개마다</b> 각 영웅이 파워업 1장. <b>2회마다</b> 그룹이 파워업을 뽑아 보너스를 2배로 얻는다.
+         <b>세트</b>를 활성화할 때마다 <b>피의 마법 티어</b>가 1 오른다. 기록은 모든 지하묘지가 함께 쓴다.`},
+
+      {kind:"counter", id:"tier", label:{en:"Blood Magic Tier",ko:"피의 마법 티어"}, max:12,
+       note:`룬 <b>세트</b>를 활성화할 때마다 1 오른다. 티어마다 <b>주문 1장</b>을 뽑고,
+         첫 티어에서 기본 세 주문(육체 통제 · 어둠의 입맞춤 · 저주받은 부활)을 쓸 수 있게 된다.`,
+       readout:(v)=>[
+         {lab:"뽑은 주문", val:v},
+         {lab:"기본 3주문", val:v>=1?"사용 가능":"—"},
+         {lab:"주문 결과 조정 폭", val:v}]},
+
+      {kind:"counter", id:"crypts", label:{en:"Crypts Unlocked",ko:"해금한 지하묘지"}, max:4,
+       note:`<b>처음 세 번</b> 열 때마다 모든 수도원이 다음 단계 물품을 팔기 시작한다.`,
+       readout:(v)=>[{lab:"수도원에서 살 수 있는 것",
+         val: v>=3?"기어 업그레이드 전부" : v===2?"4번째 칸까지" : v===1?"2번째 칸까지" : "기본 물품만"}]},
+    ],
     /* 상점 목록 — 마을 판과 수도원 판 뒷면의 판매표를 그대로 옮긴 것.
        * 표시가 붙은 것은 전투 중 Defend 방어 행동을 쓰는 동안에도 쓸 수 있다.
        비용의 "영웅당"은 인원수만큼 곱해 내는 것이고, 그 밖은 총액이다. */

@@ -474,12 +474,58 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .load-row{display:flex;gap:8px;align-items:center}
 .btn.slot{flex:1;text-align:left}
 /* 고르는 목록(패밀리어 등) — 칸을 고르게 깔고 이름을 영/한 두 줄로 나눠 읽기 쉽게 */
-.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(186px,1fr));gap:8px}
+.modal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(186px,1fr));gap:8px}
 .pick-slot{position:relative;text-align:left;padding:11px 36px 11px 14px;line-height:1.3}
 .pick-slot .en{display:block;font-size:14px}
 .pick-slot .ko{display:block;font-size:12px;color:var(--ink-dim);margin-top:2px}
 .pick-slot .tail{position:absolute;right:10px;top:50%;transform:translateY(-50%);
   font-family:"Cinzel";font-size:11px;font-weight:600;color:var(--ink-faint);opacity:.85}
+
+/* ---------- party ---------- */
+/* 그룹이 함께 쓰는 기록 — 판이 아니라 파티 단위 값들 */
+.p-intro{font-size:12px;color:var(--ink-faint);margin:-6px 0 14px}
+.p-block{border-top:1px solid var(--edge);padding:14px 0 16px}
+.p-block:first-of-type{border-top:0;padding-top:2px}
+.p-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.p-title{font-family:"Cinzel";font-weight:600;font-size:15px}
+.p-title .ko{font-family:"Noto Serif KR";font-size:12px;color:var(--ink-dim);font-weight:400;margin-left:6px}
+.p-note{font-size:12px;color:var(--ink-faint);line-height:1.55;margin-top:10px}
+.p-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.p-big{font-family:"Cinzel";font-size:30px;font-weight:700;color:var(--accent);min-width:52px}
+.p-step{display:inline-flex;align-items:center;gap:6px}
+.p-step b{font-family:"Cinzel";font-size:15px;color:var(--ink);min-width:18px;text-align:center}
+.p-step button,.p-jump{min-width:34px;height:34px;padding:0 8px;border-radius:8px;
+  border:1px solid var(--edge-bright);background:var(--panel-2);color:var(--ink);cursor:pointer;
+  font-family:"Cinzel";font-size:13px}
+.p-step button:hover,.p-jump:hover{border-color:var(--accent);color:var(--accent)}
+.p-reads{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.p-read{display:inline-flex;align-items:baseline;gap:7px;padding:6px 11px;border-radius:9px;
+  border:1px solid var(--edge);background:var(--panel-2)}
+.p-read .l{font-size:11px;color:var(--ink-faint)}
+.p-read b{font-family:"Cinzel";font-size:14px;color:var(--ink)}
+.p-read.big{border-color:var(--accent)}
+.p-read.big b{color:var(--accent);font-size:16px}
+
+.p-mons{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px}
+.p-mon{border:1px solid var(--edge);border-radius:12px;padding:11px 12px;background:var(--panel-2)}
+.p-mon-top{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:9px}
+.p-mon-name{font-family:"Cinzel";font-size:14px}
+.p-modes{display:inline-flex;gap:4px}
+.p-mode{font-size:11px;padding:5px 9px;min-height:30px;border-radius:999px;border:1px solid var(--edge-bright);
+  background:transparent;color:var(--ink-faint);cursor:pointer;font-family:"Noto Serif KR"}
+.p-mode.on{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent-dim) 18%,transparent)}
+.p-mon-body{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.p-rune{display:inline-flex;align-items:center;gap:7px}
+.p-rune-l{font-size:11px;color:var(--rc,var(--ink-faint))}
+.p-sub{font-size:11px;color:var(--ink-faint)}
+.p-cuts{display:inline-flex;gap:4px}
+.p-cut{font-size:11px;padding:4px 8px;min-height:30px;border-radius:8px;border:1px solid var(--edge-bright);
+  background:transparent;color:var(--ink-faint);cursor:pointer;font-family:"Cinzel"}
+.p-cut.on{color:var(--g-attack);border-color:var(--g-attack);background:color-mix(in srgb,var(--c-attack) 20%,transparent)}
+.p-mon select{margin-top:0;background:var(--void);border:1px solid var(--edge);color:var(--ink);
+  border-radius:8px;padding:6px 8px;min-height:32px;font-family:"Noto Serif KR";font-size:12px}
+.p-mon-next{font-size:11.5px;color:var(--ink-faint);margin-top:9px;padding-top:8px;border-top:1px solid var(--edge)}
+@media(max-width:560px){.p-mons{grid-template-columns:1fr}}
 
 /* ---------- reference tab ---------- */
 /* 참조 구획이 상단 탭이던 시절엔 4편 기준 9개가 늘어서 모바일에서 대부분 숨었다.

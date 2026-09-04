@@ -760,11 +760,14 @@ function renderBoard(){
   // top tabs
   /* 옛 상태(참조 구획이 곧 상단 탭이던 시절)로 들어와도 그대로 이어지게 옮겨 준다 */
   const secs=refSections(series);
-  if(APP.tab!=="board"&&APP.tab!=="ref"){
+  if(APP.tab!=="board"&&APP.tab!=="ref"&&APP.tab!=="party"){
     if(secs.some(x=>x.id===APP.tab))APP.ref=APP.tab;
     APP.tab="ref";
   }
-  const tabs=[{id:"board",label:"Board 캐릭터판"},{id:"ref",label:"Reference 참조"}];
+  if(APP.tab==="party"&&!(series.party||[]).length)APP.tab="ref";
+  const tabs=[{id:"board",label:"Board 캐릭터판"}];
+  if((series.party||[]).length)tabs.push({id:"party",label:"Party 파티"});
+  tabs.push({id:"ref",label:"Reference 참조"});
   const tabbar=tabs.map(t=>`<button class="tab ${APP.tab===t.id?'on':''}" data-tab="${t.id}">${t.label}</button>`).join("");
 
   const toolbar=`<div class="toolbar">
@@ -778,7 +781,9 @@ function renderBoard(){
     <button class="tbtn" id="tbLayout" title="생명력·능력·기술을 한 줄로 놓을지, 위아래로 쌓을지 — 넓은 화면에서만 적용됩니다">배치</button>
   </div>`;
 
-  let content = APP.tab==="board" ? boardBody(char) : referenceScreen(char,series);
+  let content = APP.tab==="board" ? boardBody(char)
+              : APP.tab==="party" ? partyBody(char,series)
+              : referenceScreen(char,series);
 
   /* 옆 칸 — 세로 배치일 때 남는 좌우 자리에 참조 탭 하나를 띄워 두고, 판을 굴리는 동안 따라오게 한다.
      좌우 배치는 판이 가로를 다 쓰므로 자리가 없어 CSS 가 감춘다. */
@@ -814,7 +819,9 @@ function renderBoard(){
     lyb.onclick=()=>{setLayout(layoutMode()==="stack"?"cols":"stack");renderBoard();};}
   $("#tbNew").onclick=()=>{if(confirm("현재 캐릭터를 두고 새 캐릭터를 만들까요? (저장하지 않은 변경은 사라집니다)")){APP.sel={raceId:null,classId:null,traitIds:[]};APP.char=null;APP.screen="builder";render();}};
 
-  if(APP.tab==="board")bindBoard(char); else bindRef(char,series);
+  if(APP.tab==="board")bindBoard(char);
+  else if(APP.tab==="party")bindParty(char,series);
+  else bindRef(char,series);
   bindRefList();     // 검색·접기 — 옆 칸에도 목록이 뜨므로 탭과 무관하게 건다
   bindAcc();         // 룰·참조표 접기 — 옆 칸에도 있으므로 탭과 무관하게 건다
   bindTerms(char);   // keyword/condition overlay from any tab
@@ -1025,6 +1032,132 @@ function resCard(char,cls,en,ko,key){
     <div class="rowbtn"><button data-res="${key}" data-dir="-1">\u2212</button><button data-res="${key}" data-dir="1">\uFF0B</button></div></div>`;
 }
 
+/* =====================================================================
+   PARTY  — 그룹 전체가 함께 쓰는 기록
+   판은 영웅 하나를 다루지만, 룬을 어디에 냈는지 · 피의 웅덩이가 얼마인지 같은 값은
+   파티 단위다. 지금까지 판 밖에서 굴러다니던 것들을 한자리에 모았다.
+   구성은 시리즈 데이터(series.party)가 정하고, 여기서는 kind 별로 그리기만 한다.
+   기록은 char.party 에 들어가므로 캐릭터 저장·불러오기에 그대로 따라간다.
+   ===================================================================== */
+function partyState(char){
+  if(!char.party||typeof char.party!=="object")char.party={};
+  const P=char.party;
+  if(typeof P.blood!=="number")P.blood=0;
+  if(typeof P.tier!=="number")P.tier=0;
+  if(typeof P.crypts!=="number")P.crypts=0;
+  if(!P.impart||typeof P.impart!=="object")P.impart={};
+  if(!P.act||typeof P.act!=="object")P.act={r:0,g:0,b:0};
+  ["r","g","b"].forEach(k=>{if(typeof P.act[k]!=="number")P.act[k]=0;});
+  return P;
+}
+function partyMon(P,id){
+  if(!P.impart[id])P.impart[id]={mode:"",r:0,g:0,b:0,cut:0,grace:""};
+  const m=P.impart[id];
+  ["r","g","b","cut"].forEach(k=>{if(typeof m[k]!=="number")m[k]=0;});
+  if(typeof m.mode!=="string")m.mode="";
+  if(typeof m.grace!=="string")m.grace="";
+  return m;
+}
+/* 게임이 끝날 때 피의 웅덩이가 얼마나 깎이는지 — 색마다 활성화 개수로 정해진다(4편 지하묘지 판) */
+const RUNE_CUT=[0,1,4,9,16,25];
+const runeCut=n2=>n2<=0?0:(n2>=6?36:RUNE_CUT[n2]);
+const RUNE_C={r:{ko:"빨강",v:"--g-attack"},g:{ko:"초록",v:"--g-navigate"},b:{ko:"파랑",v:"--g-secondMastery"}};
+
+/* +/- 한 쌍 — 판의 효과 버튼과 같은 모양을 쓴다 */
+function pStep(attr,val,extra){
+  return `<span class="p-step">
+    <button ${attr} data-d="-1">\u2212</button><b>${val}</b><button ${attr} data-d="1">\uFF0B</button>
+    ${extra||""}</span>`;
+}
+function partyBody(char,series){
+  const list=series.party||[];
+  if(!list.length)return `<div class="section"><div class="empty-note">이 시리즈의 파티 기록표가 아직 비어 있습니다.</div></div>`;
+  const P=partyState(char);
+  return `<div class="section party">
+    <div class="sec-head"><span>Party · 파티 기록</span></div>
+    <div class="p-intro">그룹이 함께 쓰는 값들입니다. 캐릭터를 저장하면 이 기록도 함께 남습니다.</div>
+    ${list.map(b=>partyBlock(char,P,b)).join("")}</div>`;
+}
+function partyBlock(char,P,b){
+  const head=`<div class="p-head"><span class="p-title">${b.label.en}<span class="ko">${b.label.ko}</span></span></div>`;
+  const note=b.note?`<div class="p-note">${expand(char,b.note)}</div>`:"";
+  if(b.kind==="counter"){
+    const v=P[b.id]||0, step=b.step||0;
+    const reads=(b.readout?b.readout(v):[]).map(o=>
+      `<span class="p-read"><span class="l">${o.lab}</span><b>${o.val}</b></span>`).join("");
+    return `<div class="p-block">${head}
+      <div class="p-row">
+        <span class="p-big">${v}</span>
+        ${pStep(`data-pc="${b.id}"`,"", "")}
+        ${step?`<button class="p-jump" data-pc="${b.id}" data-d="-${step}">\u2212${step}</button>
+                <button class="p-jump" data-pc="${b.id}" data-d="${step}">\uFF0B${step}</button>`:""}
+        <button class="p-jump" data-pzero="${b.id}">0</button>
+      </div>
+      ${reads?`<div class="p-reads">${reads}</div>`:""}${note}</div>`;
+  }
+  if(b.kind==="monastery"){
+    const rows=(b.list||[]).map(mo=>{
+      const m=partyMon(P,mo.id);
+      const total=m.r+m.g+m.b;
+      const colors=["r","g","b"].map(k=>`<span class="p-rune" style="--rc:var(${RUNE_C[k].v})">
+        <span class="p-rune-l">${RUNE_C[k].ko}</span>
+        ${pStep(`data-pm="${mo.id}" data-f="${k}"`,m[k])}</span>`).join("");
+      const modes=[["","미정"],["match","같은 색"],["set","세트"]].map(([v,t])=>
+        `<button class="p-mode ${m.mode===v?'on':''}" data-pmode="${mo.id}" data-v="${v}">${t}</button>`).join("");
+      /* 세트로 갈 때만 2·3번째 헌납에서 피의 웅덩이가 5씩 깎인다 */
+      const cuts=[0,1].map(i=>`<button class="p-cut ${m.cut>i?'on':''}" data-pcut="${mo.id}" data-i="${i}"
+        title="세트 2·3번째 헌납 — 피의 웅덩이 -5">-5</button>`).join("");
+      const gr=(b.graces||[]).map(g=>`<option value="${g.id}" ${m.grace===g.id?"selected":""}>${g.ko}</option>`).join("");
+      const next=m.mode==="match"?`다음 헌납 — 각 영웅 파워업 <b>${total+1}</b>장`
+                :m.mode==="set"?`세트 <b>${total}/3</b> · 낸 룬마다 각 영웅 파워업 1장`
+                :`첫 룬 — 각 영웅 파워업 <b>1</b>장`;
+      return `<div class="p-mon">
+        <div class="p-mon-top"><b class="p-mon-name">${mo.name}</b><span class="p-modes">${modes}</span></div>
+        <div class="p-mon-body">${colors}
+          <span class="p-rune"><span class="p-rune-l">피 -5</span><span class="p-cuts">${cuts}</span></span>
+          <span class="p-rune"><span class="p-rune-l">Grace 은총</span>
+            <select data-pgrace="${mo.id}"><option value="">아직 없음</option>${gr}</select></span></div>
+        <div class="p-mon-next">${next}</div></div>`;
+    }).join("");
+    return `<div class="p-block">${head}<div class="p-mons">${rows}</div>${note}</div>`;
+  }
+  if(b.kind==="activate"){
+    const a=P.act, tot=a.r+a.g+a.b, sets=Math.min(a.r,a.g,a.b);
+    const cut=runeCut(a.r)+runeCut(a.g)+runeCut(a.b)+sets*5;
+    const colors=["r","g","b"].map(k=>`<span class="p-rune" style="--rc:var(${RUNE_C[k].v})">
+      <span class="p-rune-l">${RUNE_C[k].ko}</span>${pStep(`data-pa="${k}"`,a[k])}
+      <span class="p-sub">-${runeCut(a[k])}</span></span>`).join("");
+    return `<div class="p-block">${head}
+      <div class="p-mon-body">${colors}</div>
+      <div class="p-reads">
+        <span class="p-read"><span class="l">총 활성화</span><b>${tot}</b></span>
+        <span class="p-read"><span class="l">그룹 파워업 · 2회마다</span><b>${Math.floor(tot/2)}</b></span>
+        <span class="p-read"><span class="l">완성한 세트</span><b>${sets}</b></span>
+        <span class="p-read big"><span class="l">게임 종료 시 피의 웅덩이</span><b>-${cut}</b></span>
+      </div>${note}</div>`;
+  }
+  return `<div class="p-block">${head}<div class="empty-note">알 수 없는 기록 유형입니다.</div></div>`;
+}
+function bindParty(char,series){
+  const P=partyState(char);
+  const lim=(v,max)=>Math.max(0,Math.min(max==null?999:max,v));
+  const maxOf=id=>{const b=(series.party||[]).find(x=>x.id===id);return b&&b.max;};
+  root.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.pc; P[id]=lim((P[id]||0)+(+b.dataset.d),maxOf(id)); renderBoard();});
+  root.querySelectorAll("[data-pzero]").forEach(b=>b.onclick=()=>{P[b.dataset.pzero]=0;renderBoard();});
+  root.querySelectorAll("[data-pm]").forEach(b=>b.onclick=()=>{
+    const m=partyMon(P,b.dataset.pm),f=b.dataset.f; m[f]=lim(m[f]+(+b.dataset.d)); renderBoard();});
+  root.querySelectorAll("[data-pmode]").forEach(b=>b.onclick=()=>{
+    partyMon(P,b.dataset.pmode).mode=b.dataset.v; renderBoard();});
+  root.querySelectorAll("[data-pcut]").forEach(b=>b.onclick=()=>{
+    const m=partyMon(P,b.dataset.pcut),i=+b.dataset.i;
+    m.cut = m.cut>i ? i : i+1;            /* 켜져 있으면 그 칸까지 끄고, 아니면 그 칸까지 켠다 */
+    renderBoard();});
+  root.querySelectorAll("[data-pgrace]").forEach(sel=>sel.onchange=()=>{
+    partyMon(P,sel.dataset.pgrace).grace=sel.value; renderBoard();});
+  root.querySelectorAll("[data-pa]").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.pa; P.act[k]=lim(P.act[k]+(+b.dataset.d)); renderBoard();});
+}
 /* 참조 구획 — 예전엔 이것들이 전부 상단 탭이었다. 4편 기준 9개라
    모바일(351px)에서 폭 1198px 어치가 되어 대부분이 가로 스크롤 뒤로 숨었다.
    지금은 '참조' 탭 하나 안의 세그먼트로 들어가고, 그 위에 전역 검색이 붙는다. */
@@ -1447,7 +1580,7 @@ function famStatPick(o){
   const spec=FAM_RANK[o.rankStat], pool=STAT_POOL[spec.pool], div=o.baseDiv||1;
   openModal(`<h3>${o.name.en}<span class="ko">${o.name.ko}</span> — 기준 능력치</h3>
     <div class="hint" style="margin-bottom:8px">${spec.ko} · 기준 랭크는 <b>1 + 고른 능력치${div>1?` ÷ ${div}`:""}</b>로 찍힙니다.</div>
-    <div class="pick-grid">${pool.map(k=>{const l=statLabel(k);
+    <div class="modal-grid">${pool.map(k=>{const l=statLabel(k);
       return `<button class="btn pick-slot" data-fstat="${k}" style="color:var(--g-${k})"><span class="en">${l.en}</span><span class="ko">${l.ko}</span><span class="tail">${effOf(APP.char,k)}</span></button>`;}).join("")}</div>
     <div class="modal-actions"><button class="btn" onclick="closeModal()">취소</button></div>`,"wide");
   document.querySelectorAll("[data-fstat]").forEach(b=>b.onclick=()=>famAdd(o,b.dataset.fstat));
@@ -1460,7 +1593,7 @@ function addFamiliarModal(){
     .map(f=>`<button class="btn pick-slot" data-fampick="${f.id}"><span class="en">${f.name.en}</span><span class="ko">${f.name.ko}</span>${f.ed?`<span class="tail">${f.ed}</span>`:""}</button>`).join("");
   openModal(`<h3>Familiar 패밀리어 추가</h3>
     <div class="field"><label>Familiar 패밀리어</label>
-      ${list?`<div class="pick-grid">${list}</div>`:`<div class="empty-note" style="padding:6px 0">추가할 패밀리어가 없습니다.</div>`}
+      ${list?`<div class="modal-grid">${list}</div>`:`<div class="empty-note" style="padding:6px 0">추가할 패밀리어가 없습니다.</div>`}
       <div class="hint" style="margin-top:6px">육각형 칸 3개가 함께 붙습니다 — 비용은 5 · 7 · 9 골드.</div></div>
     <div class="field"><label>또는 직접 입력 — 이름 (English)</label><input id="fmEn" placeholder="Familiar name"></div>
     <div class="field"><label>이름 (한글)</label><input id="fmKo" placeholder="패밀리어 이름"></div>
