@@ -469,7 +469,7 @@ const FAMILIARS = [
 
    rankStat:"firstMastery", ability:{en:"Katana Swipe", ko:"카타나 베기"}, marks:[4,8],
 
-   readout:(r)=>[{lab:"<sg>power</sg>", val:"+"+FR(r)}],
+   readout:(r)=>[{lab:"위력", val:"+"+FR(r)}],
 
    desc:`Guardian을 아무 <b>Defender 방어자</b>에게 <kw>equip</kw>처럼 배치할 수 있다.
 
@@ -544,7 +544,7 @@ const GREATER_ASPECTS = [
    freeRanks:{n:1, group:"mastery"},
    flavor:"피부가 달라지고 눈은 붉어졌으며 두개골에서 뿔이 돋았다. 이제 악마의 피가 혈관을 흐른다.",
    desc:`<b>내면에 흐르는 지옥의 힘(공격)</b> — 적의 <kw>aegis</kw>를 넘어설 때
-     당신이 가진 <b>공격 기어 업그레이드 수를 2 높은 것으로</b> 친다.
+     당신이 가진 <b>공격 <ic>gear</ic> 수를 2 높은 것으로</b> 친다.
      피해나 다른 효과가 늘어나지는 않는다.<br>
      <b>악의에 찬 일격</b> — 적에게 피해를 줄 때마다 <st>health</st> <b>1</b>을 써서
      <st>attack</st> 랭크의 <b>2배</b>만큼 <st>energy</st> 피해를 더 줄 수 있다.
@@ -585,7 +585,7 @@ const GREATER_ASPECTS = [
    freeRanks:{n:1, group:"mastery"},
    flavor:"피부에서 천사 같은 빛이 나고 고요한 기운이 감돈다. 어둠의 존재들은 당신 앞에서 움츠러든다.",
    desc:`<b>내면에 흐르는 성스러운 힘(공격)</b> — 적의 <kw>aegis</kw>를 넘어설 때
-     당신이 가진 <b>공격 기어 업그레이드 수를 2 높은 것으로</b> 친다.
+     당신이 가진 <b>공격 <ic>gear</ic> 수를 2 높은 것으로</b> 친다.
      피해나 다른 효과가 늘어나지는 않는다.<br>
      <b>빛을 품다</b> — 전투 중 <st>energy</st> <b>4</b>를 써서 <b>2라운드</b> 동안
      <st>defence</st> 랭크의 <b>1/3</b>만큼 <st>health</st> <kw>regen</kw>을 그룹에게 주고,
@@ -610,7 +610,7 @@ const GREATER_ASPECTS = [
    mods:{health:0,energy:5,attack:-1,defence:-1,firstMastery:2,secondMastery:2,navigate:1,explore:1,survival:0},
    flavor:"몸은 죽었지만 영혼은 떠나지 못했다.",
    desc:`<b>영체(에너지)</b> — 더 이상 <b>화폐 · 음식 · 아이템</b>을 지니거나 쓸 수 없고
-     <b>새 기어 업그레이드</b>도 얻지 못한다. 다만 <b>파워업</b>은 그대로 얻는다.
+     <b>새 <ic>gear</ic></b>도 얻지 못한다. 다만 <b>파워업</b>은 그대로 얻는다.
      당신의 <st>health</st> 랭크는 <b>현재 것도 앞으로 얻을 것도</b> <st>energy</st> 랭크로 바뀐다.
      더 이상 <st>health</st>을 얻을 수 없고 <b>영구히</b> <state>tethered</state> 상태다.
      <state>drained</state> 를 뺀 <b>모든 상태에 면역</b>이다.<br>
@@ -992,7 +992,7 @@ const SHARED = {
       favoredEnemy:{en:"",ko:"기본 원소 중 택 1"}, foodUse:1,
       mods:{health:0,energy:4,attack:0,defence:0,firstMastery:2,secondMastery:2,navigate:0,explore:0,survival:0},
       ability:{name:{en:"Racial Ability",ko:"종족 능력"},
-        desc:`게임 턴당 <b>1회</b>, <st>energy</st> 4를 소모해 그룹의 <b><sg>range</sg> 밖</b>에 있는 공개된 <b>원소 · 백금 · 샤먼</b> 토큰을 즉시 얻는다.`,
+        desc:`게임 턴당 <b>1회</b>, <st>energy</st> 4를 소모해 그룹의 <b><sg>range</sg> 밖</b>에 있는 공개된 <b>원소 · <ic>platinum</ic> · 샤먼</b> 토큰을 즉시 얻는다.`,
         track:{type:"check"}},
       flavor:"이 작은 정령 같은 존재는 원소의 힘에 묶인 자연계의 수호자다." },
     hexanthi:{ id:"hexanthi", ed:"5", exp:"H", name:{en:"Hexanthi",ko:"헥산티"},
@@ -1014,7 +1014,7 @@ const SHARED = {
       favoredEnemy:{en:"Horde & Swarm",ko:"무리 · 떼"}, foodUse:0,
       mods:{health:4,energy:4,attack:1,defence:1,firstMastery:0,secondMastery:0,navigate:1,explore:1,survival:1},
       ability:{name:{en:"Racial Ability",ko:"종족 능력"},
-        desc:`게임 턴당 <b>1회</b>, <b>전투가 아닐 때</b> <st>energy</st> 4를 소모해 <b>Void 공허 원소 1개</b>를 <b>Aetherial Ore 에테르 광석</b>인 것처럼 <kw>consume</kw>할 수 있다.`,
+        desc:`게임 턴당 <b>1회</b>, <b>전투가 아닐 때</b> <st>energy</st> 4를 소모해 <b>Void 공허 원소 1개</b>를 <b><ic>aether</ic></b>인 것처럼 <kw>consume</kw>할 수 있다.`,
         track:{type:"check"}},
       flavor:"이 원초적인 원소 생명체는 태피스트리 차원 바깥에서 왔다. 인간형인지조차 흐릿한 이질적인 본성 탓에 다른 종족과 어울리지 못한다." },
     youngGreenDragon:{ id:"youngGreenDragon", ed:"5", exp:"R", name:{en:"Young Green Dragon",ko:"어린 그린 드래곤"},
@@ -1197,8 +1197,8 @@ const SHARED = {
           ],
           desc:`숙적에게 그룹이 주는 <st>health</st>·<st>energy</st>·<st>influence</st> 피해를 {firstMastery} 랭크만큼 <kw>boost</kw>한다. 또는 적의 <st>outlast</st>을 감소시키기 위해 선택한 스탯 굴림을 자동으로 성공시킨다. 이 마스터리는 <kw>sustain</kw>할 수 있다.`,
           checks:[
-            {at:6, txt:`<kw>sustain</kw> 중일 때는 모든 영웅이 원하는 임시 기어 업그레이드 <b>1</b>을 받는다.`},
-            {at:9, txt:`<kw>sustain</kw> 중일 때 모든 영웅이 원하는 임시 기어 업그레이드 <b>1</b>을 추가로 받는다.`},
+            {at:6, txt:`<kw>sustain</kw> 중일 때는 모든 영웅이 원하는 임시 <ic>gear</ic> <b>1</b>을 받는다.`},
+            {at:9, txt:`<kw>sustain</kw> 중일 때 모든 영웅이 원하는 임시 <ic>gear</ic> <b>1</b>을 추가로 받는다.`},
           ],
         },
         secondMastery:{base:2, name:{en:"Song of the Troubadour",ko:"서정가"}, cost:1, boostAt:[4,8],
@@ -1296,7 +1296,7 @@ const SHARED = {
       flavor:"약간의 마법이면 놀라운 일을 해낼 수 있지.",
       /* 손에 든 정수 장수 — 게임 시작 3장에서 시작한다 */
       counters:[{id:"essence", name:{en:"Essence",ko:"정수"}}],
-      special:{ko:`게임 시작 전, 파워업을 <b>3</b>장 뽑아 당신의 <b>Essence정수</b>로 획득한다. {secondMastery} 랭크 <b>4마다</b> 턴당 <b>1회</b>, 파워업 버린 더미의 맨 위 카드를 가져와 정수에 추가할 수 있다. 정수를 버릴 때는 파워업 버린 더미의 <b>맨 아래</b>에 놓는다.`},
+      special:{ko:`게임 시작 전, 파워업을 <b>3</b>장 뽑아 당신의 <b>Essence<ic>essence</ic></b>로 획득한다. {secondMastery} 랭크 <b>4마다</b> 턴당 <b>1회</b>, 파워업 버린 더미의 맨 위 카드를 가져와 <ic>essence</ic>에 추가할 수 있다. <ic>essence</ic>를 버릴 때는 파워업 버린 더미의 <b>맨 아래</b>에 놓는다.`},
       stats:{
         health:{base:4}, energy:{base:7},
         attack:{base:1, name:{en:"Blasting Rod",ko:"폭발 지팡이"}, dmg:["health","influence"]},
@@ -1307,7 +1307,7 @@ const SHARED = {
             {lab:"Regen 전투 재생", color:"health", val:FR(E.lv("firstMastery"))},
             {lab:"Essence 추가 소모", color:"defence", val:Math.floor(E.lv("defence")/3)},
           ],
-          desc:`<b>비전투:</b> <b>정수</b> <b>1</b>장을 버리고, 그 카드의 효과를 영웅 하나에게 해당 페이즈가 끝날 때까지 부여한다. <b>전투:</b> 추가로 그 영웅은 {firstMastery} 랭크의 <b>절반</b>만큼 <st>health</st> <kw>regen</kw>도 전투가 끝날 때까지 얻는다. {defence} 랭크 <b>3마다</b> 정수를 <b>1</b>장 더 버리고 그 효과와 <kw>regen</kw>을 영웅 하나에게 부여할 수 있다. <lvl n="9"><st>energy</st> <b>1</b>을 추가로 소모해 버린 정수 하나의 효과를 <b>2배</b>로 만든다(버린 정수당 1회).</lvl>`,
+          desc:`<b>비전투:</b> <b><ic>essence</ic></b> <b>1</b>장을 버리고, 그 카드의 효과를 영웅 하나에게 해당 페이즈가 끝날 때까지 부여한다. <b>전투:</b> 추가로 그 영웅은 {firstMastery} 랭크의 <b>절반</b>만큼 <st>health</st> <kw>regen</kw>도 전투가 끝날 때까지 얻는다. {defence} 랭크 <b>3마다</b> <ic>essence</ic>를 <b>1</b>장 더 버리고 그 효과와 <kw>regen</kw>을 영웅 하나에게 부여할 수 있다. <lvl n="9"><st>energy</st> <b>1</b>을 추가로 소모해 버린 <ic>essence</ic> 하나의 효과를 <b>2배</b>로 만든다(버린 <ic>essence</ic>당 1회).</lvl>`,
         },
         secondMastery:{base:3, name:{en:"Enchantment",ko:"마법 부여"}, cost:1,
           readout:(E)=>[
@@ -1315,7 +1315,7 @@ const SHARED = {
             {lab:"Raise 체력 증가", color:"health", val:(E.lv("secondMastery")+FR(E.lv("attack")))},
             {lab:"Essence 회수 주기", color:"secondMastery", val:Math.floor(E.lv("secondMastery")/4)},
           ],
-          desc:`<b>정수</b> <b>1</b>장을 버리고, 영웅 하나에게 원하는 <b>Gear Upgrade장비 강화</b>를 턴이 끝날 때까지 부여한다. 그 영웅의 <st>health</st>을 {secondMastery} 랭크 + {attack} 랭크의 <b>절반</b>만큼 <kw>raise</kw>한다. <lvl n="8">정수를 <b>3</b>장 더 버려 그 장비 강화를 <b>영구</b>로 만들 수 있다.</lvl>`,
+          desc:`<b><ic>essence</ic></b> <b>1</b>장을 버리고, 영웅 하나에게 원하는 <b>Gear Upgrade장비 강화</b>를 턴이 끝날 때까지 부여한다. 그 영웅의 <st>health</st>을 {secondMastery} 랭크 + {attack} 랭크의 <b>절반</b>만큼 <kw>raise</kw>한다. <lvl n="8"><ic>essence</ic>를 <b>3</b>장 더 버려 그 장비 강화를 <b>영구</b>로 만들 수 있다.</lvl>`,
         },
         navigate:{base:1, name:{en:"Navigate",ko:"길찾기"}},
         explore:{base:2, name:{en:"Explore",ko:"탐험"}},
@@ -2295,8 +2295,8 @@ const SHARED = {
     당신의 <b>공격 행동이 그 적의 <st>outlast</st>에 적용</b>될 수 있다.<br>
     <b>기어 특기</b> — 게임을 시작하기 전에 <b>스탯 종류</b>를 하나 고른다(<b>생명력 · 기술 · 능력</b>).
     한 번 고르면 <b>바꿀 수 없다</b>.
-    게임 턴당 <b>1회</b>, Movement 이동 페이즈 전에 <b>골드 2</b>와 <b>그 기어 업그레이드의 골드 비용만큼</b>
-    <st>energy</st>를 써서, 고른 스탯 종류에 맞는 <b>기어 업그레이드 1개</b>를 자신이나 동료에게 만들어 준다.<br>
+    게임 턴당 <b>1회</b>, Movement 이동 페이즈 전에 <b>골드 2</b>와 <b>그 <ic>gear</ic>의 골드 비용만큼</b>
+    <st>energy</st>를 써서, 고른 스탯 종류에 맞는 <b><ic>gear</ic> 1개</b>를 자신이나 동료에게 만들어 준다.<br>
     <b>손보는 데는 시간이 든다</b> — 기어 특기를 쓰면 그 게임 턴 <b>그룹의 이동력이 2 줄어든다</b>.`,
       flavor:"너는 늘 손재주가 좋았고, 무엇이든 고쳐 내는 재주가 있다.",
       track:null},
@@ -2457,7 +2457,7 @@ const SHARED = {
    key = 소문자 영문(기술 <kw> 토큰과 매칭). 여러 단어는 공백 유지.
    ===================================================================== */
 const KW_COMMON = {
-  aegis:{name:{en:"Aegis",ko:"이지스"}, desc:`주황색 방패로 표기. 주로 적의 레벨 방패를 대체. 영웅의 공격 기어 업그레이드가 이지스 1/2 이상(올림)이거나 <st>energy</st>가 0이어야 <st>health</st> 피해를 줄 수 있다. 따로 언급이 없다면, 이지스 값은 적의 레벨과 같다.`},
+  aegis:{name:{en:"Aegis",ko:"이지스"}, desc:`주황색 방패로 표기. 주로 적의 레벨 방패를 대체. 영웅의 공격 <ic>gear</ic>가 이지스 1/2 이상(올림)이거나 <st>energy</st>가 0이어야 <st>health</st> 피해를 줄 수 있다. 따로 언급이 없다면, 이지스 값은 적의 레벨과 같다.`},
   ambush:{name:{en:"Ambush",ko:"매복"}, desc:`매복한 적은 전투 시작 전에 행동을 하나 한다. 이 행동은 1명만 대상으로 한다. 키워드 뒤에 다른 효과도 포함할 수 있다. 영웅이 매복한 경우, 타겟 주사위를 굴려 타겟인 영웅 한 명이 전투 시작 전에 행동 하나를 한다.`},
   battlefield:{name:{en:"Battlefield",ko:"전장"}, desc:`적을 대면하는 특별한 장소. 전장은 적의 설명란에 적혀있으며 영웅이 언제 입장하는지 적혀있다. 영웅은 전장을 공유하는 동료만 대상으로 삼을 수 있다. 적은 따로 언급이 없다면 모든 전장에 있는 것으로 간주한다. 전장을 옮긴 영웅은 이동 후 라운드를 시작할 때 위치 보정치를 받습니다.`},
   block:{name:{en:"Block",ko:"차단"}, desc:`<st>energy</st> 피해부터 시작하여, Resolution 페이즈에 받는 총 피해량을 차단 수치만큼 감소.`},
@@ -2471,7 +2471,7 @@ const KW_COMMON = {
   energetic:{name:{en:"Energetic",ko:"에너지체"}, desc:`적의 <st>energy</st>가 절반 이상 남아있다면, 그 행동은 추가 효과를 얻습니다. 여러 <st>energy</st> 값이 있다면, 현재 가장 높은 <st>energy</st> 값을 참조합니다.`},
   "energy drain":{name:{en:"Energy Drain",ko:"에너지 흡수"}, desc:`<st>energy</st> 피해의 일종입니다. 대상의 현재 <st>energy</st>를 초과한 피해는 <st>health</st> 피해로 전환됩니다.`},
   evasion:{name:{en:"Evasion",ko:"회피"}, desc:`회피를 가진 대상이 효과의 대상이 될 때마다 코어 주사위를 굴립니다. 값이 회피 값 이상이면 그 효과를 무시합니다. 회피가 있는 대상이 회피를 또 얻으면, 더 낮은 값을 취하거나 현재 회피 값을 1 감소시킵니다.`},
-  fuse:{name:{en:"Fuse",ko:"융합"}, desc:`적절한 기어 업그레이드 슬롯을 지웁니다. 랭크 보너스는 그대로 유지합니다.`},
+  fuse:{name:{en:"Fuse",ko:"융합"}, desc:`적절한 <ic>gear</ic> 슬롯을 지웁니다. 랭크 보너스는 그대로 유지합니다.`},
   harvest:{name:{en:"Harvest",ko:"수확"}, desc:`코어 주사위를 굴립니다. 결과가 키워드 뒤의 숫자 이하라면, 표시된 자원을 획득합니다.`},
   hatred:{name:{en:"Hatred",ko:"증오"}, desc:`증오 적은 특정 타입의 영웅을 더 잘 노리고 더 큰 피해를 줍니다. 해당 타입의 영웅은 이 적의 공격에 대한 타겟 주사위에 +2 페널티를 받고, 그 공격은 증오 대상 영웅에게 적 레벨만큼 추가 피해를 줍니다.`},
   hazardous:{name:{en:"Hazardous",ko:"재앙"}, desc:`그룹은 이 지역에서 Camp(야영)나 Moving Cautiously(조심스럽게 이동)의 이익을 얻지 못하며, Movement 페이즈 종료 시 해당 원소의 <st>health</st> 피해를 1 받는다. Nether(네더) 타일은 항상 Void(공허) 타입이다. 이 효과는 Defender 방어자에 있는 동안 무효가 된다.`},
@@ -2503,21 +2503,21 @@ const KW_COMMON = {
 };
 const KW_SIEGE = {
   augment:{name:{en:"Augment",ko:"보강"}, desc:`원소를 Defender 방어자나 영웅에 엮는다. Temple 사원 · Elements 원소 참조표 및 Element 카드 참조 (TMoG).`},
-  arcing:{name:{en:"Arcing",ko:"방전"}, desc:`Defender 방어자를 공격할 때, 그 Defender 방어자로부터 X헥스 이내의 다른 Defender 방어자는 가해진 Siege(공성) 피해의 절반을 받는다. 방전은 목표 Defender 방어자가 가진 Specialist 전문가 수만큼 1씩 감소한다.`},
+  arcing:{name:{en:"Arcing",ko:"방전"}, desc:`Defender 방어자를 공격할 때, 그 Defender 방어자로부터 X헥스 이내의 다른 Defender 방어자는 가해진 Siege(공성) 피해의 절반을 받는다. 방전은 목표 Defender 방어자가 가진 <ic>specialist</ic> 수만큼 1씩 감소한다.`},
   bolster:{name:{en:"Bolster",ko:"임시강화"}, desc:`Siege가 진행 중일 때, Villain 페이즈에 그룹이 Defender 방어자 안에 있다면 각 영웅은 <st>energy</st> 1을 소모하고 원하는 기술 하나를 굴려 임시 보너스를 줄 수 있다. <st>navigate</st>: 이번 턴 이 Defender 방어자의 <sg>range</sg>를 2 증가시킨다. <st>explore</st>: <sg>range</sg> 안의 Siege 적에게 Siege 피해 1을 준다. <st>survival</st>: 이 Defender 방어자가 이번 턴에 Siege 피해를 받았고 <sg>resilience</sg>가 1 이상 남아 있다면 <sg>resilience</sg> 1을 얻는다. 굴림이 치명적 성공이면 소모한 <st>energy</st>를 되돌려받는다.`},
-  bulwark:{name:{en:"Bulwark",ko:"방벽"}, desc:`방벽을 가진 대상은 받는 Siege 피해를 방벽 수치만큼 감소시킨다(최소 0). 이 키워드 뒤에 Element 타입이 붙으면 해당 타입의 피해에만 적용된다. 이 키워드를 가진 Siege 적을 상대할 때는, 공격하는 Defender 방어자가 가진 Specialist 전문가 수만큼 방벽이 1씩 감소한다.`},
-  consume:{name:{en:"Consume",ko:"소모"}, desc:`이 키워드 뒤에는 자원 종류와 수량이 붙는다. 표시된 자원의 Stockpile 비축량을 소모 수치만큼 줄인다. 이 키워드를 가진 Siege 적은 Defender 방어자에게 Siege 피해를 조금이라도 줄 때마다 Stockpile 비축량을 줄인다. 소모할 자원이 남아 있지 않다면 대신 원하는 City-State 도시국가 하나가 <sg>resilience</sg> 1을 잃는다.`},
+  bulwark:{name:{en:"Bulwark",ko:"방벽"}, desc:`방벽을 가진 대상은 받는 Siege 피해를 방벽 수치만큼 감소시킨다(최소 0). 이 키워드 뒤에 Element 타입이 붙으면 해당 타입의 피해에만 적용된다. 이 키워드를 가진 Siege 적을 상대할 때는, 공격하는 Defender 방어자가 가진 <ic>specialist</ic> 수만큼 방벽이 1씩 감소한다.`},
+  consume:{name:{en:"Consume",ko:"소모"}, desc:`이 키워드 뒤에는 자원 종류와 수량이 붙는다. 표시된 자원의 Stockpile 비축량을 소모 수치만큼 줄인다. 이 키워드를 가진 Siege 적은 Defender 방어자에게 Siege 피해를 조금이라도 줄 때마다 Stockpile 비축량을 줄인다. 소모할 자원이 남아 있지 않다면 대신 원하는 <ic>cityState</ic> 하나가 <sg>resilience</sg> 1을 잃는다.`},
   cripple:{name:{en:"Cripple",ko:"손상"}, desc:`이 Siege 피해를 조금이라도 받은 Defender 방어자는 <sg>power</sg>도 1 잃는다(최소 1).`},
-  deconstruct:{name:{en:"Deconstruct",ko:"해체"}, desc:`Defender 방어자가 이 피해를 받을 때마다 Recruit 신병 1을 잃는다. Recruit 신병가 없다면 대신 <sg>potential</sg> 1을 잃는다.`},
+  deconstruct:{name:{en:"Deconstruct",ko:"해체"}, desc:`Defender 방어자가 이 피해를 받을 때마다 <ic>recruit</ic> 1을 잃는다. <ic>recruit</ic>가 없다면 대신 <sg>potential</sg> 1을 잃는다.`},
   equip:{name:{en:"Equip",ko:"장비"}, desc:`Defender 방어자에 Equip 카드를 부착한다. 그 Defender 방어자는 부착된 효과를 얻는다.`},
   freeze:{name:{en:"Freeze",ko:"빙결"}, desc:`이 Siege 적에게 피해를 받은 Defender 방어자는 이번 턴 Equip 효과를 잃는다.`},
-  ignite:{name:{en:"Ignite",ko:"발화"}, desc:`이 Siege 적에게 피해를 받은 Defender 방어자 안에 있는 영웅은 X만큼 <kw>energy drain</kw>를 받고 <state>wounded</state> 상태가 된다. 발화는 목표 Defender 방어자가 가진 Specialist 전문가 수만큼 1씩 감소한다.`},
+  ignite:{name:{en:"Ignite",ko:"발화"}, desc:`이 Siege 적에게 피해를 받은 Defender 방어자 안에 있는 영웅은 X만큼 <kw>energy drain</kw>를 받고 <state>wounded</state> 상태가 된다. 발화는 목표 Defender 방어자가 가진 <ic>specialist</ic> 수만큼 1씩 감소한다.`},
   imbalance:{name:{en:"Imbalance",ko:"불균형"}, desc:`Siege 카드를 뽑을 때마다 Elemental Imbalance가 발생한다. 불균형은 Jaethi의 참조판에 기록하며 각 Element마다 0~9 범위를 가진다.`},
-  overpower:{name:{en:"Overpower",ko:"압도"}, desc:`Defender 방어자를 공격할 때, 이 Siege 적의 압도 수치가 그 Defender 방어자의 <sg>power</sg>보다 크면 Siege 피해를 1 더 주고, 영웅들은 이번 턴 그 Defender 방어자를 <kw>bolster</kw>하는 데 가장 높은 랭크의 기술을 사용할 수 없다. 압도는 목표 Defender 방어자가 가진 Specialist 전문가 수만큼 1씩 감소한다.`},
-  retreat:{name:{en:"Retreat",ko:"후퇴"}, desc:`슬롯 2·3·4의 Siege 적이 처치되면 코어 주사위를 굴린다. 결과가 후퇴 수치 이하라면 죽음을 피한다(보상을 얻지 못한다). 이 Siege 적을 현재 슬롯의 왼쪽 슬롯 맨 아래에 놓는다. 후퇴는 공격하는 Defender 방어자가 가진 Recruit 신병 수만큼 1씩 감소한다.`},
+  overpower:{name:{en:"Overpower",ko:"압도"}, desc:`Defender 방어자를 공격할 때, 이 Siege 적의 압도 수치가 그 Defender 방어자의 <sg>power</sg>보다 크면 Siege 피해를 1 더 주고, 영웅들은 이번 턴 그 Defender 방어자를 <kw>bolster</kw>하는 데 가장 높은 랭크의 기술을 사용할 수 없다. 압도는 목표 Defender 방어자가 가진 <ic>specialist</ic> 수만큼 1씩 감소한다.`},
+  retreat:{name:{en:"Retreat",ko:"후퇴"}, desc:`슬롯 2·3·4의 Siege 적이 처치되면 코어 주사위를 굴린다. 결과가 후퇴 수치 이하라면 죽음을 피한다(보상을 얻지 못한다). 이 Siege 적을 현재 슬롯의 왼쪽 슬롯 맨 아래에 놓는다. 후퇴는 공격하는 Defender 방어자가 가진 <ic>recruit</ic> 수만큼 1씩 감소한다.`},
   siege:{name:{en:"Siege",ko:"공성"}, desc:`피해의 한 종류다. Siege 적이나 Defender 방어자는 받은 Siege 피해 1점마다 <sg>resilience</sg>를 1 잃는다. Siege 피해를 조금이라도 받은 영웅은 대신 <kw>piercing</kw> <kw>energy drain</kw> 20을 받는다.`},
-  swift:{name:{en:"Swift",ko:"신속"}, desc:`이 키워드를 가진 Siege 적은 2헥스 추가로 이동하며, City-State 도시국가만 Magnetic으로 취급한다.`},
-  tremor:{name:{en:"Tremor",ko:"진동"}, desc:`이 효과가 유지되는 동안, 효과 <sg>range</sg> 안의 모든 Recruit 신병·Specialist 전문가 보너스를 <kw>negate</kw>한다.`},
+  swift:{name:{en:"Swift",ko:"신속"}, desc:`이 키워드를 가진 Siege 적은 2헥스 추가로 이동하며, <ic>cityState</ic>만 Magnetic으로 취급한다.`},
+  tremor:{name:{en:"Tremor",ko:"진동"}, desc:`이 효과가 유지되는 동안, 효과 <sg>range</sg> 안의 모든 <ic>recruit</ic>·<ic>specialist</ic> 보너스를 <kw>negate</kw>한다.`},
 };
 
 /* =====================================================================
@@ -2547,7 +2547,7 @@ const CONDITIONS = {
   fatigued:{name:{en:"Fatigued",ko:"피로"}, q:["A","S"], desc:`피로 대상은 전투 중 매 라운드 Declaration 페이즈 시작에 <st>energy</st> 1을 잃는다.`},
   frightened:{name:{en:"Frightened",ko:"공포"}, q:["S"], desc:`공포에 빠진 영웅은 <st>defence</st> 행동만 할 수 있고 -3 페널티를 받는다. 전투 중 매 라운드 Resolution 페이즈에 <st>survival</st>을 굴린다. 성공하면 상태가 해제된다.`},
   frozen:{name:{en:"Frozen",ko:"동결"}, q:[], desc:`동결된 영웅은 행동할 수 없다. 매 라운드 Declaration 페이즈에 <st>survival</st>을 굴린다. 2회 성공하면 정상적으로 행동할 수 있고 동결이 해제된다.`},
-  imprisoned:{name:{en:"Imprisoned",ko:"투옥"}, q:[], desc:`투옥된 영웅은 자신의 의지와 무관하게 붙잡혀 있다. 소지금과 음식, 배낭을 사용할 수 없다. 영웅들이 City-State 도시국가에 있지 않다면 피라미드 주사위를 굴려 City-State 도시국가 중 한 곳으로 이동시킨다. 그룹은 Arena(투기장)에 한 번 참가하기로 선택할 수 있다. 획득한 소지금은 몰수된다. 이 상태에는 괄호 안에 숫자가 있으며, 그룹이 투옥되어 보낸 시간을 나타낸다. 게임 턴이 끝날 때 이 숫자만큼 Remnant를 보드에 놓는다. 그 후 그룹은 풀려나고 배낭을 다시 사용할 수 있다. 이 상태는 아이템으로 제거할 수 없다.`},
+  imprisoned:{name:{en:"Imprisoned",ko:"투옥"}, q:[], desc:`투옥된 영웅은 자신의 의지와 무관하게 붙잡혀 있다. 소지금과 음식, 배낭을 사용할 수 없다. 영웅들이 <ic>cityState</ic>에 있지 않다면 피라미드 주사위를 굴려 <ic>cityState</ic> 중 한 곳으로 이동시킨다. 그룹은 Arena(투기장)에 한 번 참가하기로 선택할 수 있다. 획득한 소지금은 몰수된다. 이 상태에는 괄호 안에 숫자가 있으며, 그룹이 투옥되어 보낸 시간을 나타낸다. 게임 턴이 끝날 때 이 숫자만큼 Remnant를 보드에 놓는다. 그 후 그룹은 풀려나고 배낭을 다시 사용할 수 있다. 이 상태는 아이템으로 제거할 수 없다.`},
   irradiated:{name:{en:"Irradiated",ko:"피폭"}, q:[], desc:`이 상태를 얻은 대상은 괄호 안의 숫자에서 자신의 음식 소모량을 뺀 만큼 <kw>energy drain</kw>를 받는다. 이 상태를 얻은 영웅은 코어 주사위를 굴려 <kw>mutate</kw>되는 것에 저항할 수 있다. 굴리지 않거나 결과가 음식 소모량의 2배보다 크면 즉시 변이 카드를 뽑는다.`},
   "knocked down":{name:{en:"Knocked Down",ko:"넘어짐"}, q:[], desc:`넘어진 영웅은 행동할 수 없고, 기술 굴림에 치명적 실패한다. 일어나기 위해 한 라운드를 <st>defence</st>해야 한다. 이렇게 <st>defence</st>하는 동안 아이템을 사용하거나 건넬 수 없다.`},
   petrified:{name:{en:"Petrified",ko:"석화"}, q:[], desc:`석화된 영웅은 행동할 수 없다. 대신 매 라운드 <st>defence</st>한다(아이템은 사용할 수 없다). 전투의 마지막 라운드가 끝난 뒤 <st>survival</st>을 굴린다. 성공하면 석화를 깨뜨리고, 실패하면 그 영웅은 죽는다.`},
@@ -2610,8 +2610,8 @@ const BREACH_TAB = {id:"breach", label:{en:"The Breach", ko:"균열"}, entries:[
           <b>시작 위치</b> — 낮·밤을 고른 뒤 <b>마을 · 수도원 · 지하묘지</b> 중에서 고른다(콜렉터 주사위로 무작위 결정도 가능 — 1 마을 · 2 수도원 · 3 지하묘지).
           <b>마을</b>은 굴림으로 정한 마을에서 그 마을의 시작 장비를 받는다.
           <b>수도원·지하묘지</b>는 달 주사위로 번호를 정하고(<b>~3</b> 1번 · <b>4~6</b> 2번 · <b>7~9</b> 3번 · <b>10~12</b> 4번) 아래를 얻는다 —
-          <b>수도원</b>: 각자 골드 5 · 음식 소모량×4 · 그룹 기어 업그레이드 3개 · 그 수도원의 <b>Grace</b> ·
-          <b>지하묘지</b>: 각자 골드 15 · 음식 소모량×2 · 그룹 기어 업그레이드 3개 · 그 지하묘지 <b>해금 + 피의 마법 1티어</b>.`},
+          <b>수도원</b>: 각자 골드 5 · 음식 소모량×4 · 그룹 <ic>gear</ic> 3개 · 그 수도원의 <b>Grace</b> ·
+          <b>지하묘지</b>: 각자 골드 15 · 음식 소모량×2 · 그룹 <ic>gear</ic> 3개 · 그 지하묘지 <b>해금 + 피의 마법 1티어</b>.`},
 
         {name:{en:"Noctis Acts",ko:"녹티스의 행동"}, desc:`녹티스는 매 턴 <b>균열을 닫으려</b> 애쓴다. 그 행동이 영웅들에게 영향을 주기도 한다.<br>
           시작 시 <b>콜렉터 주사위 7개</b>를 갖고, 피의 웅덩이가 <b>90부터 20 줄어들 때마다 1개씩</b> 잃는다(90에 6개, 70에 5개, 50에 4개 …).<br>
@@ -2811,10 +2811,10 @@ const R5_SETUP = {title:{en:"Game Setup", ko:"게임 준비"}, body:`
   <div class="rule-grid">
     <div class="rule-k">제국 정하기</div><div class="rule-v">먼저 어느 제국으로 할지 정한다 — <b>Caprakan</b> · <b>Ishidan</b> · <b>둘 다</b>. 이 선택이 게임 바와 제국 타일 배치를 결정한다</div>
     <div class="rule-k">깔기</div><div class="rule-v"><b>게임 바 4개</b> · <b>제국 타일 2개</b> · <b>무작위 헥스타일 2개</b> · <b>Siege Portal 공성 관문 3개</b>.
-      제국 타일은 각 City-State 도시국가가 <b>허용된 3방향 중 하나</b>에 오도록 돌려 놓는다</div>
+      제국 타일은 각 <ic>cityState</ic>가 <b>허용된 3방향 중 하나</b>에 오도록 돌려 놓는다</div>
     <div class="rule-k">하늘 타일</div><div class="rule-v"><b>SkyTile 하늘 타일 1장</b>을 놓는다. 놓는 자리에 따라 <b>새 헥스타일이 공개</b>될 수 있다</div>
     <div class="rule-k">보스 소굴</div><div class="rule-v">공개된 소굴마다 <b>무작위 보스 토큰</b>을 <b>숫자 면이 위로</b> 오게 놓는다</div>
-    <div class="rule-k">추적판</div><div class="rule-v">각 City-State 도시국가의 초기 수치를 <b>Defender 방어자 추적판</b>에 적어 게임 바의 지정 자리에 놓는다.
+    <div class="rule-k">추적판</div><div class="rule-v">각 <ic>cityState</ic>의 초기 수치를 <b>Defender 방어자 추적판</b>에 적어 게임 바의 지정 자리에 놓는다.
       나머지 추적판은 <b>"Enhancing Defenders" 면이 위로</b> 오게 모아 둔다</div>
     <div class="rule-k">따로 빼둘 것</div><div class="rule-v"><b>Siege Banner 공성 깃발 4개</b> · <b>Jaethi 미니어처</b> · <b>Riser 승강기</b> · 참조판 전부</div>
   </div>
@@ -2843,31 +2843,31 @@ const R5_SETUP = {title:{en:"Game Setup", ko:"게임 준비"}, body:`
   </div>
   <div class="rule-h">4 · 시작 위치와 초기 자원</div>
   <div class="rule-grid">
-    <div class="rule-k">시작 위치</div><div class="rule-v"><b>헥스 주사위</b>를 굴려 <b>홀수면 City-State 도시국가 1</b>, <b>짝수면 2</b>.
+    <div class="rule-k">시작 위치</div><div class="rule-v"><b>헥스 주사위</b>를 굴려 <b>홀수면 <ic>cityState</ic> 1</b>, <b>짝수면 2</b>.
       그 도시국가의 <b>아무 헥스</b>에나 그룹 말을 놓는다. (게임 중 무작위 도시국가를 정할 때도 같은 방법을 쓴다)</div>
   </div>
   <div class="rule-h">초기 장비 — 영웅마다 셋, 그룹이 하나</div>
   <div class="rule-grid">
-    <div class="rule-k">기어 업그레이드</div><div class="rule-v"><b>생명력 2칸</b> · <b>기술 1칸</b> · <b>능력 1칸</b> 중 하나</div>
+    <div class="rule-k"><ic>gear</ic></div><div class="rule-v"><b>생명력 2칸</b> · <b>기술 1칸</b> · <b>능력 1칸</b> 중 하나</div>
     <div class="rule-k">아이템</div><div class="rule-v"><b>Viper Potion 3개</b> · <b>Ring of Command</b> · <b>Gryphon Mount</b> ·
       <b>Peryton Mount</b>(음식 소모량 −1) 중 하나</div>
-    <div class="rule-k">자원</div><div class="rule-v"><b>백금 10</b> · <b>백금 4</b> · <b>기본 원소 1</b> 중 하나</div>
+    <div class="rule-k">자원</div><div class="rule-v"><b><ic>platinum</ic> 10</b> · <b><ic>platinum</ic> 4</b> · <b>기본 원소 1</b> 중 하나</div>
     <div class="rule-k">그룹 테마</div><div class="rule-v">그룹이 하나를 고른다 —
       <b>Hunters</b> 각 영웅이 원하는 능력 랭크 <b>2</b> · <b>Explorers</b> Leyline Compass + Expedition Contract ·
-      <b>Seeker</b> 커미션 카드 <b>5장</b> 공개 · <b>Collectors</b> 백금 1 + Wellspring Amplifier 3개</div>
+      <b>Seeker</b> 커미션 카드 <b>5장</b> 공개 · <b>Collectors</b> <ic>platinum</ic> 1 + Wellspring Amplifier 3개</div>
   </div>
   <div class="rule-grid">
     <div class="rule-k">첫 Tower 탑</div><div class="rule-v">세울지 <b>고를 수 있다</b>. 세우면 <b>무너져 가는 상태</b>라 <sg>resilience</sg>가 <b>절반(5)</b>으로 시작한다.
       게임 장소가 아닌(<b>색 테두리</b>) 아무 헥스에나 <b>Tower 1</b>을 놓고 추적판을 채운다.
-      <b>세우지 않으면</b> 대신 <b>백금 4</b>와 <b>원하는 기본 원소 1개</b>를 얻는다</div>
+      <b>세우지 않으면</b> 대신 <b><ic>platinum</ic> 4</b>와 <b>원하는 기본 원소 1개</b>를 얻는다</div>
   </div>
   <div class="rule-h">원소 주사위 굴리기</div>
   <div class="rule-v"><b>원소 주사위 5개</b>를 전부 굴려 초기 자원을 얻는다. 얻은 자원은 <b>Stockpile 비축량</b>에 기록한다.</div>
   <div class="rule-grid">
-    <div class="rule-k">Air · Fire</div><div class="rule-v">결과마다 <b>목재 4</b></div>
-    <div class="rule-k">Earth · Water</div><div class="rule-v">결과마다 <b>광석 4</b></div>
-    <div class="rule-k">Void</div><div class="rule-v">결과마다 <b>백금 2</b> + <b>원하는 고급(Tier II) 자원 1</b></div>
-    <div class="rule-k">Surge 쇄도</div><div class="rule-v">위 보상에 더해 <b>백금 4</b>. 그리고 <b>쇄도한 주사위를 다시 굴려</b> 원소를 얻을 수 있다</div>
+    <div class="rule-k">Air · Fire</div><div class="rule-v">결과마다 <b><ic>lumber</ic> 4</b></div>
+    <div class="rule-k">Earth · Water</div><div class="rule-v">결과마다 <b><ic>ore</ic> 4</b></div>
+    <div class="rule-k">Void</div><div class="rule-v">결과마다 <b><ic>platinum</ic> 2</b> + <b>원하는 고급(Tier II) 자원 1</b></div>
+    <div class="rule-k">Surge 쇄도</div><div class="rule-v">위 보상에 더해 <b><ic>platinum</ic> 4</b>. 그리고 <b>쇄도한 주사위를 다시 굴려</b> 원소를 얻을 수 있다</div>
   </div>
   <div class="rule-h">원소 얻기 — 다시 굴릴 때</div>
   <div class="rule-grid">
@@ -2903,7 +2903,7 @@ const R5_HARVEST = {title:{en:"Harvest Stage", ko:"수확 단계"}, body:`
     그래서 수확 단계에는 <b>어디에 서 있느냐</b>가 곧 전략이 된다.</div>
   <div class="rule-h">Treasure 보물</div>
   <div class="rule-grid">
-    <div class="rule-k">획득 조건</div><div class="rule-v">뽑았다고 바로 얻는 게 아니다. <b>Antiquity Site 유적</b>에서 이벤트를 치러야 얻는다</div>
+    <div class="rule-k">획득 조건</div><div class="rule-v">뽑았다고 바로 얻는 게 아니다. <b><ic>antiquity</ic></b>에서 이벤트를 치러야 얻는다</div>
     <div class="rule-k">얻으면</div><div class="rule-v">영웅 하나가 카드를 갖고 <b>Wielder Bonus 소지자 보너스</b>와 <b>보물 효과</b>를 쓴다. 그 자리에는 <b>헥스 토큰을 놓지 않는다</b></div>
     <div class="rule-k">못 얻으면</div><div class="rule-v">수확 단계가 끝날 때 <b>버려진다</b> — Jaethi가 그 패턴을 삼켜 버린다</div>
   </div>
@@ -2957,7 +2957,7 @@ const R5_VILLAIN_S = {title:{en:"Villain Phase (Siege)", ko:"빌런 단계 · �
   </div>
   <div class="rule-h">① Jaethi</div>
   <div class="rule-grid">
-    <div class="rule-k">이동</div><div class="rule-v">현재 <b>불균형 종류</b>에 따라 정해진 칸(<b>1~3</b>, Swift 패시브로 <b>+2</b>)만큼 <b>가장 가까운 City-State 도시국가</b>를 향해</div>
+    <div class="rule-k">이동</div><div class="rule-v">현재 <b>불균형 종류</b>에 따라 정해진 칸(<b>1~3</b>, Swift 패시브로 <b>+2</b>)만큼 <b>가장 가까운 <ic>cityState</ic></b>를 향해</div>
     <div class="rule-k">행동</div><div class="rule-v">현재 불균형과 <b>같은 원소 주사위</b>를 굴려 그 결과의 효과를 처리한다</div>
     <div class="rule-k">공격</div><div class="rule-v"><sg>range</sg> 안의 Defender 방어자에게 <b><sg>power</sg></b>만큼. 원소 유형은 <b>현재 불균형</b>과 같다.
       Jaethi의 공격은 <b>깃발들이 움직이기 전에</b> 끝난다</div>
@@ -2969,7 +2969,7 @@ const R5_VILLAIN_S = {title:{en:"Villain Phase (Siege)", ko:"빌런 단계 · �
     Jaethi는 <b>1 이상인 원소의 패시브를 모두</b> 얻는다.</div>
   <div class="rule-h">② 깃발 이동</div>
   <div class="rule-grid">
-    <div class="rule-k">목표</div><div class="rule-v">가장 가까운 <b>Magnetic</b> 대상(City-State 도시국가 · Fortress 요새 · Wellspring 증폭기 등). 같은 거리면 <b>그룹이 고른다</b></div>
+    <div class="rule-k">목표</div><div class="rule-v">가장 가까운 <b>Magnetic</b> 대상(<ic>cityState</ic> · Fortress 요새 · Wellspring 증폭기 등). 같은 거리면 <b>그룹이 고른다</b></div>
     <div class="rule-k">멈춤</div><div class="rule-v">목표의 <b><sg>range</sg> 안</b>에 들면 멈춘다. <b>Defender 방어자 위에서는</b> 이동을 끝낼 수 없다</div>
     <div class="rule-k">지형</div><div class="rule-v">새 헥스 타일을 열 수 있고 <b>위험 지형의 영향을 받지 않으며</b>,
       물·산봉우리·공성 관문을 <b>평지처럼</b> 지난다(관문 위에서 멈추지는 못한다)</div>
@@ -3001,7 +3001,7 @@ const R5_CALENDAR = {title:{en:"Calendar & Victory", ko:"캘린더 · 승패"}, 
   </div>
   <div class="rule-h">Final Moments 최후의 순간</div>
   <div class="rule-v">캘린더가 0이 되면 <b>현재 공성 물결까지의 수정치를 누적해</b> 적용한다.
-    (예: 2번째 물결이면 1·2번째가 함께 적용되어 <b>Defender 방어자 합계 −4</b>. 3번째 물결에는 <b>무작위 City-State 도시국가 하나가 파괴</b>된다.)</div>
+    (예: 2번째 물결이면 1·2번째가 함께 적용되어 <b>Defender 방어자 합계 −4</b>. 3번째 물결에는 <b>무작위 <ic>cityState</ic> 하나가 파괴</b>된다.)</div>
   <div class="rule-h">공성이 끝날 때</div>
   <div class="rule-grid">
     <div class="rule-k">치우는 것</div><div class="rule-v">남은 <b>공성 깃발과 Jaethi 말</b>을 판에서 치운다</div>
@@ -3011,18 +3011,18 @@ const R5_CALENDAR = {title:{en:"Calendar & Victory", ko:"캘린더 · 승패"}, 
   <div class="rule-h">승패</div>
   <div class="rule-grid">
     <div class="rule-k" style="color:var(--g-navigate)">승리</div><div class="rule-v"><b>Jaethi의 <sg>resilience</sg>가 0</b>이 된다 ·
-      또는 <b>마지막 공성 물결이 끝났을 때 City-State 도시국가가 하나라도 살아 있다</b></div>
-    <div class="rule-k" style="color:var(--g-attack)">패배</div><div class="rule-v"><b>City-State 도시국가 둘 다 파괴</b>된다</div>
+      또는 <b>마지막 공성 물결이 끝났을 때 <ic>cityState</ic>가 하나라도 살아 있다</b></div>
+    <div class="rule-k" style="color:var(--g-attack)">패배</div><div class="rule-v"><b><ic>cityState</ic> 둘 다 파괴</b>된다</div>
   </div>
   <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">승패는 공성 단계의 <b>매 턴 끝</b>에 확인한다.</div>`};
 
 const R5_RES = {title:{en:"Resources & Elements", ko:"자원 · 원소"}, body:`
   <div class="rule-v"><b>자원</b>은 그룹 공용 아이템으로, <b>Defender 방어자를 키우는 데</b> 쓴다. 모으는 데 <b>수량 제한이 없다</b>.</div>
   <div class="rule-grid">
-    <div class="rule-k">Platinum 백금</div><div class="rule-v">Defender 방어자를 <b>처음 세울 때</b>(그리고 일부 개선에) 든다. 다른 자원을 <b>Emporium 교역소</b>에서 백금으로 바꿀 수 있다</div>
-    <div class="rule-k">Tier I</div><div class="rule-v">Ore 광석 · Lumber 목재 · Recruit 신병</div>
-    <div class="rule-k">Tier II</div><div class="rule-v">Essence 정수 · Sky Metal 하늘 금속</div>
-    <div class="rule-k">Tier III</div><div class="rule-v">Specialist 전문가 · Aetherial Ore 에테르 광석 · Living Crystal 살아있는 결정</div>
+    <div class="rule-k"><ic>platinum</ic></div><div class="rule-v">Defender 방어자를 <b>처음 세울 때</b>(그리고 일부 개선에) 든다. 다른 자원을 <b>Emporium 교역소</b>에서 <ic>platinum</ic>으로 바꿀 수 있다</div>
+    <div class="rule-k">Tier I</div><div class="rule-v"><ic>ore</ic> · <ic>lumber</ic> · <ic>recruit</ic></div>
+    <div class="rule-k">Tier II</div><div class="rule-v"><ic>essence</ic> · <ic>skyMetal</ic></div>
+    <div class="rule-k">Tier III</div><div class="rule-v"><ic>specialist</ic> · <ic>aether</ic> · <ic>living</ic></div>
     <div class="rule-k">원소</div><div class="rule-v">기본 4종 <b>Air 바람 · Earth 대지 · Fire 불 · Water 물</b> + <b>Void 공허</b></div>
   </div>
   <div class="rule-h">Augment 원소 부여</div>
@@ -3033,7 +3033,7 @@ const R5_RES = {title:{en:"Resources & Elements", ko:"자원 · 원소"}, body:`
 const R5_DEFENDER = {title:{en:"Defenders", ko:"방어자"}, body:`
   <div class="rule-v">Defender 방어자는 공성 적을 막아 주는 <b>거점</b>이다. 종류마다 <b>추적판</b>이 따로 있다.</div>
   <div class="rule-grid">
-    <div class="rule-k">City-State 도시국가</div><div class="rule-v">이름과 번호가 있다. 네 곳 중 <b>둘만</b> 게임에 등장한다</div>
+    <div class="rule-k"><ic>cityState</ic></div><div class="rule-v">이름과 번호가 있다. 네 곳 중 <b>둘만</b> 게임에 등장한다</div>
     <div class="rule-k">Temple 사원</div><div class="rule-v">다섯 곳이 <b>하나의 추적판을 공유</b>한다. <b><sg>resilience</sg>만</b> 장소별로 따로 적으며 <b>8</b>에서 시작한다</div>
     <div class="rule-k">Tower 탑 · Fortress 요새</div><div class="rule-v"><b>1~4번</b>. Tower 탑을 올리면 <b>같은 번호의 Fortress 요새</b>가 된다(다른 번호로는 불가)</div>
     <div class="rule-k">기본 · 상승 수치</div><div class="rule-v"><b>+</b>가 없으면 기본 수치로, 새로 등장하거나 재건될 때 <b>그 값으로 초기화</b>한다.
@@ -3041,16 +3041,16 @@ const R5_DEFENDER = {title:{en:"Defenders", ko:"방어자"}, body:`
   </div>
   <div class="rule-h">Defender 방어자 강화 <span class="rule-tag">이벤트 단계 끝</span></div>
   <div class="rule-grid">
-    <div class="rule-k">Build 건설</div><div class="rule-v"><b>백금 6</b> — 그룹 <b><sg>range</sg> 안</b>의 지형 헥스에 다음 번호의 <b>Tower 탑</b>을 세운다.
+    <div class="rule-k">Build 건설</div><div class="rule-v"><b><ic>platinum</ic> 6</b> — 그룹 <b><sg>range</sg> 안</b>의 지형 헥스에 다음 번호의 <b>Tower 탑</b>을 세운다.
       게임 장소나 공성 관문에는 못 놓는다(SkyTile은 <kw>soar</kw>가 있으면 가능). 세울 때마다 <b>파워업</b>을 뽑아 그룹이 받는다</div>
-    <div class="rule-k">Upgrade 승급</div><div class="rule-v"><b>백금 10</b> — <b>Tower 탑 1~3</b>을 같은 번호 <b>Fortress 요새</b>로. 같은 자리에 토큰을 교체한다.
+    <div class="rule-k">Upgrade 승급</div><div class="rule-v"><b><ic>platinum</ic> 10</b> — <b>Tower 탑 1~3</b>을 같은 번호 <b>Fortress 요새</b>로. 같은 자리에 토큰을 교체한다.
       그 Tower 탑은 <b>Fortress 요새가 파괴되기 전까지</b> 다시 세울 수 없다</div>
     <div class="rule-k">Rebuild 재건</div><div class="rule-v">비용은 상황에 따라 다르다. 파괴돼 <b>뒤집힌</b> 토큰은 같은 자리에 <b>더 싸게</b> 재건할 수 있다.
-      재건하면 <b><sg>resilience</sg> · Recruit 신병 · Specialist 전문가만</b> 기본값으로 돌아가고 나머지는 유지된다.
+      재건하면 <b><sg>resilience</sg> · <ic>recruit</ic> · <ic>specialist</ic>만</b> 기본값으로 돌아가고 나머지는 유지된다.
       <b>Temple 사원 Fortress 요새는 재건 불가</b> — 파괴되면 모든 Temple 사원 장소와 함께 사라진다</div>
-    <div class="rule-k">Relocate 이전</div><div class="rule-v"><b>백금 1</b> — 파괴되지 않은 Tower 탑·Fortress 요새를 그룹 <b><sg>range</sg></b>만큼 옮긴다.
+    <div class="rule-k">Relocate 이전</div><div class="rule-v"><b><ic>platinum</ic> 1</b> — 파괴되지 않은 Tower 탑·Fortress 요새를 그룹 <b><sg>range</sg></b>만큼 옮긴다.
       Defender 방어자당 <b>게임 턴에 1회</b>. Temple 사원 Fortress 요새는 불가</div>
-    <div class="rule-k">Improve 개선</div><div class="rule-v"><b>자원</b>을 써서 강화한다. <b>City-State 도시국가와 Temple 사원</b>은 자원을 얼마를 쓰든 <b>백금 1</b>을 추가로 낸다</div>
+    <div class="rule-k">Improve 개선</div><div class="rule-v"><b>자원</b>을 써서 강화한다. <b><ic>cityState</ic>와 Temple 사원</b>은 자원을 얼마를 쓰든 <b><ic>platinum</ic> 1</b>을 추가로 낸다</div>
     <div class="rule-k">Equip 장착</div><div class="rule-v"><b>비용 없음</b> — 보유한 Equip 카드를 Defender 방어자에 붙이거나 뗀다. Defender 방어자당 <b>게임 턴에 1장</b></div>
   </div>`};
 
@@ -3072,7 +3072,7 @@ const R5_MAP = {title:{en:"Special Tiles", ko:"특수 타일"}, body:`
   <div class="rule-grid">
     <div class="rule-k">등장</div><div class="rule-v">수확 덱이나 Jaethi 덱에서 <b>재앙 카드</b>가 나오면 해당 타일을 놓고 그 카드를 뽑는다</div>
     <div class="rule-k">효과</div><div class="rule-v">그 타일 위에서는 <b>이동과 이벤트 단계가 달라진다</b>.
-      카드 뒷면에 <b>Living Crystal 살아있는 결정 소비법</b>과 그 위에서 Defender 방어자·공성 적이 어떻게 달라지는지가 적혀 있다</div>
+      카드 뒷면에 <b><ic>living</ic> 소비법</b>과 그 위에서 Defender 방어자·공성 적이 어떻게 달라지는지가 적혀 있다</div>
   </div>
   <div class="rule-h">Hazardous Terrain 위험 지형</div>
   <div class="rule-v"><b>재앙 타일과 Nether 타일의 모든 헥스</b>가 해당한다.
@@ -3111,7 +3111,7 @@ const R5_MOVE = {title:{en:"Movement Phase", ko:"이동 단계"}, body:`
   <div class="rule-h">Moving Cautiously 신중한 이동</div>
   <div class="rule-grid">
     <div class="rule-k">조건</div><div class="rule-v">이동력 전부를 <b>강·도로만 따라</b> 쓰거나, 그 턴에 <b>1헥스만</b> 이동.
-      <b>City-State 도시국가의 네 헥스는 모두 도로로</b> 친다</div>
+      <b><ic>cityState</ic>의 네 헥스는 모두 도로로</b> 친다</div>
     <div class="rule-k">보상</div><div class="rule-v"><kw>wander</kw> 위험이 <b>없다</b> · 그 턴에 나온 <b>Encounter 카드를 버릴 수</b> 있다</div>
     <div class="rule-k">이동력과 연동</div><div class="rule-v">이동력을 올리는 아이템은 <b>신중한 이동 칸 수도</b> 함께 올린다(1 → 2 등)</div>
   </div>
@@ -3183,12 +3183,12 @@ const R5_DEATH = {title:{en:"Death & Revival", ko:"죽음 · 부활"}, body:`
   </div>
   <div class="rule-h">Wave Revival 물결 부활</div>
   <div class="rule-v"><b>마지막 공성이 아니라면</b>, 죽은 영웅은 <b>현재 물결 번호</b>만큼의 게임 턴이 지난 뒤
-    원하는 <b>City-State 도시국가</b>에서 자동으로 부활한다. 그 턴 <b>이동 단계</b>에 되살아나며,
-    살아 있는 영웅이 그 City-State 도시국가의 <b><sg>range</sg> 안</b>에 있으면 합류한다.
-    City-State 도시국가마다 부활 시 주는 <b>기어 업그레이드 보너스가 다르다</b>.</div>
+    원하는 <b><ic>cityState</ic></b>에서 자동으로 부활한다. 그 턴 <b>이동 단계</b>에 되살아나며,
+    살아 있는 영웅이 그 <ic>cityState</ic>의 <b><sg>range</sg> 안</b>에 있으면 합류한다.
+    <ic>cityState</ic>마다 부활 시 주는 <b><ic>gear</ic> 보너스가 다르다</b>.</div>
   <div class="rule-h">새 영웅 만들기</div>
   <div class="rule-v">죽었다면 새 영웅을 만들 수 있다. <b>공성 물결마다 파워업 3장</b>, <b>골드 10</b>, <b>음식 소모량×3</b>을 갖고 시작하며,
-    그룹이 <b>City-State 도시국가 · Temple 사원 · 정착지 · 유적 · Tower 탑 · Fortress 요새</b> 중 한 곳에서 이동을 끝낸 다음 <b>기술 단계 뒤에</b> 합류한다.</div>`};
+    그룹이 <b><ic>cityState</ic> · Temple 사원 · 정착지 · 유적 · Tower 탑 · Fortress 요새</b> 중 한 곳에서 이동을 끝낸 다음 <b>기술 단계 뒤에</b> 합류한다.</div>`};
 
 /* ── 5편 확장 게임 모드 — 카프라칸 귀환 · 이시단 귀환 ── */
 const C_TAG = `<span class="rule-tag" style="border-color:var(--g-attack);color:var(--g-attack)">변경</span>`;
@@ -3204,9 +3204,9 @@ const RC_INTRO = {title:{en:"Return to Caprakan", ko:"카프라칸 귀환 — �
   </div>
   <div class="rule-h" style="color:var(--g-attack)">패배 조건</div>
   <div class="rule-grid">
-    <div class="rule-k">City-State 도시국가</div><div class="rule-v"><b>Aztlant</b>가 파괴된다</div>
+    <div class="rule-k"><ic>cityState</ic></div><div class="rule-v"><b>Aztlant</b>가 파괴된다</div>
     <div class="rule-k">시간</div><div class="rule-v">마지막 공성에서 <b>캘린더가 0</b>이 된다</div>
-    <div class="rule-k">자원</div><div class="rule-v">비축의 <b>Recruit 신병이 0</b>이 된다</div>
+    <div class="rule-k">자원</div><div class="rule-v">비축의 <b><ic>recruit</ic>이 0</b>이 된다</div>
   </div>
   <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">이전 편들과 달리 <b>영웅의 죽음은 패배 조건이 아니다</b>.</div>`};
 
@@ -3228,12 +3228,12 @@ const RC_DIFF = {title:{en:"What Changes", ko:"코어와 달라지는 것"}, bod
   </div>
   <div class="rule-h">새로 생기는 것</div>
   <div class="rule-grid">
-    <div class="rule-k">Aztlant</div><div class="rule-v">새 City-State 도시국가. <b>반드시 지켜야 한다</b>. 코어의 카프라칸 City-State 도시국가 둘도 등장하지만 <b>그 몰락은 승패와 무관</b>하다.
+    <div class="rule-k">Aztlant</div><div class="rule-v">새 <ic>cityState</ic>. <b>반드시 지켜야 한다</b>. 코어의 카프라칸 <ic>cityState</ic> 둘도 등장하지만 <b>그 몰락은 승패와 무관</b>하다.
       제국 타일 뒷면이 <b>Eternal Twilight 영원한 황혼</b>이며, 이때 새 빌런 <b>Kualotekutli</b>가 활동한다</div>
     <div class="rule-k">Temple 사원</div><div class="rule-v">영원한 황혼에 <b>Temple of the Everlasting</b>이 나타난다</div>
-    <div class="rule-k">시작 자원</div><div class="rule-v">비축에 <b>Recruit 신병 40 · Specialist 전문가 8</b>을 갖고 시작한다</div>
+    <div class="rule-k">시작 자원</div><div class="rule-v">비축에 <b><ic>recruit</ic> 40 · <ic>specialist</ic> 8</b>을 갖고 시작한다</div>
     <div class="rule-k">Primordial Center</div><div class="rule-v">기본 4원소마다 하나씩, <b>네 곳</b>이 존재한다</div>
-    <div class="rule-k">Shaman 샤먼</div><div class="rule-v">최대 <b>6개</b>의 샤먼 토큰을 얻을 수 있다. <b>Aetherial Ore 에테르 광석</b>처럼 소비할 수 있으며 <b>승리에 핵심</b>이다</div>
+    <div class="rule-k">Shaman 샤먼</div><div class="rule-v">최대 <b>6개</b>의 샤먼 토큰을 얻을 수 있다. <b><ic>aether</ic></b>처럼 소비할 수 있으며 <b>승리에 핵심</b>이다</div>
     <div class="rule-k">태피스트리 · 헌신</div><div class="rule-v"><b>복원</b>과 <b>Dedication</b>이 각각 승리 조건이 된다(헌신은 코어와 작동 방식이 다르다)</div>
   </div>`};
 
@@ -3250,7 +3250,7 @@ const RI_INTRO = {title:{en:"Return to Ishidan", ko:"이시단 귀환 — 개요
   <div class="rule-h" style="color:var(--g-attack)">패배 조건</div>
   <div class="rule-grid">
     <div class="rule-k">시간</div><div class="rule-v"><b>마지막 빌런 카드</b>를 처리했는데 Divine Dragon이 하나라도 살아 있다</div>
-    <div class="rule-k">City-State 도시국가</div><div class="rule-v"><b>Hanei의 네 구역이 모두</b> 파괴된다</div>
+    <div class="rule-k"><ic>cityState</ic></div><div class="rule-v"><b>Hanei의 네 구역이 모두</b> 파괴된다</div>
     <div class="rule-k">토큰</div><div class="rule-v"><b>Fortify 축성 토큰</b>이 떨어진다</div>
   </div>
   <div class="rule-v" style="margin-top:9px;color:var(--ink-faint);font-size:12px">여기서도 <b>영웅의 죽음은 패배 조건이 아니다</b>.</div>`};
@@ -3277,7 +3277,7 @@ const RI_DIFF = {title:{en:"What Changes", ko:"코어와 달라지는 것"}, bod
   </div>
   <div class="rule-h">Defender 방어자와 Temple 사원</div>
   <div class="rule-grid">
-    <div class="rule-k">Hanei</div><div class="rule-v"><b>네 구역</b>으로 나뉜 새 City-State 도시국가로, <b>각 구역이 곧 하나의 City-State 도시국가</b>다.
+    <div class="rule-k">Hanei</div><div class="rule-v"><b>네 구역</b>으로 나뉜 새 <ic>cityState</ic>로, <b>각 구역이 곧 하나의 <ic>cityState</ic></b>다.
       중앙의 <b>2헥스만</b>이 이 게임의 유일한 <b>Magnetic</b> 장소다</div>
     <div class="rule-k">수동 Defender 방어자</div><div class="rule-v">Hanei를 포함한 Defender 방어자는 공성 적을 <b>공격하지 않는다</b>. <b>Tower 탑 추적판만</b> 사용한다</div>
     <div class="rule-k">Tower 탑</div><div class="rule-v">시작부터 <b>4개 모두</b> 있고, 각자 <b>Tower 탑 Augment 카드</b>와 초기 보너스·기본 원소 Augment를 받는다.
@@ -3488,19 +3488,19 @@ const V5_TURNSHEET = `
         <b>Acquire Amount</b>(시작 <b>3</b>)만큼 헥스를 골라 그 위치에 맞는 자원을 얻는다.
         얻은 자원은 <b>Stockpile 비축량</b>에 기록한다 <span class="ts-app">파티 탭</span></div>
       <div class="ts-grid">
-        <div class="ts-k">City-State 도시국가</div><div class="ts-v"><kw>revive</kw> · <kw>heal</kw> ·
+        <div class="ts-k"><ic>cityState</ic></div><div class="ts-v"><kw>revive</kw> · <kw>heal</kw> ·
           도시국가 행동 · <b>Bounty 현상금</b> 제출 · 아이템 구매</div>
         <div class="ts-k">Temple 신전</div><div class="ts-v"><kw>heal</kw> · 컨디션 <kw>negate</kw> · 여러 신전 행동</div>
-        <div class="ts-k">Antiquity Site 유적</div><div class="ts-v">드러난 <b>보물 확보</b> 또는 드러난 <b>커미션</b> 하나 시도</div>
-        <div class="ts-k">Settlement 정착지</div><div class="ts-v">잃은 생명력 <b>절반까지</b> <kw>heal</kw> ·
+        <div class="ts-k"><ic>antiquity</ic></div><div class="ts-v">드러난 <b>보물 확보</b> 또는 드러난 <b>커미션</b> 하나 시도</div>
+        <div class="ts-k"><ic>settlement</ic></div><div class="ts-v">잃은 생명력 <b>절반까지</b> <kw>heal</kw> ·
           아이템 구매 · 드러난 커미션 하나 시도</div>
         <div class="ts-k">Tower / Fortress</div><div class="ts-v">잃은 생명력 <b>절반까지</b> <kw>heal</kw> · 아이템 구매</div>
-        <div class="ts-k">Wellspring Gate</div><div class="ts-v">드러난 다른 <b>이벤트 위치</b>(색 테두리) · <b>Defender</b> ·
+        <div class="ts-k"><ic>wellspring</ic></div><div class="ts-v">드러난 다른 <b>이벤트 위치</b>(색 테두리) · <b>Defender</b> ·
           <b>토큰</b>으로 <kw>teleport</kw></div>
         <div class="ts-k">Boss Token</div><div class="ts-v"><b>보스</b>와 전투하거나 <b>Dedication 헌신</b>을 얻는다(신전 판)</div>
         <div class="ts-k">Discovery Token</div><div class="ts-v"><b>Discovery</b>를 확보하거나 <b>Secured Discovery</b> 효과를 얻는다</div>
         <div class="ts-k">Elemental Token</div><div class="ts-v"><b>원소 1</b>을 얻는다</div>
-        <div class="ts-k">Platinum Token</div><div class="ts-v"><b>현재 공성 물결</b>만큼 <b>백금</b>을 얻는다</div>
+        <div class="ts-k">Platinum Token</div><div class="ts-v"><b>현재 공성 물결</b>만큼 <b><ic>platinum</ic></b>을 얻는다</div>
       </div>
       <div class="ts-line">이벤트를 다 처리한 뒤 <b>자원을 써서 Defender 방어자를 강화</b>할 수 있다.
         단계에 따라 방식이 다르다 — <b>Enhancing Defenders 트래커</b> 참고
@@ -3568,8 +3568,8 @@ const V5_PARTY = [
   {kind:"stockpile", id:"stock", label:{en:"Stockpile",ko:"비축량"},
    note:`이벤트 페이즈에 <b><sg>range</sg></b> 안에서 <b>획득량</b>만큼 헥스를 골라 자원을 얻는다.
      <b>Tier II 지속 효과</b>는 공성이 시작될 때(SIEGE! 를 뽑았을 때) 정산한다.
-     판매는 도시국가에서 — <b>Tier I 10개 = 백금 1</b> · <b>Tier II 1개 = 백금 1</b> ·
-     <b>Tier III 1개 = 백금 8</b> · <b>기본 원소 1 = 백금 5</b> · <b>골드 100 = 백금 1</b>.`,
+     판매는 도시국가에서 — <b>Tier I 10개 = <ic>platinum</ic> 1</b> · <b>Tier II 1개 = <ic>platinum</ic> 1</b> ·
+     <b>Tier III 1개 = <ic>platinum</ic> 8</b> · <b>기본 원소 1 = <ic>platinum</ic> 5</b> · <b>골드 100 = <ic>platinum</ic> 1</b>.`,
    tiers:[
      {t:"Tier I 기본", list:[
        {id:"ore",     en:"Ore",     ko:"광석",   c:"--g-secondMastery"},
@@ -3592,7 +3592,7 @@ const V5_PARTY = [
      {lab:"Tier III 판매가 · 백금", val:((v.aether||0)+(v.living||0))*8}]},
 
   {kind:"counter", id:"plat", label:{en:"Platinum",ko:"백금"}, max:999, step:5,
-   note:`Emporium 의 아이템과 <b>기어 업그레이드</b>를 사는 데 쓴다.
+   note:`Emporium 의 아이템과 <b><ic>gear</ic></b>를 사는 데 쓴다.
      <b>Platinum Token</b>을 밟으면 <b>현재 공성 물결</b>만큼 얻는다.`},
 
   {kind:"counter", id:"acquire", label:{en:"Acquire Amount",ko:"획득량"}, max:20, init:3,
@@ -3600,7 +3600,7 @@ const V5_PARTY = [
      매 게임 턴 이벤트 페이즈에 <b>자원을 거둘 헥스 수</b>.`,
    readout:(v)=>[{lab:"수확 카드", val:v},{lab:"거둘 헥스", val:v}]},
 
-  {kind:"counter", id:"range", label:{en:"Range",ko:"<sg>range</sg>"}, max:20, init:1,
+  {kind:"counter", id:"range", label:{en:"Range",ko:"사정거리"}, max:20, init:1,
    note:`자원을 거두는 범위이자 방어자·토큰에 닿는 거리.
      <b>Leyline Compass</b>로 올릴 수 있다(게임당 3개까지).`},
 
@@ -3608,13 +3608,13 @@ const V5_PARTY = [
    note:`<b>SIEGE!</b> 카드를 뽑을 때마다 캘린더 아래 방울을 채우며 오른다(<b>1~4</b>).
      공성 물결이 <b>Siege Banner 보너스</b>와 <b>Platinum Token</b> 획득량, <b>Final Moment</b> 보정을 정한다.`,
    readout:(v)=>[{lab:"Platinum Token 획득", val:v},
-                 {lab:"Jaethi <sg>resilience</sg> 기준", val:v?v*25:"—"}]},
+                 {lab:"Jaethi 내구도 기준", val:v?v*25:"—"}]},
 
   {kind:"counter", id:"calendar", label:{en:"Calendar",ko:"캘린더"}, max:40,
    note:`공성이 시작될 때 <b>2 + 공성 물결 + 달 주사위의 절반</b>만큼 늘어난다.
      빌런 페이즈마다 <b>1</b>씩 줄고, <b>0</b>이 되면 그 공성이 끝나고 새 수확 단계가 열린다.`},
 
-  {kind:"counter", id:"jaethi", label:{en:"Jaethi Resilience",ko:"Jaethi <sg>resilience</sg>"}, max:200, step:5,
+  {kind:"counter", id:"jaethi", label:{en:"Jaethi Resilience",ko:"Jaethi 내구도"}, max:200, step:5,
    note:`<b>공성 물결 수 × 25</b>로 시작한다 — 공성 <b>3번</b>이면 <b>75</b>, <b>4번</b>이면 <b>100</b>.
      공성 단계가 끝나도 <b>지우지 않는다</b>(Siege Banner <sg>resilience</sg>만 지운다).`},
 ];
@@ -3626,33 +3626,30 @@ const V5_HARVEST_TAB = {id:"harvest5", label:{en:"Harvest Aid", ko:"수확 보�
     <div class="rule-v"><b>Harvest*4</b>는 <b>목표 4</b>로 수확 굴림을 한다는 뜻이다.
       <b>*</b> — 그룹이 이번 턴 <b>야영</b>했다면 <b>-1 보너스</b>를 받고, 이 효과는 <b>중첩</b>된다.</div>
     <div class="rule-grid">
-      <div class="rule-k">City-State 도시국가</div><div class="rule-v"><b>백금 2</b>
+      <div class="rule-k"><ic>cityState</ic></div><div class="rule-v"><b><ic>platinum</ic> 2</b>
         <span style="color:var(--ink-faint)">(최대 네 헥스)</span></div>
-      <div class="rule-k">Settlement 정착지</div><div class="rule-v"><b>신병 2</b> ·
-        <b>Harvest*4</b> &rarr; <b>전문가 1</b></div>
-      <div class="rule-k">Temple 신전</div><div class="rule-v"><b>택1</b> — 네 종류 중 하나를 <b>1</b>
-        <span style="color:var(--ink-faint)">(아이콘 넷 — 종류 확인 필요)</span></div>
-      <div class="rule-k">Tower / Fortress</div><div class="rule-v"><b>기어 업그레이드</b>
-        <span style="color:var(--ink-faint)">(모루 아이콘 — 확인 필요)</span></div>
-      <div class="rule-k">Antiquity Site 유적</div><div class="rule-v"><b>Harvest*4</b> &rarr; <b>백금 5</b></div>
+      <div class="rule-k"><ic>settlement</ic></div><div class="rule-v"><b><ic>recruit</ic> 2</b> ·
+        <b>Harvest*4</b> &rarr; <b><ic>specialist</ic> 1</b></div>
+      <div class="rule-k">Temple 신전</div><div class="rule-v"><b>택1</b> — <ic>air</ic> · <ic>earth</ic> · <ic>fire</ic> · <ic>water</ic> 중 하나를 <b>1</b></div>
+      <div class="rule-k">Tower / Fortress</div><div class="rule-v"><ic>gear</ic> <b>1</b></div>
+      <div class="rule-k"><ic>antiquity</ic></div><div class="rule-v"><b>Harvest*4</b> &rarr; <b><ic>platinum</ic> 5</b></div>
       <div class="rule-k">Boss Lair 보스 소굴</div><div class="rule-v"><b>보스</b>와 전투하거나 <b>Dedication 헌신</b>을 얻는다</div>
-      <div class="rule-k">Wellspring Gate</div><div class="rule-v"><b>Harvest*4</b> &rarr;
-        <b>에테르 광석 1</b> 또는 <b>살아있는 결정 1</b></div>
+      <div class="rule-k"><ic>wellspring</ic></div><div class="rule-v"><b>Harvest*4</b> &rarr;
+        <b><ic>aether</ic> 1</b> 또는 <b><ic>living</ic> 1</b></div>
       <div class="rule-k">Elemental Rift 원소 균열</div><div class="rule-v"><b>Harvest*4</b> &rarr;
         <b>맞는 원소 1</b></div>
     </div>`},
 
   {name:{en:"by Terrain",ko:"지형별 — 위치가 있으면 덮인다"}, desc:`
     <div class="rule-grid">
-      <div class="rule-k">Highland 고지</div><div class="rule-v"><b>광석 1</b></div>
-      <div class="rule-k">Forest 숲</div><div class="rule-v"><b>목재 1</b></div>
+      <div class="rule-k">Highland 고지</div><div class="rule-v"><b><ic>ore</ic> 1</b></div>
+      <div class="rule-k">Forest 숲</div><div class="rule-v"><b><ic>lumber</ic> 1</b></div>
       <div class="rule-k">Marsh 습지 / Road 도로 <b>‡</b></div><div class="rule-v"><b>골드 4</b></div>
-      <div class="rule-k">Water 물 / River 강 <b>‡</b></div><div class="rule-v"><b>골드 2</b> ·
-        <span style="color:var(--ink-faint)">은색 6 — 아이콘 판독이 확실하지 않다(확인 필요)</span></div>
-      <div class="rule-k">Great Tree 거목</div><div class="rule-v"><b>Harvest*4</b> &rarr; <b>정수 1</b></div>
-      <div class="rule-k">Mountain Peak 산봉우리</div><div class="rule-v"><b>Harvest*4</b> &rarr; <b>하늘 금속 1</b></div>
+      <div class="rule-k">Water 물 / River 강 <b>‡</b></div><div class="rule-v"><ic>gold</ic> <b>2</b> · <ic>food</ic> <b>6</b></div>
+      <div class="rule-k">Great Tree 거목</div><div class="rule-v"><b>Harvest*4</b> &rarr; <b><ic>essence</ic> 1</b></div>
+      <div class="rule-k">Mountain Peak 산봉우리</div><div class="rule-v"><b>Harvest*4</b> &rarr; <b><ic>skyMetal</ic> 1</b></div>
       <div class="rule-k">SkyTile 하늘 타일</div><div class="rule-v"><b>Harvest*헥스</b> &rarr; <b>택1</b> —
-        원소 1 · <b>정수 2</b> · <b>하늘 금속 2</b> · <b>에테르 광석 1</b> · <b>살아있는 결정 1</b></div>
+        원소 1 · <b><ic>essence</ic> 2</b> · <b><ic>skyMetal</ic> 2</b> · <b><ic>aether</ic> 1</b> · <b><ic>living</ic> 1</b></div>
     </div>
     <div class="rule-v" style="margin-top:9px;color:var(--ink-faint)">
       <b>‡</b> 강·도로의 자원과 그 지형의 자원 중 <b>하나만</b> 얻는다(둘 다는 안 된다).<br>
@@ -3672,17 +3669,17 @@ const V5_HARVEST_TAB = {id:"harvest5", label:{en:"Harvest Aid", ko:"수확 보�
     </div>
     <div class="rule-h">여섯 묶음</div>
     <div class="rule-grid">
-      <div class="rule-k">1 · For the Heroes</div><div class="rule-v"><b>골드 4</b> · <b>은색 12</b>
-        <span style="color:var(--ink-faint)">(아이콘 미확인)</span> · <b>기어 업그레이드 1</b></div>
-      <div class="rule-k">2 · For the People</div><div class="rule-v"><b>신병 4</b> · <b>전문가 2</b> · <b>원소 1</b></div>
-      <div class="rule-k">3 · For the Empire</div><div class="rule-v"><b>백금 6</b> · <b>원소 2</b></div>
-      <div class="rule-k">4 · Tier I Bundle</div><div class="rule-v"><b>목재 3</b> · <b>광석 3</b></div>
-      <div class="rule-k">5 · Tier II Bundle</div><div class="rule-v"><b>정수 1</b> · <b>하늘 금속 1</b></div>
-      <div class="rule-k">헥스 · 여섯째</div><div class="rule-v"><span style="color:var(--ink-faint)">사진 오른쪽이 잘려 못 읽었다 — 확인 필요</span></div>
+      <div class="rule-k">1 · For the Heroes</div><div class="rule-v"><ic>gold</ic> <b>4</b> · <ic>food</ic> <b>12</b> · <ic>gear</ic> <b>1</b></div>
+      <div class="rule-k">2 · For the People</div><div class="rule-v"><b><ic>recruit</ic> 4</b> · <b><ic>specialist</ic> 2</b> · <b>원소 1</b></div>
+      <div class="rule-k">3 · For the Empire</div><div class="rule-v"><b><ic>platinum</ic> 6</b> · <b>원소 2</b></div>
+      <div class="rule-k">4 · Tier I Bundle</div><div class="rule-v"><b><ic>lumber</ic> 3</b> · <b><ic>ore</ic> 3</b></div>
+      <div class="rule-k">5 · Tier II Bundle</div><div class="rule-v"><b><ic>essence</ic> 1</b> · <b><ic>skyMetal</ic> 1</b></div>
+      <div class="rule-k">헥스 · Tier III Bundle</div><div class="rule-v"><b>택1</b> —
+        <ic>aether</ic> <b>1</b> 또는 <ic>living</ic> <b>1</b></div>
     </div>`},
   {name:{en:"Siege Icons",ko:"공성 아이콘"}, desc:`
     <div class="rule-v">공성 판과 방어자 추적판에 쓰이는 값들이다. 공성 아이콘 넷은
-      <b>City-State 도시국가 · Fortress 요새 · Tower 탑 · Temple 신전</b>을 가리킨다.</div>
+      <b><ic>cityState</ic> · Fortress 요새 · Tower 탑 · Temple 신전</b>을 가리킨다.</div>
     <div class="rule-grid">
       <div class="rule-k"><sg>speed</sg></div><div class="rule-v">Siege Slot 마다 정해져 있다 —
         그 배너가 <b>매 턴 움직이는 헥스 수</b>. <b>Jaethi의 속도</b>는 현재 <b>Imbalance 불균형</b>이 정한다</div>
@@ -3712,12 +3709,12 @@ const V5_CITY_TAB = {id:"city5", label:{en:"City-States", ko:"도시국가"}, en
       <div class="rule-k">구매</div><div class="rule-v">그 판의 아이템과 <ref t="items" e="Emporium">Emporium</ref>의 아이템을
         <b>여기 있는 동안</b> 살 수 있다</div>
       <div class="rule-k">Improve 개선</div><div class="rule-v">도시국가를 <b>Improve</b>할 때마다 그룹은
-        <b>백금 1</b>을 함께 내야 원하는 만큼 <b>자원</b>을 쓸 수 있다</div>
+        <b><ic>platinum</ic> 1</b>을 함께 내야 원하는 만큼 <b>자원</b>을 쓸 수 있다</div>
       <div class="rule-k">부활</div><div class="rule-v">죽은 영웅을 도시국가에서 <kw>revive</kw>할 수 있다</div>
       <div class="rule-k">Bounty 현상금</div><div class="rule-v">여기 있는 동안 <b>보스 하나당 게임당 1회</b>까지
         현상금 보상을 받는다</div>
       <div class="rule-k">Wave Revival Bonus</div><div class="rule-v">도시국가마다 다르다 —
-        그곳에서 <kw>revive</kw>된 영웅이 <b>기어 업그레이드 1개</b>를 골라 얻는다
+        그곳에서 <kw>revive</kw>된 영웅이 <b><ic>gear</ic> 1개</b>를 골라 얻는다
         (도시국가에 따라 <b>Vital · Skill · Ability · Mastery</b> 중 무엇인지가 갈린다)</div>
     </div>`},
 
@@ -3813,10 +3810,10 @@ const V5_CITY_TAB = {id:"city5", label:{en:"City-States", ko:"도시국가"}, en
 
       <div class="rule-k">Kintsugi<br><span class="it-sub">킨츠기 · <b class="g">변동</b></span></div>
       <div class="rule-v">스탯 종류를 하나 고른다(<b>Vital · Ability · Skill</b>).
-        그 스탯들의 <b>기어 업그레이드를 전부</b> <kw>fuse</kw>한 뒤,
-        <b>Fuse한 기어 업그레이드 2개마다</b> 버린 더미의 <b>파워업 1장</b>을 골라 얻는다.
+        그 스탯들의 <b><ic>gear</ic>를 전부</b> <kw>fuse</kw>한 뒤,
+        <b>Fuse한 <ic>gear</ic> 2개마다</b> 버린 더미의 <b>파워업 1장</b>을 골라 얻는다.
         얻은 파워업은 <b>게임에서 제거</b>한다.
-        이 아이템의 비용은 <b>Fuse한 것 중 가장 값비싼 기어 업그레이드의 골드 값</b>과 같다.
+        이 아이템의 비용은 <b>Fuse한 것 중 가장 값비싼 <ic>gear</ic>의 골드 값</b>과 같다.
         <span class="rule-tag">즉시</span></div>
     </div>
     <div class="it-note"><span class="it-star">*</span> 전투 중 <b>Defend 방어</b> 행동을 쓰는 동안에도 사용할 수 있다.</div>`},
@@ -3833,7 +3830,7 @@ const V5_TEMPLE_TAB = {id:"temple5", label:{en:"Temples", ko:"신전"}, entries:
       <div class="rule-k">신전의 성질</div><div class="rule-v">신전은 <b>Defender 방어자가 아니다</b> — <b>재건할 수 없고</b>,
         <b>Potential · Power · Range</b>와 <b>Augment</b>를 방어자와 <b>공유하지 않는다</b>.
         다만 <b>자기 <sg>resilience</sg></b>는 가진다</div>
-      <div class="rule-k">Improve 개선</div><div class="rule-v">신전을 <b>Improve</b>할 때마다 <b>백금 1</b>을 함께 내야
+      <div class="rule-k">Improve 개선</div><div class="rule-v">신전을 <b>Improve</b>할 때마다 <b><ic>platinum</ic> 1</b>을 함께 내야
         원하는 만큼 <b>자원</b>을 쓸 수 있다</div>
       <div class="rule-k">행동 횟수</div><div class="rule-v">여기 있는 동안 아래 행동을 <b>몇 개든</b> 할 수 있다</div>
     </div>
@@ -3859,7 +3856,7 @@ const V5_TEMPLE_TAB = {id:"temple5", label:{en:"Temples", ko:"신전"}, entries:
         (<b>이벤트 페이즈당 1회</b>) <span class="rule-tag">즉시</span></div>
       <div class="rule-k">Dedication 헌신 <span class="it-star">*</span></div>
       <div class="rule-v">드러났고 아직 쓰러뜨리지 않은 <b>보스</b>를 하나 골라
-        <b>신병 3</b> 또는 <b>살아있는 결정 1</b>을 <kw>consume</kw>한다.
+        <b><ic>recruit</ic> 3</b> 또는 <b><ic>living</ic> 1</b>을 <kw>consume</kw>한다.
         그 보스의 <b>소굴에 있을 때</b>에도 헌신을 얻을 수 있다.
         그룹은 그 보스의 <b>Siege Effect</b>(아래)와 <b>Lair Effect</b>(보스 판)를 쓸 수 있게 된다.
         헌신은 <b>Siege Effect를 쓰는 순간 사라지고</b>, 다른 효과로도 잃을 수 있다 <span class="rule-tag">즉시</span></div>
@@ -3882,8 +3879,8 @@ const V5_TEMPLE_TAB = {id:"temple5", label:{en:"Temples", ko:"신전"}, entries:
         원하는 수만큼 효과 범위 안의 아무 헥스로 <kw>teleport</kw>시킨다. <b>Jaethi는 대상이 될 수 없다</b></div>
       <div class="rule-k">Atlecuhtli</div><div class="rule-v"><b>Atlecuhtli</b>가 이번 게임 턴에 효과 범위 안의
         방어자들이 받을 <b>공성 피해를 전부 흡수</b>한다</div>
-      <div class="rule-k">장비 보급</div><div class="rule-v"><b>신병 4</b> 또는 <b>?2</b>를 <kw>consume</kw>한다.
-        각 영웅이 <b>기어 업그레이드 5개</b>를 얻고, 효과 범위 안에 새 <b>탑</b>을 하나 놓는다.
+      <div class="rule-k">장비 보급</div><div class="rule-v"><b><ic>recruit</ic> 4</b> 또는 <b>?2</b>를 <kw>consume</kw>한다.
+        각 영웅이 <b><ic>gear</ic> 5개</b>를 얻고, 효과 범위 안에 새 <b>탑</b>을 하나 놓는다.
         이 헌신 효과는 <b>한 번 얻으면 잃지 않는다</b></div>
       <div class="rule-k"><sg>resilience</sg> 이전</div><div class="rule-v">효과 범위 안 <b>공성 적</b>의 <b><sg>resilience</sg>를 5까지</b>
         범위 밖의 다른 공성 적에게 옮긴다(이 효과로 <b>0까지 줄일 수는 없다</b>).
@@ -3952,8 +3949,8 @@ const V5_ELEM_TAB = {id:"elem5", label:{en:"Elements", ko:"원소"}, entries:[
         <b>공기</b> 공성 적에게 <b>공성 피해 +1</b>. Range 안 영웅은 <kw>counterattack</kw>을 얻는다</div>
       <div class="rule-k">Void 공허</div><div class="rule-v">피해가 <b>공허</b> 속성이 되고
         <b>모든 기본 원소</b> 공성 적에게 <b>공성 피해 +1</b>, <kw>bulwark</kw>를 <b>기본 원소 전부</b>에 대해 얻는다.
-        Range 안 영웅은 <b>기어 업그레이드 2개</b>까지 <kw>fuse</kw>할 수 있고,
-        <b>백금 1</b>을 써서 전투 밖에서 <kw>revive</kw>될 수 있다(<b>턴당 1회</b>)</div>
+        Range 안 영웅은 <b><ic>gear</ic> 2개</b>까지 <kw>fuse</kw>할 수 있고,
+        <b><ic>platinum</ic> 1</b>을 써서 전투 밖에서 <kw>revive</kw>될 수 있다(<b>턴당 1회</b>)</div>
     </div>`},
 
   {name:{en:"Elemental Damage",ko:"원소 피해 · 상성"}, desc:`
@@ -3970,7 +3967,7 @@ const V5_ELEM_TAB = {id:"elem5", label:{en:"Elements", ko:"원소"}, entries:[
 ]};
 
 /* Jaethi 공성 판 — 공성 단계의 빌런 페이즈마다 보는 표.
-   현재 Imbalance 불균형 종류가 Jaethi 의 <sg>speed</sg>와 패시브를 정하고,
+   현재 Imbalance 불균형 종류가 Jaethi 의 이동 속도와 패시브를 정하고,
    그 원소 주사위를 굴려 Surge · Match · Mismatch 를 처리한다. */
 const V5_JAETHI_TAB = {id:"jaethi5", label:{en:"Jaethi Siege", ko:"Jaethi 공성"}, entries:[
   {name:{en:"Jaethi's Turn",ko:"Jaethi의 차례"}, desc:`
@@ -3990,7 +3987,7 @@ const V5_JAETHI_TAB = {id:"jaethi5", label:{en:"Jaethi Siege", ko:"Jaethi 공성
       <div class="rule-k">Earth 대지</div><div class="rule-v"><b>1</b></div>
       <div class="rule-k">Fire 불</div><div class="rule-v"><b>2</b></div>
       <div class="rule-k">Water 물</div><div class="rule-v"><b>1</b></div>
-      <div class="rule-k">Void 공허</div><div class="rule-v"><span style="color:var(--ink-faint)">사진에서 잘려 못 읽었다 — 확인 필요</span></div>
+      <div class="rule-k">Void 공허</div><div class="rule-v"><b>3</b></div>
     </div>`},
 
   {name:{en:"Imbalance Results",ko:"불균형 — 원소별 결과"}, desc:`
@@ -4001,8 +3998,7 @@ const V5_JAETHI_TAB = {id:"jaethi5", label:{en:"Jaethi Siege", ko:"Jaethi 공성
       <div class="rule-k">Surge</div><div class="rule-v">공기 Imbalance <b>+1</b> · 각 <b>Siege Banner</b>를 목표를 향해 <b>2헥스</b> 이동 ·
         그 뒤 <b>Match 결과</b>도 처리</div>
       <div class="rule-k">Match</div><div class="rule-v"><b>3 이하</b> — 공기 Imbalance <b>+1</b><br>
-        <b>4 이상</b> — 무작위 <b>SkyTile</b>의 <b>Riser</b>를 다룬다
-        <span style="color:var(--ink-faint)">(문장이 잘려 정확한 처리 확인 필요)</span></div>
+        <b>4 이상</b> — <b>SkyTile 하늘 타일</b>을 하나 <b>배치</b>한다</div>
     </div>
     <div class="rule-h">Earth 대지</div>
     <div class="rule-grid">
@@ -4011,8 +4007,7 @@ const V5_JAETHI_TAB = {id:"jaethi5", label:{en:"Jaethi Siege", ko:"Jaethi 공성
         방어자들에게 <kw>equip</kw>된 카드가 <b>3장 이상</b>이면 가장 가까운 장비 보유 방어자가 <b>1장을 버린다</b> ·
         그 뒤 <b>Match 결과</b>도 처리</div>
       <div class="rule-k">Match</div><div class="rule-v"><b>3 이하</b> — 대지 Imbalance <b>+1</b><br>
-        <b>4 이상</b> — 무작위 <b>SkyTile</b>의 <b>Riser</b>를 다룬다
-        <span style="color:var(--ink-faint)">(문장이 잘려 확인 필요)</span></div>
+        <b>4 이상</b> — 무작위 <b>SkyTile</b>의 <b>Riser 승강기를 제거</b>한다</div>
     </div>
     <div class="rule-h">Fire 불</div>
     <div class="rule-grid">
@@ -4047,7 +4042,7 @@ const V5_JAETHI_TAB = {id:"jaethi5", label:{en:"Jaethi Siege", ko:"Jaethi 공성
     <div class="rule-grid">
       <div class="rule-k">Air 공기</div><div class="rule-v">그룹이 <kw>roam</kw>하고, 영웅 하나가
         <kw>soar</kw>를 주는 <b>아이템 1개</b>를 잃는다</div>
-      <div class="rule-k">Earth 대지</div><div class="rule-v">각 영웅이 원하는 <b>기어 업그레이드 1개</b>를 잃는다</div>
+      <div class="rule-k">Earth 대지</div><div class="rule-v">각 영웅이 원하는 <b><ic>gear</ic> 1개</b>를 잃는다</div>
       <div class="rule-k">Fire 불</div><div class="rule-v">원하는 <b>자원 2티어</b>어치를 <kw>consume</kw>한다</div>
       <div class="rule-k">Water 물</div><div class="rule-v">모든 영웅이 <st>energy</st>를 <b>전부 잃고</b>
         <state>poisoned</state> 상태가 된다</div>
@@ -4065,76 +4060,86 @@ const DIFF_COLS_5 = [["passive","Passive 패시브"],["vitals","Vitals 적 생�
 const DIFFICULTY_5 = [
   {id:"starter", en:"Starter", ko:"스타터", c:"#8fb6a8",
    passive:"규칙서 참조", vitals:"레벨만큼 감소", outlast:"-2 (최소 1)", damage:"-1 (최소 1)",
-   siege:"<sg>resilience</sg> -1 · <b>키워드 없음</b>", penalty:"변화 없음", harvest:"변화 없음"},
+   siege:"내구도 -1 · <b>키워드 없음</b>", penalty:"변화 없음", harvest:"변화 없음"},
   {id:"easy", en:"Easy", ko:"쉬움", c:"#5bbf5b",
    passive:"변화 없음", vitals:"변화 없음", outlast:"변화 없음", damage:"변화 없음",
    siege:"변화 없음", penalty:"변화 없음", harvest:"변화 없음"},
   {id:"moderate", en:"Moderate", ko:"보통", c:"#d8c341",
    passive:"변화 없음", vitals:"영웅당 +5", outlast:"+1", damage:"+1",
-   siege:"<sg>resilience</sg> +1", penalty:"변화 없음", harvest:"Harvest <b>-1</b>"},
+   siege:"내구도 +1", penalty:"변화 없음", harvest:"Harvest <b>-1</b>"},
   {id:"difficult", en:"Difficult", ko:"어려움", c:"#e8912f",
    passive:"보스가 <b>Difficult</b> 패시브를 얻는다", vitals:"영웅당 +10", outlast:"+2", damage:"+2",
-   siege:"<sg>resilience</sg> +1 · <sg>power</sg> +1", penalty:"+1", harvest:"Harvest <b>-2</b>"},
+   siege:"내구도 +1 · 위력 +1", penalty:"+1", harvest:"Harvest <b>-2</b>"},
   {id:"heroic", en:"Heroic", ko:"영웅적", c:"#e8622f",
    passive:"변화 없음", vitals:"영웅당 +25", outlast:"+4", damage:"+4",
-   siege:"<sg>resilience</sg> +2 · <sg>power</sg> +1", penalty:"+2", harvest:"Harvest <b>-3</b>"},
+   siege:"내구도 +2 · 위력 +1", penalty:"+2", harvest:"Harvest <b>-3</b>"},
   {id:"epic", en:"Epic", ko:"에픽", c:"#e03a3a",
    passive:"변화 없음", vitals:"영웅당 +50", outlast:"+6", damage:"+6",
-   siege:"<sg>resilience</sg> +2 · <sg>power</sg> +1 · <sg>range</sg> +1", penalty:"+3", harvest:"Harvest <b>-4</b>"},
+   siege:"내구도 +2 · 위력 +1 · 사정거리 +1", penalty:"+3", harvest:"Harvest <b>-4</b>"},
 ];
 /* 4편 표의 열 — 기존 DIFFICULTY 가 쓰던 구성 */
 const DIFF_COLS_4 = [["passive","Passive 패시브"],["vitals","Vitals 적 생명력"],["outlast","Outlast 지속력"],
                      ["damage","Damage 적 피해"],["penalty","Stat Test 페널티"],["gear","Gear Upgrade 보상"]];
-/* 공성 스탯 — 5편 판에서는 전부 아이콘으로 적혀 있다.
-   본문에서 <sg>resilience</sg> 처럼 쓰면 아이콘 + English한글 로 펼쳐지고, 누르면 설명이 뜬다.
-   svg 는 16x16 뷰박스에 currentColor 로 그려 글자 크기·색을 따라가게 했다. */
-const SIEGE_STATS = {
-  speed:{en:"Movement Speed", ko:"이동 속도",
-    svg:`<circle cx="8" cy="8" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
-      <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-      <path d="M8 .9v2.2M8 12.9v2.2M.9 8h2.2M12.9 8h2.2M2.9 2.9l1.6 1.6M11.5 11.5l1.6 1.6M13.1 2.9l-1.6 1.6M4.5 11.5l-1.6 1.6"/></g>`,
+/* 게임 아이콘 — 5편 게임 가이드 44쪽 "Game Icons" 에서 그대로 뽑아 왔다(icons/ 폴더).
+   판이 글자 대신 그림으로 적어 둔 것들이라 앱에서도 그림으로 띄운다.
+   본문에서 <ic>ore</ic> 처럼 쓰면 그림 + English한글 로 펼쳐진다.
+   desc 가 있는 것(공성 수치 일곱)은 눌러서 설명을 볼 수 있다.
+   <sg> 는 <ic> 와 같게 동작한다 — 공성 수치를 가리키던 옛 표기를 그대로 살려 둔 것이다. */
+const ICONS = {
+  /* 공성 수치 — 흰 글리프. 누르면 설명이 뜬다 */
+  speed:{img:"icons/sg_speed.png", en:"Movement Speed", ko:"이동 속도",
     desc:`Siege Slot 마다 정해져 있다 — 그 <b>Siege Banner</b>가 <b>매 턴 움직이는 헥스 수</b>다.
-      <b>Jaethi</b>의 속도는 현재 <b>Imbalance 불균형</b> 종류가 정한다.`},
-
-  magnetic:{en:"Magnetic", ko:"자성",
-    svg:`<path d="M3.2 13.2V7.6a4.8 4.8 0 019.6 0v5.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
-      <path d="M2.2 13.2h2.1M11.7 13.2h2.1" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+      <b>Jaethi</b>의 속도는 현재 <b>Imbalance 불균형</b> 종류를 따라간다.`},
+  magnetic:{img:"icons/sg_magnetic.png", en:"Magnetic", ko:"자성",
     desc:`이 <b>Defender 방어자</b>가 <b>공성 적을 자기 쪽으로 끌어당긴다</b> — 따로 명시가 없는 한.`},
-
-  potential:{en:"Potential", ko:"잠재력",
-    svg:`<circle cx="6.6" cy="9.4" r="4.1" fill="none" stroke="currentColor" stroke-width="1.6"/>
-      <circle cx="6.6" cy="9.4" r="1.1" fill="currentColor"/>
-      <path d="M6.6 9.4L14 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M10.6 1.6h3.9v3.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>`,
+  potential:{img:"icons/sg_potential.png", en:"Potential", ko:"잠재력",
     desc:`방어자가 공성 적에게 피해를 주려고 굴리는 <b>코어 주사위 개수</b>. <b>최소 1 · 최대 9</b>.`},
-
-  power:{en:"Power", ko:"위력",
-    svg:`<path d="M8 .8l1.7 4.3 4.3-1.5-2.6 3.8 3.5 2.7-4.6.5.9 4.5L8 11.6 4.8 15.1l.9-4.5-4.6-.5 3.5-2.7L2 3.6l4.3 1.5z" fill="currentColor"/>`,
+  power:{img:"icons/sg_power.png", en:"Power", ko:"위력",
     desc:`<b>스탯 랭크처럼</b> 다루며 <b>상한이 없다</b>.
-      <b>방어자</b>에게는 <b>Potential 잠재력</b> 굴림의 <b>목표 숫자</b>이고,
-      <b>공성 적</b>에게는 방어자에게 주는 <b>공성 피해량</b>이다.`},
-
-  range:{en:"Range", ko:"사정거리",
-    svg:`<g fill="currentColor"><path d="M8 5.1l1.9 1.1v2.2L8 9.5 6.1 8.4V6.2z"/>
-      <path d="M8 .6l1.6.95v1.9L8 4.4 6.4 3.45v-1.9z" opacity=".62"/>
-      <path d="M8 11.6l1.6.95v1.9L8 15.4l-1.6-.95v-1.9z" opacity=".62"/>
-      <path d="M3.1 3.4l1.6.95v1.9L3.1 7.2 1.5 6.25v-1.9z" opacity=".62"/>
-      <path d="M12.9 3.4l1.6.95v1.9L12.9 7.2l-1.6-.95v-1.9z" opacity=".62"/>
-      <path d="M3.1 8.8l1.6.95v1.9L3.1 12.6l-1.6-.95v-1.9z" opacity=".62"/>
-      <path d="M12.9 8.8l1.6.95v1.9l-1.6.95-1.6-.95v-1.9z" opacity=".62"/></g>`,
+      <b>방어자</b>에게는 잠재력 굴림의 <b>목표 숫자</b>, <b>공성 적</b>에게는 방어자에게 주는 <b>공성 피해량</b>이다.`},
+  range:{img:"icons/sg_range.png", en:"Range", ko:"사정거리",
     desc:`그룹 · 방어자 · 공성 적이 <b>대상으로 삼을 수 있는 헥스 수</b>.
       대상에 <b>인접한 헥스부터</b> 하나씩 세어 나간다. <b>최소 1 · 최대 9</b>.`},
-
-  resilience:{en:"Resilience", ko:"내구도",
-    svg:`<path d="M2 6.2V3.4h2.6v1.5h1.9V3.4h3v1.5h1.9V3.4H14v2.8c0 4.6-2.4 6.9-6 7.8-3.6-.9-6-3.2-6-7.8z" fill="currentColor"/>`,
+  resilience:{img:"icons/sg_resilience.png", en:"Resilience", ko:"내구도",
     desc:`<b>스탯 랭크처럼</b> 다루며 상한이 없다.
       방어자나 공성 적이 <b>파괴되기 전까지 버틸 수 있는 공성 피해량</b>이다.`},
-
-  soar:{en:"Soar", ko:"비행",
-    svg:`<g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-      <path d="M8 13.6V6.4M8 13.6L3.4 8.6M8 13.6l4.6-5M8 13.6L1.4 11.4M8 13.6l6.6-2.2"/></g>`,
+  soar:{img:"icons/sg_soar.png", en:"Soar", ko:"비행",
     desc:`이 <b>공성 적</b>은 <b>Riser 승강기</b>가 있는 <b>Floating Mountain 부유산</b>으로
       올라가고 그것을 <b>대상으로 삼을 수</b> 있다.`},
+
+  /* 자원 — Tier I · II · III */
+  ore:{img:"icons/ore.png", en:"Ore", ko:"광석"},
+  lumber:{img:"icons/lumber.png", en:"Lumber", ko:"목재"},
+  recruit:{img:"icons/recruit.png", en:"Recruit", ko:"신병"},
+  essence:{img:"icons/essence.png", en:"Essence", ko:"정수"},
+  skyMetal:{img:"icons/skyMetal.png", en:"Sky Metal", ko:"하늘 금속"},
+  specialist:{img:"icons/specialist.png", en:"Specialist", ko:"전문가"},
+  aether:{img:"icons/aether.png", en:"Aetherial Ore", ko:"에테르 광석"},
+  living:{img:"icons/living.png", en:"Living Crystal", ko:"살아있는 결정"},
+
+  /* 원소 */
+  air:{img:"icons/air.png", en:"Air", ko:"공기"},
+  earth:{img:"icons/earth.png", en:"Earth", ko:"대지"},
+  fire:{img:"icons/fire.png", en:"Fire", ko:"불"},
+  water:{img:"icons/water.png", en:"Water", ko:"물"},
+  void:{img:"icons/void.png", en:"Void", ko:"공허"},
+
+  /* 통화 · 장비 */
+  gold:{img:"icons/gold.png", en:"Gold", ko:"골드"},
+  food:{img:"icons/food.png", en:"Food", ko:"음식"},
+  platinum:{img:"icons/platinum.png", en:"Platinum", ko:"백금"},
+  gear:{img:"icons/gear.png", en:"Gear Upgrade", ko:"기어 업그레이드"},
+
+  /* 장소 — 방어자 */
+  cityState:{img:"icons/cityState.png", en:"City-State", ko:"도시국가"},
+  fortress:{img:"icons/fortress.png", en:"Fortress", ko:"요새"},
+  tower:{img:"icons/tower.png", en:"Tower", ko:"탑"},
+  temple:{img:"icons/temple.png", en:"Temple", ko:"신전"},
+  /* 장소 — 방어자가 아닌 곳 */
+  settlement:{img:"icons/settlement.png", en:"Settlement", ko:"정착지"},
+  antiquity:{img:"icons/antiquity.png", en:"Antiquity Site", ko:"유적"},
+  bossLair:{img:"icons/bossLair.png", en:"Boss Lair", ko:"보스 소굴"},
+  wellspring:{img:"icons/wellspring.png", en:"Wellspring Gate", ko:"원천의 문"},
 };
 
 
@@ -4155,16 +4160,16 @@ const SERIES = {
             <b>"각 영웅"</b>은 인원수만큼, <b>"그룹"</b>은 하나만 받는다.</span></div>
         </div>
         <div class="rule-grid">
-          <div class="rule-k">1 · Sithrindell</div><div class="rule-v"><b>Gear Upgrade 기어 업그레이드</b> — 각 영웅</div>
+          <div class="rule-k">1 · Sithrindell</div><div class="rule-v"><b><ic>gear</ic></b> — 각 영웅</div>
           <div class="rule-k">2 · Alizien</div><div class="rule-v"><b>Hunter's Gear 사냥꾼 장비</b> — 각 영웅</div>
           <div class="rule-k">3 · Dobrovizta</div><div class="rule-v"><b>Power Up 파워업</b> — 각 영웅</div>
           <div class="rule-k">4 · Ryzeria</div><div class="rule-v"><b>Magic Torch 마법 횃불</b> — 각 영웅</div>
           <div class="rule-k">5 · Kastvarjna</div><div class="rule-v"><b>Monster Bait 괴물 미끼</b> — 각 영웅</div>
           <div class="rule-k">6 · Rothlin</div><div class="rule-v"><b>Canoe 카누</b> — 그룹</div>
-          <div class="rule-k">7 · Vigorna</div><div class="rule-v"><b>Gear Upgrade 기어 업그레이드</b> — 각 영웅</div>
+          <div class="rule-k">7 · Vigorna</div><div class="rule-v"><b><ic>gear</ic></b> — 각 영웅</div>
         </div>
         <div class="rule-steps">
-          <div class="rule-step"><span class="n">4</span><span class="t"><b>장비 배분</b> — 그룹이 <b>기어 업그레이드 6개</b>를 나눈다. 마을에서 골드를 쓴 뒤 시작.</span></div>
+          <div class="rule-step"><span class="n">4</span><span class="t"><b>장비 배분</b> — 그룹이 <b><ic>gear</ic> 6개</b>를 나눈다. 마을에서 골드를 쓴 뒤 시작.</span></div>
         </div>
         <div class="rule-en">Place tiles A–D (hex &amp; dungeon tiles face-down), shuffle decks, reveal 4 Day and 4 Night cards
         (reshuffle Interrupts), place Rune Stones on revealed Investigations, roll the starting village (+1 at Night),
@@ -4433,7 +4438,7 @@ const SERIES = {
             여기 있는 동안 <b>Circumstance상황 페이즈를 건너뛴다</b>.<br>
             수도원 물품은 물론 <b>마을 물품도</b> 여기서 살 수 있다.
             많은 물품이 지하묘지에 갇혀 있어 처음에는 살 수 없고,
-            <b>지하묘지가 하나 열릴 때마다</b> 다음 단계의 물품과 <ref t="items" e="Gear Upgrades 1">기어 업그레이드</ref>가 모든 수도원에 풀린다.<br>
+            <b>지하묘지가 하나 열릴 때마다</b> 다음 단계의 물품과 <ref t="items" e="Gear Upgrades 1"><ic>gear</ic></ref>가 모든 수도원에 풀린다.<br>
             룬을 <b>Impart 헌납</b>해 파워업과 <b>Grace은총</b>을 얻는다 — <ref t="rune" e="수도원 — 룬 헌납">룬 탭</ref> 참고</div>
           <div class="rule-k">Crypt 지하묘지</div><div class="rule-v">여기 있는 동안 <b>Circumstance상황 페이즈를 건너뛴다</b>.<br>
             지도에 드러날 때마다 <b>잠긴 지하묘지 토큰</b>을 놓는다 — 여는 방법 셋은 <ref t="dungeon" e="개요 · 출입구">던전 탭</ref>에 있다.
@@ -4703,7 +4708,7 @@ const SERIES = {
         <div class="it-note"><span class="it-star">*</span> 전투 중 <b>Defend 방어</b> 행동을 쓰는 동안에도 사용할 수 있다.</div>`},
 
       {name:{en:"Gear Upgrades 1", ko:"기어 업그레이드 1"}, tags:["지하묘지 1곳 해금","2번째 칸까지 구매"], desc:`
-        <div class="rule-v">지하묘지가 <b>한 곳</b> 열리면 모든 수도원에서 이 물품과 <b>2번째 기어 업그레이드 칸</b>까지 살 수 있게 된다.</div>
+        <div class="rule-v">지하묘지가 <b>한 곳</b> 열리면 모든 수도원에서 이 물품과 <b>2번째 <ic>gear</ic> 칸</b>까지 살 수 있게 된다.</div>
         <div class="rule-grid">
           <div class="rule-k">Elder Berries <span class="it-star">*</span><br><span class="it-sub">엘더베리 · <b class="g">3</b></span></div>
           <div class="rule-v"><st>health</st> <b>2</b> 또는 <st>energy</st> <b>2</b>를 <kw>heal</kw>한다. <span class="rule-tag">1회 · 음식</span></div>
@@ -4719,7 +4724,7 @@ const SERIES = {
         <div class="it-note"><span class="it-star">*</span> 전투 중 <b>Defend 방어</b> 행동을 쓰는 동안에도 사용할 수 있다.</div>`},
 
       {name:{en:"Gear Upgrades 2", ko:"기어 업그레이드 2"}, tags:["지하묘지 2곳 해금","4번째 칸까지 구매"], desc:`
-        <div class="rule-v">지하묘지가 <b>두 곳</b> 열리면 이 물품과 <b>4번째 기어 업그레이드 칸</b>까지 살 수 있게 된다.</div>
+        <div class="rule-v">지하묘지가 <b>두 곳</b> 열리면 이 물품과 <b>4번째 <ic>gear</ic> 칸</b>까지 살 수 있게 된다.</div>
         <div class="rule-grid">
           <div class="rule-k">Sovereign Elixir <span class="it-star">*</span><br><span class="it-sub">최상급 영약 · <b class="g">6</b></span></div>
           <div class="rule-v"><kw>critical wound</kw> <b>1</b>을 없애거나 <st>health</st> <b>10</b>을 <kw>raise</kw>한다.
@@ -4738,7 +4743,7 @@ const SERIES = {
         <div class="it-note"><span class="it-star">*</span> 전투 중 <b>Defend 방어</b> 행동을 쓰는 동안에도 사용할 수 있다.</div>`},
 
       {name:{en:"Gear Upgrades 3", ko:"기어 업그레이드 3"}, tags:["지하묘지 3곳 해금","전부 구매"], desc:`
-        <div class="rule-v">지하묘지가 <b>세 곳</b> 열리면 이 물품과 <b>기어 업그레이드 전부</b>를 살 수 있게 된다.</div>
+        <div class="rule-v">지하묘지가 <b>세 곳</b> 열리면 이 물품과 <b><ic>gear</ic> 전부</b>를 살 수 있게 된다.</div>
         <div class="rule-grid">
           <div class="rule-k">Choker of Thorns<br><span class="it-sub">가시 목걸이 · <b class="g">10</b></span></div>
           <div class="rule-v"><b>Favored Opponent 주사위</b>를 굴릴 때마다, 원래 효과를 쓰는 대신
@@ -5005,7 +5010,7 @@ const SERIES = {
           <div class="rule-h">단일 보상 — 목표 주사위로 받을 사람을 정한다</div>
           <div class="rule-grid">
             <div class="rule-k">스탯 보너스</div><div class="rule-v">9개 스탯 중 하나의 <b>랭크가 오른다</b></div>
-            <div class="rule-k">기어 업그레이드</div><div class="rule-v">영웅 하나가 <b>원하는 것</b>으로 얻는다</div>
+            <div class="rule-k"><ic>gear</ic></div><div class="rule-v">영웅 하나가 <b>원하는 것</b>으로 얻는다</div>
             <div class="rule-k">아이템 · 기타</div><div class="rule-v">아이템, 또는 전설 카드·패밀리어 같은 특정 카드</div>
             <div class="rule-k">Wielder Bonus</div><div class="rule-v">보물·전설 카드에 붙는다. <b>아이템으로 취급</b>하며, 지닌 영웅이 표시된 <b>랭크 보너스</b>를 얻는다</div>
           </div>`},
@@ -5018,9 +5023,9 @@ const SERIES = {
           <div class="rule-h">발동</div>
           <div class="rule-grid">
             <div class="rule-k">굴림</div><div class="rule-v">영웅이 죽는 <b>순간</b>, <b>위대한 양상을 얻지 못했다면</b> <b>Moon 달 주사위</b>를 굴린다.
-              결과가 <b><st>defence</st> 랭크 + 지닌 방어 기어 업그레이드 수</b> <b>이하</b>면 발동한다</div>
+              결과가 <b><st>defence</st> 랭크 + 지닌 방어 <ic>gear</ic> 수</b> <b>이하</b>면 발동한다</div>
             <div class="rule-k">소지품</div><div class="rule-v">발동하면 <b>다른 영웅들이 소지품을 나눠 갖는다</b> —
-              골드 · 음식 · 아이템 등 전부. 다만 <b>기어 업그레이드는 제외</b>다</div>
+              골드 · 음식 · 아이템 등 전부. 다만 <b><ic>gear</ic>는 제외</b>다</div>
             <div class="rule-k">카드 놓기</div><div class="rule-v">킵세이크를 뒤집어 <b>마스터리 설명 위에</b> 덮어 놓는다.
               그 능력이 <b>마스터리를 대신한다</b></div>
             <div class="rule-k">사용 비용</div><div class="rule-v">카드에 적힌 대로 <b>자신의 스탯 랭크를 깎아</b> 능력을 쓴다.
@@ -5082,7 +5087,7 @@ const SERIES = {
               파워업을 <b>4장 모아 버리면</b>(보너스는 포기) 무작위 패밀리어를 뽑을 수 있다</div>
             <div class="rule-k">스탯</div><div class="rule-v">9개 스탯 중 하나를 갖는다. 선택형이면 정해 적어두며 <b>다시 고를 수 없다</b></div>
             <div class="rule-k">랭크 올리기</div><div class="rule-v">패밀리어와 <b>같은 스탯</b>의 파워업을 얻을 때, 그 랭크를 자기 대신 <b>패밀리어에게</b> 줄 수 있다</div>
-            <div class="rule-k">기어 업그레이드</div><div class="rule-v">파는 곳에서 사 줄 수 있다(스탯이 맞으면 주운 것도 가능). 따로 명시가 없으면 <b>최대 3개</b></div>
+            <div class="rule-k"><ic>gear</ic></div><div class="rule-v">파는 곳에서 사 줄 수 있다(스탯이 맞으면 주운 것도 가능). 따로 명시가 없으면 <b>최대 3개</b></div>
           </div>`},
       ]},
       {id:"modes", label:{en:"Play Styles", ko:"게임 모드"}, entries:[
@@ -5133,7 +5138,7 @@ const SERIES = {
           지정된 <b>피의 웅덩이 수치</b>(0~100 구간, 6칸)에서 녹티스 격파.`},
         {name:{en:"Using Valor",ko:"용맹 사용"}, desc:`게임을 시작할 때 총 용맹 점수로 <b>해당 티어와 그 아래 티어의 보너스를 모두</b> 얻는다.
           다른 시리즈의 용맹 보너스와 <b>합쳐 쓸 수 없고</b>, 효과는 <b>그 게임에만</b> 적용된다.<br>
-          <b>Initiate 입문 (1~7)</b> — 각 영웅은 용맹 점수의 <b>절반</b>만큼 골드를 얻어 <b>기어 업그레이드에만</b> 쓴다. 남은 골드는 사라진다.<br>
+          <b>Initiate 입문 (1~7)</b> — 각 영웅은 용맹 점수의 <b>절반</b>만큼 골드를 얻어 <b><ic>gear</ic>에만</b> 쓴다. 남은 골드는 사라진다.<br>
           <b>Adventurer 모험가 (8~19)</b> — 시작 전 <b>헥스 주사위</b>를 굴려 그 값을 이번 게임의 용맹 점수에 더한다(헥스플로드 가능). 그룹은 <b>지하묘지 열쇠 1개</b>를 갖고 시작한다.<br>
           <b>Hero 영웅 (20~32)</b> — 각 영웅은 <b>킵세이크 2개</b>로 시작하며 시작 전에 각각 확인할 수 있다. 승리하려면 <b>어려움 이상</b>에서 빌런을 쓰러뜨려야 한다.<br>
           <b>Champion 챔피언 (33~59)</b> — 그룹이 <b>피의 마법 1티어</b>를 갖고 시작한다. 승리하려면 <b>영웅적 이상</b>에서 빌런을 쓰러뜨려야 한다.<br>
@@ -5177,17 +5182,17 @@ const SERIES = {
     rules: [R5_SETUP, R5_STAGES, R5_TURN, R5_HARVEST, R5_VILLAIN_H, R5_SIEGE, R5_VILLAIN_S, R5_CALENDAR, R5_MOVE, R5_EVENT, R5_RES, R5_DEFENDER, R5_MAP, R5_PORTAL, R5_COMBAT, RULES_KWORDER, R5_ELEM, R5_OUTLAST, R5_DEATH],
     /* Emporium 상점 — 5편 도시국가 판 뒷면의 판매표.
        비용이 두 갈래다 — 앞쪽 열 개는 **골드**(금색 육각형), 뒤쪽은 **백금**(은색 원)이다.
-       사진 아래쪽이 잘려 마지막 한 줄(Hex Token 을 놓는 즉시 아이템)은 이름과 값을 못 읽었다. */
+       마지막 줄(Nexus Annihilator)은 사진이 잘려 사용자에게 확인해 채웠다. */
     items: [
-      {name:{en:"Emporium", ko:"엠포리엄 · 도시국가"}, tags:["17종","앞 10개 골드 · 뒤 7개 백금"], desc:`
+      {name:{en:"Emporium", ko:"엠포리엄 · 도시국가"}, tags:["18종","앞 10개 골드 · 뒤 8개 백금"], desc:`
         <div class="rule-grid">
-          <div class="rule-k">파는 곳</div><div class="rule-v">Emporium 의 <b>모든 아이템</b>은 <b>City-State 도시국가</b>에서 살 수 있다</div>
+          <div class="rule-k">파는 곳</div><div class="rule-v">Emporium 의 <b>모든 아이템</b>은 <b><ic>cityState</ic></b>에서 살 수 있다</div>
           <div class="rule-k">비용 두 갈래</div><div class="rule-v"><b class="g">금색</b>은 <b>골드</b>,
-            <b style="color:var(--ink)">은색</b>은 <b>백금</b>이다. 아래 표에 색으로 구분해 두었다</div>
-          <div class="rule-k">기어 업그레이드</div><div class="rule-v"><b>백금</b>을 써서 산다.
+            <b style="color:var(--ink)">은색</b>은 <b><ic>platinum</ic></b>이다. 아래 표에 색으로 구분해 두었다</div>
+          <div class="rule-k"><ic>gear</ic></div><div class="rule-v"><b><ic>platinum</ic></b>을 써서 산다.
             살 수 있는 단계는 <b>현재 공성 단계</b>가 정한다 — <b>1단계 · 2단계 · 3단계 이상</b>으로 갈린다</div>
-          <div class="rule-k">싼 물건</div><div class="rule-v">값이 <b>4 이하</b>인 아이템과 기어 업그레이드는
-            <b>Settlement 정착지 · Tower 탑 · Fortress 요새</b>에서도 살 수 있다</div>
+          <div class="rule-k">싼 물건</div><div class="rule-v">값이 <b>4 이하</b>인 아이템과 <ic>gear</ic>는
+            <b><ic>settlement</ic> · Tower 탑 · Fortress 요새</b>에서도 살 수 있다</div>
         </div>
         <div class="rule-h">아이템</div>
         <div class="rule-grid">
@@ -5206,14 +5211,14 @@ const SERIES = {
 
           <div class="rule-k">Void Door<br><span class="it-sub">공허의 문 · <b class="g">4</b></span></div>
           <div class="rule-v"><b>Event 이벤트 페이즈</b>에 전투 밖에서 써서 포탈을 열고,
-            <b>Wellspring Gate</b>나 아무 <b>Defender의 Range 안</b> 위치로 그룹을 <kw>teleport</kw>한다.
-            그룹이 이미 <b>Wellspring Gate의 Range 안</b>이라면 <st>energy</st> <b>1</b>을 써서
+            <b><ic>wellspring</ic></b>나 아무 <b>Defender의 Range 안</b> 위치로 그룹을 <kw>teleport</kw>한다.
+            그룹이 이미 <b><ic>wellspring</ic>의 Range 안</b>이라면 <st>energy</st> <b>1</b>을 써서
             <b>아이템을 소모하지 않고</b> 효과만 쓸 수 있다. 그룹은 <b>영웅당 1개</b>까지 지닌다. <span class="rule-tag">1회</span></div>
 
           <div class="rule-k">Registry Recall<br><span class="it-sub">등록부 소환 · <b class="g">4</b></span></div>
           <div class="rule-v"><b>Event 이벤트 페이즈</b>에 써서 <b>최대 2곳의 Defender</b>로부터
-            원하는 수를 다른 Defender나 <b>Stockpile 비축량</b>으로 옮긴다.
-            <span style="color:var(--ink-faint)">(무엇을 옮기는지는 아이콘이라 사진으로 확실치 않다 — 확인 필요)</span>
+            <ic>recruit</ic>와 <ic>specialist</ic>를 원하는 수만큼
+            다른 Defender나 <b>Stockpile 비축량</b>으로 옮긴다.
             <span class="rule-tag">즉시</span></div>
 
           <div class="rule-k">Jade Omamori<br><span class="it-sub">옥 오마모리 · <b class="g">7</b></span></div>
@@ -5223,8 +5228,8 @@ const SERIES = {
 
           <div class="rule-k">Absorbing Orb<br><span class="it-sub">흡수의 오브 · <b class="g">8</b></span></div>
           <div class="rule-v">지닌 이가 받을 <st>health</st>이나 <st>energy</st> 피해를 <b>10까지</b> <kw>negate</kw>한다.
-            <b>1회만</b> 쓰지만 <b>Wellspring Gate</b>에 들어가면 <b>재충전</b>된다.
-            가진 <kw>augment</kw> <b>티어마다 1회씩 더</b> 쓸 수 있다. 영웅당 <b>1개</b>. <span class="rule-tag">영구</span></div>
+            <b>1회만</b> 쓰지만 <ic>temple</ic>에 들어가면 <b>재충전</b>된다.
+            가진 <ic>earth</ic> <kw>augment</kw> <b>티어마다 1회씩 더</b> 쓸 수 있다. 영웅당 <b>1개</b>. <span class="rule-tag">영구</span></div>
 
           <div class="rule-k">Fireheart Scepter<br><span class="it-sub">화심의 홀 · <b class="g">8</b></span></div>
           <div class="rule-v">피해를 줄 때마다 <b>불 속성</b> <st>health</st> 또는 <st>energy</st> 피해 <b>2</b>를
@@ -5276,11 +5281,9 @@ const SERIES = {
           <div class="rule-k">Leyline Compass<br><span class="it-sub">레이라인 나침반 · <b class="p">8</b></span></div>
           <div class="rule-v">그룹의 <b><sg>range</sg></b>를 <b>1</b> 올린다. 이 효과는 <b>중첩</b>된다.
             <b>게임당 3개</b>까지. <span class="rule-tag">영구</span></div>
-
-          <div class="rule-k" style="color:var(--ink-faint)">(이름 · 비용 미확인)</div>
-          <div class="rule-v"><b>Hex Token</b>을 원하는 <b>Siege Portal</b>에 놓는다. <b>게임당 3개</b>까지.
-            <span style="color:var(--ink-faint)">사진 아래가 잘려 이름과 값을 못 읽었다.</span>
-            <span class="rule-tag">즉시</span></div>
+          <div class="rule-k">Nexus Annihilator<br><span class="it-sub">넥서스 애니힐레이터 · <b class="p">25</b></span></div>
+          <div class="rule-v"><b>Hex Token</b>을 원하는 <b>Siege Portal</b>에 놓는다.
+            <b>게임당 3개</b>까지. <span class="rule-tag">즉시</span></div>
         </div>
         <div class="it-note"><span class="it-star">*</span> 전투 중 <b>Defend 방어</b> 행동을 쓰는 동안에도 사용할 수 있다.</div>`},
     ],
@@ -5298,7 +5301,7 @@ const V5_VALOR = {id:"valor5", label:{en:"Valor", ko:"용맹"}, entries:[
     <b>Temple Fortress 사원 요새</b> 건설 · <b>Arashiryū</b>(9레벨 보스) 격파.`},
   {name:{en:"Using Valor",ko:"용맹 사용"}, desc:`게임을 시작할 때 총 용맹 점수로 <b>해당 티어와 그 아래 티어의 보너스를 모두</b> 얻는다.
     다른 시리즈의 용맹 보너스와 <b>합쳐 쓸 수 없고</b>, 효과는 <b>그 게임에만</b> 적용된다.<br>
-    <b>Initiate 입문 (1~7)</b> — 각 영웅은 용맹 점수의 <b>절반</b>만큼 골드를 얻어 <b>기어 업그레이드에만</b> 쓴다. 남은 골드는 사라진다.<br>
+    <b>Initiate 입문 (1~7)</b> — 각 영웅은 용맹 점수의 <b>절반</b>만큼 골드를 얻어 <b><ic>gear</ic>에만</b> 쓴다. 남은 골드는 사라진다.<br>
     <b>Adventurer 모험가 (8~19)</b> — 시작 전 <b>헥스 주사위</b>를 굴려 그 값을 이번 게임의 용맹 점수에 더한다(헥스플로드 가능). 그룹은 <b>획득량 +1</b>(4)로 시작한다.<br>
     <b>Hero 영웅 (20~32)</b> — 각 영웅은 원하는 <b>Element 원소 하나를 Augment 보강</b>한 채 시작한다. 승리하려면 <b>어려움 이상</b>에서 빌런을 쓰러뜨려야 한다.<br>
     <b>Champion 챔피언 (33~59)</b> — 건설하는 <b>Tower 탑</b>과 <b>Fortress 요새</b>는 <b>처음 세울 때 +5</b>를 얻는다. 승리하려면 <b>영웅적 이상</b>에서 빌런을 쓰러뜨려야 한다.<br>
@@ -5348,4 +5351,4 @@ const V5_VALOR = {id:"valor5", label:{en:"Valor", ko:"용맹"}, entries:[
 ["4","4b"].forEach(k=>{if(SERIES[k])SERIES[k].diff={cols:DIFF_COLS_4, rows:DIFFICULTY};});
 ["5","5c","5i"].forEach(k=>{if(SERIES[k])SERIES[k].diff={cols:DIFF_COLS_5, rows:DIFFICULTY_5};});
 
-window.HEX = { CAT, STAT_ORDER, STAT_META, HEX_START, SIEGE_STATS, FAMILIARS, FAMILIAR_HEX, SHARED, SERIES, FOE_TYPES, GREATER_ASPECTS, COND_NOTE, DIFFICULTY, DIFFICULTY_5, DIFF_COLS_4 };
+window.HEX = { CAT, STAT_ORDER, STAT_META, HEX_START, ICONS, FAMILIARS, FAMILIAR_HEX, SHARED, SERIES, FOE_TYPES, GREATER_ASPECTS, COND_NOTE, DIFFICULTY, DIFFICULTY_5, DIFF_COLS_4 };

@@ -6,12 +6,14 @@
 (function(){
 const {CAT,STAT_ORDER,STAT_META,SHARED,SERIES,HEX_START}=window.HEX;
 const FOE_TYPES=window.HEX.FOE_TYPES||[];
-const SIEGE_STATS=window.HEX.SIEGE_STATS||{};
-/* 공성 스탯 — 5편 판이 아이콘으로 적어 둔 것들. 아이콘 + English한글 로 펼치고 누르면 설명이 뜬다. */
-function siegeTerm(k){
-  const v=SIEGE_STATS[k];
+const ICONS=window.HEX.ICONS||{};
+/* 게임 아이콘 — 판이 그림으로 적어 둔 것들(게임 가이드 44쪽에서 뽑았다).
+   그림 + English한글 로 펼치고, 설명이 있는 것(공성 수치)은 눌러서 볼 수 있다. */
+function iconTerm(k){
+  const v=ICONS[k];
   if(!v)return k;
-  return `<span class="sg" data-kind="sg" data-term="${k}" title="${v.en} ${v.ko}"><svg viewBox="0 0 16 16" aria-hidden="true">${v.svg}</svg>${v.en}${_ko(v.ko)}</span>`;
+  const on=!!v.desc;
+  return `<span class="ic${on?" ic-x":""}"${on?` data-kind="ic" data-term="${k}"`:""} title="${v.en} ${v.ko}"><img src="${v.img}" alt="">${v.en}${_ko(v.ko)}</span>`;
 }
 const GREATER_ASPECTS=window.HEX.GREATER_ASPECTS||[];
 const FAMILIARS=window.HEX.FAMILIARS||[];
@@ -176,7 +178,7 @@ function expand(char,t){
   return t.replace(/\{(\w+)\}/g,(m,k)=>cls.stats[k]?`<span class="ref" style="color:var(--g-${k})">${cls.stats[k].name.en}</span>`:m)
     .replace(/<act>(\w+)<\/act>/g,(m,k)=>actTerm(k))
     .replace(/<st>(\w+)<\/st>/g,(m,k)=>statTerm(k))
-    .replace(/<sg>(\w+)<\/sg>/g,(m,k)=>siegeTerm(k))
+    .replace(/<(?:sg|ic)>(\w+)<\/(?:sg|ic)>/g,(m,k)=>iconTerm(k))
     .replace(/<hp>(.*?)<\/hp>/g,'<b class="hpc">$1</b>')
     .replace(/<en>(.*?)<\/en>/g,'<b class="enc">$1</b>')
     .replace(/<inf>(.*?)<\/inf>/g,`<b style="color:${CLR_INFLUENCE}">$1</b>`)
@@ -1626,13 +1628,13 @@ function bindTerms(char){
 }
 function openTerm(char,kind,term){
   const series=SERIES[char.series];
-  const v=kind==="sg"?SIEGE_STATS[term]
+  const v=kind==="ic"?ICONS[term]
         :kind==="kw"?((series.keywords&&series.keywords[term])||(series.exKeywords&&series.exKeywords[term]))
         :(series.conditions&&series.conditions[term]);
-  const title=kind==="sg"?"Siege Stat · 공성 수치":kind==="kw"?"Keyword · 키워드":"Condition · 상태";
-  if(kind==="sg"&&v)return openModal(`<div class="term-head">${title}</div>
+  const title=kind==="ic"?"Siege Stat · 공성 수치":kind==="kw"?"Keyword · 키워드":"Condition · 상태";
+  if(kind==="ic"&&v)return openModal(`<div class="term-head">${title}</div>
     <h3 style="margin-top:4px;display:flex;align-items:center;gap:9px">
-      <span class="sg-big"><svg viewBox="0 0 16 16">${v.svg}</svg></span>
+      <span class="ic-big"><img src="${v.img}" alt=""></span>
       <span>${v.en}<span style="font-size:14px;color:var(--ink-dim);margin-left:2px">${v.ko}</span></span></h3>
     <div class="term-desc">${v.desc}</div>
     <div class="modal-actions"><button class="btn primary" onclick="closeModal()">닫기</button></div>`);
