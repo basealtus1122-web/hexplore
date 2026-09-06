@@ -300,6 +300,7 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 /* 상점 표 — 이름 아래에 한글과 비용, 설명 끝에 사용 유형 태그 */
 .it-sub{display:block;font-weight:400;font-size:11.5px;color:var(--ink-faint);margin-top:2px}
 .it-sub .g{color:var(--g-explore)}
+.it-sub .p{color:var(--ink)}
 .it-per{font-size:10px;letter-spacing:.03em;opacity:.75}
 .it-star{color:var(--accent);font-weight:700}
 .it-note{margin-top:10px;font-size:11.5px;color:var(--ink-faint)}
@@ -481,6 +482,15 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .pick-slot .tail{position:absolute;right:10px;top:50%;transform:translateY(-50%);
   font-family:"Cinzel";font-size:11px;font-weight:600;color:var(--ink-faint);opacity:.85}
 
+/* 공성 수치 — 판이 아이콘으로 적어 둔 것들. 글자 크기·색을 따라가는 인라인 아이콘. */
+.sg{display:inline-flex;align-items:center;gap:4px;color:var(--g-defence);cursor:pointer;
+  border-bottom:1px dotted color-mix(in srgb,var(--g-defence) 55%,transparent);white-space:nowrap}
+.sg:hover{border-bottom-style:solid}
+.sg>svg{width:1.05em;height:1.05em;flex:0 0 auto;vertical-align:-.15em}
+.sg .ko{color:var(--ink-dim);font-size:.88em;margin-left:1px}
+.sg-big{display:inline-flex;width:26px;height:26px;color:var(--g-defence)}
+.sg-big>svg{width:100%;height:100%}
+
 /* ---------- turn flow sheet ---------- */
 /* 한 장으로 훑는 턴 순서. 게임 상태는 실물이 들고, 여기는 "다음이 뭐더라" 할 때만 본다. */
 .ts-note{font-size:12px;color:var(--ink-faint);margin:-6px 0 14px}
@@ -505,11 +515,21 @@ body{font-family:"Noto Serif KR",serif;min-height:100vh;line-height:1.5;
 .ts-new,.ts-chg{display:inline-block;font-size:9.5px;letter-spacing:.04em;padding:1px 7px;border-radius:10px;
   font-family:"Noto Serif KR";vertical-align:middle}
 .ts-new{color:var(--accent);border:1px solid var(--accent-dim)}
+.ts-h,.ts-s{display:inline-block;font-size:9.5px;letter-spacing:.04em;padding:1px 7px;border-radius:10px;
+  font-family:"Noto Serif KR";vertical-align:middle;margin-left:4px}
+.ts-h{color:var(--g-navigate);border:1px solid var(--g-navigate)}
+.ts-s{color:var(--g-defence);border:1px solid var(--g-defence)}
+.ts-phase.stage{background:color-mix(in srgb,var(--accent-dim) 8%,var(--panel-2))}
+.ts-phase.stage .ts-n{font-size:13px}
 .ts-chg{color:var(--g-attack);border:1px solid var(--g-attack);margin-right:4px}
 .p-on{font-size:11px;padding:5px 11px;min-height:30px;border-radius:999px;border:1px solid var(--edge-bright);
   background:transparent;color:var(--ink-faint);cursor:pointer;font-family:"Noto Serif KR"}
 .p-on.on{color:var(--g-attack);border-color:var(--g-attack);background:color-mix(in srgb,var(--c-attack) 20%,transparent)}
 .p-mon.on{border-color:var(--g-attack)}
+.p-tier{border:1px solid var(--edge);border-radius:11px;padding:9px 11px;margin-bottom:8px;background:var(--panel-2)}
+.p-tier-h{font-family:"Cinzel";font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:7px}
+.p-rune-l .ko{font-size:10.5px;color:var(--ink-faint);margin-left:3px}
 .ts-app{color:var(--accent);border:1px solid var(--accent-dim)}
 @media(max-width:560px){
   .ts-grid{grid-template-columns:1fr;gap:2px 0}

@@ -6,6 +6,13 @@
 (function(){
 const {CAT,STAT_ORDER,STAT_META,SHARED,SERIES,HEX_START}=window.HEX;
 const FOE_TYPES=window.HEX.FOE_TYPES||[];
+const SIEGE_STATS=window.HEX.SIEGE_STATS||{};
+/* 공성 스탯 — 5편 판이 아이콘으로 적어 둔 것들. 아이콘 + English한글 로 펼치고 누르면 설명이 뜬다. */
+function siegeTerm(k){
+  const v=SIEGE_STATS[k];
+  if(!v)return k;
+  return `<span class="sg" data-kind="sg" data-term="${k}" title="${v.en} ${v.ko}"><svg viewBox="0 0 16 16" aria-hidden="true">${v.svg}</svg>${v.en}${_ko(v.ko)}</span>`;
+}
 const GREATER_ASPECTS=window.HEX.GREATER_ASPECTS||[];
 const FAMILIARS=window.HEX.FAMILIARS||[];
 const FAMILIAR_HEX=window.HEX.FAMILIAR_HEX||[5,7,9];
@@ -169,6 +176,7 @@ function expand(char,t){
   return t.replace(/\{(\w+)\}/g,(m,k)=>cls.stats[k]?`<span class="ref" style="color:var(--g-${k})">${cls.stats[k].name.en}</span>`:m)
     .replace(/<act>(\w+)<\/act>/g,(m,k)=>actTerm(k))
     .replace(/<st>(\w+)<\/st>/g,(m,k)=>statTerm(k))
+    .replace(/<sg>(\w+)<\/sg>/g,(m,k)=>siegeTerm(k))
     .replace(/<hp>(.*?)<\/hp>/g,'<b class="hpc">$1</b>')
     .replace(/<en>(.*?)<\/en>/g,'<b class="enc">$1</b>')
     .replace(/<inf>(.*?)<\/inf>/g,`<b style="color:${CLR_INFLUENCE}">$1</b>`)
@@ -961,11 +969,15 @@ function bindFoodTrack(char){
     e.preventDefault();});
 }
 /* 난이도 — 판 최상단. 한 줄이 한 난이도이며 눌러서 고른다. 고른 줄만 진하게 보인다. */
+/* 난이도 표는 시리즈가 정한다 — 4편은 기어 업그레이드 열, 5편은 공성 적 보정·수확 보상 열 */
+function diffOf(char){
+  const s=SERIES[char.series];
+  return (s&&s.diff)||{cols:(window.HEX.DIFF_COLS_4||[]), rows:DIFFICULTY};
+}
 function renderDifficulty(char){
   const cur=char.difficulty||"easy";
-  const cols=[["passive","Passive 패시브"],["vitals","Vitals 적 생명력"],["outlast","Outlast 지속력"],
-              ["damage","Damage 적 피해"],["penalty","Stat Test 페널티"],["gear","Gear Upgrade 보상"]];
-  const rows=DIFFICULTY.map(d=>{const on=d.id===cur;
+  const D=diffOf(char), cols=D.cols;
+  const rows=D.rows.map(d=>{const on=d.id===cur;
     return `<tr data-diff="${d.id}" style="cursor:pointer;background:${on?`color-mix(in srgb,${d.c} 16%,transparent)`:"transparent"}">
       <td style="padding:9px 10px;white-space:nowrap;border-left:3px solid ${on?d.c:"transparent"}">
         <span style="display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;vertical-align:middle;
@@ -981,10 +993,10 @@ function renderDifficulty(char){
 }
 /* 난이도 머리글 — 접어도 보이는 부분: 현재 난이도 + 상승 조건 */
 function difficultyHead(char){
-  const d=DIFFICULTY.find(x=>x.id===(char.difficulty||"easy"))||DIFFICULTY[1];
+  const D=diffOf(char);
+  const d=D.rows.find(x=>x.id===(char.difficulty||"easy"))||D.rows[1];
   /* 접어도 지금 난이도의 보정치가 보이도록 — '변화 없음' 항목은 생략한다 */
-  const eff=[["passive","패시브"],["vitals","적 생명력"],["outlast","지속력"],
-             ["damage","적 피해"],["penalty","페널티"],["gear","기어"]]
+  const eff=D.cols.map(([k,label])=>[k,label.replace(/^[A-Za-z ]+/,"").trim()||label])
     .filter(([k])=>d[k]&&d[k]!=="변화 없음")
     .map(([k,ko])=>`<span style="white-space:nowrap"><span style="color:var(--ink-faint)">${ko}</span> ${d[k]}</span>`)
     .join(`<span style="color:var(--edge-bright)">·</span>`);
@@ -1050,6 +1062,7 @@ function partyState(char,series){
   if(!P.act||typeof P.act!=="object")P.act={r:0,g:0,b:0};
   ["r","g","b"].forEach(k=>{if(typeof P.act[k]!=="number")P.act[k]=0;});
   if(!P.horrors||typeof P.horrors!=="object")P.horrors={};
+  if(!P.stock||typeof P.stock!=="object")P.stock={};
   if(!P.dgrace||typeof P.dgrace!=="object")P.dgrace={pick:0,rank:0};
   return P;
 }
@@ -1194,6 +1207,21 @@ function partyBlock(char,P,b){
         <span class="p-read"><span class="l">빌런 단계 웅덩이 감소</span><b>-${Math.max(1,order)}</b></span></div>
       <div class="p-mons">${rows}</div>${note}</div>`;
   }
+  if(b.kind==="stockpile"){
+    if(!P.stock||typeof P.stock!=="object")P.stock={};
+    const v=P.stock;
+    const tiers=(b.tiers||[]).map(t=>`<div class="p-tier">
+      <div class="p-tier-h">${t.t}</div>
+      <div class="p-mon-body">${t.list.map(r=>{
+        if(typeof v[r.id]!=="number")v[r.id]=0;
+        return `<span class="p-rune" style="--rc:var(${r.c})">
+          <span class="p-rune-l">${r.en}<span class="ko">${r.ko}</span></span>
+          ${pStep(`data-pst="${r.id}"`,v[r.id])}</span>`;}).join("")}</div></div>`).join("");
+    const reads=(b.readout?b.readout(v):[]).map(o=>
+      `<span class="p-read"><span class="l">${o.lab}</span><b>${o.val}</b></span>`).join("");
+    return `<div class="p-block">${head}${tiers}
+      ${reads?`<div class="p-reads">${reads}</div>`:""}${note}</div>`;
+  }
   if(b.kind==="darkgrace"){
     const g=P.dgrace, picks=[1,2,3].map(i=>
       `<button class="p-mode ${g.pick===i?"on":""}" data-pdg="${i}">눈 ${i}</button>`).join("");
@@ -1243,6 +1271,9 @@ function bindParty(char,series){
     const v=+b.dataset.pdg; P.dgrace.pick=v; if(!v)P.dgrace.rank=0; renderBoard();});
   root.querySelectorAll("[data-pdgr]").forEach(b=>b.onclick=()=>{
     P.dgrace.rank=lim(P.dgrace.rank+(+b.dataset.d)); renderBoard();});
+  root.querySelectorAll("[data-pst]").forEach(b=>b.onclick=()=>{
+    if(!P.stock||typeof P.stock!=="object")P.stock={};
+    const k=b.dataset.pst; P.stock[k]=lim((P.stock[k]||0)+(+b.dataset.d),999); renderBoard();});
 }
 /* 참조 구획 — 예전엔 이것들이 전부 상단 탭이었다. 4편 기준 9개라
    모바일(351px)에서 폭 1198px 어치가 되어 대부분이 가로 스크롤 뒤로 숨었다.
@@ -1595,8 +1626,16 @@ function bindTerms(char){
 }
 function openTerm(char,kind,term){
   const series=SERIES[char.series];
-  const v=kind==="kw"?((series.keywords&&series.keywords[term])||(series.exKeywords&&series.exKeywords[term])):(series.conditions&&series.conditions[term]);
-  const title=kind==="kw"?"Keyword · 키워드":"Condition · 상태";
+  const v=kind==="sg"?SIEGE_STATS[term]
+        :kind==="kw"?((series.keywords&&series.keywords[term])||(series.exKeywords&&series.exKeywords[term]))
+        :(series.conditions&&series.conditions[term]);
+  const title=kind==="sg"?"Siege Stat · 공성 수치":kind==="kw"?"Keyword · 키워드":"Condition · 상태";
+  if(kind==="sg"&&v)return openModal(`<div class="term-head">${title}</div>
+    <h3 style="margin-top:4px;display:flex;align-items:center;gap:9px">
+      <span class="sg-big"><svg viewBox="0 0 16 16">${v.svg}</svg></span>
+      <span>${v.en}<span style="font-size:14px;color:var(--ink-dim);margin-left:2px">${v.ko}</span></span></h3>
+    <div class="term-desc">${v.desc}</div>
+    <div class="modal-actions"><button class="btn primary" onclick="closeModal()">닫기</button></div>`);
   openModal(`<div class="term-head">${title}</div>
     <h3 style="margin-top:4px">${v?`${v.titleEn||v.name.en}<span style="font-size:14px;color:var(--ink-dim);margin-left:2px">${v.name.ko}</span>`:term}</h3>
     <div class="term-desc">${v?v.desc:"이 시리즈에 아직 정의가 없습니다. data.js에서 채우세요."}</div>
