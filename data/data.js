@@ -3289,7 +3289,8 @@ const RI_DIFF = {title:{en:"What Changes", ko:"코어와 달라지는 것"}, bod
   </div>`};
 
 /* 게임 난이도 — 캐릭터판 최상단에서 고른다.
-   게임 중 상승 조건: 마을에서 Collector 콜렉터 3마리 격파 시 +1, 파워업 덱이 떨어지면 +1 */
+   상승 조건은 시리즈마다 달라 SERIES[x].diff.rise 에 따로 적는다
+   (4편은 콜렉터 3마리 + 파워업 덱 소진, 5편은 콜렉터가 없어 파워업 덱 소진뿐 — 5편 규칙서 92쪽). */
 const DIFFICULTY = [
   {id:"starter", en:"Starter", ko:"스타터", c:"#8fb6a8",
    passive:"적은 <kw>block</kw>·<kw>defend</kw>·<kw>evasion</kw>를 얻지 못한다",
@@ -3578,7 +3579,7 @@ const V5_PARTY = [
      {t:"Tier II 고급", list:[
        {id:"essence",  en:"Essence",    ko:"정수",       c:"--g-navigate"},
        {id:"skyMetal", en:"Sky Metal",  ko:"하늘 금속",  c:"--g-attack"},
-       {id:"special",  en:"Specialist", ko:"전문가",     c:"--g-firstMastery"}]},
+       {id:"special",  en:"Specialist", ko:"전문가",     c:"--g-firstMastery", ic:"specialist"}]},
      {t:"Tier III 특급", list:[
        {id:"aether", en:"Aetherial Ore",  ko:"에테르 광석",   c:"--g-firstMastery"},
        {id:"living", en:"Living Crystal", ko:"살아있는 결정", c:"--g-attack"}]},
@@ -3591,7 +3592,7 @@ const V5_PARTY = [
      {lab:"Tier II 판매가 · 백금", val:(v.essence||0)+(v.skyMetal||0)+(v.special||0)},
      {lab:"Tier III 판매가 · 백금", val:((v.aether||0)+(v.living||0))*8}]},
 
-  {kind:"counter", id:"plat", label:{en:"Platinum",ko:"백금"}, max:999, step:5,
+  {kind:"counter", id:"plat", ic:"platinum", label:{en:"Platinum",ko:"백금"}, max:999, step:5,
    note:`Emporium 의 아이템과 <b><ic>gear</ic></b>를 사는 데 쓴다.
      <b>Platinum Token</b>을 밟으면 <b>현재 공성 물결</b>만큼 얻는다.`},
 
@@ -3600,7 +3601,7 @@ const V5_PARTY = [
      매 게임 턴 이벤트 페이즈에 <b>자원을 거둘 헥스 수</b>.`,
    readout:(v)=>[{lab:"수확 카드", val:v},{lab:"거둘 헥스", val:v}]},
 
-  {kind:"counter", id:"range", label:{en:"Range",ko:"사정거리"}, max:20, init:1,
+  {kind:"counter", id:"range", ic:"range", label:{en:"Range",ko:"사정거리"}, max:20, init:1,
    note:`자원을 거두는 범위이자 방어자·토큰에 닿는 거리.
      <b>Leyline Compass</b>로 올릴 수 있다(게임당 3개까지).`},
 
@@ -3614,7 +3615,7 @@ const V5_PARTY = [
    note:`공성이 시작될 때 <b>2 + 공성 물결 + 달 주사위의 절반</b>만큼 늘어난다.
      빌런 페이즈마다 <b>1</b>씩 줄고, <b>0</b>이 되면 그 공성이 끝나고 새 수확 단계가 열린다.`},
 
-  {kind:"counter", id:"jaethi", label:{en:"Jaethi Resilience",ko:"Jaethi 내구도"}, max:200, step:5,
+  {kind:"counter", id:"jaethi", ic:"resilience", label:{en:"Jaethi Resilience",ko:"Jaethi 내구도"}, max:200, step:5,
    note:`<b>공성 물결 수 × 25</b>로 시작한다 — 공성 <b>3번</b>이면 <b>75</b>, <b>4번</b>이면 <b>100</b>.
      공성 단계가 끝나도 <b>지우지 않는다</b>(Siege Banner <sg>resilience</sg>만 지운다).`},
 ];
@@ -4407,6 +4408,69 @@ const V5I_TAB = {id:"ishidan5", label:{en:"Ishidan", ko:"이시단"}, entries:[
         공개된 카드를 건드리지 않고 <b>가장 나중에 나타난 Siege Banner</b>의 덱에 섞어 넣는다</div>
     </div>`},
 ]};
+
+/* 마스터리 한 줄 요약 — 빌더에서 직업을 고를 때 "무슨 기술인지" 만 빠르게 보여 준다.
+   규칙 원문(desc)은 조건과 예외가 길어 첫 문장만 잘라서는 무슨 기술인지 알기 어렵다.
+   그래서 원문을 읽고 사람이 쓴 요약을 따로 둔다. 여기 없는 것은 엔진이 첫 문장으로 대신한다.
+   키는 "직업id:마스터리슬롯". */
+const MASTERY_BRIEF = {
+  "warlock:firstMastery":"마스터리 레벨 <b>×2</b>만큼 체력 피해. 3레벨마다 강화를 하나씩 골라 쌓는다",
+  "warlock:secondMastery":"에너지로 내면 체력 피해, 체력으로 내면 에너지 피해 — 준 피해의 <b>1/3</b>을 회복한다",
+  "phosromancer:firstMastery":"이번 라운드 <b>공격을 두 번</b> 한다. 적의 차단·방어·반사를 깎는다",
+  "phosromancer:secondMastery":"공격+마스터리2 만큼 체력 피해. 직전 라운드에 빛 흡수를 썼으면 더 세진다",
+  "bard:firstMastery":"숙적에게 <b>그룹이 주는 피해</b>를 올리거나, 지속력을 깎는 굴림을 자동 성공시킨다. 유지 가능",
+  "bard:secondMastery":"비전투는 동료 에너지 회복·스탯 굴림 보너스, 전투는 <b>그룹 차단</b>. 유지 가능",
+  "cursedOne:firstMastery":"비전투는 회복. 전투에서는 <b>또다른 자아로 변신</b>해 체력과 행동을 얻는다",
+  "cursedOne:secondMastery":"비전투는 그룹 기술 굴림 보너스. 변신 중에는 그 <b>조우의 행동</b>을 대신 쓴다",
+  "shadowRider:firstMastery":"시간과 이동 속도를 늘린다. 전투에서는 동료의 <b>공격·방어 랭크</b>를 올린다",
+  "shadowRider:secondMastery":"동료가 적에게 피해를 줄 때마다 <b>그 적을 함께</b> 때린다. 반사도 붙일 수 있다",
+  "enchanter:firstMastery":"<b>정수 카드</b>를 버려 그 효과를 영웅에게 준다. 전투에서는 재생도 함께",
+  "enchanter:secondMastery":"정수를 버려 원하는 <b>기어 업그레이드</b>를 부여하고 체력을 올린다. 3장 더 버리면 영구",
+  "monk:firstMastery":"상태 하나를 <b>무효화</b>하고 회복시키며, 전투 내내 스탯 굴림 보너스를 준다(중첩)",
+  "monk:secondMastery":"<b>회피 10</b>을 얻고, 회피에 성공할 때마다 즉시 공격한다. 동료에게 대신 줄 수도 있다",
+  "scourgeEater:firstMastery":"동료의 상처를 <b>대신 짊어진다</b>. 라운드 끝에 동료를 회복시키고 그만큼 자신이 받는다",
+  "scourgeEater:secondMastery":"<b>잃어버린 체력만큼</b> 관통 피해를 준다. 이어 2라운드 동안 재생을 얻는다",
+  "witch:firstMastery":"공격+마스터리1 만큼 에너지 피해, 절반을 동료 에너지로 나눠 준다. <b>고통 1장마다 +6</b>",
+  "witch:secondMastery":"동료가 에너지를 내면 적 공격의 피해가 줄어든다. 적 에너지가 0이면 관통 피해도",
+  "inquisitor:firstMastery":"공격+마스터리1 만큼 체력 피해. <b>트로피 1개마다</b> 반사와 피해 +3",
+  "inquisitor:secondMastery":"그룹의 기술 굴림 보너스와 피해 감소. 같은 유형 트로피마다 <b>지속이 길어진다</b>",
+  "medium:firstMastery":"<b>빙의령마다 행동을 하나씩</b> 쓰고 그 수치를 올린다. 공격을 에너지 회복으로 바꿀 수도",
+  "medium:secondMastery":"비전투는 빙의령 수만큼 <b>그룹 전체</b> 스탯 굴림 보너스. 전투는 빙의령 행동 + 회복",
+  "scout:firstMastery":"<b>이동 페이즈 전용.</b> 3회 굴려 성공한 수만큼 그 턴의 굴림·상황을 고쳐 쓴다",
+  "scout:secondMastery":"그룹의 능력 랭크를 올리고 적에게 <b>표식</b>. 표식된 적에게는 공격이 관통이 된다",
+  "bloodMage:firstMastery":"공격+마스터리1 만큼 <b>체력과 에너지</b> 피해. 부식이나 관통을 골라 붙인다",
+  "bloodMage:secondMastery":"<b>피의 마법 주문</b>을 시전한다. 굴림에 성공하면 그 대가인 치명 피해를 무효화한다",
+  "deathKnight:firstMastery":"<b>대상이 죽는 순간</b>에 쓴다. 적이면 에너지 흡수를 강화, 동료면 킵세이크 발동이나 부활",
+  "deathKnight:secondMastery":"적의 이지스를 무효화하거나 회복·방어·차단을 깎고, <b>에너지 흡수를 5</b> 올린다",
+  "demonologist:firstMastery":"<b>드레치를 소환</b>하고 매 라운드 그 행동을 고른다 — 피해 강화 · 동료 보조 · 방패",
+  "demonologist:secondMastery":"<b>광기를 드레치에게</b> 옮겨 담는다. 전투 중에는 광기를 덜고 행동을 두 번 한다",
+  "dragoon:firstMastery":"비전투는 <b>비행</b>. 전투는 목표 주사위를 올리고 반격과 차단을 얻는다",
+  "dragoon:secondMastery":"공격+마스터리2 만큼 체력 피해. 직전에 도약을 썼으면 <b>관통</b>이 붙는다",
+  "samurai:firstMastery":"<b>자세 셋</b> 중 하나를 취한다 — 거합(회피) · 일도류(반격) · 이도류(차단). 랭크로 강화",
+  "samurai:secondMastery":"마스터리2 만큼 체력 피해. <b>취한 자세에 따라</b> 2배·관통·2회 공격으로 갈린다",
+  "spearMaster:firstMastery":"마스터리1+공격 만큼 체력 피해와 <b>출혈</b>. 취약이나 감속도 걸 수 있다",
+  "spearMaster:secondMastery":"<b>택1</b> — 공격을 자신이 대신 받기 · 동료 피해 올리기 · 적 피해 줄이기",
+  "astrologist:firstMastery":"비전투는 <b>덱을 미리 본다</b>. 전투는 라운드당 3회까지, 방어와 그룹 생명력 증가",
+  "astrologist:secondMastery":"동료를 회복시키고 다음 스탯 굴림에 보너스. <b>야영 중에는 부활</b>도 시킨다",
+  "sage:firstMastery":"대상을 회복시키고 <b>재생이나 굴림 보너스</b>를 함께 준다. 전투 밖에서도 쓴다",
+  "sage:secondMastery":"<b>비축량의 원소</b> 하나를 영웅에게 보강으로 준다. 적 키워드를 무효화할 수도",
+  "magician:firstMastery":"에너지 피해를 주고 <b>반격</b>을 얻는다. 그 반격은 비용 없이 에너지 피해가 된다",
+  "magician:secondMastery":"비전투는 <b>그룹 순간이동</b>. 전투는 대상 하나를 적이 노릴 수 없게 만든다",
+  "mesmer:firstMastery":"<b>짐승으로 변신</b>해 공격·기술 랭크를 올리고 반사를 얻는다. 유지 가능",
+  "mesmer:secondMastery":"대상에게 <b>반사</b>를 건다. 그가 목표가 되면 적에게 에너지 흡수나 지속력 감소",
+  "ninja:firstMastery":"마스터리1+공격 절반 만큼 체력·에너지 피해. <b>두루마리로 원소</b>를 바꿔 효과를 붙인다",
+  "ninja:secondMastery":"적의 <b>목표 주사위나 회피 굴림</b>을 조정한다. 0이 되면 공격을 피한다",
+  "windRider:firstMastery":"체력 피해를 주거나 지속력을 조정하고, 적의 <b>방어·차단과 피해</b>를 깎는다",
+  "windRider:secondMastery":"비전투는 그룹 이동. 전투는 <b>차단을 두 명에게</b> 나눠 주고 다음 라운드를 강화",
+  "ancestralChanneler:firstMastery":"선조 수만큼 에너지 흡수, 또는 <b>앞면 선조들의 마스터리 1</b>을 모두 발동한다",
+  "ancestralChanneler:secondMastery":"영웅끼리 <b>굴림 결과를 맞바꾸고</b>, 선조의 마스터리 2 효과를 발동시킨다",
+  "kensai:firstMastery":"공격+마스터리1 만큼 체력 피해. 맞은 적은 <b>방어·차단이 깎이고</b> 회피가 나빠진다(중첩)",
+  "kensai:secondMastery":"적의 공격을 <b>자신에게 몰고</b> 반격을 얻는다. 피해를 0으로 막을 때마다 되갚는다",
+  "mycotomancer:firstMastery":"대상의 생명력을 올리거나 <b>상태를 모두 무효화</b>하고 재생을 준다",
+  "mycotomancer:secondMastery":"이번 라운드 <b>숙적 피해 2배</b>. 방어하듯 아이템을 써 그룹 전체가 효과를 받는다",
+  "threadMage:firstMastery":"마스터리1 <b>랭크 5마다</b> 적에게 지속 효과를 하나씩 건다 — 감속 · 부조화 · 취약 등",
+  "threadMage:secondMastery":"적의 <b>패턴을 진동</b>시켜, 그 적을 노린 영웅들이 회복·피해 감소 효과를 얻는다",
+};
 
 const SERIES = {
   "4": {
@@ -5618,7 +5682,9 @@ const V5_VALOR = {id:"valor5", label:{en:"Valor", ko:"용맹"}, entries:[
 
 /* 엔진에서 접근할 수 있게 전역으로 노출 */
 /* 시리즈마다 난이도 표가 다르다 — 4편은 기어 업그레이드 열, 5편은 공성·수확 열을 쓴다 */
-["4","4b"].forEach(k=>{if(SERIES[k])SERIES[k].diff={cols:DIFF_COLS_4, rows:DIFFICULTY};});
-["5","5c","5i"].forEach(k=>{if(SERIES[k])SERIES[k].diff={cols:DIFF_COLS_5, rows:DIFFICULTY_5};});
+["4","4b"].forEach(k=>{if(SERIES[k])SERIES[k].diff={cols:DIFF_COLS_4, rows:DIFFICULTY,
+  rise:`마을에서 <b>Collector 콜렉터 3마리</b> 격파 시 · <b>파워업 덱</b>이 다 떨어졌을 때`};});
+["5","5c","5i"].forEach(k=>{if(SERIES[k])SERIES[k].diff={cols:DIFF_COLS_5, rows:DIFFICULTY_5,
+  rise:`<b>파워업 덱</b>이 다 떨어져 다시 섞을 때`};});
 
-window.HEX = { CAT, STAT_ORDER, STAT_META, HEX_START, ICONS, FAMILIARS, FAMILIAR_HEX, SHARED, SERIES, FOE_TYPES, GREATER_ASPECTS, COND_NOTE, DIFFICULTY, DIFFICULTY_5, DIFF_COLS_4 };
+window.HEX = { CAT, STAT_ORDER, STAT_META, HEX_START, ICONS, MASTERY_BRIEF, FAMILIARS, FAMILIAR_HEX, SHARED, SERIES, FOE_TYPES, GREATER_ASPECTS, COND_NOTE, DIFFICULTY, DIFFICULTY_5, DIFF_COLS_4 };

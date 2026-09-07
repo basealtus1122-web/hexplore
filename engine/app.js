@@ -558,6 +558,15 @@ function renderBuilder(){
     APP.sel.traitFocus = had ? null : id;
     renderBuilder();
   });
+  /* 마스터리 줄을 누르면 그 아래 한 줄 요약이 열린다 */
+  root.querySelectorAll("[data-mst]").forEach(r=>r.onclick=()=>{
+    const b=root.querySelector(`[data-brief="${r.dataset.mst}"]`);
+    if(!b)return;
+    const open=b.style.display==="none";
+    b.style.display=open?"block":"none";
+    const ch=r.querySelector(".chev");
+    if(ch)ch.style.transform=open?"rotate(90deg)":"none";
+  });
   const ts=$("#toSeries");if(ts)ts.onclick=()=>{if(ready){APP.screen="series";render();}};
   placeInlinePreview();
 }
@@ -692,10 +701,38 @@ function inheritPicker(r){
     <div>${asps}</div>
   </div>`;
 }
+/* 마스터리 요약 — 빌더에서 "무슨 기술인지" 만 한 줄로 보여 준다. 자세한 것은 캐릭터판에서 본다.
+   기본은 data.js 의 손으로 쓴 요약(MASTERY_BRIEF), 없으면 원문 첫 문장으로 대신한다. */
+const MASTERY_BRIEF=window.HEX.MASTERY_BRIEF||{};
+function masteryBrief(c,k){
+  const st=c.stats[k];
+  if(!st)return"";
+  /* 사람이 쓴 요약이 있으면 그것을 쓴다 — 첫 문장만으로는 무슨 기술인지 안 잡히는 것이 많다 */
+  const hand=MASTERY_BRIEF[c.id+":"+k];
+  if(hand)return previewText(hand,c);
+  if(!st.desc)return"";
+  /* 태그를 빈칸으로 바꾸면 <b>덱</b>이나 같은 자리에서 조사가 떨어진다.
+     줄바꿈만 빈칸으로 두고 나머지 태그는 그냥 지운다. */
+  const t=previewText(st.desc,c)
+    .replace(/<br\s*\/?>/gi," ")
+    .replace(/<[^>]+>/g,"")
+    .replace(/\s+/g," ").trim();
+  if(!t)return"";
+  const m=t.match(/^[\s\S]*?다\.(?=\s|$)/);       /* 첫 문장까지 */
+  let cut=m?m[0]:t;
+  if(cut.length>150)cut=cut.slice(0,150).replace(/\s+\S*$/,"")+"…";
+  return cut;
+}
 function classPreview(c){
   const tag=catTags(c);
   const stats=STAT_ORDER.map(k=>{if(!c.stats[k])return"";const l=statLabel(k);return `<span class="modpill" style="color:var(--g-${k})">${l.en}<span style="font-size:.88em">${l.ko}</span> ${c.stats[k].base}</span>`;}).join("");
-  const masteries=["firstMastery","secondMastery"].filter(k=>c.stats[k]&&c.stats[k].name).map(k=>`<div class="pv-row"><span class="pv-lbl" style="color:var(--g-${k})">${STAT_META[k].role}</span> ${c.stats[k].name.en} (${c.stats[k].name.ko})</div>`).join("");
+  const masteries=["firstMastery","secondMastery"].filter(k=>c.stats[k]&&c.stats[k].name).map(k=>{
+    const st=c.stats[k], brief=masteryBrief(c,k), id=c.id+":"+k;
+    return `<div class="pv-row pv-mst${brief?" on":""}"${brief?` data-mst="${id}"`:""}>
+      <span class="pv-lbl" style="color:var(--g-${k})">${STAT_META[k].role}</span>
+      <span>${st.name.en} (${st.name.ko})${st.cost!=null?`<span class="pv-cost">Energy<span class="ko">에너지</span> ${st.cost}</span>`:""}</span>
+      ${brief?`<span class="chev">\u25b6</span>`:""}</div>
+    ${brief?`<div class="pv-brief" data-brief="${id}" style="display:none">${brief}</div>`:""}`;}).join("");
   return `<div class="pv-title">${c.name.en} <span class="ko">(${c.name.ko})</span></div>
     ${c.flavor?`<div class="flavor" style="border-left-color:${catColor(c)};margin-top:6px">${c.flavor}</div>`:""}
     <div style="margin:6px 0">${tag}</div>
@@ -1007,7 +1044,7 @@ function difficultyHead(char){
       <b style="font-family:'Cinzel';color:${d.c}">${d.en}</b><span style="font-size:.86em;color:var(--ink-dim)">${d.ko}</span></span>
     ${eff?`<span style="display:flex;gap:7px;flex-wrap:wrap;font-size:12px;color:var(--ink-dim)">${eff}</span>`
         :`<span style="font-size:12px;color:var(--ink-faint)">보정 없음</span>`}
-    <span style="flex-basis:100%;font-size:11.5px;color:var(--ink-faint)">게임 중 다음 경우 <b>1 상승</b> — 마을에서 <b>Collector 3마리</b> 격파 시 · <b>파워업 덱</b>이 다 떨어졌을 때</span>
+    <span style="flex-basis:100%;font-size:11.5px;color:var(--ink-faint)">게임 중 다음 경우 <b>1 상승</b> — ${D.rise||"규칙서 참고"}</span>
   </span>`;
 }
 /* 판을 묶어 접었다 펼 수 있는 그룹. extra 는 머리글 오른쪽 버튼(접기와 별개로 동작) */
@@ -1115,7 +1152,8 @@ function partyBody(char,series){
     ${list.map(b=>partyBlock(char,P,b)).join("")}</div>`;
 }
 function partyBlock(char,P,b){
-  const head=`<div class="p-head"><span class="p-title">${b.label.en}<span class="ko">${b.label.ko}</span></span></div>`;
+  const ico=k=>{const v=ICONS[k];return v?`<img class="p-ic" src="${v.img}" alt="">`:"";};
+  const head=`<div class="p-head"><span class="p-title">${ico(b.ic)}${b.label.en}<span class="ko">${b.label.ko}</span></span></div>`;
   const note=b.note?`<div class="p-note">${expand(char,b.note)}</div>`:"";
   if(b.kind==="counter"){
     const v=P[b.id]||0, step=b.step||0;
@@ -1217,7 +1255,7 @@ function partyBlock(char,P,b){
       <div class="p-mon-body">${t.list.map(r=>{
         if(typeof v[r.id]!=="number")v[r.id]=0;
         return `<span class="p-rune" style="--rc:var(${r.c})">
-          <span class="p-rune-l">${r.en}<span class="ko">${r.ko}</span></span>
+          <span class="p-rune-l">${ico(r.ic||r.id)}${r.en}<span class="ko">${r.ko}</span></span>
           ${pStep(`data-pst="${r.id}"`,v[r.id])}</span>`;}).join("")}</div></div>`).join("");
     const reads=(b.readout?b.readout(v):[]).map(o=>
       `<span class="p-read"><span class="l">${o.lab}</span><b>${o.val}</b></span>`).join("");
