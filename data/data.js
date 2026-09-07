@@ -4143,6 +4143,271 @@ const ICONS = {
 };
 
 
+/* 카프라칸 귀환 — 확장 판에서 옮긴 것. 코어와 겹치는 부분은 빼고 이 확장만의 것을 담았다.
+   승리 조건이 둘 늘어난다 — Tapestry 를 다섯 원소 모두 수리하거나, Dedication 다섯을 모두 얻거나. */
+const V5C_TAB = {id:"caprakan5", label:{en:"Caprakan", ko:"카프라칸"}, entries:[
+  {name:{en:"Aztlant",ko:"아즈틀란 — 도시국가"}, desc:`
+    <div class="rule-grid">
+      <div class="rule-k">들어설 때</div><div class="rule-v">잃은 생명력을 <b>전부</b> <kw>heal</kw>한다</div>
+      <div class="rule-k">구매</div><div class="rule-v">여기 있는 동안 <b>다른 카프라칸 도시국가</b>의 물품과
+        <ref t="items" e="Emporium">Emporium</ref>의 물품을 살 수 있다</div>
+      <div class="rule-k">Improve 개선</div><div class="rule-v"><ic>platinum</ic> <b>1</b>을 함께 내야 자원을 쓸 수 있다.
+        <b>드러나 있는 쪽의 아즈틀란만</b> Improve할 수 있다</div>
+      <div class="rule-k">부활</div><div class="rule-v">죽은 영웅을 <kw>revive</kw>할 수 있다
+        (<b><ic>gear</ic> 보너스는 얻지 못한다</b>)</div>
+    </div>
+    <div class="rule-h">③ Aztlant — 도시국가 행동</div>
+    <div class="rule-v"><b>게임 턴당 1회</b>, 여기 있는 동안 <b>하나</b>를 고른다 —</div>
+    <div class="rule-grid">
+      <div class="rule-k">수확 덱 조작</div><div class="rule-v">수확 덱 <b>맨 위 카드를 공개</b>한다.
+        그것을 <b>덱 맨 아래</b>에 놓거나, 깔려 있는 <b>수확 카드 1장을 새로 뽑은 것으로 교체</b>한다(원래 것은 버린다)</div>
+      <div class="rule-k">정착지 세우기</div><div class="rule-v"><ic>settlement</ic>이 없는 <b>HexTile</b>의 아무 헥스에
+        <b>Settlement Token</b>을 놓는다</div>
+    </div>`},
+
+  {name:{en:"Temples (Caprakan)",ko:"신전 — 카프라칸"}, desc:`
+    <div class="rule-v">코어의 신전 행동에 더해 이 확장만의 것이 붙는다.
+      기본 규칙은 <ref t="temple5" e="신전에서 할 수 있는 것">신전</ref> 참고.</div>
+    <div class="rule-grid">
+      <div class="rule-k">Augment</div><div class="rule-v"><b>원소 1</b>을 <kw>consume</kw>해 영웅이나 아무 방어자를 그 원소로 Augment한다 <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Summon Essence</div><div class="rule-v"><b>Elemental Token</b>이 없는 모든 <b>Elemental Portal</b>에
+        토큰을 놓는다(<b>이벤트 페이즈당 1회</b>) <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Temple Fortress</div><div class="rule-v"><b>기본 원소 넷 모두</b>로 신전을 Augment하면
+        Temple Tracker를 뒤집는다. 원하는 맵 타일(<b>Aztlant Empire 타일 포함</b>)의 중앙 헥스에 토큰을 놓고
+        <b>모든 신전의 <ic>resilience</ic>를 하나로 합친다</b>.
+        Temple Fortress가 파괴되면 <b>Temple of the Everlasting을 뺀</b> 모든 신전도 파괴된다.
+        신전으로 취급하며 <b>재건할 수 없다</b> <span class="rule-tag">영구</span></div>
+      <div class="rule-k">Teleport</div><div class="rule-v">드러난 다른 신전으로 <kw>teleport</kw>한다(<b>이벤트 페이즈당 1회</b>) <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Repair the Tapestry<br><span class="it-sub">태피스트리 수리</span></div>
+      <div class="rule-v"><b>단계당 1회</b>까지, <ic>recruit</ic> <b>1</b>과 <b>맞는 원소</b>를 <kw>consume</kw>한다.
+        <b>이미 수리한 원소 하나마다</b> 원소 비용이 <b>1씩</b> 오른다.
+        고른 원소를 추적판에 표시하고 맞는 원소를 버린다.
+        그런 다음 <b>수리한 원소 수만큼 파워업</b>을 뽑아 그룹이 <b>각 보너스를 모두</b> 얻는다.<br>
+        <b>다섯 원소를 모두 수리하면 게임에서 승리한다.</b></div>
+    </div>`},
+
+  {name:{en:"Dedications",ko:"헌신 — 다섯"}, desc:`
+    <div class="rule-v" style="font-style:italic;color:var(--ink-faint);margin-bottom:6px">시간의 수레바퀴가 한 바퀴를 돌 때,
+      신들의 뜻에 자신을 맞춘 자는 영원한 안식을 얻는다.</div>
+    <div class="rule-grid">
+      <div class="rule-k">얻는 법</div><div class="rule-v"><b>단계당 1회</b>까지, 아직 쓰러뜨리지 않은 <b>보스</b>를 하나 골라
+        (<b>그 보스의 SIEGE!가 아직 시작되지 않았어도</b> 된다)
+        <ic>specialist</ic> <b>3</b>과 <b>맞는 원소</b>를 <kw>consume</kw>한다.
+        <b>이미 가진 헌신 하나마다</b> 전문가 비용이 <b>1씩</b> 오른다</div>
+      <div class="rule-k">얻고 나면</div><div class="rule-v">그 보스와는 <b>남은 게임 내내 전투할 수 없다</b>.
+        그룹이 <b>Dedication Lair Effect</b>(보스 판)와 아래의 <b>Instant Effect</b>를 얻고,
+        <b>역할(계통)이 맞는 영웅</b>은 <b>Type Effect</b>도 함께 얻는다</div>
+      <div class="rule-k">승리</div><div class="rule-v"><b>다섯 헌신을 모두 얻으면 게임에서 승리한다</b></div>
+    </div>
+    <div class="rule-h">다섯 헌신의 효과</div>
+    <div class="rule-grid">
+      <div class="rule-k">획득량</div><div class="rule-v">그룹의 <b>Acquire Amount</b>가 <b>1</b> 오른다<br>
+        <span class="ts-roll"><b>Assist</b> — 전투당 1회, <st>energy</st> <b>3</b>으로
+        동료의 행동 랭크를 <b>5</b> <kw>boost</kw>(전투 끝까지)</span></div>
+      <div class="rule-k">장비</div><div class="rule-v">각 영웅이 <ic>gear</ic> <b>5</b>를 얻는다<br>
+        <span class="ts-roll"><b>Utility</b> — 게임 턴당 1회, <st>health</st> 3 또는 <st>energy</st> 3으로
+        얻는 <b>단일·그룹 보상을 2배</b></span></div>
+      <div class="rule-k">사정거리</div><div class="rule-v">그룹의 <ic>range</ic>가 지도의 <b>물 · 습지 · 강</b> 헥스까지 넓어진다<br>
+        <span class="ts-roll"><b>Healer</b> — 전투당 1회, <st>energy</st> <b>3</b>으로
+        이번 라운드 발동시킨 <b>회복량을 2배</b></span></div>
+      <div class="rule-k">부활</div><div class="rule-v"><b>단계마다 각 영웅이 처음 죽을 때</b> 즉시
+        <b>생명력 절반</b>으로 <kw>revive</kw>한다<br>
+        <span class="ts-roll"><b>Striker</b> — 게임 턴당 1회, <st>health</st> <b>3</b>으로
+        이번 라운드 <st>health</st> <b>피해를 2배</b></span></div>
+      <div class="rule-k">면역</div><div class="rule-v">그룹이 <state>dissonant</state>에 <kw>immune</kw>이 된다<br>
+        <span class="ts-roll"><b>Sapper</b> — 전투당 1회, <st>energy</st> <b>3</b>으로
+        이번 라운드 <st>energy</st> <b>피해를 2배</b></span></div>
+    </div>`},
+
+  {name:{en:"Shamans & Primordial Centers",ko:"샤먼 · 원초의 중심"}, desc:`
+    <div class="rule-grid">
+      <div class="rule-k">Nether Tile</div><div class="rule-v">그룹이 <b>Primordial Center</b>의 <ic>range</ic> 안에서
+        <b>야영</b>할 때마다, <b>Nether Tile</b>을 놓거나 아무 Primordial Center를 <b>반대 면으로 뒤집을</b> 수 있다</div>
+      <div class="rule-k">샤먼 토큰</div><div class="rule-v"><b>최대 6개</b>까지 동시에 가질 수 있다.
+        넷(<ic>air</ic> · <ic>earth</ic> · <ic>water</ic> · <ic>fire</ic>)은 각 Primordial Center의
+        <b>Nether 면 중앙 헥스</b>에 있고, 다섯째(<ic>void</ic>)는 <b>Eternal Twilight</b> 동안
+        <b>Twilight Aztlant 바로 서쪽 헥스</b>에 나타난다. 여섯째(<b>와일드카드</b>)는 다른 보상으로 얻는다</div>
+      <div class="rule-k">중복</div><div class="rule-v">같은 종류의 샤먼은 <b>먼저 것을 <kw>consume</kw>하기 전까지</b> 다시 얻을 수 없다</div>
+      <div class="rule-k">쓰는 곳</div><div class="rule-v"><b>원소처럼</b> <kw>consume</kw>할 수 있다 —
+        <b>신전</b>에서, 또는 <b>Kualotekutli</b>와의 전투에서</div>
+    </div>`},
+
+  {name:{en:"Eternal Twilight",ko:"영원한 황혼 · 영속의 신전"}, desc:`
+    <div class="rule-h">Eternal Twilight 영원한 황혼</div>
+    <div class="rule-grid">
+      <div class="rule-k">타일 뒤집기</div><div class="rule-v"><b>Aztlant Empire 타일</b>은 게임 중 <b>반대 면으로 뒤집힐</b> 수 있다.
+        뒤집을 때 그 위의 <b>토큰은 치우고</b>, 미니어처는 <b>뒤집힌 면의 같은 헥스</b>로 옮긴다</div>
+      <div class="rule-k">추적판</div><div class="rule-v">타일을 뒤집을 때마다 <b>Aztlant Defender Tracker</b>도 함께 뒤집는다.
+        Eternal Twilight가 진행 중이면 <b>Twilight Aztlant 면</b>이 쓰인다</div>
+      <div class="rule-k">두 도시국가</div><div class="rule-v">둘은 <b>Siege 수치가 다른 별개의 도시국가</b>로 친다.
+        다만 <kw>equip</kw>된 카드는 <b>함께 쓴다</b>. Improve는 <b>드러난 쪽만</b> 할 수 있다</div>
+    </div>
+    <div class="rule-h">Temple of the Everlasting 영속의 신전</div>
+    <div class="rule-v"><b>Eternal Twilight</b> 동안 드러나는 <b>특별한 신전</b>이다.
+      <b>방어자가 아니고</b>, <b>공성 피해를 받지 않으며</b>, <b>결코 방어자가 되지 않는다</b>.
+      여기서는 평소 신전 행동에 더해 아래를 <b>Purchased 칸에 적힌 횟수만큼</b> 할 수 있다.</div>
+    <div class="rule-grid">
+      <div class="rule-k">Blood Magic<br><span class="it-sub">피의 마법 · <ic>recruit</ic> 1 + <ic>platinum</ic> 2</span></div>
+      <div class="rule-v"><b>피의 마법 카드</b>를 뽑고 <b>티어를 1</b> 올리며 <b>Blood Bomb Token</b>을 얻는다.
+        <b>게임당 4번</b> 구매 <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Consecration<br><span class="it-sub">축성 · <ic>specialist</ic> 1 + <ic>platinum</ic> 2</span></div>
+      <div class="rule-v"><ic>recruit</ic> <b>4</b> 또는 <ic>essence</ic> <b>3</b>을 <b>비축량</b>에 넣는다.
+        <b>게임당 2번</b> 구매 <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Devotion Ritual<br><span class="it-sub">헌신 의식 · <ic>recruit</ic> 8</span></div>
+      <div class="rule-v">이번 단계에 <b>Tapestry를 한 번 더 수리</b>하거나 <b>헌신을 하나 더</b> 얻을 수 있다(신전 판).
+        <b>게임당 4번</b> 구매 <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Mortal Combat<br><span class="it-sub">필사의 전투 · <ic>specialist</ic> 1 + <ic>platinum</ic> 2</span></div>
+      <div class="rule-v"><b>어느 HEXplore It 게임</b>의 보스든 골라 맞선다.
+        이 방법으로 <b>Kualotekutli</b>와도 싸울 수 있다. <b>게임당 4번</b> 구매 <span class="rule-tag">즉시</span></div>
+    </div>`},
+]};
+
+/* 이시단 귀환 — 확장 판에서 옮긴 것. 도시국가가 넷으로 쪼개진 「구역」이 되고,
+   신전을 정복해 신룡의 결계를 여는 것이 이 확장의 축이다. */
+const V5I_TAB = {id:"ishidan5", label:{en:"Ishidan", ko:"이시단"}, entries:[
+  {name:{en:"The Golden City of Hanei",ko:"황금도시 하네이"}, desc:`
+    <div class="rule-grid">
+      <div class="rule-k">들어설 때</div><div class="rule-v">잃은 생명력을 <b>전부</b> <kw>heal</kw>한다</div>
+      <div class="rule-k">구매</div><div class="rule-v">여기 있는 동안 <ref t="items" e="Emporium">Emporium</ref>과
+        <b>이시단 제국</b>의 물품을 살 수 있다</div>
+      <div class="rule-k">구역의 내구도</div><div class="rule-v">각 <b>Sector 구역</b>은 <ic>resilience</ic> <b>40</b>으로 시작한다</div>
+      <div class="rule-k">구역의 성질</div><div class="rule-v"><ic>potential</ic> · <ic>power</ic> · <ic>range</ic>를
+        <b>가지지 않으며</b>, 공성 적에게 <b>피해를 줄 수 없다</b></div>
+      <div class="rule-k">부활</div><div class="rule-v">도시국가에서 <kw>revive</kw>할 수 있다</div>
+      <div class="rule-k">구역 방문</div><div class="rule-v"><b>Event 이벤트 페이즈</b>에 아무 도시국가에 있으면
+        각 영웅이 <b>네 구역 중 하나</b>를 찾아가(파괴되지 않았다면) 그 구역의 <b>두 행동 중 하나</b>를 한다</div>
+    </div>`},
+
+  {name:{en:"Four Sectors",ko:"네 구역"}, desc:`
+    <div class="rule-h">Opulent District 부유한 구역</div>
+    <div class="rule-grid">
+      <div class="rule-k">Steal from the Rich</div><div class="rule-v">자신의 기술을 <b>각각 1회씩</b> 굴린다.
+        성공마다 원하는 <b>Tier II 자원</b> 하나와 <ic>platinum</ic> <b>1</b>을 얻고, <b>원소 주사위</b>를 굴린다.
+        <b>헥스</b>가 나오면 <b>들켰다</b> — 원하는 <b>Tier II 자원 2</b>와
+        <ic>gold</ic> · <ic>gear</ic>로 <b>10</b>어치를 <kw>consume</kw>한다.
+        잃을 것이 모자라면 <b>다음 턴 획득량이 1 줄어든다</b>(최소 1)</div>
+      <div class="rule-k">Bodyguard</div><div class="rule-v">이 행동을 고른 영웅들이 <b>다음 Encounter를 함께</b> 맞선다.
+        쓰러뜨리면 <b>보상이 2배</b>가 되고, 전투에 참여한 영웅이 원하는 <ic>gear</ic>를 하나 얻는다</div>
+    </div>
+    <div class="rule-h">The Docks 항구</div>
+    <div class="rule-grid">
+      <div class="rule-k">Impressive Negotiator</div><div class="rule-v">자신의 <b>가장 낮은 기술</b>로 스탯 굴림을 한다.
+        이번 턴 영웅 하나가 사는 <b>아이템 값</b>이 아래처럼 바뀐다(값은 <b>최소 1</b>까지) —<br>
+        <b>성공</b> <ic>gold</ic> -2 / <ic>platinum</ic> -1 ·
+        <b>대성공</b> <ic>gold</ic> -4 / <ic>platinum</ic> -2 ·
+        <b>실패</b> <ic>gold</ic> +1 / <ic>platinum</ic> +1</div>
+      <div class="rule-k">Safe Passage</div><div class="rule-v"><ic>gold</ic> <b>5</b>로 <b>떠다니는 바지선</b>의 통행권을 산다.
+        모든 영웅이 행동을 마친 뒤, 그룹을 지도의 <b>SkyTile이 아닌</b> 아무 헥스로 <kw>teleport</kw>한다</div>
+    </div>
+    <div class="rule-h">Entertainment District 유흥 구역</div>
+    <div class="rule-grid">
+      <div class="rule-k">Entertain</div><div class="rule-v">기술을 <b>각각</b> 굴려, 성공한 기술마다 보상을 얻는다 —
+        <b>길찾기</b> 원하는 <b>Tier I 자원 2</b> · <b>탐험</b> <ic>gold</ic> <b>4</b> 이하의 <b>아이템</b> ·
+        <b>생존</b> <ic>gold</ic> <b>4</b> 이하의 <ic>gear</ic></div>
+      <div class="rule-k">Seek Entertainment</div><div class="rule-v">아래를 <b>각각 <ic>gold</ic> 6</b>에 산다 —<br>
+        <b>Music &amp; Dance</b> 자기 마스터리 하나의 <b>피해 · 회복 · <kw>boost</kw> 효과를 1</b> <kw>strengthen</kw> ·
+        <b>Gourmet Meal</b> <st>health</st> 또는 <st>energy</st> <b>랭크 1</b> 획득 ·
+        <b>Hand Massage</b> 자신이 주는 <b>Favored Opponent 피해를 2</b> <kw>strengthen</kw></div>
+    </div>
+    <div class="rule-h">The Slums 빈민가</div>
+    <div class="rule-grid">
+      <div class="rule-k">Brawl</div><div class="rule-v">목표를 고른다 — <b>쉬움 8 · 어려움 12 · 에픽 16</b>.
+        <b>헥스 주사위</b>를 굴려 자신의 <st>attack</st> 랭크를 더한다.
+        결과가 목표 <b>이상</b>이면 보상을 얻고, <b>미만</b>이면 원소 주사위를 <b>두 번</b> 굴려
+        그 값만큼 <kw>nonlethal</kw> <st>health</st> 피해를 받는다<br>
+        <span class="ts-roll">보상 — <b>8</b> 생명력 <ic>gear</ic> 1 · <b>12</b> 능력 또는 기술 <ic>gear</ic> 1 ·
+        <b>16</b> <ic>gear</ic> 2</span></div>
+      <div class="rule-k">Patrol</div><div class="rule-v"><b>커미션 덱</b> 맨 위 미공개 카드 <b>1장</b>과
+        <b>조우 덱</b> 맨 위 미공개 <b>5장</b>을 볼 수 있다.
+        그중 <b>2장까지 버리고</b> 남은 카드는 <b>원하는 순서로</b> 그 덱에 되돌린다</div>
+    </div>`},
+
+  {name:{en:"Ishidan Items",ko:"이시단 — 판매 물품"}, desc:`
+    <div class="rule-grid">
+      <div class="rule-k">Aeonflame Tonic <span class="it-star">*</span><br><span class="it-sub">영겁불꽃 강장제 · <b class="g">6</b></span></div>
+      <div class="rule-v"><st>health</st> <b>6</b>을 <kw>heal</kw>하고, <kw>regen</kw> <st>health</st> 3 · <st>energy</st> 3을 얻으며,
+        <b>전투가 끝날 때까지</b> 자신이 주는 <b>각 원소 피해를 4</b> <kw>boost</kw>한다.
+        <b>전투 밖</b>에서는 원하는 <b>생명력 랭크를 1</b> 줄여 이 물약을 공성 적에게 써서
+        <b>공성 피해 3</b>을 줄 수 있다. <span class="rule-tag">1회</span></div>
+
+      <div class="rule-k">Ember Phial <span class="it-star">*</span><br><span class="it-sub">잉걸불 병 · <b class="g">8</b></span></div>
+      <div class="rule-v">이 물약을 마셔 <b>비축량에 있는 원소</b>를 <b>원하는 수만큼</b> 자신에게 Augment한다.
+        <span class="rule-tag">1회</span></div>
+
+      <div class="rule-k">Shikigami<br><span class="it-sub">식신 · <b class="g">12</b></span></div>
+      <div class="rule-v">영웅 하나가 <b>무작위 패밀리어</b>를 뽑아 얻는다. <b>게임당 2개</b>까지. <span class="rule-tag">영구</span></div>
+
+      <div class="rule-k">Sabotage<br><span class="it-sub">사보타주 · <b class="p">1</b></span></div>
+      <div class="rule-v"><ic>recruit</ic> <b>4</b>를 <kw>consume</kw>한다.
+        원하는 <b>정복되지 않은 신전</b>에서 <b>Fortify Token</b>을 하나 없앤다. <span class="rule-tag">즉시</span></div>
+
+      <div class="rule-k">Bribe Official<br><span class="it-sub">관리 매수 · <b class="p">2</b></span></div>
+      <div class="rule-v"><b>Waypoint Token</b>을 무작위로 뽑아 원하는 <b>SkyTile</b> 헥스에 놓는다.
+        <b>게임당 3개</b>까지. <span class="rule-tag">즉시</span></div>
+
+      <div class="rule-k">Oshizara's Weapon<br><span class="it-sub">오시자라의 무기 · <b class="p">3</b></span></div>
+      <div class="rule-v"><ic>living</ic> <b>1</b>을 <kw>consume</kw>하고 아무 헥스나 고른다.
+        <b>원소 주사위</b>를 굴려, 그 헥스의 <ic>range</ic> <b>2</b> 안에 있는 공성 적이
+        <b>5 + 굴림값</b>만큼 공성 피해를 받는다. <b>게임당 4개</b>까지. <span class="rule-tag">즉시</span></div>
+    </div>
+    <div class="it-note"><span class="it-star">*</span> 전투 중 <b>Defend 방어</b> 행동을 쓰는 동안에도 사용할 수 있다.</div>`},
+
+  {name:{en:"Conquering Temples",ko:"신전 정복"}, desc:`
+    <div class="rule-v" style="font-style:italic;color:var(--ink-faint);margin-bottom:6px">텐류의 제자들은 배신과 반역의 길을 걷기로 했다.
+      그들의 행동이 우리 모두를 파멸로 몰았는지도 모른다.</div>
+    <div class="rule-steps">
+      <div class="rule-step"><span class="n">1</span><span class="t"><b>Tower 탑</b>을 <kw>pilot</kw>해
+        신전의 <ic>range</ic> 안까지 끌고 간다</span></div>
+      <div class="rule-step"><span class="n">2</span><span class="t"><b>처음</b> 그 범위 안에서 이동을 끝내면,
+        맞는 공성 덱의 <b>맨 아래 공성 적 카드</b>를 뽑아 공개한다.
+        <ic>power</ic> 값이 없는 카드면 버리고 다시 뽑는다. 그 카드를 덱 옆에 둔다</span></div>
+      <div class="rule-step"><span class="n">3</span><span class="t">그 공성 적이 <b>Temple Guardian 신전 수호자</b>가 된다.
+        <b>조종 중인 탑</b>으로만 피해를 줄 수 있다.
+        그 신전에 붙은 <b>Fortify Token</b>을 뒤집어 보너스를 수호자에게 적용한다</span></div>
+      <div class="rule-step"><span class="n">4</span><span class="t">수호자는 <b>자기를 노린 탑</b>을 매 턴 공격한다
+        (자기 <ic>range</ic>는 무시). 모든 조종 시도가 끝난 뒤에 처리하며,
+        <b>이번 턴 수호자가 쓰러졌더라도</b> 이 공격은 일어난다</span></div>
+      <div class="rule-step"><span class="n">5</span><span class="t">수호자를 쓰러뜨릴 때 <b>탑이 아직 범위 안에 있으면</b>
+        그 신전이 <b>정복</b>되고, 맞는 <b>Divine Dragon Lair 신룡의 소굴</b>의 <b>결계가 열린다</b></span></div>
+    </div>`},
+
+  {name:{en:"Conquered Temples",ko:"정복한 신전"}, desc:`
+    <div class="rule-grid">
+      <div class="rule-k">시작</div><div class="rule-v">게임을 시작할 때는 <b>5번 신전만</b> 정복되어 있다</div>
+      <div class="rule-k">행동 횟수</div><div class="rule-v">정복한 신전에 있는 동안 아래를 <b>몇 개든</b> 할 수 있다</div>
+    </div>
+    <div class="rule-grid">
+      <div class="rule-k">Augment</div><div class="rule-v"><b>원소 1</b>을 <kw>consume</kw>해 영웅이나 아무 방어자를 Augment한다 <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Create Void</div><div class="rule-v">원하는 <b>원소 3</b>을 <kw>consume</kw>해 <ic>void</ic> <b>1</b>을 얻고,
+        무작위 <b>Floating Mountain</b>을 <b>Nether 면</b>으로 뒤집는다 <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Remove Augment</div><div class="rule-v">방어자나 영웅에게서 원하는 Augment <b>1개</b>를 없앤다. 그것은 사라진다 <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Power Device</div><div class="rule-v">원하는 <b>원소 1</b>을 <kw>consume</kw>한다.
+        각 영웅이 원하는 <b>탑</b>을 즉시 <kw>pilot</kw>해 볼 수 있다 <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Decohere</div><div class="rule-v">원하는 <b>기본 원소 1</b>을 <kw>consume</kw>해
+        맞는 공성 덱의 <b>맨 위 공성 적 카드를 버린다</b>. 그 <b>Siege Banner는 그대로</b> 남는다 <span class="rule-tag">즉시</span></div>
+      <div class="rule-k">Nether Infusion</div><div class="rule-v"><ic>void</ic> <b>1</b>을 <kw>consume</kw>한다.
+        원하는 <b>탑</b>이 <kw>soar</kw>와 <ic>power</ic> <b>+1</b>을 얻는다 <span class="rule-tag">즉시</span></div>
+    </div>
+    <div class="rule-h">Fortify 요새화</div>
+    <div class="rule-v">무작위 <b>Fortify Token</b>을 <b>정복되지 않은 신전</b>에 무작위로 배정한 뒤, <b>원소 주사위</b>를 굴려 처리한다.</div>
+    <div class="rule-grid">
+      <div class="rule-k">헥스</div><div class="rule-v"><b>Fortify Token 2개</b>를 배정한다(1개 대신)</div>
+      <div class="rule-k">2</div><div class="rule-v">지도의 <b>공성 적 전부</b>가 <ic>resilience</ic> <b>+1</b></div>
+      <div class="rule-k">3~4</div><div class="rule-v">각 <b>정복된 Siege Slot</b> 맨 아래에 <b>공성 적 1장</b>을 놓고,
+        아직 등장하지 않은 <b>Siege Banner</b>를 굴려 배치한다. 하나도 놓이지 않으면 <b>다시 굴린다</b></div>
+    </div>
+    <div class="rule-h">Rage 분노</div>
+    <div class="rule-v"><b>원소 주사위</b>를 굴려 처리한다.</div>
+    <div class="rule-grid">
+      <div class="rule-k">헥스</div><div class="rule-v">무작위 <b>Floating Mountain</b>에서 <b>Riser를 제거</b>한다
+        (그 위의 <b>탑</b>과 <b>도시국가</b>가 <ic>resilience</ic> <b>-1</b>)</div>
+      <div class="rule-k">2</div><div class="rule-v">그룹이 <b>다음 게임 턴에 야영할 수 없다</b></div>
+      <div class="rule-k">3</div><div class="rule-v"><ic>recruit</ic> <b>3</b>과 <ic>specialist</ic> <b>3</b>을 <kw>consume</kw>한다</div>
+      <div class="rule-k">4</div><div class="rule-v"><b>현재 공성 물결</b>만큼 공성 적을 뽑아,
+        공개된 카드를 건드리지 않고 <b>가장 나중에 나타난 Siege Banner</b>의 덱에 섞어 넣는다</div>
+    </div>`},
+]};
+
 const SERIES = {
   "4": {
     id:"4", name:{en:"Hexplore It — Edition 4", ko:"헥스플로어 잇 — 4편"}, short:"4", ord:1,
@@ -5339,7 +5604,12 @@ const V5_VALOR = {id:"valor5", label:{en:"Valor", ko:"용맹"}, entries:[
                         pick("Harvest Stage"), pick("Siege Stage"), ...common];
   SERIES["5c"].items = SERIES["5i"].items = SERIES["5"].items;
   /* 수확 보조표는 5편 코어와 두 확장이 함께 쓴다 — 용맹과 같은 자리 */
-  SERIES["5"].extras = SERIES["5c"].extras = SERIES["5i"].extras = [V5_HARVEST_TAB, V5_CITY_TAB, V5_TEMPLE_TAB, V5_ELEM_TAB, V5_JAETHI_TAB, V5_VALOR];
+  /* 5편 공용 참조표 — 코어와 두 확장이 함께 쓴다 */
+  const V5_COMMON = [V5_HARVEST_TAB, V5_CITY_TAB, V5_TEMPLE_TAB, V5_ELEM_TAB, V5_JAETHI_TAB, V5_VALOR];
+  SERIES["5"].extras  = V5_COMMON;
+  /* 확장 전용 탭은 그 확장에만 붙인다 — 맨 앞에 놓아 먼저 눈에 들어오게 */
+  SERIES["5c"].extras = [V5C_TAB, ...V5_COMMON];
+  SERIES["5i"].extras = [V5I_TAB, ...V5_COMMON];
   /* 두 확장은 코어의 턴 구조를 그대로 쓰고 내용만 얹는다(차례 진행·수확·공성 규칙이 코어와 같다).
      확장이 턴을 바꾸는 것이 확인되면 4편 균열처럼 따로 떼어낸다. */
   SERIES["5c"].turn = SERIES["5i"].turn = V5_TURNSHEET;
